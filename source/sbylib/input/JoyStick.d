@@ -1,0 +1,68 @@
+module sbylib.input.JoyStick;
+
+import derelict.sdl2.sdl;
+
+import sbylib.input;
+import std.stdio, std.conv;
+
+class JoyStick {
+
+    static this() {
+        DerelictSDL2.load("../dll/SDL2.dll");
+
+        SDL_Init(SDL_INIT_GAMECONTROLLER);
+        SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+
+        auto count = SDL_NumJoysticks();
+        writeln("Joy Stick num = " ~ to!string(count));
+
+        if (count > 0) {
+            Input.joySticks = new JoyStick[count];
+            foreach (i; 0..count) {
+                Input.joySticks[i] = new JoyStick(i);
+            }
+        } else {
+            Input.joySticks ~= new NullJoyStick();
+        }
+    }
+
+    enum Axis{LeftX = 0, LeftY = 1, RightX = 3, RightY = 2}
+    private SDL_Joystick *stick;
+
+    private this(int index) {
+        SDL_JoystickEventState(SDL_ENABLE);
+        stick = SDL_JoystickOpen(index);
+    }
+
+    ~this() {
+        //SDL_JoystickClose(stick);
+    }
+
+    package void update() {
+        SDL_JoystickUpdate();
+    }
+
+    bool getButton(int buttonNum) {
+        return SDL_JoystickGetButton(stick, buttonNum) == 1;
+    }
+
+    float getAxis(Axis axis) {
+        auto result = SDL_JoystickGetAxis(stick, axis);
+        return result / 32768.0;
+    }
+}
+
+class NullJoyStick : JoyStick {
+
+    this() {
+        super(0);
+    }
+
+    override bool getButton(int buttonNum) {
+        return false;
+    }
+
+    override float getAxis(Axis axis) {
+        return 0;
+    }
+}
