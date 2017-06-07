@@ -24,8 +24,4 @@ class FrameBuffer {
     private void unbind(FrameBufferBindType type) {
         glBindFramebuffer(type, this.id);
     }
-
-    void attachTexture(Texture tex, FrameBufferBindType bindType, FrameBufferAttachType attachType) {
-        glFramebufferTexture2D(bindType, attachType, GL_TEXTURE_2D, tex ? tex.texID : 0, 0);
-    }
 }

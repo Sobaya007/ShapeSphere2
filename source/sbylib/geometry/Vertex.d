@@ -2,16 +2,15 @@ module sbylib.geometry.Vertex;
 
 import sbylib.geometry;
 import sbylib.math;
+import sbylib.gl.Attribute;
 
 import std.math, std.algorithm, std.array, std.range;
 
-template GenAttribute(string[] attr) {
-    const types = getTypes(attr);
-    const names = getNames(attr);
-    const char[] GenAttribute = zip(types, names).map!(a => a[0] ~ " " ~ a[1] ~ ";").join("\n");
+template GenAttribute(Attribute[] attr) {
+    const char[] GenAttribute = attr.map!(a => a.getString()).join("\n");
 }
 
-class Vertex(string[] Attributes) {
+class Vertex(Attribute[] Attributes) {
     immutable {
         vec3 position;
     }
@@ -36,24 +35,6 @@ class Vertex(string[] Attributes) {
     }
 }
 
-alias VertexN = Vertex!(["vec3", "normal"]);
-alias VertexT = Vertex!(["vec2", "uv"]);
-alias VertexNT = Vertex!(["vec3", "normal", "vec2", "uv"]);
-
-private static string[] getTypes(string[] attr) {
-    assert(attr.length % 2 == 0);
-    string[] types;
-    foreach (i; 0..attr.length/2) {
-        types ~= attr[i*2];
-    }
-    return types;
-}
-
-private static string[] getNames(string[] attr) {
-    assert(attr.length % 2 == 0);
-    string[] names;
-    foreach (i; 0..attr.length/2) {
-        names ~= attr[i*2+1];
-    }
-    return names;
-}
+alias VertexN = Vertex!([Attribute(3, "normal")]);
+alias VertexT = Vertex!([Attribute(2, "uv")]);
+alias VertexNT = Vertex!([Attribute(3, "normal"), Attribute(2, "uv")]);

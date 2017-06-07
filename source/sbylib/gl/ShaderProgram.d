@@ -25,15 +25,12 @@ class ShaderProgram {
         glUseProgram(id);
     }
 
-    void attribute(int dim, string name) {
-        glVertexAttribPointer(getAttribLocation(name), dim, GL_FLOAT, GL_FALSE, cast(int)(dim * float.sizeof), null);
+    void attachAttribute(Attribute attr, BufferObject buffer) {
+        immutable loc = this.getAttribLocation(attr.name);
+        buffer.asAttribute(loc, attr.dim);
     }
 
-    void enableAttribute(string name) {
-        glEnableVertexAttribArray(getAttribLocation(name));
-    }
-
-    uint getAttribLocation(string name) {
+    private uint getAttribLocation(string name) {
         int vLoc = glGetAttribLocation(this.id, name.toStringz);
         assert(vLoc != -1, name ~ " is not found or used."); 
         return vLoc;
@@ -81,7 +78,7 @@ class ShaderProgram {
 }
 
 class Shader {
-    immutable uint id;
+    private immutable uint id;
 
     this(string sourceCode, ShaderType type) {
         this.id = glCreateShader(type);

@@ -9,12 +9,6 @@ enum Prim {
     Line = GL_LINES
 }
 
-enum GpuSendFrequency {
-    Stream = GL_STREAM_DRAW,
-    Dynamic = GL_DYNAMIC_DRAW,
-    Static = GL_STATIC_DRAW,
-}
-
 enum BlendEquation {
     Add = GL_FUNC_ADD,
     Subtract = GL_FUNC_SUBTRACT,
@@ -117,6 +111,13 @@ enum BufferType {
     TransformFeedback = GL_TRANSFORM_FEEDBACK_BUFFER,
     Uniform = GL_UNIFORM_BUFFER
 }
+
+enum BufferUsage {
+    Stream = GL_STREAM_DRAW,
+    Dynamic = GL_DYNAMIC_DRAW,
+    Static = GL_STATIC_DRAW,
+}
+
 
 enum FrameBufferBindType {
     Read = GL_READ_FRAMEBUFFER,

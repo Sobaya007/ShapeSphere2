@@ -8,7 +8,7 @@ module sbylib.gl;
 
 public:
 import sbylib.gl.config;
-import sbylib.gl.Buffer;
+import sbylib.gl.BufferObject;
 import sbylib.gl.Constants;
 import sbylib.gl.FrameBuffer;
 import sbylib.gl.Functions;
@@ -16,3 +16,4 @@ import sbylib.gl.RenderBuffer;
 import sbylib.gl.ShaderProgram;
 import sbylib.gl.Texture;
 import sbylib.gl.VertexArray;
+import sbylib.gl.Attribute;

@@ -1,6 +1,7 @@
 module sbylib.utils.Functions;
 
 import std.typecons, std.math;
+import std.typetuple;
 
 static import std.string;
 import sbylib.utils;
@@ -390,5 +391,45 @@ template singleton(T ...) {
         static typeof(this) instance;
         if(!instance) instance = new typeof(this)(t);
         return instance;
+    }
+}
+
+template Range(int stop) {
+    static if (stop <= 0)
+        alias TypeTuple!() Range;
+    else
+        alias TypeTuple!(Range!(stop-1), stop-1) Range;
+}
+
+/// ditto
+template Range(int start, int stop) {
+    static if (stop <= start)
+        alias TypeTuple!() Range;
+    else
+        alias TypeTuple!(Range!(start, stop-1), stop-1) Range;
+}
+
+/// ditto
+template Range(int start, int stop, int step) {
+    static assert(step != 0, "Range: step must be != 0");
+
+    static if (step > 0) {
+        static if (stop <= start)
+            alias TypeTuple!() Range;
+        else
+            alias TypeTuple!(Range!(start, stop-step, step), stop-step) Range;
+    } else {
+        static if (stop >= start)
+            alias TypeTuple!() Range;
+        else
+            alias TypeTuple!(Range!(start, stop-step, step), stop-step) Range;
+    }
+} // End Range!(a,b,c)
+
+template Range(T, T[] array) {
+    static if (array.length == 0) {
+        alias Range = TypeTuple!();
+    } else {
+        alias Range = TypeTuple!(array[0], Range!(T, array[1..$]));
     }
 }

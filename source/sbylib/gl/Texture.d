@@ -9,7 +9,7 @@ import sbylib.setting;
 
 class Texture {
 
-    immutable uint texID;
+    private immutable uint texID;
     private int _width, _height;
     ImageType type;
     bool loaded = false;
@@ -163,6 +163,10 @@ class Texture {
 
     void unBind() {
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) {
+        glFramebufferTexture2D(bindType, attachType, GL_TEXTURE_2D, this.texID, 0);
     }
 
 //    void write(void delegate() func) {

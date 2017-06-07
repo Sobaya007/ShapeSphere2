@@ -35,8 +35,8 @@ class Label {
         if(font is null)font = this.font;
         this.str = s;
 //        this.tex = font.renderText(s,size);
-        this.w = this.tex.width;
-        this.h = this.tex.height;
+//        this.w = this.tex.width;
+//        this.h = this.tex.height;
     }
 
     // 左下(0,0)です

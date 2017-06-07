@@ -1,4 +1,4 @@
-module sbylib.gl.Buffer;
+module sbylib.gl.BufferObject;
 
 import derelict.opengl;
 import sbylib.gl.Constants;
@@ -27,23 +27,21 @@ class BufferObject {
         glBindBuffer(this.type, 0);
     }
 
-    void sendData(T)(T[] data, GpuSendFrequency freq) {
+    void sendData(T)(T[] data, BufferUsage freq) {
+        this.bind();
         glBufferData(this.type, data.length * T.sizeof, cast(void*)data, freq);
+        this.unbind();
     }
 
     void sendSubData(T)(T[] data) {
+        this.bind();
         glBufferSubData(this.type, 0, data.length * T.sizeof, cast(void*)data);
+        this.unbind();
     }
-}
 
-class VertexBuffer : BufferObject {
-    this() {
-        super(BufferType.Array);
-    }
-}
-
-class IndexBuffer : BufferObject {
-    this() {
-        super(BufferType.ElementArray);
+    void asAttribute(uint location, uint dim) {
+        this.bind();
+        glVertexAttribPointer(location, dim, GL_FLOAT, GL_FALSE, cast(int)(dim * float.sizeof), null);
+        this.unbind();
     }
 }
