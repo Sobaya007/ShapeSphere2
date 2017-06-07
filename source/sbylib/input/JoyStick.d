@@ -2,28 +2,16 @@ module sbylib.input.JoyStick;
 
 import derelict.sdl2.sdl;
 
-import sbylib.input;
+import sbylib.input, sbylib.setting;
 import std.stdio, std.conv;
 
 class JoyStick {
 
-    static this() {
-        DerelictSDL2.load("../dll/SDL2.dll");
-
+    static void init() {
         SDL_Init(SDL_INIT_GAMECONTROLLER);
         SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-
         auto count = SDL_NumJoysticks();
         writeln("Joy Stick num = " ~ to!string(count));
-
-        if (count > 0) {
-            Input.joySticks = new JoyStick[count];
-            foreach (i; 0..count) {
-                Input.joySticks[i] = new JoyStick(i);
-            }
-        } else {
-            Input.joySticks ~= new NullJoyStick();
-        }
     }
 
     enum Axis{LeftX = 0, LeftY = 1, RightX = 3, RightY = 2}

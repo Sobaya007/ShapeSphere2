@@ -16,8 +16,18 @@ private:
     int[4] _viewport;
     string _title;
     vec2i _pos;
-public:
     GLFWwindow *window;
+
+    extern(C) void errorCallBack(int error, const(char)* description) nothrow {
+        printf("description: %.*s\n", description);
+        assert(false, "GLFW error");
+    }
+public:
+
+    static void init() {
+        glfwSetErrorCallback(&errorCallBack);
+        assert(glfwInit(),"Failed to initialize GLFW");
+    }
     this(string _title, int width, int height) {
         this._title = _title;
         this._width = width;
@@ -110,6 +120,18 @@ public:
         int[4] data;
         glGetIntegerv(GL_VIEWPORT, data.ptr);
         return data[3];
+    }
+
+    bool getKey(int key) {
+        return glfwGetKey(this.window, key) != 0;
+    }
+
+    bool getMouseButton(int button) {
+        return glfwGetMouseButton(this.window, button) == GLFW_PRESS;
+    }
+
+    void pollEvents() {
+        glfwPollEvents();
     }
 
 }

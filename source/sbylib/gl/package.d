@@ -8,12 +8,11 @@ module sbylib.gl;
 
 public:
 import sbylib.gl.config;
+import sbylib.gl.Buffer;
 import sbylib.gl.Constants;
-import sbylib.gl.FrameBufferObject;
+import sbylib.gl.FrameBuffer;
 import sbylib.gl.Functions;
-import sbylib.gl.IndexBufferObject;
-import sbylib.gl.RenderBufferObject;
+import sbylib.gl.RenderBuffer;
 import sbylib.gl.ShaderProgram;
-import sbylib.gl.TextureObject;
-import sbylib.gl.VertexArrayObject;
-import sbylib.gl.VertexBufferObject;
+import sbylib.gl.Texture;
+import sbylib.gl.VertexArray;

@@ -3,6 +3,7 @@ import std.stdio;
 import sbylib;
 
 void main() {
-    SbyWorld.init(16);
-    SbyWorld.mainLoop();
+    auto world = new SbyWorld();
+    world.setFPS(60);
+    world.start();
 }

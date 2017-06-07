@@ -13,7 +13,7 @@ import sbylib;
 
 class Label {
 
-    TextureObject tex;
+    Texture tex;
     Font font;
     float size;
     wstring str;
@@ -34,7 +34,7 @@ class Label {
         if(size<0)size = this.size;
         if(font is null)font = this.font;
         this.str = s;
-        this.tex = font.renderText(s,size);
+//        this.tex = font.renderText(s,size);
         this.w = this.tex.width;
         this.h = this.tex.height;
     }

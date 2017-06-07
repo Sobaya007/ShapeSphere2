@@ -6,7 +6,11 @@ import sbylib.math;
 import sbylib.input;
 import sbylib.core;
 
-enum MouseButton{Button1, Button2, Button3}
+enum MouseButton{
+    Button1 = GLFW_MOUSE_BUTTON_1,
+    Button2 = GLFW_MOUSE_BUTTON_2,
+    Button3 = GLFW_MOUSE_BUTTON_3,
+}
 
 mixin({ //========================================= enum KeyButton　の宣言
     string s = "enum KeyButton{";
@@ -34,39 +38,3 @@ mixin({ //========================================= enum KeyButton　の宣言
             s ~= "}";
             return s;
 }());
-
-class Input {
-
-static:
-
-    JoyStick[] joySticks;
-
-    bool pressed(KeyButton kb) {
-        return glfwGetKey(SbyWorld.currentWindow.window, kb) != 0;
-    }
-
-    bool pressed(MouseButton mb) {
-        final switch (mb) {
-            mixin({
-                string s;
-                foreach (i; 0..3) {
-                    s ~= "case MouseButton.Button" ~ to!string(i+1) ~ ":";
-                    s ~= "return glfwGetMouseButton(SbyWorld.currentWindow.window, GLFW_MOUSE_BUTTON_" ~ to!string(i+1) ~ ") == GLFW_PRESS;";
-                }
-                    return s;
-            }());
-        }
-    }
-
-    vec2 mousePos() {
-        double mousePosX, mousePosY;
-        glfwGetCursorPos(SbyWorld.currentWindow.window, &mousePosX, &mousePosY);
-        return vec2(mousePosX, mousePosY);
-    }
-
-    void pollEvents() {
-        foreach (j; joySticks) j.update();
-        glfwPollEvents();
-    }
-
-}

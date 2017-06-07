@@ -18,11 +18,11 @@ void clearStencil(int stencil) {
     glClearStencil(stencil);
 }
 
-void captureScreen(TextureObject tex, int left, int bottom, int width, int height) {
+void captureScreen(Texture tex, int left, int bottom, int width, int height) {
     tex.bind;
     glCopyTexImage2D(GL_TEXTURE_2D,0, tex.type, left, bottom, width, height, 0);
-    tex.setWrapS(TextureObject.TexWrapType.ClampToEdge);
-    tex.setWrapT(TextureObject.TexWrapType.ClampToEdge);
+    tex.setWrapS(Texture.TexWrapType.ClampToEdge);
+    tex.setWrapT(Texture.TexWrapType.ClampToEdge);
     tex.unBind;
 }
 

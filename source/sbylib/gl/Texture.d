@@ -1,68 +1,20 @@
-module sbylib.gl.TextureObject;
+module sbylib.gl.Texture;
 
 import derelict.opengl;
+import derelict.freeimage.freeimage;
 import std.stdio, std.string, std.conv;
 
 import sbylib.gl;
+import sbylib.setting;
 
-class TextureObject {
-    import derelict.freeimage.freeimage;
+class Texture {
 
     immutable uint texID;
     private int _width, _height;
     ImageType type;
     bool loaded = false;
-    FrameBufferObject writeFbo; // for writeBegin()/writeEnd()
+    FrameBuffer writeFbo; // for writeBegin()/writeEnd()
     string path; //nullの場合もあり
-
-    static this() {
-        DerelictFI.load("../dll/FreeImage.dll");
-    }
-
-    /*
-     @params:
-     filename = 読み込む画像の名前
-   */
-    // filenameを受け取って、幅、高さ、GLtexIDを入手すればおｋ
-    this(string filename){
-        this.path = filename;
-        writeln("Target : " ~ filename);
-        auto type = FreeImage_GetFileType(filename.toStringz,0);
-        if(type == -1){
-            writeln("Error : file not found");
-            writeln();
-            return;
-        }
-        FIBITMAP* origin = FreeImage_Load(type,filename.toStringz);
-        if(!origin){
-            writeln("Error : cannot load file");
-            writeln();
-            return;
-        }
-        FIBITMAP* bitmap = FreeImage_ConvertTo32Bits(origin);
-        _width = FreeImage_GetWidth(bitmap);
-        _height = FreeImage_GetHeight(bitmap);
-        this.type = ImageType.RGBA;
-        writeln("Size (" ~ to!string(_width) ~ "x" ~ to!string(_height) ~ ")");
-        uint textureID;
-        glGenTextures(1,&textureID);
-        texID = textureID;
-        glBindTexture(GL_TEXTURE_2D, textureID);
-
-        setMagFilter(TexFilterType.Linear);
-        setMinFilter(TexFilterType.Linear);
-        setWrapS(TexWrapType.Repeat);
-        setWrapT(TexWrapType.Repeat);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, this.type, _width, _height,
-                0, GL_BGRA, GL_UNSIGNED_BYTE, FreeImage_GetBits(bitmap));
-        FreeImage_Unload(bitmap);
-        FreeImage_Unload(origin);
-        writeln("successfully loaded.");
-        writeln();
-
-        loaded = true;
-    }
 
     /*
      @params:
@@ -213,21 +165,21 @@ class TextureObject {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void write(void delegate() func) {
-        if (writeFbo is null) writeFbo = new FrameBufferObject;
-        //writeFbo.attachTextureAsColor(this);
-        writeFbo.write(width, height, func);
-    }
-
-    void writeBegin() {
-        if (writeFbo is null) writeFbo = new FrameBufferObject;
-        //writeFbo.attachTextureAsDepth(this);
-        writeFbo.writeBegin(width, height);
-    }
-
-    void writeEnd(){
-        writeFbo.writeEnd();
-    }
+//    void write(void delegate() func) {
+//        if (writeFbo is null) writeFbo = new FrameBuffer;
+//        //writeFbo.attachTextureAsColor(this);
+//        writeFbo.write(width, height, func);
+//    }
+//
+//    void writeBegin() {
+//        if (writeFbo is null) writeFbo = new FrameBuffer;
+//        //writeFbo.attachTextureAsDepth(this);
+//        writeFbo.writeBegin(width, height);
+//    }
+//
+//    void writeEnd(){
+//        writeFbo.writeEnd();
+//    }
 
     alias texID this;
 }

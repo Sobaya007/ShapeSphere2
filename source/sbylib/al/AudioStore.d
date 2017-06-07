@@ -7,7 +7,7 @@ module sbylib.al.AudioStore;
 import derelict.openal.al;
 import derelict.alure.alure;
 import std.stdio, std.string;
-
+import sbylib.setting;
 
 // AudioStore クラス
 // オーディオリソースを保持、適宜再生などをします
@@ -52,13 +52,8 @@ class AudioStore {
     // sePlayList[srcID] := srcID のソースのバッファID (再生位置管理のために必要)
     static uint[uint] sePlayList;
 
-    static this(){
-        // ライブラリのロード
-        DerelictAL.load();
-        DerelictALURE.load("./dll/ALURE32.dll");
-        if ( !alureInitDevice(null, null) ) {
-            writeln("Failed to init alure!");
-        }
+    static void init(){
+        assert(alureInitDevice(null, null), "Failed to init alure!");
     }
 
     /** ファイルからバッファへのロード

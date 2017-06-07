@@ -1,7 +1,6 @@
 module sbylib.camera.Camera;
 
-import sbylib.primitive, sbylib.math, sbylib.utils;
-import sbylib.core.World;
+import sbylib.geometry, sbylib.math, sbylib.utils;
 
 /*
    カメラを表す抽象クラスです。
@@ -19,123 +18,127 @@ getProjectionMatrix : 射影変換行列
 getViewProjectionMatrix : 射影変換行列　x　ビュー行列
 getCameraRay : カメラのレイ
  */
-abstract class Camera : Primitive {
 
-protected:
-    bool viewUpdate = true;
-    mat4 viewMatrix;
-    protected bool projUpdate = true;
-    mat4 projMatrix;
-    bool[3] baseUpdate = true;
-    vec3[3] base;
-    bool viewProjUpdate;
-    mat4 viewProjMatrix;
-    float nearZ, farZ;
-
-public:
-
-    this() {
-        Position = vec3(0,0,-1);
-        vecX = vec3(-1,0,0);
-    }
-
-    mixin CreateSetterGetter!(nearZ, "projUpdate = true;", "");
-    mixin CreateSetterGetter!(farZ, "projUpdate = true;", "");
-
-    @property {
-        override vec3 Position(vec3 p) {
-            baseUpdate[0] = baseUpdate[2] = true;
-            viewUpdate = true;
-            viewProjUpdate = true;
-            return super.Position(p);
-        }
-
-        override vec3 Position() { //これがないとCEくらう。D言語はクソ。
-            return super.Position();
-        }
-
-        override quat Orientation(quat q) {
-            assert(false, "面倒なので実装してない");
-        }
-
-        vec3 getVecX() {
-            if (baseUpdate[0]) {
-                baseUpdate[0] = false;
-                base[0] = normalize(base[0]);
-            }
-            return base[0];
-        }
-
-        void vecX(vec3 v) {
-            base[0] = v;
-            baseUpdate[0] = true;
-            viewUpdate = true;
-            viewProjUpdate = true;
-        }
-        vec3 getVecY() {
-            if (baseUpdate[1]) {
-                baseUpdate[1] = false;
-                base[1] = normalize(base[1]);
-            }
-            return base[1];
-        }
-        void vecY(vec3 v) {
-            base[1] = v;
-            baseUpdate[1] = true;
-            viewUpdate = true;
-            viewProjUpdate = true;
-        }
-        vec3 getVecZ() {
-            if (baseUpdate[2]) {
-                baseUpdate[2] = false;
-                base[2] = normalize(base[2]);
-            }
-            return base[2];
-        }
-        void vecZ(vec3 v) {
-            base[2] = v;
-            baseUpdate[2] = true;
-            viewUpdate = true;
-            viewProjUpdate = true;
-        }
-
-        void target(vec3 t) {
-            vecZ(normalize(Position() - t));
-        }
-    }
-
-    mat4 getViewMatrix() {
-        if (viewUpdate) {
-            viewUpdate = false;
-            viewMatrix = mat4.lookAt(Position, getVecZ, getVecY);
-        }
-        return viewMatrix;
-    }
-
-    mat4 getProjectionMatrix() {
-        if (projUpdate) {
-            projUpdate = false;
-            projMatrix = mat4.scale(vec3(cast(float)SbyWorld.currentWindow.viewportHeight / SbyWorld.currentWindow.viewportWidth, 1, 1)) * generateProjectionMatrix();
-        }
-        return projMatrix;
-    }
-
-    mat4 getViewProjectionMatrix() {
-        if (viewProjUpdate) {
-            viewProjUpdate = false;
-            viewProjMatrix = getProjectionMatrix() * getViewMatrix();
-        }
-        return viewProjMatrix;
-    }
-
-    mat4 getBillboardMatrix() {
-        import std.math;
-        auto mat = mat4.lookAt(vec3(0,0,0), getVecZ, getVecY);
-        return mat4.invert(mat);
-    }
-
-    protected abstract mat4 generateProjectionMatrix();
-
-    abstract Ray getCameraRay(vec2 windowPos);
-
+interface Camera {
+    abstract mat4 generateProjectionMatrix();
 }
+//abstract class Camera : Primitive {
+//
+//protected:
+//    bool viewUpdate = true;
+//    mat4 viewMatrix;
+//    protected bool projUpdate = true;
+//    mat4 projMatrix;
+//    bool[3] baseUpdate = true;
+//    vec3[3] base;
+//    bool viewProjUpdate;
+//    mat4 viewProjMatrix;
+//    float nearZ, farZ;
+//
+//public:
+//
+//    this() {
+//        Position = vec3(0,0,-1);
+//        vecX = vec3(-1,0,0);
+//    }
+//
+//    mixin CreateSetterGetter!(nearZ, "projUpdate = true;", "");
+//    mixin CreateSetterGetter!(farZ, "projUpdate = true;", "");
+//
+//    @property {
+//        override vec3 Position(vec3 p) {
+//            baseUpdate[0] = baseUpdate[2] = true;
+//            viewUpdate = true;
+//            viewProjUpdate = true;
+//            return super.Position(p);
+//        }
+//
+//        override vec3 Position() { //これがないとCEくらう。D言語はクソ。
+//            return super.Position();
+//        }
+//
+//        override quat Orientation(quat q) {
+//            assert(false, "面倒なので実装してない");
+//        }
+//
+//        vec3 getVecX() {
+//            if (baseUpdate[0]) {
+//                baseUpdate[0] = false;
+//                base[0] = normalize(base[0]);
+//            }
+//            return base[0];
+//        }
+//
+//        void vecX(vec3 v) {
+//            base[0] = v;
+//            baseUpdate[0] = true;
+//            viewUpdate = true;
+//            viewProjUpdate = true;
+//        }
+//        vec3 getVecY() {
+//            if (baseUpdate[1]) {
+//                baseUpdate[1] = false;
+//                base[1] = normalize(base[1]);
+//            }
+//            return base[1];
+//        }
+//        void vecY(vec3 v) {
+//            base[1] = v;
+//            baseUpdate[1] = true;
+//            viewUpdate = true;
+//            viewProjUpdate = true;
+//        }
+//        vec3 getVecZ() {
+//            if (baseUpdate[2]) {
+//                baseUpdate[2] = false;
+//                base[2] = normalize(base[2]);
+//            }
+//            return base[2];
+//        }
+//        void vecZ(vec3 v) {
+//            base[2] = v;
+//            baseUpdate[2] = true;
+//            viewUpdate = true;
+//            viewProjUpdate = true;
+//        }
+//
+//        void target(vec3 t) {
+//            vecZ(normalize(Position() - t));
+//        }
+//    }
+//
+//    mat4 getViewMatrix() {
+//        if (viewUpdate) {
+//            viewUpdate = false;
+//            viewMatrix = mat4.lookAt(Position, getVecZ, getVecY);
+//        }
+//        return viewMatrix;
+//    }
+//
+//    mat4 getProjectionMatrix() {
+//        if (projUpdate) {
+//            projUpdate = false;
+//            projMatrix = generateProjectionMatrix();
+//        }
+//        return projMatrix;
+//    }
+//
+//    mat4 getViewProjectionMatrix() {
+//        if (viewProjUpdate) {
+//            viewProjUpdate = false;
+//            viewProjMatrix = getProjectionMatrix() * getViewMatrix();
+//        }
+//        return viewProjMatrix;
+//    }
+//
+//    mat4 getBillboardMatrix() {
+//        import std.math;
+//        auto mat = mat4.lookAt(vec3(0,0,0), getVecZ, getVecY);
+//        return mat4.invert(mat);
+//    }
+//
+//    protected abstract mat4 generateProjectionMatrix();
+//
+//    abstract Ray getCameraRay(vec2 windowPos);
+//
+//}

@@ -66,3 +66,73 @@ enum ImageType {
     Depth = GL_DEPTH_COMPONENT24,
     DepthStencil = GL_DEPTH_STENCIL
 };
+
+enum ShaderType {
+    Vertex = GL_VERTEX_SHADER,
+    Fragment = GL_FRAGMENT_SHADER,
+    Geometry = GL_GEOMETRY_SHADER
+}
+
+enum ShaderParamName {
+    ShaderType = GL_SHADER_TYPE,
+    DeleteStatus = GL_DELETE_STATUS,
+    CompileStatus = GL_COMPILE_STATUS,
+    InfoLogLength = GL_INFO_LOG_LENGTH,
+    ShaderSourceLength = GL_SHADER_SOURCE_LENGTH
+}
+
+enum ProgramParamName {
+    DeleteStatus = GL_DELETE_STATUS,
+    LinkStatus = GL_LINK_STATUS,
+    ValidateStatus = GL_VALIDATE_STATUS,
+    InfoLogLength = GL_INFO_LOG_LENGTH,
+    AttachedShaders = GL_ATTACHED_SHADERS,
+    ActiveAtomicCounterBuffers = GL_ACTIVE_ATOMIC_COUNTER_BUFFERS,
+    ActiveAttributes = GL_ACTIVE_ATTRIBUTES,
+    ActiveAttributesMaxLength = GL_ACTIVE_ATTRIBUTE_MAX_LENGTH,
+    ActiveUniforms = GL_ACTIVE_UNIFORMS,
+    ActiveUniformMaxLength = GL_ACTIVE_UNIFORM_MAX_LENGTH,
+    ProgramBinaryLength = GL_PROGRAM_BINARY_LENGTH,
+    ComputeWorkGroupSize = GL_COMPUTE_WORK_GROUP_SIZE,
+    TransformFeedbackBufferMode = GL_TRANSFORM_FEEDBACK_BUFFER_MODE,
+    TransformFeedbackVaryingMaxLength = GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH,
+    GeometryVerticesOut = GL_GEOMETRY_VERTICES_OUT,
+    GeometryInputType = GL_GEOMETRY_INPUT_TYPE,
+    GeometryOutputType = GL_GEOMETRY_OUTPUT_TYPE
+}
+
+enum BufferType {
+    Array = GL_ARRAY_BUFFER,
+    AtomicCounter = GL_ATOMIC_COUNTER_BUFFER,
+    CopyRead = GL_COPY_READ_BUFFER,
+    CopyWrite = GL_COPY_WRITE_BUFFER,
+    DispatchIndirect = GL_DISPATCH_INDIRECT_BUFFER,
+    DrawIndirect = GL_DRAW_INDIRECT_BUFFER,
+    ElementArray = GL_ELEMENT_ARRAY_BUFFER,
+    PixelPack = GL_PIXEL_PACK_BUFFER,
+    PixelUnpack = GL_PIXEL_UNPACK_BUFFER,
+    Query = GL_QUERY_BUFFER,
+    ShaderStorage = GL_SHADER_STORAGE_BUFFER,
+    Texture = GL_TEXTURE_BUFFER,
+    TransformFeedback = GL_TRANSFORM_FEEDBACK_BUFFER,
+    Uniform = GL_UNIFORM_BUFFER
+}
+
+enum FrameBufferBindType {
+    Read = GL_READ_FRAMEBUFFER,
+    Write = GL_DRAW_FRAMEBUFFER,
+    Both = GL_FRAMEBUFFER
+}
+
+enum FrameBufferAttachType {
+    Color0 = GL_COLOR_ATTACHMENT0,
+    Color1 = GL_COLOR_ATTACHMENT1,
+    Color2 = GL_COLOR_ATTACHMENT2,
+    Depth = GL_DEPTH_ATTACHMENT,
+    Stencil = GL_STENCIL_ATTACHMENT,
+    DepthStencil = GL_DEPTH_STENCIL_ATTACHMENT
+}
+
+enum RenderBufferBindType {
+    Both = GL_RENDERBUFFER //リファレンス曰く、これしかない。草。
+}
