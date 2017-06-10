@@ -43,22 +43,24 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         this(v.x,v.y,v.z,w);
     }
 
-    vec3 baseX() {
-        return vec3(1-2*(y*y+z*z),
-                2*(x*y+w*z),
-                2*(x*z-w*y));
-    }
+    inout {
+        vec3 baseX() {
+            return vec3(1-2*(y*y+z*z),
+                    2*(x*y+w*z),
+                    2*(x*z-w*y));
+        }
 
-    vec3 baseY() {
-        return vec3(2*(x*y-z*w),
-                1-2*(x*x+z*z),
-                2*(y*z+w*x));
-    }
+        vec3 baseY() {
+            return vec3(2*(x*y-z*w),
+                    1-2*(x*x+z*z),
+                    2*(y*z+w*x));
+        }
 
-    vec3 baseZ() {
-        return vec3(2*(x*z+w*y),
-                2*(y*z-w*x),
-                1-2*(x*x+y*y));
+        vec3 baseZ() {
+            return vec3(2*(x*z+w*y),
+                    2*(y*z-w*x),
+                    1-2*(x*x+y*y));
+        }
     }
 
     const(mat3) toMatrix3() const {

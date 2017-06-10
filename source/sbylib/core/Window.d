@@ -28,6 +28,7 @@ public:
         glfwSetErrorCallback(&errorCallBack);
         assert(glfwInit(),"Failed to initialize GLFW");
     }
+
     this(string _title, int width, int height) {
         this._title = _title;
         this._width = width;
@@ -40,7 +41,6 @@ public:
         if(!window){
             assert(false, "Failed to create window");
         }
-
         setViewport(0,0, width, height);
         pos = vec2i(100,100);
 

@@ -137,3 +137,16 @@ enum FrameBufferAttachType {
 enum RenderBufferBindType {
     Both = GL_RENDERBUFFER //リファレンス曰く、これしかない。草。
 }
+
+enum GLType {
+    Byte = GL_BYTE,
+    Ubyte = GL_UNSIGNED_BYTE,
+    Short = GL_SHORT,
+    Ushort = GL_UNSIGNED_SHORT,
+    Int = GL_INT,
+    Uint = GL_UNSIGNED_INT,
+    HalfFloat = GL_HALF_FLOAT,
+    Float = GL_FLOAT,
+    Double = GL_DOUBLE,
+    Fixed = GL_FIXED
+}

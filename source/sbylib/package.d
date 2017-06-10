@@ -9,6 +9,8 @@ import sbylib.core;
 import sbylib.input;
 import sbylib.gl;
 import sbylib.math;
+import sbylib.mesh;
+import sbylib.material;
 import sbylib.geometry;
 import sbylib.shadertemplates;
 import sbylib.utils;

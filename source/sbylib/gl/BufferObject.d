@@ -2,46 +2,54 @@ module sbylib.gl.BufferObject;
 
 import derelict.opengl;
 import sbylib.gl.Constants;
+import sbylib.gl.Functions;
 
-class BufferObject {
+interface BufferObject(BufferType Type) {
+    void bind();
+    void unbind();
+}
+
+class BufferObject(BufferType Type, T) : BufferObject!Type {
 
     private immutable uint id;
-    private immutable BufferType type;
 
-    this(BufferType type) {
+    this() {
         uint id;
         glGenBuffers(1, &id);
         this.id = id;
-        this.type = type;
     }
 
     ~this() {
         glDeleteVertexArrays(1, &this.id);
     }
 
-    void bind() {
-        glBindBuffer(this.type, this.id);
+    override void bind() {
+        glBindBuffer(Type, this.id);
     }
 
-    void unbind() {
-        glBindBuffer(this.type, 0);
+    override void unbind() {
+        glBindBuffer(Type, 0);
     }
 
-    void sendData(T)(T[] data, BufferUsage freq) {
+    void sendData(T[] data, BufferUsage freq) {
         this.bind();
-        glBufferData(this.type, data.length * T.sizeof, cast(void*)data, freq);
+        glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
         this.unbind();
     }
 
-    void sendSubData(T)(T[] data) {
+    void sendSubData(T[] data) {
         this.bind();
-        glBufferSubData(this.type, 0, data.length * T.sizeof, cast(void*)data);
+        glBufferSubData(Type, 0, data.length * T.sizeof, cast(void*)data);
         this.unbind();
     }
 
-    void asAttribute(uint location, uint dim) {
+    void asAttribute(uint dim, uint location) {
+        assert(1 <= dim && dim <= 4);
         this.bind();
-        glVertexAttribPointer(location, dim, GL_FLOAT, GL_FALSE, cast(int)(dim * float.sizeof), null);
+        glVertexAttribPointer(location, dim, getTypeEnum!(T), false, cast(int)(dim * float.sizeof), null);
         this.unbind();
     }
 }
+
+alias VertexBuffer = BufferObject!(BufferType.Array, float);
+alias IndexBuffer = BufferObject!(BufferType.ElementArray, uint);

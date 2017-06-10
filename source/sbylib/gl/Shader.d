@@ -1,10 +1,10 @@
-module sbylib.gl.ShaderProgram;
+module sbylib.gl.Shader;
 
 import sbylib.gl;
 import derelict.opengl;
 import std.file, std.stdio, std.string, std.conv, std.range, std.algorithm;
 
-class ShaderProgram {
+immutable class ShaderProgram {
 
     private immutable uint id;
 
@@ -25,9 +25,15 @@ class ShaderProgram {
         glUseProgram(id);
     }
 
-    void attachAttribute(Attribute attr, BufferObject buffer) {
+    void attachAttribute(Attribute attr, VertexBuffer buffer) {
         immutable loc = this.getAttribLocation(attr.name);
         buffer.asAttribute(loc, attr.dim);
+        glEnableVertexAttribArray(loc);
+    }
+
+    void attachUniform(inout Uniform uniform) {
+        immutable loc = this.getUniformLocation(uniform.getName());
+        uniform.apply(loc);
     }
 
     private uint getAttribLocation(string name) {
@@ -36,7 +42,7 @@ class ShaderProgram {
         return vLoc;
     }
 
-    uint getUniformLocation(string name) {
+    private uint getUniformLocation(string name) {
         int uLoc = glGetUniformLocation(this.id, name.toStringz);
         assert(uLoc != -1, name ~ " is not found or used."); 
         return uLoc;

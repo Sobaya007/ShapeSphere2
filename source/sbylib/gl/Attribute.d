@@ -2,7 +2,6 @@ module sbylib.gl.Attribute;
 
 import derelict.opengl;
 import sbylib.gl.BufferObject;
-import sbylib.gl.ShaderProgram;
 import std.conv;
 
 struct Attribute {
@@ -19,9 +18,4 @@ struct Attribute {
     string getString() {
         return "vec" ~ to!string(dim) ~ " " ~ name ~ ";";
     }
-
-    private void enableAttribute(uint loc) {
-        glEnableVertexAttribArray(loc);
-    }
-
 }

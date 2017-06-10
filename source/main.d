@@ -2,13 +2,14 @@ import std.stdio;
 
 import sbylib;
 
+import derelict.opengl;
+
 void main() {
     auto world = new SbyWorld();
-    world.setFPS(60);
-    world.start();
-
     auto vertices = [new VertexN(vec3(0))];
     auto faces = [new Face([0,0,0])];
+    auto mesh = new Mesh();
 
-    new Geometry!([Attribute(3, "normal")], Prim.Triangle)(vertices, faces);
+    world.setFPS(60);
+    world.start();
 }

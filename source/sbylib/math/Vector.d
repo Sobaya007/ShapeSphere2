@@ -29,9 +29,11 @@ bool contains(T)(T value, T[] array... ) {
 
 //T型のS個のベクトル
 struct Vector(T, uint S) if (__traits(isArithmetic, T)) {
-package:
-    T[S] elements;
 public:
+
+    enum dimension = S;
+    enum type = T.stringof;
+    T[S] elements;
     @nogc {
 
         mixin(getConstructorCode(S)); //====================================コンストラクタの宣言

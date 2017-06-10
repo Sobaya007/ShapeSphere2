@@ -6,10 +6,14 @@ import sbylib.material.Material;
 
 class Mesh {
     Object3D obj;
-    IGeometry geom;
+    Geometry geom;
     Material mat;
 
+    this() {
+        this.obj = new Object3D();
+    }
+
     void render() {
-   //     mat.set();
+        this.geom.render(this.mat);
     }
 }

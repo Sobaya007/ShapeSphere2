@@ -20,19 +20,22 @@ import std.traits;
    */
 struct Matrix(T, uint U, uint V) if (__traits(isArithmetic, T) && 1 <= U && U <= 4 && 1 <= V && V <= 4){
 private:
-    T[U*V] arrayForConvert;
+    T[U*V] element;
 public:
-    T[V][U] elements;
+
+    enum dimension1 = U;
+    enum dimension2 = V;
+    enum type = T.stringof;
 
     this(T e) {
-        foreach (ref el; elements) el = e;
+        foreach (ref el; this.element) el = e;
     }
 
     this(T[] elements...) in {
         assert(elements.length <= U*V);
     } body {
         foreach(i, e; elements) {
-            this.elements[i/V][i%V] = e;
+            this[i/V,i%V] = e;
         }
     }
 
@@ -43,7 +46,7 @@ public:
             string result;
             foreach (i; 0..U) {
                 foreach (j; 0..V) {
-                    result ~= "elements[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "] = vectors[" ~ to!string(j) ~ "][" ~ to!string(i) ~ "];";
+                    result ~= "this[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = vectors[" ~ to!string(j) ~ "][" ~ to!string(i) ~ "];";
                 }
             }
             return result;
@@ -137,7 +140,7 @@ public:
             str ~= "Vector!(T,U) func(uint a) {";
             str ~= "Vector!(T,U) result;";
                 foreach (i; 0..U) {
-                    str ~= format("result.elements[%d] = elements[%d][a];", i, i);
+                    str ~= format("result[%d] = this[%d,a];", i, i);
                 }
             str ~= "return result;";
             str ~= "}";
@@ -152,7 +155,7 @@ public:
             str ~= "Vector!(T,V) func(uint a) {";
             str ~= "Vector!(T,V) result;";
                 foreach (i; 0..V) {
-                    str ~= format("result.elements[%d] = elements[a][%d];", i, i);
+                    str ~= format("result[%d] = this[a,%d];", i, i);
                 }
             str ~= "return result;";
             str ~= "}";
@@ -167,7 +170,7 @@ public:
             string code;
             foreach (i; 0..V) {
                 foreach (j; 0..U) {
-                    code ~= "result.elements[" ~ to!string(j) ~ "][" ~ to!string(i)  ~ "] = vectors[" ~ to!string(i) ~ "].elements[" ~ to!string(j) ~ "];";
+                    code ~= "result[" ~ to!string(j) ~ "," ~ to!string(i)  ~ "] = vectors[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "];";
                 }
             }
             return code;
@@ -207,10 +210,10 @@ public:
         }
 
         Quaternion!T toQuaternion() {
-            auto q0 = ( elements[0][0] + elements[1][1] + elements[2][2] + 1.0f) / 4.0f;
-            auto q1 = ( elements[0][0] - elements[1][1] - elements[2][2] + 1.0f) / 4.0f;
-            auto q2 = (-elements[0][0] + elements[1][1] - elements[2][2] + 1.0f) / 4.0f;
-            auto q3 = (-elements[0][0] - elements[1][1] + elements[2][2] + 1.0f) / 4.0f;
+            auto q0 = ( this[0,0] + this[1,1] + this[2,2] + 1.0f) / 4.0f;
+            auto q1 = ( this[0,0] - this[1,1] - this[2,2] + 1.0f) / 4.0f;
+            auto q2 = (-this[0,0] + this[1,1] - this[2,2] + 1.0f) / 4.0f;
+            auto q3 = (-this[0,0] - this[1,1] + this[2,2] + 1.0f) / 4.0f;
             if(q0 < 0.0f) q0 = 0.0f;
             if(q1 < 0.0f) q1 = 0.0f;
             if(q2 < 0.0f) q2 = 0.0f;
@@ -220,21 +223,21 @@ public:
             q2 = sqrt(q2);
             q3 = sqrt(q3);
             if(q0 >= q1 && q0 >= q2 && q0 >= q3) {
-                q1 *= sgn(elements[2][1] - elements[1][2]);
-                q2 *= sgn(elements[0][2] - elements[2][0]);
-                q3 *= sgn(elements[1][0] - elements[0][1]);
+                q1 *= sgn(this[2,1] - this[1,2]);
+                q2 *= sgn(this[0,2] - this[2,0]);
+                q3 *= sgn(this[1,0] - this[0,1]);
             } else if(q1 >= q0 && q1 >= q2 && q1 >= q3) {
-                q0 *= sgn(elements[2][1] - elements[1][2]);
-                q2 *= sgn(elements[1][0] + elements[0][1]);
-                q3 *= sgn(elements[0][2] + elements[2][0]);
+                q0 *= sgn(this[2,1] - this[1,2]);
+                q2 *= sgn(this[1,0] + this[0,1]);
+                q3 *= sgn(this[0,2] + this[2,0]);
             } else if(q2 >= q0 && q2 >= q1 && q2 >= q3) {
-                q0 *= sgn(elements[0][2] - elements[2][0]);
-                q1 *= sgn(elements[1][0] + elements[0][1]);
-                q3 *= sgn(elements[2][1] + elements[1][2]);
+                q0 *= sgn(this[0,2] - this[2,0]);
+                q1 *= sgn(this[1,0] + this[0,1]);
+                q3 *= sgn(this[2,1] + this[1,2]);
             } else if(q3 >= q0 && q3 >= q1 && q3 >= q2) {
-                q0 *= sgn(elements[1][0] - elements[0][1]);
-                q1 *= sgn(elements[2][0] + elements[0][2]);
-                q2 *= sgn(elements[2][1] + elements[1][2]);
+                q0 *= sgn(this[1,0] - this[0,1]);
+                q1 *= sgn(this[2,0] + this[0,2]);
+                q2 *= sgn(this[2,1] + this[1,2]);
             } else {
                 assert(false);
             }
@@ -276,16 +279,16 @@ public:
             mixin({
                 string code;
                 foreach (i; 0..3)
-                    code ~= "result.elements[" ~ to!string(i) ~ "][0] = xvec.elements[" ~ to!string(i) ~ "];";
+                    code ~= "result[" ~ to!string(i) ~ ",0] = xvec[" ~ to!string(i) ~ "];";
                 foreach (i; 0..3)
-                        code ~= "result.elements[" ~ to!string(i) ~ "][1] = yvec.elements[" ~ to!string(i) ~ "];";
+                        code ~= "result[" ~ to!string(i) ~ ",1] = yvec[" ~ to!string(i) ~ "];";
                 foreach (i; 0..3)
-                            code ~= "result.elements[" ~ to!string(i) ~ "][2] = zvec.elements[" ~ to!string(i) ~ "];";
+                            code ~= "result[" ~ to!string(i) ~ ",2] = zvec[" ~ to!string(i) ~ "];";
                                 foreach (i; 0..3)
-                                    code ~= "result.elements[" ~ to!string(i) ~ "][3] = 0;";
+                                    code ~= "result[" ~ to!string(i) ~ ",3] = 0;";
                                         foreach (i; 0..3)
-                                            code ~= "result.elements[3][" ~ to!string(i) ~ "] = 0;";
-                                                code ~= "result.elements[3][3] = 1;";
+                                            code ~= "result[3," ~ to!string(i) ~ "] = 0;";
+                                                code ~= "result[3,3] = 1;";
                                                 return code;
             }());
                 return result;
@@ -310,7 +313,7 @@ public:
             }
 
             Matrix!(T,3,3) toMatrix3() {
-                return Matrix!(T,3,3)(elements[0][0..3]~elements[1][0..3]~elements[2][0..3]);
+                return Matrix!(T,3,3)(element[0..3]~element[4..6]~element[6..9]);
             }
 
             vec3 getScale() {
@@ -318,102 +321,102 @@ public:
             }
 
             vec3 getTranslation() {
-                return vec3(elements[0][3], elements[1][3], elements[2][3]);
+                return vec3(this[0,3], this[1,3], this[2,3]);
             }
 
     }
 
     static Matrix invert(Matrix m) {
         static if (U == 4 && V == 4) {
-            auto e2233_2332 = m.elements[2][2] * m.elements[3][3] - m.elements[2][3] * m.elements[3][2];
-            auto e2133_2331 = m.elements[2][1] * m.elements[3][3] - m.elements[2][3] * m.elements[3][1];
-            auto e2132_2231 = m.elements[2][1] * m.elements[3][2] - m.elements[2][2] * m.elements[3][1];
-            auto e1233_1332 = m.elements[1][2] * m.elements[3][3] - m.elements[1][3] * m.elements[3][2];
-            auto e1133_1331 = m.elements[1][1] * m.elements[3][3] - m.elements[1][3] * m.elements[3][1];
-            auto e1132_1231 = m.elements[1][1] * m.elements[3][2] - m.elements[1][2] * m.elements[3][1];
-            auto e1322_1223 = m.elements[1][3] * m.elements[2][2] - m.elements[1][2] * m.elements[2][3];
-            auto e1123_1321 = m.elements[1][1] * m.elements[2][3] - m.elements[1][3] * m.elements[2][1];
-            auto e1122_1221 = m.elements[1][1] * m.elements[2][2] - m.elements[1][2] * m.elements[2][1];
-            auto e2033_2330 = m.elements[2][0] * m.elements[3][3] - m.elements[2][3] * m.elements[3][0];
-            auto e2032_2230 = m.elements[2][0] * m.elements[3][2] - m.elements[2][2] * m.elements[3][0];
-            auto e1033_1330 = m.elements[1][0] * m.elements[3][3] - m.elements[1][3] * m.elements[3][0];
-            auto e1032_1230 = m.elements[1][0] * m.elements[3][2] - m.elements[1][2] * m.elements[3][0];
-            auto e1023_1320 = m.elements[1][0] * m.elements[2][3] - m.elements[1][3] * m.elements[2][0];
-            auto e1022_1220 = m.elements[1][0] * m.elements[2][2] - m.elements[1][2] * m.elements[2][0];
-            auto e2031_2130 = m.elements[2][0] * m.elements[3][1] - m.elements[2][1] * m.elements[3][0];
-            auto e1031_1130 = m.elements[1][0] * m.elements[3][1] - m.elements[1][1] * m.elements[3][0];
-            auto e1021_1120 = m.elements[1][0] * m.elements[2][1] - m.elements[1][1] * m.elements[2][0];
+            auto e2233_2332 = m[2,2] * m[3,3] - m[2,3] * m[3,2];
+            auto e2133_2331 = m[2,1] * m[3,3] - m[2,3] * m[3,1];
+            auto e2132_2231 = m[2,1] * m[3,2] - m[2,2] * m[3,1];
+            auto e1233_1332 = m[1,2] * m[3,3] - m[1,3] * m[3,2];
+            auto e1133_1331 = m[1,1] * m[3,3] - m[1,3] * m[3,1];
+            auto e1132_1231 = m[1,1] * m[3,2] - m[1,2] * m[3,1];
+            auto e1322_1223 = m[1,3] * m[2,2] - m[1,2] * m[2,3];
+            auto e1123_1321 = m[1,1] * m[2,3] - m[1,3] * m[2,1];
+            auto e1122_1221 = m[1,1] * m[2,2] - m[1,2] * m[2,1];
+            auto e2033_2330 = m[2,0] * m[3,3] - m[2,3] * m[3,0];
+            auto e2032_2230 = m[2,0] * m[3,2] - m[2,2] * m[3,0];
+            auto e1033_1330 = m[1,0] * m[3,3] - m[1,3] * m[3,0];
+            auto e1032_1230 = m[1,0] * m[3,2] - m[1,2] * m[3,0];
+            auto e1023_1320 = m[1,0] * m[2,3] - m[1,3] * m[2,0];
+            auto e1022_1220 = m[1,0] * m[2,2] - m[1,2] * m[2,0];
+            auto e2031_2130 = m[2,0] * m[3,1] - m[2,1] * m[3,0];
+            auto e1031_1130 = m[1,0] * m[3,1] - m[1,1] * m[3,0];
+            auto e1021_1120 = m[1,0] * m[2,1] - m[1,1] * m[2,0];
             auto det =
-                m.elements[0][0] * (m.elements[1][1] * e2233_2332 - m.elements[1][2] * e2133_2331 + m.elements[1][3] * e2132_2231) -
-                m.elements[0][1] * (m.elements[1][0] * e2233_2332 - m.elements[1][2] * e2033_2330 + m.elements[1][3] * e2032_2230) +
-                m.elements[0][2] * (m.elements[1][0] * e2133_2331 - m.elements[1][1] * e2033_2330 + m.elements[1][3] * e2031_2130) -
-                m.elements[0][3] * (m.elements[1][0] * e2132_2231 - m.elements[1][1] * e2032_2230 + m.elements[1][2] * e2031_2130)
+                m[0,0] * (m[1,1] * e2233_2332 - m[1,2] * e2133_2331 + m[1,3] * e2132_2231) -
+                m[0,1] * (m[1,0] * e2233_2332 - m[1,2] * e2033_2330 + m[1,3] * e2032_2230) +
+                m[0,2] * (m[1,0] * e2133_2331 - m[1,1] * e2033_2330 + m[1,3] * e2031_2130) -
+                m[0,3] * (m[1,0] * e2132_2231 - m[1,1] * e2032_2230 + m[1,2] * e2031_2130)
             ;
             if (det != 0) det = 1 / det;
-            auto t00 =  m.elements[1][1] * e2233_2332 - m.elements[1][2] * e2133_2331 + m.elements[1][3] * e2132_2231;
-            auto t01 = -m.elements[0][1] * e2233_2332 + m.elements[0][2] * e2133_2331 - m.elements[0][3] * e2132_2231;
-            auto t02 =  m.elements[0][1] * e1233_1332 - m.elements[0][2] * e1133_1331 + m.elements[0][3] * e1132_1231;
-            auto t03 =  m.elements[0][1] * e1322_1223 + m.elements[0][2] * e1123_1321 - m.elements[0][3] * e1122_1221;
-            auto t10 = -m.elements[1][0] * e2233_2332 + m.elements[1][2] * e2033_2330 - m.elements[1][3] * e2032_2230;
-            auto t11 =  m.elements[0][0] * e2233_2332 - m.elements[0][2] * e2033_2330 + m.elements[0][3] * e2032_2230;
-            auto t12 = -m.elements[0][0] * e1233_1332 + m.elements[0][2] * e1033_1330 - m.elements[0][3] * e1032_1230;
-            auto t13 = -m.elements[0][0] * e1322_1223 - m.elements[0][2] * e1023_1320 + m.elements[0][3] * e1022_1220;
-            auto t20 =  m.elements[1][0] * e2133_2331 - m.elements[1][1] * e2033_2330 + m.elements[1][3] * e2031_2130;
-            auto t21 = -m.elements[0][0] * e2133_2331 + m.elements[0][1] * e2033_2330 - m.elements[0][3] * e2031_2130;
-            auto t22 =  m.elements[0][0] * e1133_1331 - m.elements[0][1] * e1033_1330 + m.elements[0][3] * e1031_1130;
-            auto t23 = -m.elements[0][0] * e1123_1321 + m.elements[0][1] * e1023_1320 - m.elements[0][3] * e1021_1120;
-            auto t30 = -m.elements[1][0] * e2132_2231 + m.elements[1][1] * e2032_2230 - m.elements[1][2] * e2031_2130;
-            auto t31 =  m.elements[0][0] * e2132_2231 - m.elements[0][1] * e2032_2230 + m.elements[0][2] * e2031_2130;
-            auto t32 = -m.elements[0][0] * e1132_1231 + m.elements[0][1] * e1032_1230 - m.elements[0][2] * e1031_1130;
-            auto t33 =  m.elements[0][0] * e1122_1221 - m.elements[0][1] * e1022_1220 + m.elements[0][2] * e1021_1120;
+            auto t00 =  m[1,1] * e2233_2332 - m[1,2] * e2133_2331 + m[1,3] * e2132_2231;
+            auto t01 = -m[0,1] * e2233_2332 + m[0,2] * e2133_2331 - m[0,3] * e2132_2231;
+            auto t02 =  m[0,1] * e1233_1332 - m[0,2] * e1133_1331 + m[0,3] * e1132_1231;
+            auto t03 =  m[0,1] * e1322_1223 + m[0,2] * e1123_1321 - m[0,3] * e1122_1221;
+            auto t10 = -m[1,0] * e2233_2332 + m[1,2] * e2033_2330 - m[1,3] * e2032_2230;
+            auto t11 =  m[0,0] * e2233_2332 - m[0,2] * e2033_2330 + m[0,3] * e2032_2230;
+            auto t12 = -m[0,0] * e1233_1332 + m[0,2] * e1033_1330 - m[0,3] * e1032_1230;
+            auto t13 = -m[0,0] * e1322_1223 - m[0,2] * e1023_1320 + m[0,3] * e1022_1220;
+            auto t20 =  m[1,0] * e2133_2331 - m[1,1] * e2033_2330 + m[1,3] * e2031_2130;
+            auto t21 = -m[0,0] * e2133_2331 + m[0,1] * e2033_2330 - m[0,3] * e2031_2130;
+            auto t22 =  m[0,0] * e1133_1331 - m[0,1] * e1033_1330 + m[0,3] * e1031_1130;
+            auto t23 = -m[0,0] * e1123_1321 + m[0,1] * e1023_1320 - m[0,3] * e1021_1120;
+            auto t30 = -m[1,0] * e2132_2231 + m[1,1] * e2032_2230 - m[1,2] * e2031_2130;
+            auto t31 =  m[0,0] * e2132_2231 - m[0,1] * e2032_2230 + m[0,2] * e2031_2130;
+            auto t32 = -m[0,0] * e1132_1231 + m[0,1] * e1032_1230 - m[0,2] * e1031_1130;
+            auto t33 =  m[0,0] * e1122_1221 - m[0,1] * e1022_1220 + m[0,2] * e1021_1120;
             Matrix r;
-            r.elements[0][0] =  det * t00;
-            r.elements[0][1] =  det * t01;
-            r.elements[0][2] =  det * t02;
-            r.elements[0][3] =  det * t03;
-            r.elements[1][0] =  det * t10;
-            r.elements[1][1] =  det * t11;
-            r.elements[1][2] =  det * t12;
-            r.elements[1][3] =  det * t13;
-            r.elements[2][0] =  det * t20;
-            r.elements[2][1] =  det * t21;
-            r.elements[2][2] =  det * t22;
-            r.elements[2][3] =  det * t23;
-            r.elements[3][0] =  det * t30;
-            r.elements[3][1] =  det * t31;
-            r.elements[3][2] =  det * t32;
-            r.elements[3][3] =  det * t33;
+            r[0,0] =  det * t00;
+            r[0,1] =  det * t01;
+            r[0,2] =  det * t02;
+            r[0,3] =  det * t03;
+            r[1,0] =  det * t10;
+            r[1,1] =  det * t11;
+            r[1,2] =  det * t12;
+            r[1,3] =  det * t13;
+            r[2,0] =  det * t20;
+            r[2,1] =  det * t21;
+            r[2,2] =  det * t22;
+            r[2,3] =  det * t23;
+            r[3,0] =  det * t30;
+            r[3,1] =  det * t31;
+            r[3,2] =  det * t32;
+            r[3,3] =  det * t33;
             return r;
         }
         static if (U == 3 && V == 3) {
             auto det =
-                 + m.elements[0][0]*m.elements[1][1]*m.elements[2][2]
-+ m.elements[0][1]*m.elements[1][2]*m.elements[2][0]
-             + m.elements[0][2]*m.elements[1][0]*m.elements[2][1]
-             - m.elements[0][0]*m.elements[1][2]*m.elements[2][1]
-             - m.elements[0][1]*m.elements[1][0]*m.elements[2][2]
-- m.elements[0][2]*m.elements[1][1]*m.elements[2][0];
+                 + m[0,0]*m[1,1]*m[2,2]
++ m[0,1]*m[1,2]*m[2,0]
+             + m[0,2]*m[1,0]*m[2,1]
+             - m[0,0]*m[1,2]*m[2,1]
+             - m[0,1]*m[1,0]*m[2,2]
+- m[0,2]*m[1,1]*m[2,0];
             if (det != 0) det = 1 / det;
             Matrix r;
-            r.elements[0][0] = (m.elements[1][1]*m.elements[2][2] - m.elements[1][2]*m.elements[2][1]) * det;
-            r.elements[0][1] = (m.elements[0][2]*m.elements[2][1] - m.elements[0][1]*m.elements[2][2]) * det;
-            r.elements[0][2] = (m.elements[0][1]*m.elements[1][2] - m.elements[0][2]*m.elements[1][1]) * det;
-            r.elements[1][0] = (m.elements[1][2]*m.elements[2][0] - m.elements[1][0]*m.elements[2][2]) * det;
-            r.elements[1][1] = (m.elements[0][0]*m.elements[2][2] - m.elements[0][2]*m.elements[2][0]) * det;
-            r.elements[1][2] = (m.elements[0][2]*m.elements[1][0] - m.elements[0][0]*m.elements[1][2]) * det;
-            r.elements[2][0] = (m.elements[1][0]*m.elements[2][1] - m.elements[1][1]*m.elements[2][0]) * det;
-            r.elements[2][1] = (m.elements[0][1]*m.elements[2][0] - m.elements[0][0]*m.elements[2][1]) * det;
-            r.elements[2][2] = (m.elements[0][0]*m.elements[1][1] - m.elements[0][1]*m.elements[1][0]) * det;
+            r[0,0] = (m[1,1]*m[2,2] - m[1,2]*m[2,1]) * det;
+            r[0,1] = (m[0,2]*m[2,1] - m[0,1]*m[2,2]) * det;
+            r[0,2] = (m[0,1]*m[1,2] - m[0,2]*m[1,1]) * det;
+            r[1,0] = (m[1,2]*m[2,0] - m[1,0]*m[2,2]) * det;
+            r[1,1] = (m[0,0]*m[2,2] - m[0,2]*m[2,0]) * det;
+            r[1,2] = (m[0,2]*m[1,0] - m[0,0]*m[1,2]) * det;
+            r[2,0] = (m[1,0]*m[2,1] - m[1,1]*m[2,0]) * det;
+            r[2,1] = (m[0,1]*m[2,0] - m[0,0]*m[2,1]) * det;
+            r[2,2] = (m[0,0]*m[1,1] - m[0,1]*m[1,0]) * det;
             return r;
         }
         static if (U == 2 && V == 2) {
-            auto det = m.elements[0][0]*m.elements[1][1] - m.elements[0][1]*m.elements[1][0];
+            auto det = m[0,0]*m[1,1] - m[0,1]*m[1,0];
             if (det != 0) det = 1 / det;
             Matrix r;
-            r.elements[0][0] = +m.elements[1][1] * det;
-            r.elements[0][1] = -m.elements[0][1] * det;
-            r.elements[1][0] = -m.elements[1][0] * det;
-            r.elements[1][1] = +m.elements[0][0] * det;
+            r[0,0] = +m[1,1] * det;
+            r[0,1] = -m[0,1] * det;
+            r[1,0] = -m[1,0] * det;
+            r[1,1] = +m[0,0] * det;
             return r;
         }
         assert(false);
@@ -562,8 +565,8 @@ public:
             string result = "Matrix!(T,V,U) r;";
             foreach (i;0..V) {
                 foreach (j;0..U) {
-                    result ~= "r.elements[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "] = ";
-                        result ~= "m.elements[" ~ to!string(j) ~ "][" ~ to!string(i) ~ "];";
+                    result ~= "r[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
+                        result ~= "m[" ~ to!string(j) ~ "," ~ to!string(i) ~ "];";
                 }
             }
             result ~= "return r;";
@@ -571,17 +574,24 @@ public:
         }());
     }
 
-    string toString(T epsilon = 0) {
+    string toString(T epsilon = 0) inout {
         mixin(getStringCode(U, V));
     }
 
-    ref T opIndex(int x, int y) {
-        return elements[x][y];
+    T opIndex(size_t x, size_t y) inout {
+        return element[y*V+x];
     }
 
-    T[] array() {
-        mixin(getConvertCode(U, V));
-        return arrayForConvert;
+    T opIndexAssign(T value, size_t x, size_t y) {
+        return element[y*V+x] = value;
+    }
+
+    T opIndexOpAssign(string op)(T value, size_t x, size_t y) {
+        mixin("return element[y*V+x] " ~ op ~ "= value;");
+    }
+
+    T[U*V] array() inout {
+        return element;
     }
 }
 
@@ -599,9 +609,9 @@ private static string multMMCode(uint U, uint V, uint P, uint Q) {
     string code = "";
     foreach (y;0..U) {
         foreach (x; 0..Q) {
-            code ~= "result.elements[" ~ to!string(y) ~ "][" ~ to!string(x) ~ "] = ";
+            code ~= "result[" ~ to!string(y) ~ "," ~ to!string(x) ~ "] = ";
             foreach (i; 0..V) {
-                code ~= "+ elements[" ~ to!string(y) ~ "][" ~ to!string(i) ~ "] * m.elements[" ~ to!string(i) ~ "][" ~ to!string(x) ~ "]";
+                code ~= "+ this[" ~ to!string(y) ~ "," ~ to!string(i) ~ "] * m[" ~ to!string(i) ~ "," ~ to!string(x) ~ "]";
             }
             code ~= ";";
         }
@@ -612,9 +622,9 @@ private static string multMMCode(uint U, uint V, uint P, uint Q) {
 private static string multMVCode(uint U, uint V) {
     string code;
     foreach (i; 0..U) {
-        code ~= "result.elements[" ~ to!string(i) ~ "] = ";
+        code ~= "result[" ~ to!string(i) ~ "] = ";
         foreach (j; 0..V) {
-            code ~= "+ elements[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "] * v[" ~ to!string(j) ~ "]";
+            code ~= "+ this[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] * v[" ~ to!string(j) ~ "]";
         }
         code ~= ";";
     }
@@ -624,9 +634,9 @@ private static string multMVCode(uint U, uint V) {
 private static string multMVAssignCode(uint U, uint V) {
     string code;
     foreach (i; 0..U) {
-        code ~= "this.elements[" ~ to!string(i) ~ "] = ";
+        code ~= "this[" ~ to!string(i) ~ "] = ";
         foreach (j; 0..V) {
-            code ~= "+ elements[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "] * v[" ~ to!string(j) ~ "]";
+            code ~= "+ this[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] * v[" ~ to!string(j) ~ "]";
         }
         code ~= ";";
     }
@@ -637,7 +647,7 @@ private static string getidentityCode(uint U, uint V) {
     string code;
     foreach (i; 0..U) {
         foreach (j; 0..V) {
-            code ~= "result.elements[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "] = ";
+            code ~= "result[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
             if (i == j) code ~= "1;";
             else code ~= "0;";
         }
@@ -649,7 +659,7 @@ private static string getTranslationCode(uint U, uint V) {
     string code;
     foreach (i; 0..V) {
         foreach (j; 0..U) {
-            code ~= "result.elements[" ~ to!string(j) ~ "][" ~ to!string(i) ~ "] = ";
+            code ~= "result[" ~ to!string(j) ~ "," ~ to!string(i) ~ "] = ";
             if (i == j) code ~= "1;";
             else if (i == V-1) code ~= "vec[" ~ to!string(j) ~ "];";
             else code ~= "0;";
@@ -662,7 +672,7 @@ private static string getScaleCode(uint U, uint V) {
     string code;
     foreach (i; 0..U) {
         foreach (j; 0..V) {
-            code ~= "result.elements[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "] = ";
+            code ~= "result[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
             if (U == 4 && V == 4 && i == 3 && j == 3) code ~= "1;";
             else if (i == j) code ~= "vec[" ~ to!string(i) ~ "];";
             else code ~= "0;";
@@ -675,7 +685,7 @@ private static string getRotAxisCode(uint U) {
     string code;
     foreach (i; 0..U) {
         foreach (j; 0..U) {
-            code ~= "result.elements[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "] = ";
+            code ~= "result[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
             if (i == 3 && j == 3)
                 code ~= "1;";
             else if (i == 3 || j == 3)
@@ -694,7 +704,7 @@ private static string getRotAxisCode(uint U) {
 private static string getOpBinaryMMCode(string op, uint U) {
     string code;
     foreach (i; 0..U) {
-        code ~= "result.elements[" ~ to!string(i) ~ "][] = elements[" ~ to!string(i) ~ "][]" ~ op ~ "m.elements[" ~ to!string(i) ~ "][];";
+        code ~= "result[" ~ to!string(i) ~ ",] = this[" ~ to!string(i) ~ ",]" ~ op ~ "m[" ~ to!string(i) ~ ",];";
     }
     return code;
 }
@@ -702,7 +712,7 @@ private static string getOpBinaryMMCode(string op, uint U) {
 private static string getOpBinaryMSCode(string op, uint U) {
     string code;
     foreach (i; 0..U) {
-        code ~= "result.elements[" ~ to!string(i) ~ "][] = elements[" ~ to!string(i) ~ "][]" ~ op ~ "s;";
+        code ~= "result[" ~ to!string(i) ~ ",] = this[" ~ to!string(i) ~ ",]" ~ op ~ "s;";
     }
     return code;
 }
@@ -710,7 +720,7 @@ private static string getOpBinaryMSCode(string op, uint U) {
 private static string getOpAssignMSCode(string op, uint U) {
     string code;
     foreach (i; 0..U) {
-        code ~= "this.elements[" ~ to!string(i) ~ "][] " ~ op ~ "= s;";
+        code ~= "this[" ~ to!string(i) ~ ",] " ~ op ~ "= s;";
     }
     return code;
 }
@@ -718,7 +728,7 @@ private static string getOpAssignMSCode(string op, uint U) {
 private static string getOpAssignMMCode(string op, uint U) {
     string code;
     foreach (i; 0..U) {
-        code ~= "this.elements[" ~ to!string(i) ~ "][] " ~ op ~ "= m.elements[" ~ to!string(i) ~ "][];";
+        code ~= "this[" ~ to!string(i) ~ ",] " ~ op ~ "= m[" ~ to!string(i) ~ ",];";
     }
     return code;
 }
@@ -728,106 +738,106 @@ private static string getLookAtCode() {
     code ~= "Vector!(T,3) side;";
     //sideを外積で生成
     foreach (i; 0..3) {
-        code ~= "side.elements[" ~ to!string(i) ~ "] = up.elements[" ~ to!string((i+1)%3) ~ "] * vec.elements[" ~
-            to!string((i+2)%3) ~ "] - up.elements[" ~
-            to!string((i+2)%3) ~ "] * vec.elements[" ~ to!string((i+1)%3) ~ "];";
+        code ~= "side[" ~ to!string(i) ~ "] = up[" ~ to!string((i+1)%3) ~ "] * vec[" ~
+            to!string((i+2)%3) ~ "] - up[" ~
+            to!string((i+2)%3) ~ "] * vec[" ~ to!string((i+1)%3) ~ "];";
     }
     //sideを正規化
     code ~= "T length = sqrt(";
     foreach (i; 0..3) {
-        code ~="+side.elements[" ~ to!string(i) ~ "] * side.elements[" ~ to!string(i) ~ "]";
+        code ~="+side[" ~ to!string(i) ~ "] * side[" ~ to!string(i) ~ "]";
     }
     code ~= ");";
     foreach (i; 0..3) {
-        code ~= "side.elements[" ~ to!string(i) ~ "] /= length;";
+        code ~= "side[" ~ to!string(i) ~ "] /= length;";
     }
     //upを再計算
     foreach (i; 0..3) {
-        code ~= "up.elements[" ~ to!string(i) ~ "] = vec.elements[" ~ to!string((i+1)%3) ~ "] * side.elements[" ~
-            to!string((i+2)%3) ~ "] - vec.elements[" ~
-            to!string((i+2)%3) ~ "] * side.elements[" ~ to!string((i+1)%3) ~ "];";
+        code ~= "up[" ~ to!string(i) ~ "] = vec[" ~ to!string((i+1)%3) ~ "] * side[" ~
+            to!string((i+2)%3) ~ "] - vec[" ~
+            to!string((i+2)%3) ~ "] * side[" ~ to!string((i+1)%3) ~ "];";
     }
     //upを正規化
     code ~= "length = sqrt(";
     foreach (i; 0..3) {
-        code ~="+up.elements[" ~ to!string(i) ~ "] * up.elements[" ~ to!string(i) ~ "]";
+        code ~="+up[" ~ to!string(i) ~ "] * up[" ~ to!string(i) ~ "]";
     }
     code ~= ");";
     foreach (i; 0..3) {
-        code ~= "up.elements[" ~ to!string(i) ~ "] /= length;";
+        code ~= "up[" ~ to!string(i) ~ "] /= length;";
     }
 
     //行列
     foreach (i; 0..3) {
-        code ~= "result.elements[0][" ~ to!string(i) ~
-            "] = side.elements[" ~ to!string(i) ~ "];";
+        code ~= "result[0," ~ to!string(i) ~
+            "] = side[" ~ to!string(i) ~ "];";
     }
 
     foreach (i; 0..3) {
-        code ~= "result.elements[1][" ~ to!string(i) ~
-            "] = up.elements[" ~ to!string(i) ~ "];";
+        code ~= "result[1," ~ to!string(i) ~
+            "] = up[" ~ to!string(i) ~ "];";
     }
     foreach (i; 0..3) {
-        code ~= "result.elements[2][" ~ to!string(i) ~
-            "] = -vec.elements[" ~ to!string(i) ~ "];";
+        code ~= "result[2," ~ to!string(i) ~
+            "] = -vec[" ~ to!string(i) ~ "];";
     }
     foreach (i; 0..3) {
-        code ~= "result.elements[" ~ to!string(i) ~
-            "][3] = ";
+        code ~= "result[" ~ to!string(i) ~
+            ",3] = ";
         foreach (j; 0..3) {
-            code ~= "-eye.elements[" ~ to!string(j) ~ "] * result.elements[" ~ to!string(i)
-             ~ "][" ~ to!string(j) ~ "]";
+            code ~= "-eye[" ~ to!string(j) ~ "] * result[" ~ to!string(i)
+             ~ "," ~ to!string(j) ~ "]";
         }
         code ~= ";";
     }
     foreach (i; 0..3) {
-        code ~= "result.elements[3][" ~ to!string(i) ~ "] = 0;";
+        code ~= "result[3," ~ to!string(i) ~ "] = 0;";
     }
-    code ~= "result.elements[3][3] = 1;";
+    code ~= "result[3,3] = 1;";
     return code;
 }
 
 private static string getOrthoCode() {
     string code;
     foreach (i; 0..4) {
-        if (i != 0) code ~= "result.elements[0][" ~ to!string(i) ~ "] = 0;";
+        if (i != 0) code ~= "result[0," ~ to!string(i) ~ "] = 0;";
     }
     foreach (i; 0..4) {
-        if (i != 1) code ~= "result.elements[1][" ~ to!string(i) ~ "] = 0;";
+        if (i != 1) code ~= "result[1," ~ to!string(i) ~ "] = 0;";
     }
     foreach (i; 0..4) {
-        if (i < 2) code ~= "result.elements[2][" ~ to!string(i) ~ "] = 0;";
+        if (i < 2) code ~= "result[2," ~ to!string(i) ~ "] = 0;";
     }
     foreach (i; 0..3) {
-        code ~= "result.elements[3][" ~ to!string(i) ~ "] = 0;";
+        code ~= "result[3," ~ to!string(i) ~ "] = 0;";
     }
-    code ~= "result.elements[0][0] = 2 / width;";
-    code ~= "result.elements[1][1] = 2 / height;";
-    code ~= "result.elements[2][2] = 1 / (farZ - nearZ);";
-    code ~= "result.elements[2][3] = nearZ / (nearZ - farZ);";
-    code ~= "result.elements[3][3] = 1;";
+    code ~= "result[0,0] = 2 / width;";
+    code ~= "result[1,1] = 2 / height;";
+    code ~= "result[2,2] = 1 / (farZ - nearZ);";
+    code ~= "result[2,3] = nearZ / (nearZ - farZ);";
+    code ~= "result[3,3] = 1;";
     return code;
 }
 
 private static string getPerspectiveCode() {
     string code;
     foreach (i; 0..4) {
-        if (i != 0) code ~= "result.elements[0][" ~ to!string(i) ~ "] = 0;";
+        if (i != 0) code ~= "result[0," ~ to!string(i) ~ "] = 0;";
     }
     foreach (i; 0..4) {
-        if (i != 1) code ~= "result.elements[1][" ~ to!string(i) ~ "] = 0;";
+        if (i != 1) code ~= "result[1," ~ to!string(i) ~ "] = 0;";
     }
     foreach (i; 0..4) {
-        if (i < 2) code ~= "result.elements[2][" ~ to!string(i) ~ "] = 0;";
+        if (i < 2) code ~= "result[2," ~ to!string(i) ~ "] = 0;";
     }
     foreach (i; 0..4) {
-        if (i != 2) code ~= "result.elements[3][" ~ to!string(i) ~ "] = 0;";
+        if (i != 2) code ~= "result[3," ~ to!string(i) ~ "] = 0;";
     }
-    code ~= "result.elements[0][0] = 1 / (aspectWperH * tan(fovy/2));";
-    code ~= "result.elements[1][1] = 1 / (tan(fovy/2));";
-    code ~= "result.elements[2][2] = farZ / (farZ - nearZ);";
-    code ~= "result.elements[2][3] = nearZ * farZ / (nearZ - farZ);";
-    code ~= "result.elements[3][2] = 1;";
+    code ~= "result[0,0] = 1 / (aspectWperH * tan(fovy/2));";
+    code ~= "result[1,1] = 1 / (tan(fovy/2));";
+    code ~= "result[2,2] = farZ / (farZ - nearZ);";
+    code ~= "result[2,3] = nearZ * farZ / (nearZ - farZ);";
+    code ~= "result[3,2] = 1;";
     return code;
 }
 
@@ -836,7 +846,7 @@ private static string getStringCode(uint U, uint V) {
     code ~= "string r;\n";
     foreach (y; 0..U) {
         foreach (x; 0..V) {
-            code ~= "a = elements[" ~ to!string(y) ~ "][" ~ to!string(x) ~ "];\n";
+            code ~= "a = this[" ~ to!string(y) ~ "," ~ to!string(x) ~ "];\n";
             code ~= "if (abs(a) < epsilon) a = 0;\n";
             code ~= "r ~= to!string(a);\n";
             if (x < V-1) code ~= "r ~= \",\";\n";
@@ -847,23 +857,12 @@ private static string getStringCode(uint U, uint V) {
     return code;
 }
 
-private static string getConvertCode(uint U, uint V) {
-    string code;
-    foreach (y; 0..U) {
-        foreach (x; 0..V) {
-            code ~= "arrayForConvert[" ~ to!string(y*V+x) ~ "] = elements[" ~ to!string(y) ~ "]["
-             ~ to!string(x) ~ "];";
-        }
-    }
-    return code;
-}
-
 private static string getCopyCode(string identifier, uint U, uint V) {
     string code;
     foreach (x; 0..U) {
         foreach (y; 0..V) {
-            code ~= "this.elements[" ~ to!string(x) ~ "][" ~ to!string(y) ~ "]
-            = " ~ identifier ~ ".elements[" ~ to!string(x) ~ "][" ~ to!string(y) ~ "];";
+            code ~= "this[" ~ to!string(x) ~ "," ~ to!string(y) ~ "]
+            = " ~ identifier ~ "[" ~ to!string(x) ~ "," ~ to!string(y) ~ "];";
         }
     }
     return code;

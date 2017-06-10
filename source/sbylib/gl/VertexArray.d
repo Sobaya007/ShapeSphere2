@@ -18,7 +18,7 @@ class VertexArray {
         glDeleteVertexArrays(1, &id);
     }
 
-    void attachBuffers(BufferObject[] buffers) {
+    void attachBuffers(VertexBuffer[] buffers) {
         this.bind();
         buffers.each!(buffer => buffer.bind());
         this.unbind();

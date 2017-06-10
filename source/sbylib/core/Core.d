@@ -67,6 +67,7 @@ class SbyWorld {
 
     //初期化関数
     this() {
+        this.currentWindow = new Window("Window Title", 800, 600);
     }
 
     void setFPS(float fps) {
@@ -76,8 +77,6 @@ class SbyWorld {
 
     void start() {
         writeln("APPLICATION STARTED");
-        //ウインドウを作成(内部でOpenGLの初期化も行われる)
-        currentWindow = new Window("Window Title", 800, 600);
         //各種初期化
         ShaderStore.init;
         initFunctions();
