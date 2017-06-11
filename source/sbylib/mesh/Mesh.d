@@ -3,6 +3,7 @@ module sbylib.mesh.Mesh;
 import sbylib.mesh.Object3D;
 import sbylib.geometry.Geometry;
 import sbylib.material.Material;
+import sbylib.camera.Camera;
 
 class Mesh {
     Object3D obj;

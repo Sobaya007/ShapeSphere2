@@ -6,7 +6,8 @@ class Watch(T) {
     private T value;
     private IWatcher[] watchers;
 
-    this() {
+    this(T init = T.init) {
+        this.value = init;
     }
 
     void opAssign(T value) {
@@ -16,7 +17,7 @@ class Watch(T) {
         }
     }
 
-   @property immutable(T) get() {
+   @property T get() {
         return value;
     }
 
@@ -34,6 +35,10 @@ class Watcher(T) : IWatcher {
     private void delegate(ref T) defineFunc;
     private IWatcher[] watchers;
 
+    this(T init = T.init) {
+        this.value = init;
+    }
+
     this(void delegate(ref T) defineFunc, T init = T.init) {
         this.defineFunc = defineFunc;
         this.value = init;
@@ -47,6 +52,10 @@ class Watcher(T) : IWatcher {
         watcher.watchers ~= this;
     }
 
+    void setDefineFunc(void delegate(ref T) defineFunc) {
+        this.defineFunc = defineFunc;
+    }
+
     override void onChange() {
         this.needsUpdate = true;
         foreach (watcher; this.watchers) {
@@ -54,12 +63,12 @@ class Watcher(T) : IWatcher {
         }
     }
 
-    immutable(T) get() {
+    const(T) get() {
         if (this.needsUpdate) {
             this.defineFunc(this.value);
             this.needsUpdate = false;
         }
-        return cast(immutable)(this.value);
+        return this.value;
     }
 
     alias get this;

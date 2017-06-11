@@ -1,6 +1,9 @@
 module sbylib.camera.Camera;
 
-import sbylib.geometry, sbylib.math, sbylib.utils;
+import sbylib.math.Matrix;
+import sbylib.mesh.Object3D;
+import sbylib.gl.Uniform;
+import sbylib.utils.Watcher;
 
 /*
    カメラを表す抽象クラスです。
@@ -20,7 +23,9 @@ getCameraRay : カメラのレイ
  */
 
 interface Camera {
-    abstract mat4 generateProjectionMatrix();
+    inout(Object3D) getObj() inout;
+    @property Watcher!umat4 projMatrix();
+    alias getObj this;
 }
 //abstract class Camera : Primitive {
 //

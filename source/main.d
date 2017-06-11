@@ -5,11 +5,13 @@ import sbylib;
 import derelict.opengl;
 
 void main() {
-    auto world = new SbyWorld();
-    auto vertices = [new VertexN(vec3(0))];
-    auto faces = [new Face([0,0,0])];
-    auto mesh = new Mesh();
+    auto core = new SbyCore();
+    auto world = new World;
+    auto mesh = new Mesh;
+    mesh.mat = new LambertMaterial(mesh.obj.worldMatrix, world.viewMatrix, world.projMatrix);
+    world.meshes ~= mesh;
+    world.camera = new PerspectiveCamera(1, 120, 0.1, 100);
 
-    world.setFPS(60);
-    world.start();
+    core.setFPS(60);
+    core.start();
 }

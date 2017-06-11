@@ -24,10 +24,10 @@ import std.stdio, std.string;
 
 /*
    SbyLibを動かすための準備をするクラスです。
-   SbyWorld.init(time);で初期化します。timeは1フレームにかかる時間です。
+   SbyCore.init(time);で初期化します。timeは1フレームにかかる時間です。
  */
 
-class SbyWorld {
+class SbyCore {
     static this() {
         /*
         string path = std.file.thisExePath();

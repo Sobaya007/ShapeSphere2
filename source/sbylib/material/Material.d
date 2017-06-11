@@ -9,14 +9,14 @@ import std.algorithm;
 import std.typecons;
 import std.array;
 
-alias uniformMat4fw = Watcher!(uniformMat4f);
+alias umat4w = Watcher!(umat4);
 
 abstract class Material {
 
-    immutable ShaderProgram shader;
-    immutable(Uniform) delegate()[] getUniforms;
+    const ShaderProgram shader;
+    const(Uniform) delegate()[] getUniforms;
 
-    this(Args...)(immutable ShaderProgram shader, Args uniforms) {
+    this(Args...)(const ShaderProgram shader, Args uniforms) {
         this.shader = shader;
         foreach (uniform; uniforms) {
             this.getUniforms ~= () => uniform.get;

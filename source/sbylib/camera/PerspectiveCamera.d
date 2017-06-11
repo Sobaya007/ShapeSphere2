@@ -1,13 +1,10 @@
 module sbylib.camera.PerspectiveCamera;
 
-import std.math, std.string, std.stdio;
-
-import sbylib.camera;
-import sbylib.utils;
-import sbylib.math;
-import sbylib.geometry;
-import sbylib.core;
-import sbylib.mesh;
+import sbylib.camera.Camera;
+import sbylib.gl.Uniform;
+import sbylib.mesh.Object3D;
+import sbylib.utils.Watcher;
+import sbylib.math.Matrix;
 
 /*
    視錐台モデルを採用したカメラです。
@@ -16,28 +13,38 @@ import sbylib.mesh;
 
 final class PerspectiveCamera : Camera {
 public:
-    immutable {
-        float aspectWperH;
-        float fovy;
-        float nearZ;
-        float farZ;
-    }
+    Watch!float aspectWperH;
+    Watch!float fovy;
+    Watch!float nearZ;
+    Watch!float farZ;
 
-    const {
-        Object3D obj;
-    }
-
-    alias obj this;
+    Object3D obj;
+    private Watcher!umat4 _projMatrix;
 
     this(float aspect, float fovy, float nearZ, float farZ) {
-        this.aspectWperH = aspect;
-        this.fovy = fovy;
-        this.nearZ = nearZ;
-        this.farZ = farZ;
+        this.aspectWperH = new Watch!float(aspect);
+        this.fovy = new Watch!float(fovy);
+        this.nearZ = new Watch!float(nearZ);
+        this.farZ = new Watch!float(farZ);
         this.obj = new Object3D();
+        this._projMatrix = new Watcher!umat4((ref umat4 mat) {
+            mat.value = this.generateProjectionMatrix();
+        }, new umat4("projMatrix"));
+        this._projMatrix.addWatch(this.aspectWperH);
+        this._projMatrix.addWatch(this.fovy);
+        this._projMatrix.addWatch(this.nearZ);
+        this._projMatrix.addWatch(this.farZ);
+    }
+    
+    override inout(Object3D) getObj() inout {
+        return this.obj;
     }
 
-    override mat4 generateProjectionMatrix() {
+    override @property Watcher!umat4 projMatrix() {
+        return this._projMatrix;
+    }
+
+    private mat4 generateProjectionMatrix() {
         return mat4.perspective(aspectWperH, fovy, nearZ, farZ);
     }
 }

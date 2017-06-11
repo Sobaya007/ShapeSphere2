@@ -41,10 +41,11 @@ class UniformTemp(Type) : Uniform {
         }
     }
 
+    alias value this;
 }
 
-alias uniform1f = UniformTemp!(float);
-alias uniform2f = UniformTemp!(vec2);
-alias uniform3f = UniformTemp!(vec3);
-alias uniform4f = UniformTemp!(vec4);
-alias uniformMat4f = UniformTemp!(mat4);
+alias ufloat = UniformTemp!(float);
+alias uvec2 = UniformTemp!(vec2);
+alias uvec3 = UniformTemp!(vec3);
+alias uvec4 = UniformTemp!(vec4);
+alias umat4 = UniformTemp!(mat4);

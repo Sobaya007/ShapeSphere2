@@ -4,11 +4,11 @@ import sbylib.gl;
 import derelict.opengl;
 import std.file, std.stdio, std.string, std.conv, std.range, std.algorithm;
 
-immutable class ShaderProgram {
+class ShaderProgram {
 
     private immutable uint id;
 
-    this(Shader[] shaders) {
+    this(const Shader[] shaders) {
         this.id = glCreateProgram();
         foreach (shader; shaders) {
             this.attachShader(shader);
@@ -21,65 +21,68 @@ immutable class ShaderProgram {
         glDeleteProgram(id);
     }
 
-    void use() {
-        glUseProgram(id);
-    }
+    inout {
 
-    void attachAttribute(Attribute attr, VertexBuffer buffer) {
-        immutable loc = this.getAttribLocation(attr.name);
-        buffer.asAttribute(loc, attr.dim);
-        glEnableVertexAttribArray(loc);
-    }
+        void use() {
+            glUseProgram(id);
+        }
 
-    void attachUniform(inout Uniform uniform) {
-        immutable loc = this.getUniformLocation(uniform.getName());
-        uniform.apply(loc);
-    }
+        void attachAttribute(Attribute attr, VertexBuffer buffer) {
+            immutable loc = this.getAttribLocation(attr.name);
+            buffer.asAttribute(loc, attr.dim);
+            glEnableVertexAttribArray(loc);
+        }
 
-    private uint getAttribLocation(string name) {
-        int vLoc = glGetAttribLocation(this.id, name.toStringz);
-        assert(vLoc != -1, name ~ " is not found or used."); 
-        return vLoc;
-    }
+        void attachUniform(inout Uniform uniform) {
+            immutable loc = this.getUniformLocation(uniform.getName());
+            uniform.apply(loc);
+        }
 
-    private uint getUniformLocation(string name) {
-        int uLoc = glGetUniformLocation(this.id, name.toStringz);
-        assert(uLoc != -1, name ~ " is not found or used."); 
-        return uLoc;
-    }
+        private uint getAttribLocation(string name) {
+            int vLoc = glGetAttribLocation(this.id, name.toStringz);
+            assert(vLoc != -1, name ~ " is not found or used."); 
+            return vLoc;
+        }
 
-    private void attachShader(Shader shader) {
-        glAttachShader(this.id, shader.id);
-    }
+        private uint getUniformLocation(string name) {
+            int uLoc = glGetUniformLocation(this.id, name.toStringz);
+            assert(uLoc != -1, name ~ " is not found or used."); 
+            return uLoc;
+        }
 
-    private void linkProgram() {
-        glLinkProgram(id);
-    }
+        private void attachShader(const Shader shader) {
+            glAttachShader(this.id, shader.id);
+        }
 
-    private int getInfo(ProgramParamName name) {
-        int res;
-        glGetProgramiv(this.id, name, &res);
-        return res;
-    }
+        private void linkProgram() {
+            glLinkProgram(id);
+        }
 
-    private bool getLinkStatus() {
-        return getInfo(ProgramParamName.LinkStatus) == GL_TRUE;
-    }
+        private int getInfo(ProgramParamName name) {
+            int res;
+            glGetProgramiv(this.id, name, &res);
+            return res;
+        }
 
-    private int getLogLength() {
-        return getInfo(ProgramParamName.InfoLogLength);
-    }
+        private bool getLinkStatus() {
+            return getInfo(ProgramParamName.LinkStatus) == GL_TRUE;
+        }
 
-    private string getInfoLog() {
-        immutable logLength = this.getLogLength;
-        char[] log = new char[logLength];
-        int a;
-        glGetProgramInfoLog(this.id, logLength, &a, &log[0]);
-        return log.to!string;
-    }
+        private int getLogLength() {
+            return getInfo(ProgramParamName.InfoLogLength);
+        }
 
-    private string getLogString() {
-        return "GLSL Link Error\n" ~ getInfoLog;
+        private string getInfoLog() {
+            immutable logLength = this.getLogLength;
+            char[] log = new char[logLength];
+            int a;
+            glGetProgramInfoLog(this.id, logLength, &a, &log[0]);
+            return log.to!string;
+        }
+
+        private string getLogString() {
+            return "GLSL Link Error\n" ~ getInfoLog;
+        }
     }
 }
 
@@ -94,64 +97,67 @@ class Shader {
         assert(!this.getCompileStatus, getLogString(sourceCode));
     }
 
-    private ShaderType getShaderType() {
-        int res = getInfo(ShaderParamName.ShaderType);
-        switch(res) {
-        case ShaderType.Vertex:
-            return ShaderType.Vertex;
-        case ShaderType.Fragment:
-            return ShaderType.Fragment;
-        case ShaderType.Geometry:
-            return ShaderType.Geometry;
-        default:
-            assert(false);
-        }
-    }
+    inout {
 
-    private int getLogLength() {
-        return getInfo(ShaderParamName.InfoLogLength);
-    }
-
-    private bool getCompileStatus() {
-        return getInfo(ShaderParamName.CompileStatus) == GL_TRUE;
-    }
-
-    private int getInfo(ShaderParamName name) {
-        int res;
-        glGetProgramiv(this.id, name, &res);
-        return res;
-    }
-
-    private string getInfoLog() {
-        immutable logLength = this.getLogLength;
-        char[] log = new char[logLength];
-        int a;
-        glGetShaderInfoLog(this.id, logLength, &a, &log[0]);
-        return log.to!string;
-    }
-
-    private string getLogString(string sourceCode) {
-        auto lines = getInfoLog.splitLines;
-        int[] lineNum;
-        foreach (string line; lines) {
-            auto strs = split(line, ":");
-            if (strs.length > 0 && strs[0] == "ERROR") {
-                auto c = strs[1].split[0];
-                lineNum ~= to!int(c)-1;
+        ShaderType getShaderType() {
+            int res = getInfo(ShaderParamName.ShaderType);
+            switch(res) {
+            case ShaderType.Vertex:
+                return ShaderType.Vertex;
+            case ShaderType.Fragment:
+                return ShaderType.Fragment;
+            case ShaderType.Geometry:
+                return ShaderType.Geometry;
+            default:
+                assert(false);
             }
         }
-        auto r = assumeSorted(lineNum);
-        string result = "GLSL Compile Error\n";
-        auto strs = sourceCode.splitLines;
-        foreach (int i, str; strs) {
-            if (r.canFind(i)) {
-                result ~= "▶";
-                result ~= str;
-            } else {
-                result ~= str;
-            }
-            result ~= "\n";
+
+        private int getLogLength() {
+            return getInfo(ShaderParamName.InfoLogLength);
         }
-        return result;
+
+        private bool getCompileStatus() {
+            return getInfo(ShaderParamName.CompileStatus) == GL_TRUE;
+        }
+
+        private int getInfo(ShaderParamName name) {
+            int res;
+            glGetProgramiv(this.id, name, &res);
+            return res;
+        }
+
+        private string getInfoLog() {
+            immutable logLength = this.getLogLength;
+            char[] log = new char[logLength];
+            int a;
+            glGetShaderInfoLog(this.id, logLength, &a, &log[0]);
+            return log.to!string;
+        }
+
+        private string getLogString(string sourceCode) {
+            auto lines = getInfoLog.splitLines;
+            int[] lineNum;
+            foreach (string line; lines) {
+                auto strs = split(line, ":");
+                if (strs.length > 0 && strs[0] == "ERROR") {
+                    auto c = strs[1].split[0];
+                    lineNum ~= to!int(c)-1;
+                }
+            }
+            auto r = assumeSorted(lineNum);
+            string result = "GLSL Compile Error\n";
+            auto strs = sourceCode.splitLines;
+            foreach (int i, str; strs) {
+                if (r.canFind(i)) {
+                    result ~= "▶";
+                    result ~= str;
+                } else {
+                    result ~= str;
+                }
+                result ~= "\n";
+            }
+            return result;
+        }
     }
 }

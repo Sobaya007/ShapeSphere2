@@ -9,8 +9,8 @@ import sbylib.gl.Uniform;
 class Object3D {
     Watch!vec3 pos;
     Watch!quat rot;
-    Watcher!uniformMat4f worldMatrix;
-    Watcher!uniformMat4f viewMatrix;
+    Watcher!umat4 worldMatrix;
+    Watcher!umat4 viewMatrix;
 
     this() {
         this.pos = new Watch!vec3();
@@ -19,9 +19,9 @@ class Object3D {
         this.rot = new Watch!quat();
         this.rot = quat(0,0,0,1);
 
-        this.worldMatrix = new Watcher!uniformMat4f((ref uniformMat4f mat) {
+        this.worldMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = generateWorldMatrix();
-        }, new uniformMat4f("worldMatrix"));
+        }, new umat4("worldMatrix"));
         //this.worldMatrix.addWatch(this.pos);
         //this.worldMatrix.addWatch(this.rot);
 
