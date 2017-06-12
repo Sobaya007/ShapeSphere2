@@ -5,13 +5,14 @@ import std.typetuple;
 
 static import std.string;
 import sbylib.utils;
-import sbylib.character;
 import sbylib.math;
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.shadertemplates;
 import sbylib.core;
 import sbylib.setting;
-import sbylib.loader;
+import sbylib.character.Label;
+import sbylib.wrapper.freetype.Font;
+import sbylib.wrapper.freetype.FontLoader;
 
 pure @nogc {
     auto red()    { return vec4(1,0,0,1);}

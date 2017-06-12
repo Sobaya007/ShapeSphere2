@@ -1,6 +1,6 @@
 module sbylib.utils.customobject.UniformValue;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.utils.customobject.Uniform;
 import derelict.opengl;
 import std.conv, std.string;

@@ -1,7 +1,7 @@
 module sbylib.material.MaterialUtils;
 
-import sbylib.gl.Constants;
-import sbylib.gl.Shader;
+import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.Shader;
 import sbylib.setting;
 import std.file;
 

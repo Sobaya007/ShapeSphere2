@@ -4,7 +4,7 @@ import sbylib.geometry;
 import sbylib.math;
 import sbylib.utils;
 import sbylib.shadertemplates;
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.core;
 
 import std.math;

@@ -1,6 +1,6 @@
-module sbylib.gl.config.StencilSetting;
+module sbylib.wrapper.gl.config.StencilSetting;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import derelict.opengl;
 
 struct Stencilsetting {

@@ -1,7 +1,7 @@
-module sbylib.gl.Attribute;
+module sbylib.wrapper.gl.Attribute;
 
 import derelict.opengl;
-import sbylib.gl.BufferObject;
+import sbylib.wrapper.gl.BufferObject;
 import std.conv;
 
 struct Attribute {

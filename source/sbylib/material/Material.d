@@ -1,9 +1,9 @@
 module sbylib.material.Material;
 
-import sbylib.gl.Uniform;
-import sbylib.gl.Shader;
-import sbylib.gl.Attribute;
-import sbylib.gl.BufferObject;
+import sbylib.wrapper.gl.Uniform;
+import sbylib.wrapper.gl.Shader;
+import sbylib.wrapper.gl.Attribute;
+import sbylib.wrapper.gl.BufferObject;
 import sbylib.utils.Watcher;
 import std.algorithm;
 import std.typecons;

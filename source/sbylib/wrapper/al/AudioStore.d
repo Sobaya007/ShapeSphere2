@@ -2,7 +2,7 @@
  * Autors: @nari
  */
 
-module sbylib.al.AudioStore;
+module sbylib.wrapper.al.AudioStore;
 
 import derelict.openal.al;
 import derelict.alure.alure;

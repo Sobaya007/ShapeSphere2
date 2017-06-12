@@ -1,6 +1,6 @@
-module sbylib.gl.Functions;
+module sbylib.wrapper.gl.Functions;
 
-import sbylib.math, sbylib.gl;
+import sbylib.math, sbylib.wrapper.gl;
 import std.algorithm;
 import derelict.opengl;
 

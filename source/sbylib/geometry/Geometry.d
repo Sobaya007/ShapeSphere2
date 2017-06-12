@@ -1,9 +1,9 @@
 module sbylib.geometry.Geometry;
 
-import sbylib.gl.Constants;
-import sbylib.gl.VertexArray;
-import sbylib.gl.BufferObject;
-import sbylib.gl.Attribute;
+import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.VertexArray;
+import sbylib.wrapper.gl.BufferObject;
+import sbylib.wrapper.gl.Attribute;
 import sbylib.geometry.Vertex;
 import sbylib.geometry.Face;
 import sbylib.material.Material;

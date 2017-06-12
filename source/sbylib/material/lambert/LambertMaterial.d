@@ -2,7 +2,7 @@ module sbylib.material.LambertMaterial;
 
 import sbylib.material.Material;
 import sbylib.material.MaterialUtils;
-import sbylib.gl.Uniform;
+import sbylib.wrapper.gl.Uniform;
 import sbylib.utils.Watcher;
 import sbylib.setting;
 

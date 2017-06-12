@@ -2,23 +2,23 @@ module sbylib.core.Core;
 
 import std.datetime;
 import core.thread;
-import derelict.opengl;
-import derelict.glfw3.glfw3;
-import derelict.freetype.ft;
-import derelict.freeimage.freeimage;
 import derelict.sdl2.sdl;
 import derelict.openal.al;
 import derelict.alure.alure;
 import sbylib.core;
 import sbylib.camera;
-import sbylib.character;
-import sbylib.al;
-import sbylib.gl;
+import sbylib.wrapper.al;
+import sbylib.wrapper.gl;
 import sbylib.input;
 import sbylib.shadertemplates;
 import sbylib.utils;
 import sbylib.setting;
-import sbylib.loader;
+import sbylib.wrapper.gl.GL;
+import sbylib.wrapper.glfw.GLFW;
+import sbylib.wrapper.freetype.FreeType;
+import sbylib.wrapper.freeimage.FreeImage;
+import sbylib.wrapper.glfw.Window;
+import sbylib.wrapper.freetype.Font;
 static import std.file, std.path;
 import std.stdio, std.string;
 
@@ -44,16 +44,14 @@ class SbyCore {
 */
         // for DEBUG ここまで
 
-        DerelictGL3.load();
-        DerelictGLFW3.load(GLFW_DLL_PATH);
-        DerelictFT.load(FREETYPE_DLL_PATH);
-        DerelictFI.load(FREEIMAGE_DLL_PATH);
         DerelictSDL2.load(SDL2_DLL_PATH);
         DerelictAL.load();
         DerelictALURE.load(ALURE_DLL_PATH);
 
-        Window.init();
-        FontLoader.init();
+        GL.init();
+        GLFW.init();
+        FreeType.init();
+        FreeImage.init();
         AudioStore.init();
         JoyStick.init();
     }
@@ -105,7 +103,7 @@ class SbyCore {
             stdout.flush();
         }
         //後始末
-        glfwTerminate();
+        GLFW.terminate();
         //alureShutdownDevice();
     }
 }

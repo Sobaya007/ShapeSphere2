@@ -1,4 +1,4 @@
-module sbylib.core.Window;
+module sbylib.wrapper.glfw.Window;
 
 import derelict.glfw3.glfw3;
 import derelict.opengl;
@@ -18,16 +18,7 @@ private:
     vec2i _pos;
     GLFWwindow *window;
 
-    extern(C) void errorCallBack(int error, const(char)* description) nothrow {
-        printf("description: %.*s\n", description);
-        assert(false, "GLFW error");
-    }
 public:
-
-    static void init() {
-        glfwSetErrorCallback(&errorCallBack);
-        assert(glfwInit(),"Failed to initialize GLFW");
-    }
 
     this(string _title, int width, int height) {
         this._title = _title;

@@ -1,6 +1,6 @@
-module sbylib.gl.FrameBuffer;
+module sbylib.wrapper.gl.FrameBuffer;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import derelict.opengl;
 
 class FrameBuffer {

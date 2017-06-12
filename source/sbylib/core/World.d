@@ -3,7 +3,7 @@ module sbylib.core.World;
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
 import sbylib.utils.Watcher;
-import sbylib.gl.Uniform;
+import sbylib.wrapper.gl.Uniform;
 
 class World {
     Mesh[] meshes;

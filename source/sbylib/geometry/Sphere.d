@@ -6,7 +6,7 @@ import std.math;
 
 import sbylib.geometry;
 import sbylib.math;
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.shadertemplates;
 
 //class Sphere : Geometry {

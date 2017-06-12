@@ -1,6 +1,6 @@
 module sbylib.geometry.GeometryUtil;
 
-import sbylib.gl.Constants;
+import sbylib.wrapper.gl.Constants;
 
 class GeometryUtil(string[] Attributes, Prim Mode) {
     alias GeometryA = Geometry!(Attributes, Mode);

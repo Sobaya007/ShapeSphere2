@@ -1,4 +1,4 @@
-module sbylib.gl.Constants;
+module sbylib.wrapper.gl.Constants;
 
 import derelict.opengl;
 

@@ -7,7 +7,7 @@ import std.math;
 import sbylib.geometry;
 import sbylib.utils;
 import sbylib.math;
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.shadertemplates;
 import sbylib.core;
 

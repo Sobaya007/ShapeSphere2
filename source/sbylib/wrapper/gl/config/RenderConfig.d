@@ -1,6 +1,6 @@
-module sbylib.gl.config.RenderConfig;
+module sbylib.wrapper.gl.config.RenderConfig;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import derelict.opengl;
 
 struct RenderConfig {

@@ -2,7 +2,7 @@ module sbylib.geometry.Vertex;
 
 import sbylib.geometry;
 import sbylib.math;
-import sbylib.gl.Attribute;
+import sbylib.wrapper.gl.Attribute;
 
 import std.math, std.algorithm, std.array, std.range;
 

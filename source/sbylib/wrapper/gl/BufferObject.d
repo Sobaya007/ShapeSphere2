@@ -1,8 +1,8 @@
-module sbylib.gl.BufferObject;
+module sbylib.wrapper.gl.BufferObject;
 
 import derelict.opengl;
-import sbylib.gl.Constants;
-import sbylib.gl.Functions;
+import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.Functions;
 
 interface BufferObject(BufferType Type) {
     void bind();

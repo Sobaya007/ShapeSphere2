@@ -1,4 +1,4 @@
-module sbylib.gl.Uniform;
+module sbylib.wrapper.gl.Uniform;
 
 import derelict.opengl;
 import sbylib.math.Vector;

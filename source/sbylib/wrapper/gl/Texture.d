@@ -1,10 +1,10 @@
-module sbylib.gl.Texture;
+module sbylib.wrapper.gl.Texture;
 
 import derelict.opengl;
 import derelict.freeimage.freeimage;
 import std.stdio, std.string, std.conv;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.setting;
 
 class Texture {

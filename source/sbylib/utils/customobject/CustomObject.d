@@ -1,6 +1,6 @@
 module sbylib.utils.customobject.CustomObject;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.math;
 import derelict.opengl;
 import sbylib.utils.customobject.TexInfo;

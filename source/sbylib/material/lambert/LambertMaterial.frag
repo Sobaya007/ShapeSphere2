@@ -1,5 +1,8 @@
+#version 400
+
 in vec3 vNormal;
+out vec4 fragColor;
 
 void main() {
-  gl_FragColor = vec4(abs(vNormal), 1);
+  fragColor = vec4(abs(vNormal), 1);
 }

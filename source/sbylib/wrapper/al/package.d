@@ -1,4 +1,4 @@
-module sbylib.al;
+module sbylib.wrapper.al;
 
 /*
    @author @_n_ari
@@ -8,4 +8,4 @@ module sbylib.al;
 
  */
 public:
-import sbylib.al.AudioStore;
+import sbylib.wrapper.al.AudioStore;

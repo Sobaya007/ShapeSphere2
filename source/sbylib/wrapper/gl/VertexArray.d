@@ -1,6 +1,6 @@
-module sbylib.gl.VertexArray;
+module sbylib.wrapper.gl.VertexArray;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import derelict.opengl;
 import std.algorithm;
 

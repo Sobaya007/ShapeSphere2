@@ -1,8 +1,9 @@
-module sbylib.gl.Shader;
+module sbylib.wrapper.gl.Shader;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import derelict.opengl;
 import std.file, std.stdio, std.string, std.conv, std.range, std.algorithm;
+import std.ascii;
 
 class ShaderProgram {
 
@@ -94,7 +95,7 @@ class Shader {
         auto str = sourceCode.toStringz;
         glShaderSource(this.id, 1, &str, null);
         glCompileShader(this.id);
-        assert(!this.getCompileStatus, getLogString(sourceCode));
+        assert(this.compileSuccess(), getLogString(sourceCode));
     }
 
     inout {
@@ -113,50 +114,56 @@ class Shader {
             }
         }
 
-        private int getLogLength() {
-            return getInfo(ShaderParamName.InfoLogLength);
+        int getLogLength() {
+            return this.getInfo(ShaderParamName.InfoLogLength);
         }
 
-        private bool getCompileStatus() {
+        bool compileSuccess() {
             return getInfo(ShaderParamName.CompileStatus) == GL_TRUE;
         }
 
-        private int getInfo(ShaderParamName name) {
+        int getInfo(ShaderParamName name) {
             int res;
-            glGetProgramiv(this.id, name, &res);
+            glGetShaderiv(this.id, name, &res);
             return res;
         }
 
-        private string getInfoLog() {
-            immutable logLength = this.getLogLength;
+        string getInfoLog() {
+            auto logLength = getLogLength();
             char[] log = new char[logLength];
-            int a;
-            glGetShaderInfoLog(this.id, logLength, &a, &log[0]);
-            return log.to!string;
+            glGetShaderInfoLog(this.id, logLength, &logLength, &log[0]);
+            return log.to!string.chomp;
         }
 
         private string getLogString(string sourceCode) {
-            auto lines = getInfoLog.splitLines;
+            auto log = getInfoLog;
+            auto lines = log.splitLines;
             int[] lineNum;
             foreach (string line; lines) {
                 auto strs = split(line, ":");
                 if (strs.length > 0 && strs[0] == "ERROR") {
-                    auto c = strs[1].split[0];
-                    lineNum ~= to!int(c)-1;
+                    auto c = strs[2];
+                    if (c.all!(a => a.isDigit)) {
+                        lineNum ~= to!int(c)-1;
+                    }
                 }
             }
             auto r = assumeSorted(lineNum);
-            string result = "GLSL Compile Error\n";
+            string result = "\nGLSL Compile Error\n";
+            result ~= "==========================================\n";
             auto strs = sourceCode.splitLines;
             foreach (int i, str; strs) {
                 if (r.canFind(i)) {
                     result ~= "▶";
-                    result ~= str;
                 } else {
-                    result ~= str;
+                    result ~= "　";
                 }
+                result ~= str;
                 result ~= "\n";
             }
+            result ~= "==========================================\n";
+            result ~= log;
+            result ~= "==========================================\n";
             return result;
         }
     }

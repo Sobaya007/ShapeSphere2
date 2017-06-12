@@ -4,7 +4,7 @@ import sbylib.math.Matrix;
 import sbylib.math.Vector;
 import sbylib.math.Quaternion;
 import sbylib.utils.Watcher;
-import sbylib.gl.Uniform;
+import sbylib.wrapper.gl.Uniform;
 
 class Object3D {
     Watch!vec3 pos;

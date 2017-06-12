@@ -1,6 +1,6 @@
-module sbylib.gl.RenderBuffer;
+module sbylib.wrapper.gl.RenderBuffer;
 
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import derelict.opengl;
 
 class RenderBuffer {

@@ -2,7 +2,7 @@ module sbylib.camera.Camera;
 
 import sbylib.math.Matrix;
 import sbylib.mesh.Object3D;
-import sbylib.gl.Uniform;
+import sbylib.wrapper.gl.Uniform;
 import sbylib.utils.Watcher;
 
 /*

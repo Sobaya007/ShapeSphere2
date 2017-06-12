@@ -5,7 +5,7 @@ import std.algorithm, std.conv, std.array;
 import sbylib.math;
 import sbylib.geometry;
 import sbylib.utils;
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.core;
 
 /*

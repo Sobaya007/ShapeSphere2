@@ -1,7 +1,7 @@
-module sbylib.character.Font;
+module sbylib.wrapper.freetype.Font;
 
 import derelict.freetype.ft;
-import sbylib.gl;
+import sbylib.wrapper.gl;
 import sbylib.setting;
 import std.string;
 
