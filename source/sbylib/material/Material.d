@@ -7,6 +7,7 @@ import sbylib.wrapper.gl.BufferObject;
 import sbylib.wrapper.gl.VertexArray;
 import sbylib.utils.Watcher;
 import sbylib.material.Constants;
+import sbylib.material.RenderConfig;
 import std.algorithm;
 import std.typecons;
 import std.array;
@@ -18,10 +19,12 @@ abstract class Material {
     const ShaderProgram shader;
     const(Uniform) delegate()[] getUniforms;
     UniformDemand[] demands;
+    RenderConfig config;
 
     this(const ShaderProgram shader) {
         this.shader = shader;
         this.demands = createDemands();
+        this.config = new RenderConfig();
     }
 
     final void addUniform(const(Uniform) delegate() getUniform) {
@@ -32,9 +35,12 @@ abstract class Material {
     }
 
     final void set() {
+        this.config.set();
         this.shader.use();
         foreach (getUniform; getUniforms) {
             this.shader.attachUniform(getUniform());
+            import std.stdio;
+            //writeln(getUniform());
         }
     }
 

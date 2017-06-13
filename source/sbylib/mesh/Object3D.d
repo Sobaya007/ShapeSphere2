@@ -8,7 +8,7 @@ import sbylib.wrapper.gl.Uniform;
 
 class Object3D {
     Watch!vec3 pos;
-    Watch!quat rot;
+    Watch!mat3 rot;
     Watcher!umat4 worldMatrix;
     Watcher!umat4 viewMatrix;
 
@@ -16,8 +16,8 @@ class Object3D {
         this.pos = new Watch!vec3();
         this.pos = vec3(0);
 
-        this.rot = new Watch!quat();
-        this.rot = quat(0,0,0,1);
+        this.rot = new Watch!mat3();
+        this.rot = mat3.identity();
 
         this.worldMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = generateWorldMatrix();
@@ -37,18 +37,25 @@ class Object3D {
     }
 
     void lookTo(vec3 v, vec3 up = vec3(0,1,0)) {
-        this.rot = quat(mat4.lookAt(vec3(0), v, up).toMatrix3());
-    }
-
-    private mat4 generateViewMatrix() {
-        return mat4.lookAt(pos, rot.baseZ, rot.baseY);
+        auto side = normalize(cross(up, v));
+        up = normalize(cross(v, side));
+        this.rot = mat3.replace(side, up, v);
     }
 
     private mat4 generateWorldMatrix() {
-        return mat4.translate(pos);
-        //return mat4(1-2*(rot.y*rot.y+rot.z*rot.z), 2*(rot.x*rot.y-rot.z*rot.w), 2*(rot.x*rot.z+rot.w*rot.y), pos.x,
-        //        2*(rot.x*rot.y+rot.w*rot.z), 1-2*(rot.x*rot.x+rot.z*rot.z), 2*(rot.y*rot.z-rot.w*rot.x), pos.y,
-        //        2*(rot.x*rot.z-rot.w*rot.y), 2*(rot.y*rot.z+rot.w*rot.x), 1-2*(rot.x*rot.x+rot.y*rot.y), pos.z,
-        //        0, 0, 0, 1);
+        return mat4([
+                rot[0,0], rot[0,1], rot[0,2], pos.x,
+                rot[1,0], rot[1,1], rot[1,2], pos.y,
+                rot[2,0], rot[2,1], rot[2,2], pos.z,
+                0,0,0, 1]);
+    }
+
+    private mat4 generateViewMatrix() {
+        auto column = rot.column;
+        return mat4([
+                rot[0,0], rot[1,0], rot[2,0], -dot(column[0], pos),
+                rot[0,1], rot[1,1], rot[2,1], -dot(column[1], pos),
+                rot[0,2], rot[1,2], rot[2,2], -dot(column[2], pos),
+                0,0,0, 1]);
     }
 }

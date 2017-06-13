@@ -44,7 +44,7 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
     }
 
     //from marupeke296.com
-    this(Matrix!(T, 3, 3) m) {
+    deprecated this(Matrix!(T, 3, 3) m) {
         auto elem = [
          +m[0,0] - m[1,1] - m[2,2] + 1,
         -m[0,0] + m[1,1] - m[2,2] + 1,

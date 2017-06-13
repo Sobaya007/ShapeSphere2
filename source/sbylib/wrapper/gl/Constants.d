@@ -2,6 +2,13 @@ module sbylib.wrapper.gl.Constants;
 
 import derelict.opengl;
 
+enum ClearMode {
+    Color = GL_COLOR_BUFFER_BIT,
+    Depth = GL_DEPTH_BUFFER_BIT,
+    Stencil = GL_STENCIL_BUFFER_BIT
+};
+
+
 enum Prim {
     Triangle = GL_TRIANGLES,
     TriangleStrip = GL_TRIANGLE_STRIP,
@@ -17,9 +24,9 @@ enum BlendEquation {
     Max = GL_MAX
 }
 
-enum BlendFunc {
-    One = GL_ONE,
+enum BlendFactor {
     Zero = GL_ZERO,
+    One = GL_ONE,
     SrcAlpha = GL_SRC_ALPHA,
     DstAlpha = GL_DST_ALPHA,
     SrcColor = GL_SRC_COLOR,
@@ -28,9 +35,12 @@ enum BlendFunc {
     OneMinusDstAlpha = GL_ONE_MINUS_DST_ALPHA,
     OneMinusSrcColor = GL_ONE_MINUS_SRC_COLOR,
     OneMinusDstColor = GL_ONE_MINUS_DST_COLOR,
+    ConstantColor = GL_CONSTANT_COLOR,
+    OneMinusConstantColor = GL_ONE_MINUS_CONSTANT_COLOR,
+    ConstantAlpha = GL_CONSTANT_ALPHA
 }
 
-enum StencilFunc {
+enum TestFunc {
     Always = GL_ALWAYS,
     Never = GL_NEVER,
     Less = GL_LESS,
@@ -149,4 +159,47 @@ enum GLType {
     Float = GL_FLOAT,
     Double = GL_DOUBLE,
     Fixed = GL_FIXED
+}
+
+enum Capability {
+    Blend = GL_BLEND,
+    ClipDistance = GL_CLIP_DISTANCE0,
+    ColorLogicOp = GL_COLOR_LOGIC_OP,
+    CullFace = GL_CULL_FACE,
+    DebugOutput = GL_DEBUG_OUTPUT,
+    DebugOutputSynchronous = GL_DEBUG_OUTPUT_SYNCHRONOUS,
+    DepthClamp = GL_DEPTH_CLAMP,
+    DepthTest = GL_DEPTH_TEST,
+    Dither = GL_DITHER,
+    LineSmooth = GL_LINE_SMOOTH,
+    MultiSample = GL_MULTISAMPLE,
+    PolygonOffsetFill = GL_POLYGON_OFFSET_FILL,
+    PolygonOffsetLine = GL_POLYGON_OFFSET_LINE,
+    PolygonOffsetPoint = GL_POLYGON_OFFSET_POINT,
+    PolygonSmooth = GL_POLYGON_SMOOTH,
+    PrimitiveRestart = GL_PRIMITIVE_RESTART,
+    PrimitiveRestartFixedIndex = GL_PRIMITIVE_RESTART_FIXED_INDEX,
+    RasterizerDiscard = GL_RASTERIZER_DISCARD,
+    SampleAlphaToCoverage = GL_SAMPLE_ALPHA_TO_COVERAGE,
+    SampleAlphaToOne = GL_SAMPLE_ALPHA_TO_ONE,
+    SampleCoverage = GL_SAMPLE_COVERAGE,
+    SampleShading = GL_SAMPLE_SHADING,
+    SampleMask = GL_SAMPLE_MASK,
+    ScissorTest = GL_SCISSOR_TEST,
+    StencilTest = GL_STENCIL_TEST,
+    TextureCubeMapSeamless = GL_TEXTURE_CUBE_MAP_SEAMLESS,
+    ProgramPointSize = GL_PROGRAM_POINT_SIZE
+};
+
+enum FaceMode {
+    Front = GL_FRONT,
+    Back = GL_BACK,
+    FrontBack = GL_FRONT_AND_BACK
+}
+
+enum PolygonMode {
+    Fill = GL_FILL,
+    Line = GL_LINE,
+    Point = GL_POINT,
+    None = 114514
 }

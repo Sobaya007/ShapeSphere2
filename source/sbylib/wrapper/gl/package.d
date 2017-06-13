@@ -7,7 +7,6 @@ module sbylib.wrapper.gl;
  */
 
 public:
-import sbylib.wrapper.gl.config;
 import sbylib.wrapper.gl.BufferObject;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.FrameBuffer;

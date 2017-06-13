@@ -32,7 +32,7 @@ public:
         assert(elements.length <= U*V);
     } body {
         foreach(i, e; elements) {
-            this[i%V,i/V] = e;
+            this[i/V,i%V] = e;
         }
     }
 
@@ -131,19 +131,10 @@ public:
         }
     }
 
-    Vector!(T,U) column(uint c) {
-        mixin({
-            string str;
-            str ~= "Vector!(T,U) func(uint a) {";
-            str ~= "Vector!(T,U) result;";
-                foreach (i; 0..U) {
-                    str ~= format("result[%d] = this[%d,a];", i, i);
-                }
-            str ~= "return result;";
-            str ~= "}";
-            return str;
-        }());
-        return func(c);
+    Vector!(T,U)[V] column() {
+        Vector!(T,U)[V] result;
+        mixin(getColumnCode(U,V));
+        return result;
     }
 
     Vector!(T,V) row(uint r) {
@@ -161,7 +152,7 @@ public:
         return func(r);
     }
 
-    static Matrix!(T,U,V) replacement(Vector!(T,U)[V] vectors...) {
+    static Matrix!(T,U,V) replace(Vector!(T,U)[V] vectors...) {
         Matrix result;
         alias gen = {
             string code;
@@ -776,7 +767,7 @@ private static string getLookAtCode() {
     foreach (i; 0..3) {
         code ~= format!"result[%d,3] = "(i);
         foreach (j; 0..3) {
-            code ~= format!"-eye[%d] * result[%d, %d]"(j, i, j);
+            code ~= format!"-eye[%d] * result[%d, %d]"(j, j, i);
         }
         code ~= ";";
     }
@@ -858,8 +849,18 @@ private static string getCopyCode(string identifier, uint U, uint V) {
     return code;
 }
 
+private static string getColumnCode(uint U, uint V) {
+    string code;
+    foreach (j; 0..V) {
+        foreach (i; 0..U) {
+            code ~= format!"result[%d][%d] = this[%d, %d];"(j, i, i, j);
+        }
+    }
+    return code;
+}
 
 unittest {
+    import std.stdio;
     auto p = vec4(0,1,2,1);
     auto m = mat4(
             1,0,0,100,
@@ -867,4 +868,6 @@ unittest {
             0,0,1,300,
             0,0,0,1);
     assert(m * p == vec4(100,201,302,1));
+    auto t = mat4.translate(vec3(100,200,300));
+    assert(m == t);
 }
