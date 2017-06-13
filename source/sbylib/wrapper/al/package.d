@@ -9,3 +9,4 @@ module sbylib.wrapper.al;
  */
 public:
 import sbylib.wrapper.al.AudioStore;
+import sbylib.wrapper.al.AL;

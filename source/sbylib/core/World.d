@@ -24,6 +24,7 @@ class World {
     }
 
     void render() {
+        assert(this.camera.get());
         foreach(Mesh m; meshes) {
             m.render();
         }

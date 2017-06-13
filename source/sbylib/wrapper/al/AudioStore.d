@@ -52,10 +52,6 @@ class AudioStore {
     // sePlayList[srcID] := srcID のソースのバッファID (再生位置管理のために必要)
     static uint[uint] sePlayList;
 
-    static void init(){
-        assert(alureInitDevice(null, null), "Failed to init alure!");
-    }
-
     /** ファイルからバッファへのロード
    * Params:
    * filePath = 読み込む音声ファイルのパス

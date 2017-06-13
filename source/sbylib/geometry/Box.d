@@ -1,51 +1,38 @@
 module sbylib.geometry.Box;
 
-import sbylib;
+import sbylib.geometry.Geometry;
+import sbylib.geometry.GeometryUtil;
+import sbylib.geometry.Face;
+import sbylib.geometry.Vertex;
+import sbylib.math.Vector;
+import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.Attribute;
 
-//class Box : Geometry {
-//    private static{
-//        vec3[] vertices;
-//        uint[][] indices;
-//        FaceList faces;
-//    }
-//
-//    this()  {
-//        super(faces, ShaderStore.getShader("TexcoordShow"));
-//    }
-//
-//    static vec3[] getVertices() {
-//        return vertices.dup;
-//    }
-//
-//    static uint[][] getIndices() {
-//        return indices.dup;
-//    }
-//
-//    static this() {
-//        faces = new FaceList(indices = [
-//                [2,3,1,0], //奥
-//                [4,5,7,6], //手前
-//                [6,7,3,2], //上
-//                [0,1,5,4], //下
-//                [1,3,7,5], //左
-//                [4,6,2,0]  //右
-//                ], Face.Type.TriangleFan);
-//
-//        auto vertices = new VertexList(vertices = [
-//                vec3(-1,-1,-1),
-//                vec3(+1,-1,-1),
-//                vec3(-1,+1,-1),
-//                vec3(+1,+1,-1),
-//                vec3(-1,-1,1),
-//                vec3(+1,-1,1),
-//                vec3(-1,+1,1),
-//                vec3(+1,+1,1)
-//                ]);
-//
-//        faces.setVertexList(vertices);
-//        faces.expandVertex();
-//        faces.generateFlatNormal();
-//        faces.generateTexcoord();
-//    }
-//
-//}
+import std.algorithm;
+import std.array;
+
+class Box {
+
+    private static Geometry geom;
+
+    private this()  {
+    }
+
+    public static Geometry get() {
+        if (geom) return geom;
+        return geom = create();
+    }
+
+    private static Geometry create(float width = 1, float height = 1, float depth = 1) {
+        auto vertices = [
+        vec3(+1,+1,+1),
+        vec3(+1,-1,+1),
+        vec3(-1,-1,+1),
+        vec3(-1,+1,+1),
+        ].map!(a => new Vertex!([Attribute(3, "normal")])(a)).array;
+        uint[] indices = [0,1,2,3];
+        auto g = new GeometryTemp!([Attribute(3, "normal")], Prim.TriangleFan)(vertices, indices);
+        return g;
+    }
+
+}

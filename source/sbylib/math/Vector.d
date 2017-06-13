@@ -102,7 +102,7 @@ body {
         }
     }
 
-    string toString() { //=============================================文字列化
+    string toString() const { //=============================================文字列化
         mixin({
             string code = "return \"(\" ~ ";
             foreach (i; 0..S) {

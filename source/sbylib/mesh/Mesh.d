@@ -14,7 +14,10 @@ class Mesh {
         this.obj = new Object3D();
     }
 
-    void render() {
+    void render() in {
+        assert(this.geom);
+        assert(this.mat);
+    } body{
         this.geom.render(this.mat);
     }
 }

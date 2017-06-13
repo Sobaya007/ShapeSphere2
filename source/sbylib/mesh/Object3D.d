@@ -22,12 +22,14 @@ class Object3D {
         this.worldMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = generateWorldMatrix();
         }, new umat4("worldMatrix"));
-        //this.worldMatrix.addWatch(this.pos);
-        //this.worldMatrix.addWatch(this.rot);
+        this.worldMatrix.addWatch(this.pos);
+        this.worldMatrix.addWatch(this.rot);
 
-        //this.viewMatrix = new Watcher!uniformMat4f(() => generateViewMatrix(), new uniformMat4f("viewMatrix"));
-        //this.viewMatrix.addWatch(this.pos);
-        //this.viewMatrix.addWatch(this.rot);
+        this.viewMatrix = new Watcher!umat4((ref umat4 mat) {
+            mat.value = generateViewMatrix();
+        }, new umat4("viewMatrix"));
+        this.viewMatrix.addWatch(this.pos);
+        this.viewMatrix.addWatch(this.rot);
     }
 
     private mat4 generateViewMatrix() {

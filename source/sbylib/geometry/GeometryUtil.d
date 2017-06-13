@@ -1,13 +1,21 @@
 module sbylib.geometry.GeometryUtil;
 
 import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.Attribute;
+import sbylib.geometry.Geometry;
+import sbylib.geometry.Vertex;
+import sbylib.geometry.Face;
+import sbylib.math.Vector;
+import std.algorithm;
+import std.array;
 
-class GeometryUtil(string[] Attributes, Prim Mode) {
-    alias GeometryA = Geometry!(Attributes, Mode);
+class GeometryUtil(Attribute[] Attributes, Prim Mode) {
+    alias GeometryA = GeometryTemp!(Attributes, Mode);
+    alias VertexA = Vertex!(Attributes);
 static:
 
-    Geometry!(Attributes, Prim.Triangle) expandVertex(GeometryA geom) {
-        auto newVertices = geom.faces.map!(face => face.indexList).join.map!(index => geom.vertices[index]).array;
+    GeometryTemp!(Attributes, Prim.Triangle) expandVertex(GeometryA geom) {
+        auto newVertices = geom.faces.map!(face => face.indexList).reduce!((a,b) => a ~ b).map!(index => geom.vertices[index]).array;
         int newIndex = 0;
         Face[] newFaceList;
         foreach (face; geom.faces) {
@@ -17,10 +25,10 @@ static:
             }
             newFaceList ~= new Face(newIndexList);
         }
-        return new Geometry!(Attributes, Prim.Triangle)(newVertices, newFaceList);
+        return new GeometryTemp!(Attributes, Prim.Triangle)(newVertices, newFaceList);
     }
 
-    vec3 computeNormal(vec3[3] vertices) {
+    vec3 computeNormal(const vec3[] vertices) {
         alias v = vertices;
         auto n = cross(v[2] - v[1], v[0] - v[1]).normalize;
         if (n.hasNaN) {
@@ -29,26 +37,17 @@ static:
         return n;
     }
 
-    static if (Attributes.any!(attr => attr == "normal")) {
-        alias GeometryN = GeometryA;
-        alias VertexN = Vertex!(Attributes);
-    } else {
-        alias GeometryN = Gemetry!(Attributes ~ "vec3" ~  "normal", Mode);
-        alias VertexN = Vertex!(Attributes ~ "vec3" ~ "normal");
-    }
+    alias GeometryN = GeometryTemp!(Attributes ~ Attribute(3, "normal"), Mode);
+    alias VertexN = Vertex!(Attributes ~ Attribute(3, "normal"));
 
     GeometryN flatNormal(GeometryA geom) {
         assert(geom.faces.map!(face => face.indexList.length).sum == geom.vertices.length, "Before flatten normals, please expand vertices.");
         VertexN[] newVertices;
         foreach (face; geom.faces) {
-            vec3[3] vertices = [
-            geom.vertices[face.indexList[0]].position,
-                geom.vertices[face.indexList[1]].position,
-            geom.vertices[face.indexList[2]].position
-            ];
-            auto normal = computeNormal(vertices);
+            auto vertices = face.indexList.map!(i => geom.vertices[i]).array;
+            auto normal = computeNormal(vertices.map!(v => v.position).array);
             foreach (v; vertices) {
-                auto newV = v.to!(Attributes ~ "vec3" ~ "normal");
+                auto newV = v.to!(Attributes ~ Attribute(3, "normal"));
                 newV.normal = normal;
                 newVertices ~= newV;
             }

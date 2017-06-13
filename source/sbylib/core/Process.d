@@ -9,8 +9,9 @@ class Process {
         this._isAlive = true;
     }
 
-    void step() {
+    package bool step() {
         this.func(this);
+        return _isAlive;
     }
 
     void kill() {

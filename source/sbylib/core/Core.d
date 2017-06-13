@@ -3,31 +3,35 @@ module sbylib.core.Core;
 import std.datetime;
 import core.thread;
 import derelict.sdl2.sdl;
-import derelict.openal.al;
-import derelict.alure.alure;
 import sbylib.core;
 import sbylib.camera;
-import sbylib.wrapper.al;
-import sbylib.wrapper.gl;
 import sbylib.input;
 import sbylib.shadertemplates;
 import sbylib.utils;
 import sbylib.setting;
+import sbylib.wrapper.al.AL;
 import sbylib.wrapper.gl.GL;
 import sbylib.wrapper.glfw.GLFW;
 import sbylib.wrapper.freetype.FreeType;
 import sbylib.wrapper.freeimage.FreeImage;
 import sbylib.wrapper.glfw.Window;
 import sbylib.wrapper.freetype.Font;
+import sbylib.utils.FpsBalancer;
+import sbylib.core.Process;
+import sbylib.wrapper.gl.Functions;
+import sbylib.wrapper.gl.Constants;
+import sbylib.math.Vector;
 static import std.file, std.path;
 import std.stdio, std.string;
+import std.algorithm;
+import std.array;
 
 /*
    SbyLibを動かすための準備をするクラスです。
    SbyCore.init(time);で初期化します。timeは1フレームにかかる時間です。
  */
 
-class SbyCore {
+class Core {
     static this() {
         /*
         string path = std.file.thisExePath();
@@ -45,32 +49,24 @@ class SbyCore {
         // for DEBUG ここまで
 
         DerelictSDL2.load(SDL2_DLL_PATH);
-        DerelictAL.load();
-        DerelictALURE.load(ALURE_DLL_PATH);
 
+        AL.init();
         GL.init();
         GLFW.init();
         FreeType.init();
         FreeImage.init();
-        AudioStore.init();
         JoyStick.init();
     }
 
-    Window currentWindow; //現在のウインドウ
-    Camera currentCamera; //現在のカメラ
-    Font currentFont;     //現在のフォント
-    long currentFrameTime; //milliseconds
-    float fps; //FPS
-    Texture backBuffer; //バックバッファ
+    Window window; //現在のウインドウ
+    World world;
+    private FpsBalancer fpsBalancer;
+    private Process[] processes;
 
     //初期化関数
     this() {
-        this.currentWindow = new Window("Window Title", 800, 600);
-    }
-
-    void setFPS(float fps) {
-        this.fps = fps;
-        this.currentFrameTime = cast(long)(1000 / fps);
+        this.window = new Window("Window Title", 800, 600);
+        this.fpsBalancer = new FpsBalancer(60);
     }
 
     void start() {
@@ -79,32 +75,56 @@ class SbyCore {
         ShaderStore.init;
         initFunctions();
 
-        backBuffer = new Texture(currentWindow.width, currentWindow.height, ImageType.Depth);
-
         mainLoop();
+    }
+
+    Process addProcess(const void delegate(Process) func) {
+        auto proc = new Process(func);
+        this.processes ~= proc;
+        return proc;
     }
 
     //メインループ
     private void mainLoop() {
-        StopWatch sw;
-        sw.start();
-        StopWatch sw2;
-        while (!currentWindow.shouldClose)
-            {
-            sw2.start;
-            //バッファを更新
-            currentWindow.swapBuffers();
-            //イベントをさばく
-            currentWindow.pollEvents();
-            auto period = sw.peek().msecs();
-            if (currentFrameTime > period)
-                Thread.sleep(dur!("msecs")(currentFrameTime - period));
-            sw.start();
-            stdout.flush();
-        }
+        import std.stdio;
+        import sbylib;
+        auto vbo = new VertexBuffer;
+        vbo.sendData([
+                 -1.0f, -1.0f, 0.0f,
+                1.0f, -1.0f, 0.0f,
+                0.0f,  1.0f, 0.0f
+                ], BufferUsage.Static);
+        //auto vert = new Shader("
+        //#version 400
+        //in vec2 pos;
+        //void main() {
+        //   gl_Position = vec4(pos, 0, 1);
+        //}
+        //", ShaderType.Vertex);
+        //auto frag = new Shader("
+        //#version 400
+        //out vec4 color;
+        //void main() {
+        //color = vec4(1);
+        //}", ShaderType.Fragment);
+        //auto program = new ShaderProgram([vert, frag]);
+        //program.attachAttribute(Attribute(2, "pos"), vbo);
+        this.fpsBalancer.loop(() {
+            //this.processes = this.processes.filter!(proc => proc.step).array;
+            clearColor(vec4(0,.5,.5,1));
+            clear(ClearMode.Color, ClearMode.Depth);
+            import derelict.opengl;
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, null);
+            drawArrays(Prim.Triangle, 0, 3);
+                glDisableVertexAttribArray(0);
+            //this.world.render();
+            this.window.swapBuffers();
+            this.window.pollEvents();
+            return window.shouldClose();
+        });
         //後始末
         GLFW.terminate();
-        //alureShutdownDevice();
+        AL.terminate();
     }
 }
-

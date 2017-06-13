@@ -3,10 +3,11 @@ module sbylib.wrapper.gl.BufferObject;
 import derelict.opengl;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Functions;
+import std.conv;
 
 interface BufferObject(BufferType Type) {
-    void bind();
-    void unbind();
+    void bind() const;
+    void unbind() const;
 }
 
 class BufferObject(BufferType Type, T) : BufferObject!Type {
@@ -23,11 +24,11 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         glDeleteVertexArrays(1, &this.id);
     }
 
-    override void bind() {
+    override void bind() const {
         glBindBuffer(Type, this.id);
     }
 
-    override void unbind() {
+    override void unbind() const {
         glBindBuffer(Type, 0);
     }
 
@@ -44,10 +45,9 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     }
 
     void asAttribute(uint dim, uint location) {
-        assert(1 <= dim && dim <= 4);
+        assert(1 <= dim && dim <= 4, "dimension must be 1 ~ 4. given " ~ to!string(dim));
         this.bind();
         glVertexAttribPointer(location, dim, getTypeEnum!(T), false, cast(int)(dim * float.sizeof), null);
-        this.unbind();
     }
 }
 

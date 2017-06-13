@@ -30,8 +30,8 @@ class ShaderProgram {
 
         void attachAttribute(Attribute attr, VertexBuffer buffer) {
             immutable loc = this.getAttribLocation(attr.name);
-            buffer.asAttribute(loc, attr.dim);
             glEnableVertexAttribArray(loc);
+            buffer.asAttribute(attr.dim, loc);
         }
 
         void attachUniform(inout Uniform uniform) {
@@ -41,13 +41,13 @@ class ShaderProgram {
 
         private uint getAttribLocation(string name) {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);
-            assert(vLoc != -1, name ~ " is not found or used."); 
+            //if (vLoc == -1) writeln(name ~ " is not found or used."); 
             return vLoc;
         }
 
         private uint getUniformLocation(string name) {
             int uLoc = glGetUniformLocation(this.id, name.toStringz);
-            assert(uLoc != -1, name ~ " is not found or used."); 
+            //if (uLoc == -1) writeln(name ~ " is not found or used."); 
             return uLoc;
         }
 

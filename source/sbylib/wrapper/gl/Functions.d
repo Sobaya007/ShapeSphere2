@@ -27,15 +27,19 @@ void captureScreen(Texture tex, int left, int bottom, int width, int height) {
 }
 
 template getTypeEnum(T) {
-    static if (is(T == ubyte)) enum getTypeEnum = GLType.Ubyte;
-    else static if (is(T == byte)) enum getTypeEnum = GLType.Byte;
-    else static if (is(T == ushort)) enum getTypeEnum = GLType.Ushort;
-    else static if (is(T == short)) enum getTypeEnum = GLType.Short;
-    else static if (is(T == uint)) enum getTypeEnum = GLType.Uint;
-    else static if (is(T == int)) enum getTypeEnum = GLType.Int;
-    else static if (is(T == float)) enum getTypeEnum = GLType.Float;
-    else static if (is(T == double)) enum getTypeEnum = GLType.Double;
+    static if (is(T == ubyte)) enum GLType getTypeEnum = GLType.Ubyte;
+    else static if (is(T == byte)) enum GLType getTypeEnum = GLType.Byte;
+    else static if (is(T == ushort)) enum GLType getTypeEnum = GLType.Ushort;
+    else static if (is(T == short)) enum GLType getTypeEnum = GLType.Short;
+    else static if (is(T == uint)) enum GLType getTypeEnum = GLType.Uint;
+    else static if (is(T == int)) enum GLType getTypeEnum = GLType.Int;
+    else static if (is(T == float)) enum GLType getTypeEnum = GLType.Float;
+    else static if (is(T == double)) enum GLType getTypeEnum = GLType.Double;
     else static assert(false, T.stringof ~ " is an invalid type.");
+}
+
+void drawArrays(Prim prim, uint offset, uint count) {
+    glDrawArrays(prim, offset, count);
 }
 
 void drawElements(IndexType)(Prim prim, IndexType[] indices)
@@ -43,10 +47,10 @@ if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) 
     glDrawElements(prim, indices.length, getTypeEnum(IndexType), indices.ptr);
 }
 
-void drawElements(IndexType)(Prim prim, uint indicesCount, BufferObject!(BufferType.ElementArray, IndexType) indices)
+void drawElements(IndexType)(const Prim prim, const uint indicesCount, const BufferObject!(BufferType.ElementArray, IndexType) indices)
 if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
     indices.bind();
-    glDrawElements(prim, indicesCount, getTypeEnum(IndexType), null);
+    glDrawElements(prim, indicesCount, getTypeEnum!(IndexType), null);
     indices.unbind();
 }
 
