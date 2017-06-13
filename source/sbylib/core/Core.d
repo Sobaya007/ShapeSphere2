@@ -88,36 +88,42 @@ class Core {
     private void mainLoop() {
         import std.stdio;
         import sbylib;
+            import derelict.opengl;
         auto vbo = new VertexBuffer;
+        vbo.bind();
         vbo.sendData([
                  -1.0f, -1.0f, 0.0f,
                 1.0f, -1.0f, 0.0f,
                 0.0f,  1.0f, 0.0f
                 ], BufferUsage.Static);
-        //auto vert = new Shader("
-        //#version 400
-        //in vec2 pos;
-        //void main() {
-        //   gl_Position = vec4(pos, 0, 1);
-        //}
-        //", ShaderType.Vertex);
-        //auto frag = new Shader("
-        //#version 400
-        //out vec4 color;
-        //void main() {
-        //color = vec4(1);
-        //}", ShaderType.Fragment);
-        //auto program = new ShaderProgram([vert, frag]);
+        auto vao = new VertexArray;
+        vao.bind();
+        glEnableVertexAttribArray(0);
+        vbo.bind();
+        vbo.asAttribute(3, 0);
+
+
+        auto vert = new Shader("
+        #version 400
+        in vec3 pos;
+        void main() {
+           gl_Position = vec4(pos, 1);
+        }
+        ", ShaderType.Vertex);
+        auto frag = new Shader("
+        #version 400
+        out vec4 color;
+        void main() {
+        color = vec4(1);
+        }", ShaderType.Fragment);
+        auto program = new ShaderProgram([vert, frag]);
         //program.attachAttribute(Attribute(2, "pos"), vbo);
         this.fpsBalancer.loop(() {
             //this.processes = this.processes.filter!(proc => proc.step).array;
             clearColor(vec4(0,.5,.5,1));
             clear(ClearMode.Color, ClearMode.Depth);
-            import derelict.opengl;
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, null);
+                vao.bind();
             drawArrays(Prim.Triangle, 0, 3);
-                glDisableVertexAttribArray(0);
             //this.world.render();
             this.window.swapBuffers();
             this.window.pollEvents();

@@ -21,7 +21,7 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     }
 
     ~this() {
-        glDeleteVertexArrays(1, &this.id);
+   //     glDeleteVertexArrays(1, &this.id);
     }
 
     override void bind() const {
@@ -33,9 +33,9 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     }
 
     void sendData(T[] data, BufferUsage freq) {
-        this.bind();
+//        this.bind();
         glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
-        this.unbind();
+//        this.unbind();
     }
 
     void sendSubData(T[] data) {
@@ -47,7 +47,8 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     void asAttribute(uint dim, uint location) {
         assert(1 <= dim && dim <= 4, "dimension must be 1 ~ 4. given " ~ to!string(dim));
         this.bind();
-        glVertexAttribPointer(location, dim, getTypeEnum!(T), false, cast(int)(dim * float.sizeof), null);
+        //glVertexAttribPointer(location, dim, getTypeEnum!(T), false, cast(int)(dim * float.sizeof), null);
+        glVertexAttribPointer(location, dim, getTypeEnum!(T), false, 0, null);
     }
 }
 

@@ -15,7 +15,7 @@ class VertexArray {
     }
 
     ~this() {
-        glDeleteVertexArrays(1, &id);
+//        glDeleteVertexArrays(1, &id);
     }
 
     void attachBuffers(VertexBuffer[] buffers) {
@@ -24,11 +24,11 @@ class VertexArray {
         this.unbind();
     }
 
-    private void bind() const {
+    void bind() const {
         glBindVertexArray(id);
     }
 
-    private void unbind() const {
+    void unbind() const {
         glBindVertexArray(0);
     }
 }
