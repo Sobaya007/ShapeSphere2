@@ -28,9 +28,13 @@ class ShaderProgram {
             glUseProgram(id);
         }
 
-        void attachAttribute(Attribute attr, VertexBuffer buffer) {
+        void enableAttribute(Attribute attr) {
             immutable loc = this.getAttribLocation(attr.name);
             glEnableVertexAttribArray(loc);
+        }
+
+        void attachAttribute(Attribute attr, VertexBuffer buffer) {
+            immutable loc = this.getAttribLocation(attr.name);
             buffer.asAttribute(attr.dim, loc);
         }
 
@@ -41,7 +45,7 @@ class ShaderProgram {
 
         private uint getAttribLocation(string name) {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);
-            //if (vLoc == -1) writeln(name ~ " is not found or used."); 
+            //if (vLoc == -1) writeln(name ~ " is not found or used.");
             return vLoc;
         }
 

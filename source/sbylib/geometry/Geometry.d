@@ -16,7 +16,9 @@ import std.array;
 import std.typecons;
 
 interface Geometry {
-    void render(Material material);
+    void render(VertexArray vao);
+    Tuple!(Attribute, VertexBuffer)[] getBuffers();
+    IndexBuffer getIndexBuffer();
 }
 
 class GeometryTemp(Attribute[] Attributes, Prim Mode) : Geometry{
@@ -25,8 +27,8 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode) : Geometry{
     const VertexA[] vertices;
     const Face[] faces;
     const uint indicesCount;
-    IndexBuffer ibo;
-    Tuple!(Attribute, VertexBuffer)[] buffers;
+    private IndexBuffer ibo;
+    private Tuple!(Attribute, VertexBuffer)[] buffers;
 
     this(VertexA[] vertices, uint[] indices) {
         this.vertices = vertices;
@@ -66,8 +68,14 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode) : Geometry{
         this.faces = faces;
     }
 
-    override void render(Material material) {
-        material.set(this.buffers);
-        drawElements(Mode, this.indicesCount, this.ibo);
+    override void render(VertexArray vao) {
+        vao.drawElements!uint(Mode, this.indicesCount);
+    }
+
+    override Tuple!(Attribute, VertexBuffer)[] getBuffers() {
+        return this.buffers;
+    }
+    override IndexBuffer getIndexBuffer() {
+        return this.ibo;
     }
 }

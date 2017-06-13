@@ -89,42 +89,37 @@ class Core {
         import std.stdio;
         import sbylib;
             import derelict.opengl;
-        auto vbo = new VertexBuffer;
-        vbo.bind();
-        vbo.sendData([
-                 -1.0f, -1.0f, 0.0f,
-                1.0f, -1.0f, 0.0f,
-                0.0f,  1.0f, 0.0f
-                ], BufferUsage.Static);
-        auto vao = new VertexArray;
-        vao.bind();
-        glEnableVertexAttribArray(0);
-        vbo.bind();
-        vbo.asAttribute(3, 0);
 
-
-        auto vert = new Shader("
-        #version 400
-        in vec3 pos;
-        void main() {
-           gl_Position = vec4(pos, 1);
-        }
-        ", ShaderType.Vertex);
-        auto frag = new Shader("
-        #version 400
-        out vec4 color;
-        void main() {
-        color = vec4(1);
-        }", ShaderType.Fragment);
-        auto program = new ShaderProgram([vert, frag]);
-        //program.attachAttribute(Attribute(2, "pos"), vbo);
+//        auto mat = new LambertMaterial();
+//        auto box = Box.get();
+//        auto vbo = new VertexBuffer;
+//        vbo.sendData([
+//                 +0.5,+0.5,+0.5f,
+//                 +0.5,-0.5,+0.5,
+//                 -0.5,-0.5,+0.5,
+//                 -0.5,+0.5,+0.5,
+//                ], BufferUsage.Static);
+//        auto ibo = new IndexBuffer();
+//        ibo.sendData([0,1,2, 3], BufferUsage.Static);
+//        auto vao = new VertexArray;
+//        //vao.setup(mat.shader, box.getBuffers(), box.getIndexBuffer());
+//        vao.bind();
+//        box.getBuffers()[0][1].bind();
+//        box.getIndexBuffer().bind();
+//        //vbo.bind();
+//        //ibo.bind();
+//        writeln(box.getBuffers());
+//        writeln(vbo);
+//        //mat.shader.attachAttribute(Attribute.Position, box.getBuffers()[0][1]);
+//        mat.shader.attachAttribute(Attribute.Position, vbo);
+//        mat.shader.enableAttribute(Attribute.Position);
+//        vao.unbind();
         this.fpsBalancer.loop(() {
             //this.processes = this.processes.filter!(proc => proc.step).array;
             clearColor(vec4(0,.5,.5,1));
             clear(ClearMode.Color, ClearMode.Depth);
-                vao.bind();
-            drawArrays(Prim.Triangle, 0, 3);
-            //this.world.render();
+//            vao.drawElements!uint(Prim.TriangleFan, 4);
+            this.world.render();
             this.window.swapBuffers();
             this.window.pollEvents();
             return window.shouldClose();

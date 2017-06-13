@@ -13,6 +13,7 @@ interface BufferObject(BufferType Type) {
 class BufferObject(BufferType Type, T) : BufferObject!Type {
 
     private immutable uint id;
+    private size_t _size;
 
     this() {
         uint id;
@@ -24,6 +25,10 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
    //     glDeleteVertexArrays(1, &this.id);
     }
 
+    size_t size() {
+        return _size;
+    }
+
     override void bind() const {
         glBindBuffer(Type, this.id);
     }
@@ -33,9 +38,10 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     }
 
     void sendData(T[] data, BufferUsage freq) {
-//        this.bind();
+        this.bind();
         glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
-//        this.unbind();
+        this.unbind();
+        this._size = data.length;
     }
 
     void sendSubData(T[] data) {
@@ -47,8 +53,8 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     void asAttribute(uint dim, uint location) {
         assert(1 <= dim && dim <= 4, "dimension must be 1 ~ 4. given " ~ to!string(dim));
         this.bind();
-        //glVertexAttribPointer(location, dim, getTypeEnum!(T), false, cast(int)(dim * float.sizeof), null);
         glVertexAttribPointer(location, dim, getTypeEnum!(T), false, 0, null);
+        this.unbind();
     }
 }
 

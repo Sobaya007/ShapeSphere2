@@ -38,22 +38,6 @@ template getTypeEnum(T) {
     else static assert(false, T.stringof ~ " is an invalid type.");
 }
 
-void drawArrays(Prim prim, uint offset, uint count) {
-    glDrawArrays(prim, offset, count);
-}
-
-void drawElements(IndexType)(Prim prim, IndexType[] indices)
-if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
-    glDrawElements(prim, indices.length, getTypeEnum(IndexType), indices.ptr);
-}
-
-void drawElements(IndexType)(const Prim prim, const uint indicesCount, const BufferObject!(BufferType.ElementArray, IndexType) indices)
-if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
-    indices.bind();
-    glDrawElements(prim, indicesCount, getTypeEnum!(IndexType), null);
-    indices.unbind();
-}
-
 deprecated void lineWidth(float width) {
     glLineWidth(width);
 }

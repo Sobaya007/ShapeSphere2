@@ -25,14 +25,17 @@ class Box {
 
     private static Geometry create(float width = 1, float height = 1, float depth = 1) {
         auto vertices = [
-        vec3(+1,+1,+1),
-        vec3(+1,-1,+1),
-        vec3(-1,-1,+1),
-        vec3(-1,+1,+1),
-        ].map!(a => new Vertex!([Attribute(3, "normal")])(a)).array;
+        vec3(+0.5,+0.5,+0.5),
+        vec3(+0.5,-0.5,+0.5),
+        vec3(-0.5,-0.5,+0.5),
+        vec3(-0.5,+0.5,+0.5),
+        ].map!((a) {
+            auto v = new VertexV();
+            v.pos = a;
+            return v;
+        }).array;
         uint[] indices = [0,1,2,3];
-        auto g = new GeometryTemp!([Attribute(3, "normal")], Prim.TriangleFan)(vertices, indices);
+        auto g = new GeometryTemp!([Attribute.Position], Prim.TriangleFan)(vertices, indices);
         return g;
     }
-
 }

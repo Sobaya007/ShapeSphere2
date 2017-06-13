@@ -4,7 +4,9 @@ import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Attribute;
 import sbylib.wrapper.gl.BufferObject;
+import sbylib.wrapper.gl.VertexArray;
 import sbylib.utils.Watcher;
+import sbylib.material.Constants;
 import std.algorithm;
 import std.typecons;
 import std.array;
@@ -15,21 +17,31 @@ abstract class Material {
 
     const ShaderProgram shader;
     const(Uniform) delegate()[] getUniforms;
+    private UniformDemand[] demands;
 
-    this(Args...)(const ShaderProgram shader, Args uniforms) {
+    this(const ShaderProgram shader) {
         this.shader = shader;
-        foreach (uniform; uniforms) {
-            this.getUniforms ~= () => uniform.get;
-        }
+        this.demands = createDemands();
     }
 
-    void set(Tuple!(Attribute, VertexBuffer)[] buffers) {
+    const(UniformDemand[]) getDemands() {
+        return this.demands;
+    }
+
+    final void addUniform(const(Uniform) delegate() getUniform) {
+        this.getUniforms ~= getUniform;
+    }
+    final void addUniform(T...)(UniformDemand demand, Watcher!(UniformTemp!T) watcher) {
+        this.getUniforms ~= () => watcher.get();
+        this.demands = this.demands.remove(demand);
+    }
+
+    final void set(Tuple!(Attribute, VertexBuffer)[] buffers) {
         this.shader.use();
-        foreach (tuple; buffers) {
-            this.shader.attachAttribute(tuple[0], tuple[1]);
-        }
         foreach (getUniform; getUniforms) {
             this.shader.attachUniform(getUniform());
         }
     }
+
+    protected abstract UniformDemand[] createDemands();
 }

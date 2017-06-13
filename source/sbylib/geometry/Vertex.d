@@ -12,14 +12,7 @@ template GenAttribute(Attribute[] attr) {
 }
 
 class Vertex(Attribute[] Attributes) {
-    const {
-        vec3 position;
-    }
     mixin(GenAttribute!(Attributes));
-
-    this(vec3 p) {
-        this.position = p;
-    }
 
     Vertex!(Attributes2) to(Attribute[] Attributes2)() {
         static names = Attributes.map!(a => a.name).array;
@@ -36,7 +29,7 @@ class Vertex(Attribute[] Attributes) {
     }
 
     override string toString() {
-        auto res = "Vertex {\n\tpos = " ~ this.position.toString();
+        auto res = "Vertex {";
         foreach (attr; Range!(Attribute, Attributes)) {
             res ~= "\n\t" ~ attr.name ~ " = " ~ __traits(getMember, this, attr.name).toString();
         }
@@ -45,7 +38,7 @@ class Vertex(Attribute[] Attributes) {
     }
 }
 
-alias VertexV = Vertex!([]);
-alias VertexN = Vertex!([Attribute(3, "normal")]);
-alias VertexT = Vertex!([Attribute(2, "uv")]);
-alias VertexNT = Vertex!([Attribute(3, "normal"), Attribute(2, "uv")]);
+alias VertexV = Vertex!([Attribute.Position]);
+alias VertexN = Vertex!([Attribute.Position, Attribute.Normal]);
+alias VertexT = Vertex!([Attribute.Position, Attribute.UV]);
+alias VertexNT = Vertex!([Attribute.Position, Attribute.Normal, Attribute.UV]);

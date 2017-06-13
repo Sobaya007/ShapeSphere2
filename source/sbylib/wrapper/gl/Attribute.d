@@ -5,6 +5,11 @@ import sbylib.wrapper.gl.BufferObject;
 import std.conv;
 
 struct Attribute {
+
+    enum Position = Attribute(3, "pos");
+    enum Normal = Attribute(3, "normal");
+    enum UV = Attribute(2, "uv");
+
     immutable {
         uint dim;
         string name;
