@@ -10,7 +10,6 @@ uniform mat4 projMatrix;
 out vec3 vNormal;
 
 void main() {
-  gl_Position = vec4(pos, 1);
-  //gl_Position = projMatrix * viewMatrix * worldMatrix * vec4(vertex, 1);
+  gl_Position = viewMatrix * worldMatrix * vec4(pos, 1);
   vNormal = (worldMatrix * vec4(normal, 0)).xyz;
 }

@@ -6,10 +6,7 @@ import std.math;
 import std.string;
 import std.stdio;
 import std.traits;
-
-/*
-   やっぱ縦横かえます！ホントのやつにします！2016/2/18
- */
+import std.format;
 
 //T型のUxV行列
 /*
@@ -35,7 +32,7 @@ public:
         assert(elements.length <= U*V);
     } body {
         foreach(i, e; elements) {
-            this[i/V,i%V] = e;
+            this[i%V,i/V] = e;
         }
     }
 
@@ -53,7 +50,7 @@ public:
         }());
     }
 
-    Matrix opBinary(string op, S, uint P, uint Q)(Matrix!(S, P,Q)  m) const if ((op == "+" || op == "-") && U == P && V == Q) {
+    Matrix opBinary(string op, S, uint P, uint Q)(const Matrix!(S, P,Q)  m) const if ((op == "+" || op == "-") && U == P && V == Q) {
         static if (isImplicitlyConvertible!(T,S)) {
             alias Type = S;
         } else {
@@ -65,7 +62,7 @@ public:
         return result;
     }
 
-    Matrix!(S,U,Q) opBinary(string op, S, uint P, uint Q)(Matrix!(S,P,Q) m) if (op == "*" && V == P) {
+    Matrix!(S,U,Q) opBinary(string op, S, uint P, uint Q)(const Matrix!(S,P,Q) m) if (op == "*" && V == P) {
         static if (isImplicitlyConvertible!(T,S)) {
             alias Type = S;
         } else {
@@ -313,7 +310,7 @@ public:
             }
 
             Matrix!(T,3,3) toMatrix3() {
-                return Matrix!(T,3,3)(element[0..3]~element[4..6]~element[6..9]);
+                return Matrix!(T,3,3)(element[0..3]~element[4..7]~element[8..11]);
             }
 
             vec3 getScale() {
@@ -575,15 +572,22 @@ public:
     }
 
     string toString(T epsilon = 0) inout {
-        mixin(getStringCode(U, V));
+        string res;
+        foreach (i; 0..U) {
+            res ~= "\n\t";
+            foreach (j; 0..V) {
+                res ~= format!"%10f,"(this[i,j]);
+            }
+        }
+        return res;
     }
 
-    T opIndex(size_t x, size_t y) inout {
-        return element[y*V+x];
+    T opIndex(size_t i, size_t j) inout { //i = tate, y = yoko
+        return element[j+i*V];
     }
 
-    T opIndexAssign(T value, size_t x, size_t y) {
-        return element[y*V+x] = value;
+    T opIndexAssign(T value, size_t i, size_t j) {
+        return element[j+i*V] = value;
     }
 
     T opIndexOpAssign(string op)(T value, size_t x, size_t y) {
@@ -606,12 +610,12 @@ alias Matrix!(double, 4, 4) mat4d;
 //============================================================================以下mixin用の関数達
 
 private static string multMMCode(uint U, uint V, uint P, uint Q) {
-    string code = "";
-    foreach (y;0..U) {
-        foreach (x; 0..Q) {
-            code ~= "result[" ~ to!string(y) ~ "," ~ to!string(x) ~ "] = ";
-            foreach (i; 0..V) {
-                code ~= "+ this[" ~ to!string(y) ~ "," ~ to!string(i) ~ "] * m[" ~ to!string(i) ~ "," ~ to!string(x) ~ "]";
+    string code;
+    foreach (i; 0..U) {
+        foreach (j; 0..V) {
+            code ~= format!"result[%d,%d] = "(i,j);
+            foreach (k; 0..V) {
+                code ~= format!"+ this[%d,%d] * m[%d,%d]"(i,k,k,j);
             }
             code ~= ";";
         }
@@ -622,9 +626,9 @@ private static string multMMCode(uint U, uint V, uint P, uint Q) {
 private static string multMVCode(uint U, uint V) {
     string code;
     foreach (i; 0..U) {
-        code ~= "result[" ~ to!string(i) ~ "] = ";
+        code ~= format!"result[%d] = "(i);
         foreach (j; 0..V) {
-            code ~= "+ this[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] * v[" ~ to!string(j) ~ "]";
+            code ~= format!"+this[%d, %d] * v[%d]"(i,j,j);
         }
         code ~= ";";
     }
@@ -657,11 +661,11 @@ private static string getidentityCode(uint U, uint V) {
 
 private static string getTranslationCode(uint U, uint V) {
     string code;
-    foreach (i; 0..V) {
-        foreach (j; 0..U) {
-            code ~= "result[" ~ to!string(j) ~ "," ~ to!string(i) ~ "] = ";
+    foreach (i; 0..U) {
+        foreach (j; 0..V) {
+            code ~= format!"result[%d,%d] = "(i,j);
             if (i == j) code ~= "1;";
-            else if (i == V-1) code ~= "vec[" ~ to!string(j) ~ "];";
+            else if (j == V-1) code ~= format!"vec[%d];"(i);
             else code ~= "0;";
         }
     }
@@ -738,60 +742,46 @@ private static string getLookAtCode() {
     code ~= "Vector!(T,3) side;";
     //sideを外積で生成
     foreach (i; 0..3) {
-        code ~= "side[" ~ to!string(i) ~ "] = up[" ~ to!string((i+1)%3) ~ "] * vec[" ~
-            to!string((i+2)%3) ~ "] - up[" ~
-            to!string((i+2)%3) ~ "] * vec[" ~ to!string((i+1)%3) ~ "];";
+        code ~= format!"side[%d] = up[%d] * vec[%d] - up[%d] * vec[%d];"(i, (i+1)%3, (i+2)%3, (i+2)%3, (i+1)%3);
     }
     //sideを正規化
     code ~= "T length = sqrt(";
     foreach (i; 0..3) {
-        code ~="+side[" ~ to!string(i) ~ "] * side[" ~ to!string(i) ~ "]";
+        code ~= format!"+side[%d]*side[%d]"(i,i);
     }
     code ~= ");";
     foreach (i; 0..3) {
-        code ~= "side[" ~ to!string(i) ~ "] /= length;";
+        code ~= format!"side[%d] /= length;"(i);
     }
     //upを再計算
     foreach (i; 0..3) {
-        code ~= "up[" ~ to!string(i) ~ "] = vec[" ~ to!string((i+1)%3) ~ "] * side[" ~
-            to!string((i+2)%3) ~ "] - vec[" ~
-            to!string((i+2)%3) ~ "] * side[" ~ to!string((i+1)%3) ~ "];";
+        code ~= format!"up[%d] = vec[%d] * side[%d] - vec[%d] * side[%d];"(i,(i+1)%3,(i+2)%3,(i+2)%3,(i+1)%3);
     }
     //upを正規化
     code ~= "length = sqrt(";
     foreach (i; 0..3) {
-        code ~="+up[" ~ to!string(i) ~ "] * up[" ~ to!string(i) ~ "]";
+        code ~= format!"+up[%d] * up[%d]"(i,i);
     }
     code ~= ");";
     foreach (i; 0..3) {
-        code ~= "up[" ~ to!string(i) ~ "] /= length;";
+        code ~= format!"up[%d] /= length;"(i);
     }
 
     //行列
     foreach (i; 0..3) {
-        code ~= "result[0," ~ to!string(i) ~
-            "] = side[" ~ to!string(i) ~ "];";
-    }
-
-    foreach (i; 0..3) {
-        code ~= "result[1," ~ to!string(i) ~
-            "] = up[" ~ to!string(i) ~ "];";
+        code ~= format!"result[0,%d] = side[%d];"(i,i);
+        code ~= format!"result[1,%d] = up[%d];"(i,i);
+        code ~= format!"result[2,%d] = vec[%d];"(i,i);
     }
     foreach (i; 0..3) {
-        code ~= "result[2," ~ to!string(i) ~
-            "] = -vec[" ~ to!string(i) ~ "];";
-    }
-    foreach (i; 0..3) {
-        code ~= "result[" ~ to!string(i) ~
-            ",3] = ";
+        code ~= format!"result[%d,3] = "(i);
         foreach (j; 0..3) {
-            code ~= "-eye[" ~ to!string(j) ~ "] * result[" ~ to!string(i)
-             ~ "," ~ to!string(j) ~ "]";
+            code ~= format!"-eye[%d] * result[%d, %d]"(j, i, j);
         }
         code ~= ";";
     }
     foreach (i; 0..3) {
-        code ~= "result[3," ~ to!string(i) ~ "] = 0;";
+        code ~= format!"result[3, %d] = 0;"(i);
     }
     code ~= "result[3,3] = 1;";
     return code;
@@ -822,22 +812,22 @@ private static string getOrthoCode() {
 private static string getPerspectiveCode() {
     string code;
     foreach (i; 0..4) {
-        if (i != 0) code ~= "result[0," ~ to!string(i) ~ "] = 0;";
+        if (i != 0) code ~= format!"result[0,%d] = 0;"(i);
     }
     foreach (i; 0..4) {
-        if (i != 1) code ~= "result[1," ~ to!string(i) ~ "] = 0;";
+        if (i != 1) code ~= format!"result[1,%d] = 0;"(i);
+    }
+    foreach (i; 0..2) {
+        code ~= format!"result[2,%d] = 0;"(i);
     }
     foreach (i; 0..4) {
-        if (i < 2) code ~= "result[2," ~ to!string(i) ~ "] = 0;";
-    }
-    foreach (i; 0..4) {
-        if (i != 2) code ~= "result[3," ~ to!string(i) ~ "] = 0;";
+        if (i != 2) code ~= format!"result[3,%d] = 0;"(i);
     }
     code ~= "result[0,0] = 1 / (aspectWperH * tan(fovy/2));";
     code ~= "result[1,1] = 1 / (tan(fovy/2));";
-    code ~= "result[2,2] = farZ / (farZ - nearZ);";
-    code ~= "result[2,3] = nearZ * farZ / (nearZ - farZ);";
-    code ~= "result[3,2] = 1;";
+    code ~= "result[2,2] = (nearZ+farZ)/(nearZ-farZ);";
+    code ~= "result[2,3] = 2 * nearZ * farZ / (nearZ - farZ);";
+    code ~= "result[3,2] = -1;";
     return code;
 }
 
@@ -866,4 +856,15 @@ private static string getCopyCode(string identifier, uint U, uint V) {
         }
     }
     return code;
+}
+
+
+unittest {
+    auto p = vec4(0,1,2,1);
+    auto m = mat4(
+            1,0,0,100,
+            0,1,0,200,
+            0,0,1,300,
+            0,0,0,1);
+    assert(m * p == vec4(100,201,302,1));
 }

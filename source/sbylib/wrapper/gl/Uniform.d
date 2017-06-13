@@ -41,6 +41,17 @@ class UniformTemp(Type) : Uniform {
         }
     }
 
+    override string toString() const {
+        import std.format;
+        return format!"Uniform[%s]: %s"(this.name, this.value);
+    }
+
+    inout(Type) get() inout {
+        import std.stdio;
+        writeln(this.toString());
+        return value;
+    }
+
     alias value this;
 }
 

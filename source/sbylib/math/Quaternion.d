@@ -43,6 +43,55 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         this(v.x,v.y,v.z,w);
     }
 
+    //from marupeke296.com
+    this(Matrix!(T, 3, 3) m) {
+        auto elem = [
+         +m[0,0] - m[1,1] - m[2,2] + 1,
+        -m[0,0] + m[1,1] - m[2,2] + 1,
+        -m[0,0] - m[1,1] + m[2,2] + 1,
+        +m[0,0] + m[1,1] + m[2,2] + 1,
+        ];
+
+        uint biggestIndex = 0;
+        foreach (i; 1..4) {
+            if (elem[i] > elem[biggestIndex]) {
+                biggestIndex = i;
+            }
+        }
+        assert(elem[biggestIndex] >= 0);
+
+        auto v = sqrt(elem[biggestIndex]) / 2;
+        auto q = new T[4];
+        q[biggestIndex] = v;
+        float mult = 0.25f / v;
+        final switch (biggestIndex) {
+        case 0:
+            q[1] = (m[0,1] + m[1,0]) * mult;
+            q[2] = (m[0,2] + m[2,0]) * mult;
+            q[3] = (m[2,1] - m[1,2]) * mult;
+            break;
+        case 1:
+            q[0] = (m[0,1] + m[1,0]) * mult;
+            q[2] = (m[1,2] + m[2,1]) * mult;
+            q[3] = (m[0,2] - m[2,0]) * mult;
+            break;
+        case 2:
+            q[0] = (m[0,2] + m[2,0]) * mult;
+            q[1] = (m[1,2] + m[2,1]) * mult;
+            q[3] = (m[1,0] - m[0,1]) * mult;
+            break;
+        case 3:
+            q[0] = (m[2,1] - m[1,2]) * mult;
+            q[1] = (m[0,2] - m[2,0]) * mult;
+            q[2] = (m[0,1] - m[1,0]) * mult;
+            break;
+        }
+        this.x = q[0];
+        this.y = q[1];
+        this.z = q[2];
+        this.w = q[3];
+    }
+
     inout {
         vec3 baseX() {
             return vec3(1-2*(y*y+z*z),
@@ -177,6 +226,11 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         }
     }
 
+    string toString() const {
+        import std.format;
+        return format!"q(%s, %s, %s, %s)"(this.x, this.y, this.z, this.w);
+    }
+
     @property {
         Vector!(T,3) Axis() {
             Vector!(T,3) result;
@@ -246,6 +300,7 @@ T length(T)(Quaternion!T q) {
 Quaternion!T normalize(T)(Quaternion!T q) {
     return q / length(q);
 }
+
 
 vec3 rotate(vec3 vec, vec3 axis, float angle) @nogc {
     quat q = quat.createAxisAngle(axis, angle);

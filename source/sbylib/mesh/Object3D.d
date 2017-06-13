@@ -32,14 +32,23 @@ class Object3D {
         this.viewMatrix.addWatch(this.rot);
     }
 
+    void lookAt(vec3 target, vec3 up = vec3(0,1,0)) {
+        this.lookTo(normalize(this.pos - target), up);
+    }
+
+    void lookTo(vec3 v, vec3 up = vec3(0,1,0)) {
+        this.rot = quat(mat4.lookAt(vec3(0), v, up).toMatrix3());
+    }
+
     private mat4 generateViewMatrix() {
         return mat4.lookAt(pos, rot.baseZ, rot.baseY);
     }
 
     private mat4 generateWorldMatrix() {
-        return mat4(1-2*(rot.y*rot.y+rot.z*rot.z), 2*(rot.x*rot.y-rot.z*rot.w), 2*(rot.x*rot.z+rot.w*rot.y), pos.x,
-                2*(rot.x*rot.y+rot.w*rot.z), 1-2*(rot.x*rot.x+rot.z*rot.z), 2*(rot.y*rot.z-rot.w*rot.x), pos.y,
-                2*(rot.x*rot.z-rot.w*rot.y), 2*(rot.y*rot.z+rot.w*rot.x), 1-2*(rot.x*rot.x+rot.y*rot.y), pos.z,
-                0, 0, 0, 1);
+        return mat4.translate(pos);
+        //return mat4(1-2*(rot.y*rot.y+rot.z*rot.z), 2*(rot.x*rot.y-rot.z*rot.w), 2*(rot.x*rot.z+rot.w*rot.y), pos.x,
+        //        2*(rot.x*rot.y+rot.w*rot.z), 1-2*(rot.x*rot.x+rot.z*rot.z), 2*(rot.y*rot.z-rot.w*rot.x), pos.y,
+        //        2*(rot.x*rot.z-rot.w*rot.y), 2*(rot.y*rot.z+rot.w*rot.x), 1-2*(rot.x*rot.x+rot.y*rot.y), pos.z,
+        //        0, 0, 0, 1);
     }
 }

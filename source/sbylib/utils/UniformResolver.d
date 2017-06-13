@@ -1,4 +1,4 @@
-module sbylib.material.UniformResolver;
+module sbylib.utils.UniformResolver;
 
 import sbylib.material.Constants;
 import sbylib.core.World;
@@ -7,21 +7,22 @@ class UniformResolver {
 
     private this() {}
 
-    void resolve(World world) {
+    public static void resolve(World world) {
         foreach (mesh; world.meshes) {
-            foreach (dem; mesh.mat.getDemands()) {
+            foreach (dem; mesh.mat.demands) {
                 final switch (dem) {
                 case UniformDemand.WorldMatrix:
-                    mesh.mat.addUniform(dem, mesh.obj.worldMatrix);
+                    mesh.mat.addUniform(mesh.obj.worldMatrix);
                     break;
                 case UniformDemand.ViewMatrix:
-                    mesh.mat.addUniform(dem, world.viewMatrix);
+                    mesh.mat.addUniform(world.viewMatrix);
                     break;
                 case UniformDemand.ProjMatrix:
-                    mesh.mat.addUniform(dem, world.projMatrix);
+                    mesh.mat.addUniform(world.projMatrix);
                     break;
                 }
             }
+            mesh.mat.demands = [];
         }
     }
 }

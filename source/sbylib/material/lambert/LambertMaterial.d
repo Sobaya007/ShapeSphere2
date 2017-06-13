@@ -19,6 +19,7 @@ class LambertMaterial : Material {
         return [
         UniformDemand.WorldMatrix,
         UniformDemand.ViewMatrix,
-        UniformDemand.ProjMatrix];
+        UniformDemand.ProjMatrix
+        ];
     }
 }

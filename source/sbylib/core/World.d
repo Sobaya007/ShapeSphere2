@@ -15,10 +15,12 @@ class World {
         this.camera = new Watch!Camera;
         this.viewMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = this.camera.viewMatrix;
+            this.viewMatrix.addWatch(this.camera.viewMatrix);
         }, new umat4("viewMatrix"));
         this.viewMatrix.addWatch(this.camera);
         this.projMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = this.camera.projMatrix;
+            this.projMatrix.addWatch(this.camera.projMatrix);
         }, new umat4("projMatrix"));
         this.projMatrix.addWatch(this.camera);
     }

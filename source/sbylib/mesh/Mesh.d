@@ -24,6 +24,7 @@ class Mesh {
         assert(this.geom);
         assert(this.mat);
     } body{
+        this.mat.set();
         this.geom.render(this.vao);
     }
 }

@@ -21,6 +21,11 @@ class Watch(T) {
         return value;
     }
 
+    override string toString() {
+        import std.conv;
+        return this.get().to!string;
+    }
+
     alias get this;
 }
 
@@ -42,6 +47,7 @@ class Watcher(T) : IWatcher {
     this(void delegate(ref T) defineFunc, T init = T.init) {
         this.defineFunc = defineFunc;
         this.value = init;
+        this.needsUpdate = true;
     }
 
     void addWatch(S)(Watch!S watch) {
@@ -69,6 +75,10 @@ class Watcher(T) : IWatcher {
             this.needsUpdate = false;
         }
         return this.value;
+    }
+
+    override string toString() {
+        return this.get().toString();
     }
 
     alias get this;

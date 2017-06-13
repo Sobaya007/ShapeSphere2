@@ -35,7 +35,7 @@ public:
         this._projMatrix.addWatch(this.nearZ);
         this._projMatrix.addWatch(this.farZ);
     }
-    
+
     override inout(Object3D) getObj() inout {
         return this.obj;
     }
