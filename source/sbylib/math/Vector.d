@@ -6,52 +6,47 @@ import std.conv;
 import std.math;
 import std.string;
 import std.stdio;
-
-string toString(int i) {
-    if (i == 0) return "0";
-    char[] s;
-    while (i > 0) {
-        s ~= cast(char)('0' + i % 10);
-        i /= 10;
-    }
-    string r;
-    foreach_reverse (c; s) r ~= c;
-    return r;
-}
-
-bool contains(T)(T value, T[] array... ) {
-    foreach( e; array )
-        if( value == e )
-            return true;
-    return false;
-}
-
+import std.format;
+import std.array;
+import std.traits;
 
 //T型のS個のベクトル
 struct Vector(T, uint S) if (__traits(isArithmetic, T)) {
+private:
+    T[S] elements;
 public:
 
     enum dimension = S;
     enum type = T.stringof;
-    T[S] elements;
     @nogc {
-
-        mixin(getConstructorCode(S)); //====================================コンストラクタの宣言
 
         this(T e) {
             elements[] = e;
         }
 
-        this(T[] elements) {
+        this(T[] elements...) {
             this.elements[] = elements[0..S];
         }
 
-        static if (S <= 4) {
-            @property {
-                mixin(getXyzwCode("xyzw", S)); //=======================================GLSLっぽくするためのプロパティの宣言
-                mixin(getXyzwCode("rgba", S));
+        this(Args...)(Args args) {
+            auto cnt = 0;
+            foreach (arg; args) {
+                static if (isArray!(typeof(arg))) {
+                    this.elements[cnt..cnt+arg.length] = arg;
+                    cnt += arg.length;
+                    //isInstanceOfでやろうとしたが、この時点ではVectorの型情報が正しく作られていないため参照できない。
+                } else static if (__traits(compiles, typeof(arg).dimension) && __traits(hasMember, typeof(arg), "opIndex")) {
+                    this.elements[cnt..cnt+arg.elements.length] = arg.elements;
+                    cnt += arg.elements.length;
+                } else static if (is(typeof(arg) == T)) {
+                    this.elements[cnt] = arg;
+                    cnt++;
+                } else {
+                    static assert(false);
+                }
             }
         }
+
 
         Vector opBinary(string op)(const Vector v) const //=============================Vectorに対する二項演算
          in {
@@ -93,28 +88,72 @@ body {
             mixin("elements[] " ~ op ~"= e;");
         }
 
-        ref T opIndex(int idx) { //=========================================添字演算子
-            return elements[idx];
+        T opIndex(int idx) const { //=========================================添字演算子
+            return this.elements[idx];
         }
 
-        auto array() { //===================================================配列化
+        T opIndexAssign(T value, size_t idx) {
+            return this.elements[idx] = value;
+        }
+
+        T opIndexOpAssign(string op)(T value, size_t idx) {
+            mixin("return this.elements[idx] " ~ op ~ "= value;");
+        }
+
+        auto array() inout { //===================================================配列化
             return elements;
+        }
+
+        auto opDispatch(string s, Args...)(Args args)
+        if (s.all!(a => countUntil("xyzw", a) != -1)
+            || s.all!(a => countUntil("rgba", a) != -1)){
+            enum isXYZW = s.all!(a => countUntil("xyzw", a) != -1);
+            enum isRGBA = s.all!(a => countUntil("rgba", a) != -1);
+            enum propertyString = isXYZW ? "xyzw" : isRGBA ? "rgba" : "";
+            static assert(propertyString.length > 0);
+            static if(Args.length == 0) {
+                //getter
+                static if(s.length == 1) {
+                    enum xyzwPos = countUntil(propertyString, s);
+                    return elements[xyzwPos];
+                } else {
+                    enum index = s.map!(a => countUntil(propertyString, a)).array;
+                    Vector!(T, s.length) result;
+                    foreach (i,idx; index) {
+                        result[i] = elements[idx];
+                    }
+                    return result;
+                }
+            } else static if (Args.length == 1) {
+                //setter
+                alias val = args[0];
+                static if(s.length == 1) {
+                    enum xyzwPos = countUntil(propertyString, s);
+                    return this[xyzwPos] = val;
+                } else {
+                    static assert(s.length == val.array.length);
+                    enum index = s.map!(a => countUntil(propertyString, a)).array;
+                    foreach (i,idx; index) {
+                        this[idx] = val[i];
+                    }
+                    return val;
+                }
+            } else {
+                static assert(false);
+            }
         }
     }
 
     string toString() const { //=============================================文字列化
-        mixin({
-            string code = "return \"(\" ~ ";
-            foreach (i; 0..S) {
-                code ~= "to!string(elements[" ~ to!string(i) ~ "]) ~";
-                if (i != S-1) code ~= " \",\"~";
-            }
-                code ~= "\")\";";
-                return code;
-        }());
+        string code = "(";
+        foreach (i; 0..S) {
+            code ~= to!string(this[i]);
+            if (i != S-1) code ~= ",";
+        }
+        code ~= ")";
+        return code;
     }
 
-    import std.traits;
     static if (isFloatingPoint!T) {
         bool hasNaN() const {
             alias gen = {
@@ -148,7 +187,6 @@ alias Vector!(int,   4) vec4i;
 //======================================================================以下ベクトル計算系の関数達
 
 template Assignable(T,S){
-    import std.traits;
 
     static if (isAssignable!(T, S)) {
         alias Result = T;
@@ -160,8 +198,6 @@ template Assignable(T,S){
 }
 
 template dot(T, S, uint U) {
-
-    import std.traits;
 
     static if (isAssignable!(T, S)) {
         alias Result = T;
@@ -176,7 +212,7 @@ template dot(T, S, uint U) {
         mixin({
             string code = "result = ";
             foreach (i; 0..U) {
-                code ~= "+v.elements[" ~ to!string(i) ~ "] * v2.elements[" ~ to!string(i) ~ "]";
+                code ~= format!"+v.elements[%d] * v2.elements[%d]"(i,i);
             }
             code ~= ";";
             return code;
@@ -192,7 +228,7 @@ template minVector(T, S, uint U) {
         mixin({
             string str = "return Vector!(Result,U)(";
             foreach (i; 0..U) {
-                str ~= "min(v[" ~ i.to!string ~ "], v2[" ~ i.to!string ~ "])";
+                str ~= format!"min(v[%d], v2[%d])"(i,i);
                 if (i < U-1) str ~= ",";
             }
                 return str ~ ");";
@@ -207,7 +243,7 @@ template maxVector(T, S, uint U) {
         mixin({
             string str = "return Vector!(Result,U)(";
             foreach (i; 0..U) {
-                str ~= "max(v[" ~ i.to!string ~ "], v2[" ~ i.to!string ~ "])";
+                str ~= format!"max(v[%d], v2[%d])"(i,i);
                 if (i < U-1) str ~= ",";
             }
                 return str ~ ");";
@@ -216,7 +252,6 @@ template maxVector(T, S, uint U) {
 }
 
 template cross(T, S, uint U) if (U == 2) {
-    import std.traits;
 
     static if (isAssignable!(T, S)) {
         alias Result = T;
@@ -232,7 +267,6 @@ template cross(T, S, uint U) if (U == 2) {
 }
 
 template cross(T, S, uint U) if (U == 3) {
-    import std.traits;
 
     static if (isAssignable!(T, S)) {
         alias Result = T;
@@ -247,9 +281,7 @@ template cross(T, S, uint U) if (U == 3) {
         mixin({
             string code;
             foreach (i; 0..U) {
-                code ~= "result[" ~ to!string(i) ~ "] = v.elements[" ~ to!string((i+1)%3) ~
-                    "] * v2.elements[" ~ to!string((i+2)%3) ~ "] - v.elements[" ~
-                    to!string((i+2)%3) ~ "] * v2.elements[" ~ to!string((i+1)%3) ~ "];";
+                code ~= format!"result[%d] = v[%d] * v2[%d] - v[%d] * v2[%d];"(i,(i+1)%3,(i+2)%3,(i+2)%3,(i+1)%3);
             }
             return code;
         }());
@@ -262,7 +294,7 @@ T length(T, int S)(Vector!(T, S) v) {
     mixin({
         string code = "T result = sqrt(";
         foreach (i; 0..S) {
-            code ~= "+v.elements[" ~ to!string(i) ~ "] * v.elements[" ~ to!string(i) ~ "]";
+            code ~= format!"+v[%d] * v[%d]"(i,i);
         }
         code ~= ");";
         return code;
@@ -274,7 +306,7 @@ T lengthSq(T, int S)(Vector!(T, S) v) {
     mixin({
         string code = "T result = ";
         foreach (i; 0..S) {
-            code ~= "+v.elements[" ~ to!string(i) ~ "] * v.elements[" ~ to!string(i) ~ "]";
+            code ~= format!"+v[%d] * v[%d]"(i,i);
         }
         code ~= ";";
         return code;
@@ -286,13 +318,13 @@ Vector!(T, S) normalize(T, int S)(Vector!(T, S) v) {
     mixin({
         string code = "T length = sqrt(";
         foreach (i; 0..S) {
-            code ~= "+v.elements[" ~ to!string(i) ~ "] * v.elements[" ~ to!string(i) ~ "]";
+            code ~= format!"+v[%d] * v[%d]"(i,i);
         }
         code ~= ");";
         code ~= "Vector!(T, S) result;";
         foreach (i; 0..S) {
-            code ~= "result.elements[" ~ to!string(i) ~ "] = v.elements[" ~ to!string(i) ~ "] / length;";
-        }
+            code ~= format!"result[%d] = v[%d] / length;"(i,i);
+       }
             return code;
     }());
     return result;
@@ -302,7 +334,7 @@ Vector!(T,S) safeNormalize(T, int S)(Vector!(T,S) v) {
     if (mixin({
             string code;
             foreach (i; 0..S) {
-                code ~= "v.elements[" ~ to!string(i) ~ "] == 0";
+                code ~= format!"v.elements[%d] == 0"(i);
                 if (i < S-1) code ~= "&&";
             }
                 return code;
@@ -320,117 +352,33 @@ Vector!(T,S) reduceV(alias pred, T, int S)(Vector!(T,S)[] v...) {
     return result;
 }
 
-
-
-//========================================================================以下mixin用の関数達
-
-string getConstructorCode(int S) {
-    string r;
-    void rec(int[] a, int j, int i) {
-        //現在選択中なのがa,今j番目の選択を迫られている。仕切りは全部でi本
-        if (a.length == i) {
-            //選択終了。処理に入る。
-            //いまaの区切りがある。
-            int argCount = 0;
-            int[] b;
-            r ~= "this(";
-            foreach (k; 0..i) {
-                int elemNum = a[k] - (k == 0 ? -1 : a[k-1]); //引数の要素数
-                assert(elemNum > 0);
-                if (elemNum == 1) {
-                    r ~= "T e" ~ toString(argCount) ~ ", ";
-                } else {
-                    r ~= "Vector!(T," ~ toString(elemNum) ~ ") e" ~ toString(argCount) ~ ", ";
-                }
-                argCount++;
-                b ~= elemNum;
-            }
-            int elemNum = S-1 - (i == 0 ? 0 : a[$-1]); //引数の要素数
-            assert(elemNum > 0);
-            if (elemNum == 1) {
-                r ~= "T e" ~ toString(argCount++);
-            } else {
-                r ~= "Vector!(T," ~ toString(elemNum) ~ ") e" ~ toString(argCount);
-            }
-            b ~= elemNum;
-            r ~= ") {\n";
-            int count = 0;
-            foreach (int arg,k; b) { //k個の要素
-                foreach (l; 0..k) {
-                    r ~= "elements[" ~ toString(count++) ~ "] = ";
-                    r ~= "e" ~ toString(arg);
-                    if (k == 1) r ~= ";";
-        else {
-                        r ~= "[" ~ toString(l) ~ "];";
-                    }
-                    r ~= "\n";
-                }
-            }
-            r ~= "}\n";
-            return;
-        }
-        if (j == S-1) return;//後がない。終了。
-        //再帰
-        rec(a ~ j, j+1,i);
-        rec(a, j+1,i);
-    }
-    foreach (i; 1..S) {
-        rec([], 0, i);
-    }
-    return r;
-}
-
-private string getXyzwCode(const string expression, uint S) {
-
-    const string expr = expression[0..S];
-    int indexOf(string s, char c) {
-        foreach (int i, ss; s) {
-            if (ss == c) return i;
-        }
-        return -1;
-    }
-    string code;
-    //k文字のものについて考える。xは前につくk-1文字の名前
-    void func(int k, string x) {
-        if (k > S) return;
-        //k文字目を決める
-        foreach (j; 0..S) {
-            if (contains(expr[j], x)) continue;
-            x = x[0..k-1] ~ expr[j];
-            if (k == 1) {
-                code ~= "T " ~ x ~ "() const {";
-                code ~= "return elements[" ~ toString(indexOf(expr, x[0])) ~ "];";
-                code ~= "} ";
-                code ~= "ref T " ~ x ~ "() {";
-                code ~= "return elements[" ~ toString(indexOf(expr, x[0])) ~ "];";
-                code ~= "} ";
-            } else {
-                code ~= "Vector!(T," ~ toString(k) ~ ") " ~ x ~ "(Vector!(T," ~ toString(k) ~ ") v) {";
-                foreach (l; 0..k) {
-                    code ~= "elements[" ~ toString(indexOf(expr, x[l])) ~ "] = v[" ~ toString(l) ~ "];";
-                }
-                code ~= "return " ~ x ~ ";";
-                code ~= "}";
-                code ~= "Vector!(T," ~ toString(k) ~ ") " ~ x ~ "() const {";
-                code ~= "return Vector!(T, " ~ toString(k) ~ ")(";
-                foreach (l; 0..k) {
-                    code ~= "elements[" ~ toString(indexOf(expr, x[l])) ~ "]";
-                    if (l != k-1) code ~= ",";
-                }
-                code ~= ");} ";
-            }
-
-            func(k+1, x);
-        }
-    }
-    func(1, "");
-    return code;
-}
-
 private string getUnaryCode(string op, int S) {
     string code;
     foreach (i; 0..S) {
         code ~= "result.elements[" ~ to!string(i) ~ "] = " ~ op ~ "elements[" ~ to!string(i) ~ "];";
     }
     return code;
+}
+
+private static string getXyzwCode(uint[] xyzwPos) {
+    string code;
+    foreach (pos; xyzwPos) {
+        code ~= format!"result[i] = this[%d];"(pos);
+    }
+    return code;
+}
+
+
+unittest {
+    vec2 a = vec2(1,2);
+    vec2 b = vec2(2,1);
+    assert(a.xy == vec2(1,2));
+    assert(a.xy == b.yx);
+    vec3 c;
+    c.yxz = vec3(3,2,1);
+    assert(c.zx == a);
+
+    assert(vec4(vec2(1), vec2(2)) == vec4(1,1,2,2));
+
+    assert(vec3(1) == vec3(1,1,1));
 }

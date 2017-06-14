@@ -39,7 +39,7 @@ class Object3D {
     void lookTo(vec3 v, vec3 up = vec3(0,1,0)) {
         auto side = normalize(cross(up, v));
         up = normalize(cross(v, side));
-        this.rot = mat3.replace(side, up, v);
+        this.rot = mat3(side, up, v);
     }
 
     private mat4 generateWorldMatrix() {

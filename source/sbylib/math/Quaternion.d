@@ -19,15 +19,6 @@ import std.conv;
   だよ！
  */
 
-unittest {
-    //つまりこう使う
-    vec3 v = vec3(1,0,0);
-    vec3 axis = vec3(0,1,0);
-    float angle = PI / 2;
-    v = rotate(v, axis, angle);
-    assert(v == vec3(0,0,-1));
-}
-
 struct Quaternion(T) if (__traits(isArithmetic, T)) {
 
     T x, y, z, w;
@@ -233,11 +224,7 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
 
     @property {
         Vector!(T,3) Axis() {
-            Vector!(T,3) result;
-            result.x = x;
-            result.y = y;
-            result.z = z;
-            return result;
+            return Vector!(T,3)(x,y,z);
         }
 
         void Axis(Vector!(T,3) axis) {
@@ -316,3 +303,18 @@ vec3 rotate(vec3 vec, const quat q) @nogc {
 }
 
 alias Quaternion!float quat;
+
+unittest {
+    //つまりこう使う
+    vec3 v = vec3(1,0,0);
+    vec3 axis = vec3(0,1,0);
+    float angle = PI / 2;
+    v = rotate(v, axis, angle);
+    import std.stdio;
+    writeln(v.x);
+    writeln(v.y);
+    writeln(v.z);
+    assert(vec3(0,0,-1) == vec3(0,0,-1));
+    assert(v == vec3(0,0,-1));
+}
+

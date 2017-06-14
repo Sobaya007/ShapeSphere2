@@ -32,7 +32,7 @@ class UniformTemp(Type) : Uniform {
 
     override void apply(uint loc) inout {
         static if (isInstanceOf!(Vector, Type)) {
-            mixin("glUniform" ~ to!string(Type.dimension) ~ Type.type[0] ~ "v(loc, 1, this.value.elements.ptr);");
+            mixin("glUniform" ~ to!string(Type.dimension) ~ Type.type[0] ~ "v(loc, 1, this.value.array.ptr);");
         } else static if(isInstanceOf!(Matrix, Type)) {
             static assert(Type.dimension1 == Type.dimension2);
             mixin("glUniformMatrix" ~ to!string(Type.dimension1) ~ Type.type[0] ~ "v(loc, 1,GL_TRUE, this.value.array.ptr);");

@@ -43,7 +43,7 @@ public:
             string result;
             foreach (i; 0..U) {
                 foreach (j; 0..V) {
-                    result ~= "this[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = vectors[" ~ to!string(j) ~ "][" ~ to!string(i) ~ "];";
+                    result ~= format!"this[%d,%d] = vectors[%d][%d];"(i,j,j,i);
                 }
             }
             return result;
@@ -58,7 +58,7 @@ public:
         }
 
         Matrix!(Type,U,V) result;
-        mixin(getOpBinaryMMCode(op, U));
+        mixin(getOpBinaryMMCode(op, U,V));
         return result;
     }
 
@@ -76,17 +76,7 @@ public:
     Matrix opBinary(string op)(T s) const {
         Matrix result;
         static if (op == "*" || op == "/") {
-            mixin(getOpBinaryMSCode(op, U));
-            return result;
-        } else {
-            static assert(false);
-        }
-    }
-
-    Matrix opBinaryRight(string op)(T s) const {
-        Matrix result;
-        static if (op == "*" || op == "/") {
-            mixin(getOpBinaryMSCode(op, U));
+            mixin(getOpBinaryMSCode(op, U,V));
             return result;
         } else {
             static assert(false);
@@ -111,14 +101,6 @@ public:
         }
     }
 
-    void opOpAssign(string op)(Vector!(T,V) v) {
-        static if (op == "*") {
-            mixin(multMVAssignCode(U, V));
-        } else {
-            static assert(false);
-        }
-    }
-
     void opOpAssign(string op, S, uint P, uint Q)(Matrix!(S, P, Q) m) {
         static if (op == "+" || op == "-") {
             static assert(U == P && V == Q);
@@ -131,154 +113,155 @@ public:
         }
     }
 
+    T opIndex(size_t i, size_t j) const { //i = tate, y = yoko
+        return element[j+i*V];
+    }
+
+    Matrix!(T,U,V) opIndexAssign(Matrix!(T,U,V) m) {
+        this.element[] = m.element[];
+        return this;
+    }
+
+    T opIndexAssign(T value, size_t i, size_t j) {
+        return element[j+i*V] = value;
+    }
+
+    T opIndexOpAssign(string op)(T value, size_t x, size_t y) {
+        mixin("return element[y*V+x] " ~ op ~ "= value;");
+    }
+
+    T[U*V] array() inout {
+        return element;
+    }
+
     Vector!(T,U)[V] column() {
         Vector!(T,U)[V] result;
         mixin(getColumnCode(U,V));
         return result;
     }
 
-    Vector!(T,V) row(uint r) {
-        mixin({
-            string str;
-            str ~= "Vector!(T,V) func(uint a) {";
-            str ~= "Vector!(T,V) result;";
-                foreach (i; 0..V) {
-                    str ~= format("result[%d] = this[a,%d];", i, i);
-                }
-            str ~= "return result;";
-            str ~= "}";
-            return str;
-        }());
-        return func(r);
-    }
-
-    static Matrix!(T,U,V) replace(Vector!(T,U)[V] vectors...) {
-        Matrix result;
-        alias gen = {
-            string code;
-            foreach (i; 0..V) {
-                foreach (j; 0..U) {
-                    code ~= "result[" ~ to!string(j) ~ "," ~ to!string(i)  ~ "] = vectors[" ~ to!string(i) ~ "][" ~ to!string(j) ~ "];";
-                }
-            }
-            return code;
-        };
-        mixin(gen());
+    Vector!(T,V)[U] row() {
+        Vector!(T,U)[V] result;
+        mixin(getRowCode(U,V));
         return result;
     }
+
+    static Matrix!(T,V,U) transpose(Matrix m) {
+
+        mixin({
+            string result = "Matrix!(T,V,U) r;";
+            foreach (i;0..V) {
+                foreach (j;0..U) {
+                    result ~= "r[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
+                    result ~= "m[" ~ to!string(j) ~ "," ~ to!string(i) ~ "];";
+                }
+                }
+                result ~= "return r;";
+                return result;
+        }());
+    }
+
+    string toString(T epsilon = 0) inout {
+        string res;
+        foreach (i; 0..U) {
+            res ~= "\n\t";
+            foreach (j; 0..V) {
+                res ~= format!"%10f,"(this[i,j]);
+            }
+        }
+        return res;
+    }
+
 
     static if (U == V) {
         static Matrix identity() {
             Matrix result;
-            mixin(getidentityCode(U, V));
+            mixin(getidentityCode(U));
             return result;
         }
 
         static auto translate(int S)(Vector!(T, S) vec) if (U == 4 && (S == 3 || S == 4) || U == S) {
             Matrix result;
-            mixin(getTranslationCode(U,V));
+            mixin(getTranslationCode(U));
             return result;
         }
 
         static Matrix scale(int S)(Vector!(T, S) vec) if (U == 4 && (S == 3 || S == 4) || U == S) {
             Matrix result;
-            mixin(getScaleCode(U,V));
+            mixin(getScaleCode(U));
             return result;
         }
 
-    }
-
-    static if (U == 3 && V == 3) {
-        static Matrix rotAxisAngle(Vector!(T,3) v, T angle) {
-            auto c = cos(angle);
-            auto s = sin(angle);
-            Matrix result;
-            mixin(getRotAxisCode(3));
-            return result;
-        }
-
-        Quaternion!T toQuaternion() {
-            auto q0 = ( this[0,0] + this[1,1] + this[2,2] + 1.0f) / 4.0f;
-            auto q1 = ( this[0,0] - this[1,1] - this[2,2] + 1.0f) / 4.0f;
-            auto q2 = (-this[0,0] + this[1,1] - this[2,2] + 1.0f) / 4.0f;
-            auto q3 = (-this[0,0] - this[1,1] + this[2,2] + 1.0f) / 4.0f;
-            if(q0 < 0.0f) q0 = 0.0f;
-            if(q1 < 0.0f) q1 = 0.0f;
-            if(q2 < 0.0f) q2 = 0.0f;
-            if(q3 < 0.0f) q3 = 0.0f;
-            q0 = sqrt(q0);
-            q1 = sqrt(q1);
-            q2 = sqrt(q2);
-            q3 = sqrt(q3);
-            if(q0 >= q1 && q0 >= q2 && q0 >= q3) {
-                q1 *= sgn(this[2,1] - this[1,2]);
-                q2 *= sgn(this[0,2] - this[2,0]);
-                q3 *= sgn(this[1,0] - this[0,1]);
-            } else if(q1 >= q0 && q1 >= q2 && q1 >= q3) {
-                q0 *= sgn(this[2,1] - this[1,2]);
-                q2 *= sgn(this[1,0] + this[0,1]);
-                q3 *= sgn(this[0,2] + this[2,0]);
-            } else if(q2 >= q0 && q2 >= q1 && q2 >= q3) {
-                q0 *= sgn(this[0,2] - this[2,0]);
-                q1 *= sgn(this[1,0] + this[0,1]);
-                q3 *= sgn(this[2,1] + this[1,2]);
-            } else if(q3 >= q0 && q3 >= q1 && q3 >= q2) {
-                q0 *= sgn(this[1,0] - this[0,1]);
-                q1 *= sgn(this[2,0] + this[0,2]);
-                q2 *= sgn(this[2,1] + this[1,2]);
-            } else {
-                assert(false);
+        static if (U == 3) {
+            static Matrix rotAxisAngle(Vector!(T,3) v, T angle) {
+                auto c = cos(angle);
+                auto s = sin(angle);
+                Matrix result;
+                mixin(getRotAxisCode(U));
+                return result;
             }
 
-            auto result = Quaternion!T(q1, q2, q3, q0);
-            return result.normalize;
-        }
+            Quaternion!T toQuaternion() {
+                auto q0 = ( this[0,0] + this[1,1] + this[2,2] + 1.0f) / 4.0f;
+                auto q1 = ( this[0,0] - this[1,1] - this[2,2] + 1.0f) / 4.0f;
+                auto q2 = (-this[0,0] + this[1,1] - this[2,2] + 1.0f) / 4.0f;
+                auto q3 = (-this[0,0] - this[1,1] + this[2,2] + 1.0f) / 4.0f;
+                if(q0 < 0.0f) q0 = 0.0f;
+                if(q1 < 0.0f) q1 = 0.0f;
+                if(q2 < 0.0f) q2 = 0.0f;
+                if(q3 < 0.0f) q3 = 0.0f;
+                q0 = sqrt(q0);
+                q1 = sqrt(q1);
+                q2 = sqrt(q2);
+                q3 = sqrt(q3);
+                if(q0 >= q1 && q0 >= q2 && q0 >= q3) {
+                    q1 *= sgn(this[2,1] - this[1,2]);
+                    q2 *= sgn(this[0,2] - this[2,0]);
+                    q3 *= sgn(this[1,0] - this[0,1]);
+                } else if(q1 >= q0 && q1 >= q2 && q1 >= q3) {
+                    q0 *= sgn(this[2,1] - this[1,2]);
+                    q2 *= sgn(this[1,0] + this[0,1]);
+                    q3 *= sgn(this[0,2] + this[2,0]);
+                } else if(q2 >= q0 && q2 >= q1 && q2 >= q3) {
+                    q0 *= sgn(this[0,2] - this[2,0]);
+                    q1 *= sgn(this[1,0] + this[0,1]);
+                    q3 *= sgn(this[2,1] + this[1,2]);
+                } else if(q3 >= q0 && q3 >= q1 && q3 >= q2) {
+                    q0 *= sgn(this[1,0] - this[0,1]);
+                    q1 *= sgn(this[2,0] + this[0,2]);
+                    q2 *= sgn(this[2,1] + this[1,2]);
+                } else {
+                    assert(false);
+                }
 
-        vec3 getScale() {
-            return vec3(row(0).length,
-                    row(1).length,
-                    row(2).length);
-        }
-    }
+                auto result = Quaternion!T(q1, q2, q3, q0);
+                return result.normalize;
+            }
 
-    static if (U == 4 && V == 4) {
+            vec3 getScale() {
+                auto rows = this.row();
+                return vec3(rows[0].length,
+                        rows[1].length,
+                        rows[2].length);
+            }
+        } else static if (U == 4) {
 
-        static Matrix rotAxisAngle(Vector!(T,3) v, T angle) {
-            auto c = cos(angle);
-            auto s = sin(angle);
-            Matrix result;
-            mixin(getRotAxisCode(4));
-            return result;
-        }
-        static Matrix rotFromTo(Vector!(T,3) from, Vector!(T,3) to) {
-            auto v = cross(from, to);
-            auto s = v.length * (dot(from, to)<0 ? 1: -1);
-            if (s == 0) return identity();
-            auto rad = asin(v.length);
-            auto c = cos(rad);
-            v = normalize(v);
-            Matrix result;
-            mixin(getRotAxisCode(4));
-            return result;
-        }
-
-        static Matrix replacement(Vector!(T,3) xvec, Vector!(T,3) yvec, Vector!(T,3) zvec) {
-            Matrix result;
-            mixin({
-                string code;
-                foreach (i; 0..3)
-                    code ~= "result[" ~ to!string(i) ~ ",0] = xvec[" ~ to!string(i) ~ "];";
-                foreach (i; 0..3)
-                        code ~= "result[" ~ to!string(i) ~ ",1] = yvec[" ~ to!string(i) ~ "];";
-                foreach (i; 0..3)
-                            code ~= "result[" ~ to!string(i) ~ ",2] = zvec[" ~ to!string(i) ~ "];";
-                                foreach (i; 0..3)
-                                    code ~= "result[" ~ to!string(i) ~ ",3] = 0;";
-                                        foreach (i; 0..3)
-                                            code ~= "result[3," ~ to!string(i) ~ "] = 0;";
-                                                code ~= "result[3,3] = 1;";
-                                                return code;
-            }());
+            static Matrix rotAxisAngle(Vector!(T,3) v, T angle) {
+                auto c = cos(angle);
+                auto s = sin(angle);
+                Matrix result;
+                mixin(getRotAxisCode(4));
+                return result;
+            }
+            static Matrix rotFromTo(Vector!(T,3) from, Vector!(T,3) to) {
+                auto v = cross(from, to);
+                auto s = v.length * (dot(from, to)<0 ? 1: -1);
+                if (s == 0) return identity();
+                auto rad = asin(v.length);
+                auto c = cos(rad);
+                v = normalize(v);
+                Matrix result;
+                mixin(getRotAxisCode(4));
                 return result;
             }
 
@@ -312,105 +295,104 @@ public:
                 return vec3(this[0,3], this[1,3], this[2,3]);
             }
 
-    }
+        }
 
-    static Matrix invert(Matrix m) {
-        static if (U == 4 && V == 4) {
-            auto e2233_2332 = m[2,2] * m[3,3] - m[2,3] * m[3,2];
-            auto e2133_2331 = m[2,1] * m[3,3] - m[2,3] * m[3,1];
-            auto e2132_2231 = m[2,1] * m[3,2] - m[2,2] * m[3,1];
-            auto e1233_1332 = m[1,2] * m[3,3] - m[1,3] * m[3,2];
-            auto e1133_1331 = m[1,1] * m[3,3] - m[1,3] * m[3,1];
-            auto e1132_1231 = m[1,1] * m[3,2] - m[1,2] * m[3,1];
-            auto e1322_1223 = m[1,3] * m[2,2] - m[1,2] * m[2,3];
-            auto e1123_1321 = m[1,1] * m[2,3] - m[1,3] * m[2,1];
-            auto e1122_1221 = m[1,1] * m[2,2] - m[1,2] * m[2,1];
-            auto e2033_2330 = m[2,0] * m[3,3] - m[2,3] * m[3,0];
-            auto e2032_2230 = m[2,0] * m[3,2] - m[2,2] * m[3,0];
-            auto e1033_1330 = m[1,0] * m[3,3] - m[1,3] * m[3,0];
-            auto e1032_1230 = m[1,0] * m[3,2] - m[1,2] * m[3,0];
-            auto e1023_1320 = m[1,0] * m[2,3] - m[1,3] * m[2,0];
-            auto e1022_1220 = m[1,0] * m[2,2] - m[1,2] * m[2,0];
-            auto e2031_2130 = m[2,0] * m[3,1] - m[2,1] * m[3,0];
-            auto e1031_1130 = m[1,0] * m[3,1] - m[1,1] * m[3,0];
-            auto e1021_1120 = m[1,0] * m[2,1] - m[1,1] * m[2,0];
-            auto det =
-                m[0,0] * (m[1,1] * e2233_2332 - m[1,2] * e2133_2331 + m[1,3] * e2132_2231) -
-                m[0,1] * (m[1,0] * e2233_2332 - m[1,2] * e2033_2330 + m[1,3] * e2032_2230) +
-                m[0,2] * (m[1,0] * e2133_2331 - m[1,1] * e2033_2330 + m[1,3] * e2031_2130) -
-                m[0,3] * (m[1,0] * e2132_2231 - m[1,1] * e2032_2230 + m[1,2] * e2031_2130)
-            ;
-            if (det != 0) det = 1 / det;
-            auto t00 =  m[1,1] * e2233_2332 - m[1,2] * e2133_2331 + m[1,3] * e2132_2231;
-            auto t01 = -m[0,1] * e2233_2332 + m[0,2] * e2133_2331 - m[0,3] * e2132_2231;
-            auto t02 =  m[0,1] * e1233_1332 - m[0,2] * e1133_1331 + m[0,3] * e1132_1231;
-            auto t03 =  m[0,1] * e1322_1223 + m[0,2] * e1123_1321 - m[0,3] * e1122_1221;
-            auto t10 = -m[1,0] * e2233_2332 + m[1,2] * e2033_2330 - m[1,3] * e2032_2230;
-            auto t11 =  m[0,0] * e2233_2332 - m[0,2] * e2033_2330 + m[0,3] * e2032_2230;
-            auto t12 = -m[0,0] * e1233_1332 + m[0,2] * e1033_1330 - m[0,3] * e1032_1230;
-            auto t13 = -m[0,0] * e1322_1223 - m[0,2] * e1023_1320 + m[0,3] * e1022_1220;
-            auto t20 =  m[1,0] * e2133_2331 - m[1,1] * e2033_2330 + m[1,3] * e2031_2130;
-            auto t21 = -m[0,0] * e2133_2331 + m[0,1] * e2033_2330 - m[0,3] * e2031_2130;
-            auto t22 =  m[0,0] * e1133_1331 - m[0,1] * e1033_1330 + m[0,3] * e1031_1130;
-            auto t23 = -m[0,0] * e1123_1321 + m[0,1] * e1023_1320 - m[0,3] * e1021_1120;
-            auto t30 = -m[1,0] * e2132_2231 + m[1,1] * e2032_2230 - m[1,2] * e2031_2130;
-            auto t31 =  m[0,0] * e2132_2231 - m[0,1] * e2032_2230 + m[0,2] * e2031_2130;
-            auto t32 = -m[0,0] * e1132_1231 + m[0,1] * e1032_1230 - m[0,2] * e1031_1130;
-            auto t33 =  m[0,0] * e1122_1221 - m[0,1] * e1022_1220 + m[0,2] * e1021_1120;
-            Matrix r;
-            r[0,0] =  det * t00;
-            r[0,1] =  det * t01;
-            r[0,2] =  det * t02;
-            r[0,3] =  det * t03;
-            r[1,0] =  det * t10;
-            r[1,1] =  det * t11;
-            r[1,2] =  det * t12;
-            r[1,3] =  det * t13;
-            r[2,0] =  det * t20;
-            r[2,1] =  det * t21;
-            r[2,2] =  det * t22;
-            r[2,3] =  det * t23;
-            r[3,0] =  det * t30;
-            r[3,1] =  det * t31;
-            r[3,2] =  det * t32;
-            r[3,3] =  det * t33;
-            return r;
+        static Matrix invert(Matrix m) {
+            static if (U == 4 && V == 4) {
+                auto e2233_2332 = m[2,2] * m[3,3] - m[2,3] * m[3,2];
+                auto e2133_2331 = m[2,1] * m[3,3] - m[2,3] * m[3,1];
+                auto e2132_2231 = m[2,1] * m[3,2] - m[2,2] * m[3,1];
+                auto e1233_1332 = m[1,2] * m[3,3] - m[1,3] * m[3,2];
+                auto e1133_1331 = m[1,1] * m[3,3] - m[1,3] * m[3,1];
+                auto e1132_1231 = m[1,1] * m[3,2] - m[1,2] * m[3,1];
+                auto e1322_1223 = m[1,3] * m[2,2] - m[1,2] * m[2,3];
+                auto e1123_1321 = m[1,1] * m[2,3] - m[1,3] * m[2,1];
+                auto e1122_1221 = m[1,1] * m[2,2] - m[1,2] * m[2,1];
+                auto e2033_2330 = m[2,0] * m[3,3] - m[2,3] * m[3,0];
+                auto e2032_2230 = m[2,0] * m[3,2] - m[2,2] * m[3,0];
+                auto e1033_1330 = m[1,0] * m[3,3] - m[1,3] * m[3,0];
+                auto e1032_1230 = m[1,0] * m[3,2] - m[1,2] * m[3,0];
+                auto e1023_1320 = m[1,0] * m[2,3] - m[1,3] * m[2,0];
+                auto e1022_1220 = m[1,0] * m[2,2] - m[1,2] * m[2,0];
+                auto e2031_2130 = m[2,0] * m[3,1] - m[2,1] * m[3,0];
+                auto e1031_1130 = m[1,0] * m[3,1] - m[1,1] * m[3,0];
+                auto e1021_1120 = m[1,0] * m[2,1] - m[1,1] * m[2,0];
+                auto det =
+                    m[0,0] * (m[1,1] * e2233_2332 - m[1,2] * e2133_2331 + m[1,3] * e2132_2231) -
+                    m[0,1] * (m[1,0] * e2233_2332 - m[1,2] * e2033_2330 + m[1,3] * e2032_2230) +
+                    m[0,2] * (m[1,0] * e2133_2331 - m[1,1] * e2033_2330 + m[1,3] * e2031_2130) -
+                    m[0,3] * (m[1,0] * e2132_2231 - m[1,1] * e2032_2230 + m[1,2] * e2031_2130)
+                ;
+                if (det != 0) det = 1 / det;
+                auto t00 =  m[1,1] * e2233_2332 - m[1,2] * e2133_2331 + m[1,3] * e2132_2231;
+                auto t01 = -m[0,1] * e2233_2332 + m[0,2] * e2133_2331 - m[0,3] * e2132_2231;
+                auto t02 =  m[0,1] * e1233_1332 - m[0,2] * e1133_1331 + m[0,3] * e1132_1231;
+                auto t03 =  m[0,1] * e1322_1223 + m[0,2] * e1123_1321 - m[0,3] * e1122_1221;
+                auto t10 = -m[1,0] * e2233_2332 + m[1,2] * e2033_2330 - m[1,3] * e2032_2230;
+                auto t11 =  m[0,0] * e2233_2332 - m[0,2] * e2033_2330 + m[0,3] * e2032_2230;
+                auto t12 = -m[0,0] * e1233_1332 + m[0,2] * e1033_1330 - m[0,3] * e1032_1230;
+                auto t13 = -m[0,0] * e1322_1223 - m[0,2] * e1023_1320 + m[0,3] * e1022_1220;
+                auto t20 =  m[1,0] * e2133_2331 - m[1,1] * e2033_2330 + m[1,3] * e2031_2130;
+                auto t21 = -m[0,0] * e2133_2331 + m[0,1] * e2033_2330 - m[0,3] * e2031_2130;
+                auto t22 =  m[0,0] * e1133_1331 - m[0,1] * e1033_1330 + m[0,3] * e1031_1130;
+                auto t23 = -m[0,0] * e1123_1321 + m[0,1] * e1023_1320 - m[0,3] * e1021_1120;
+                auto t30 = -m[1,0] * e2132_2231 + m[1,1] * e2032_2230 - m[1,2] * e2031_2130;
+                auto t31 =  m[0,0] * e2132_2231 - m[0,1] * e2032_2230 + m[0,2] * e2031_2130;
+                auto t32 = -m[0,0] * e1132_1231 + m[0,1] * e1032_1230 - m[0,2] * e1031_1130;
+                auto t33 =  m[0,0] * e1122_1221 - m[0,1] * e1022_1220 + m[0,2] * e1021_1120;
+                Matrix r;
+                r[0,0] =  det * t00;
+                r[0,1] =  det * t01;
+                r[0,2] =  det * t02;
+                r[0,3] =  det * t03;
+                r[1,0] =  det * t10;
+                r[1,1] =  det * t11;
+                r[1,2] =  det * t12;
+                r[1,3] =  det * t13;
+                r[2,0] =  det * t20;
+                r[2,1] =  det * t21;
+                r[2,2] =  det * t22;
+                r[2,3] =  det * t23;
+                r[3,0] =  det * t30;
+                r[3,1] =  det * t31;
+                r[3,2] =  det * t32;
+                r[3,3] =  det * t33;
+                return r;
+            }
+            static if (U == 3 && V == 3) {
+                auto det =
+                     + m[0,0]*m[1,1]*m[2,2]
+                 + m[0,1]*m[1,2]*m[2,0]
+                 + m[0,2]*m[1,0]*m[2,1]
+                 - m[0,0]*m[1,2]*m[2,1]
+                 - m[0,1]*m[1,0]*m[2,2]
+                 - m[0,2]*m[1,1]*m[2,0];
+                if (det != 0) det = 1 / det;
+                Matrix r;
+                r[0,0] = (m[1,1]*m[2,2] - m[1,2]*m[2,1]) * det;
+                r[0,1] = (m[0,2]*m[2,1] - m[0,1]*m[2,2]) * det;
+                r[0,2] = (m[0,1]*m[1,2] - m[0,2]*m[1,1]) * det;
+                r[1,0] = (m[1,2]*m[2,0] - m[1,0]*m[2,2]) * det;
+                r[1,1] = (m[0,0]*m[2,2] - m[0,2]*m[2,0]) * det;
+                r[1,2] = (m[0,2]*m[1,0] - m[0,0]*m[1,2]) * det;
+                r[2,0] = (m[1,0]*m[2,1] - m[1,1]*m[2,0]) * det;
+                r[2,1] = (m[0,1]*m[2,0] - m[0,0]*m[2,1]) * det;
+                r[2,2] = (m[0,0]*m[1,1] - m[0,1]*m[1,0]) * det;
+                return r;
+            }
+            static if (U == 2 && V == 2) {
+                auto det = m[0,0]*m[1,1] - m[0,1]*m[1,0];
+                if (det != 0) det = 1 / det;
+                Matrix r;
+                r[0,0] = +m[1,1] * det;
+                r[0,1] = -m[0,1] * det;
+                r[1,0] = -m[1,0] * det;
+                r[1,1] = +m[0,0] * det;
+                return r;
+            }
+            assert(false);
         }
-        static if (U == 3 && V == 3) {
-            auto det =
-                 + m[0,0]*m[1,1]*m[2,2]
-+ m[0,1]*m[1,2]*m[2,0]
-             + m[0,2]*m[1,0]*m[2,1]
-             - m[0,0]*m[1,2]*m[2,1]
-             - m[0,1]*m[1,0]*m[2,2]
-- m[0,2]*m[1,1]*m[2,0];
-            if (det != 0) det = 1 / det;
-            Matrix r;
-            r[0,0] = (m[1,1]*m[2,2] - m[1,2]*m[2,1]) * det;
-            r[0,1] = (m[0,2]*m[2,1] - m[0,1]*m[2,2]) * det;
-            r[0,2] = (m[0,1]*m[1,2] - m[0,2]*m[1,1]) * det;
-            r[1,0] = (m[1,2]*m[2,0] - m[1,0]*m[2,2]) * det;
-            r[1,1] = (m[0,0]*m[2,2] - m[0,2]*m[2,0]) * det;
-            r[1,2] = (m[0,2]*m[1,0] - m[0,0]*m[1,2]) * det;
-            r[2,0] = (m[1,0]*m[2,1] - m[1,1]*m[2,0]) * det;
-            r[2,1] = (m[0,1]*m[2,0] - m[0,0]*m[2,1]) * det;
-            r[2,2] = (m[0,0]*m[1,1] - m[0,1]*m[1,0]) * det;
-            return r;
-        }
-        static if (U == 2 && V == 2) {
-            auto det = m[0,0]*m[1,1] - m[0,1]*m[1,0];
-            if (det != 0) det = 1 / det;
-            Matrix r;
-            r[0,0] = +m[1,1] * det;
-            r[0,1] = -m[0,1] * det;
-            r[1,0] = -m[1,0] * det;
-            r[1,1] = +m[0,0] * det;
-            return r;
-        }
-        assert(false);
-    }
 
-    static if (V == U) {
         //static Matrix!(T, U, V) diagnalizate(Matrix m) {
         static Matrix!(T, U, V) diagonalize(Matrix m) {
             // すべて実数固有値で全部相違であると仮定しています
@@ -546,48 +528,6 @@ public:
             return result;
         }
     }
-
-    static Matrix!(T,V,U) transpose(Matrix m) {
-
-        mixin({
-            string result = "Matrix!(T,V,U) r;";
-            foreach (i;0..V) {
-                foreach (j;0..U) {
-                    result ~= "r[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
-                        result ~= "m[" ~ to!string(j) ~ "," ~ to!string(i) ~ "];";
-                }
-            }
-            result ~= "return r;";
-            return result;
-        }());
-    }
-
-    string toString(T epsilon = 0) inout {
-        string res;
-        foreach (i; 0..U) {
-            res ~= "\n\t";
-            foreach (j; 0..V) {
-                res ~= format!"%10f,"(this[i,j]);
-            }
-        }
-        return res;
-    }
-
-    T opIndex(size_t i, size_t j) inout { //i = tate, y = yoko
-        return element[j+i*V];
-    }
-
-    T opIndexAssign(T value, size_t i, size_t j) {
-        return element[j+i*V] = value;
-    }
-
-    T opIndexOpAssign(string op)(T value, size_t x, size_t y) {
-        mixin("return element[y*V+x] " ~ op ~ "= value;");
-    }
-
-    T[U*V] array() inout {
-        return element;
-    }
 }
 
 alias Matrix!(float, 2, 2) mat2;
@@ -626,104 +566,111 @@ private static string multMVCode(uint U, uint V) {
     return code;
 }
 
-private static string multMVAssignCode(uint U, uint V) {
+private static string getidentityCode(uint U) {
     string code;
     foreach (i; 0..U) {
-        code ~= "this[" ~ to!string(i) ~ "] = ";
-        foreach (j; 0..V) {
-            code ~= "+ this[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] * v[" ~ to!string(j) ~ "]";
-        }
-        code ~= ";";
-    }
-    return code;
-}
-
-private static string getidentityCode(uint U, uint V) {
-    string code;
-    foreach (i; 0..U) {
-        foreach (j; 0..V) {
-            code ~= "result[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
-            if (i == j) code ~= "1;";
-            else code ~= "0;";
-        }
-    }
-    return code;
-}
-
-private static string getTranslationCode(uint U, uint V) {
-    string code;
-    foreach (i; 0..U) {
-        foreach (j; 0..V) {
+        foreach (j; 0..U) {
             code ~= format!"result[%d,%d] = "(i,j);
             if (i == j) code ~= "1;";
-            else if (j == V-1) code ~= format!"vec[%d];"(i);
             else code ~= "0;";
         }
     }
     return code;
 }
 
-private static string getScaleCode(uint U, uint V) {
+private static string getTranslationCode(uint U) {
     string code;
     foreach (i; 0..U) {
-        foreach (j; 0..V) {
-            code ~= "result[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
-            if (U == 4 && V == 4 && i == 3 && j == 3) code ~= "1;";
-            else if (i == j) code ~= "vec[" ~ to!string(i) ~ "];";
-            else code ~= "0;";
+        foreach (j; 0..U) {
+            code ~= format!"result[%d,%d] = "(i,j);
+            if (i == j) 
+                code ~= "1;";
+            else if (j == U-1) 
+                code ~= format!"vec[%d];"(i);
+            else 
+                code ~= "0;";
         }
     }
+    return code;
+}
+
+private static string addMat4(string code) {
+    foreach (i; 0..3) {
+        code ~= format!"result[%d,3] = 0;"(i);
+        code ~= format!"result[3,%d] = 0;"(i);
+    }
+    code ~= "result[3,3] = 1;";
+    return code;
+}
+
+private static string getScaleCode(uint U) {
+    string code;
+    foreach (i; 0..U) {
+        foreach (j; 0..U) {
+            code ~= format!"result[%d,%d] = "(i,j);
+            if (i == j)
+                code ~= format!"vec[%d];"(i);
+            else
+                code ~= "0;";
+        }
+    }
+    if (U == 4) code = addMat4(code);
     return code;
 }
 
 private static string getRotAxisCode(uint U) {
     string code;
-    foreach (i; 0..U) {
-        foreach (j; 0..U) {
-            code ~= "result[" ~ to!string(i) ~ "," ~ to!string(j) ~ "] = ";
-            if (i == 3 && j == 3)
-                code ~= "1;";
-            else if (i == 3 || j == 3)
-                code ~= "0;";
-            else if (i == j)
-                code ~= "v[" ~ to!string(i) ~ "]*v[" ~ to!string(j) ~ "]*(1-c)+c;";
+    foreach (i; 0..3) {
+        foreach (j; 0..3) {
+            code ~= format!"result[%d,%d] = "(i,j);
+            if (i == j)
+                code ~= format!"v[%d]*v[%d]*(1-c)+c;"(i,j);
             else if (j == (i+1)%3)
-                code ~= "v[" ~ to!string(i) ~ "]*v[" ~ to!string(j) ~ "]*(1-c)+v[" ~ to!string((i+2)%3) ~ "]*s;";
+                code ~= format!"v[%d]*v[%d]*(1-c)+v[%d]*s;"(i,j,(i+2)%3);
             else
-                code ~= "v[" ~ to!string(i) ~ "]*v[" ~ to!string(j) ~ "]*(1-c)-v[" ~ to!string((i+1)%3) ~ "]*s;";
+                code ~= format!"v[%d]*v[%d]*(1-c)-v[%d]*s;"(i,j,(i+1)%3);
+        }
+    }
+    if (U == 4) code = addMat4(code);
+    return code;
+}
+
+private static string getOpBinaryMSCode(string op, uint U, uint V) {
+    string code;
+    foreach (i; 0..U) {
+        foreach (j; 0..V) {
+            code ~= format!"result[%d,%d] = this[%d,%d] %s s;"(i,j,i,j,op);
         }
     }
     return code;
 }
 
-private static string getOpBinaryMMCode(string op, uint U) {
+private static string getOpAssignMSCode(string op, uint U, uint V) {
     string code;
     foreach (i; 0..U) {
-        code ~= "result[" ~ to!string(i) ~ ",] = this[" ~ to!string(i) ~ ",]" ~ op ~ "m[" ~ to!string(i) ~ ",];";
+        foreach (j; 0..V) {
+            code ~= format!"this[%d,%d] = this[%d,%d] %s s;"(i,j,i,j,op);
+        }
     }
     return code;
 }
 
-private static string getOpBinaryMSCode(string op, uint U) {
+private static string getOpBinaryMMCode(string op, uint U, uint V) {
     string code;
     foreach (i; 0..U) {
-        code ~= "result[" ~ to!string(i) ~ ",] = this[" ~ to!string(i) ~ ",]" ~ op ~ "s;";
+        foreach (j; 0..V) {
+            code ~= format!"result[%d,%d] = this[%d,%d] %s m[%d,%d];"(i,j,i,j,op,i,j);
+        }
     }
     return code;
 }
 
-private static string getOpAssignMSCode(string op, uint U) {
+private static string getOpAssignMMCode(string op, uint U, uint V) {
     string code;
     foreach (i; 0..U) {
-        code ~= "this[" ~ to!string(i) ~ ",] " ~ op ~ "= s;";
-    }
-    return code;
-}
-
-private static string getOpAssignMMCode(string op, uint U) {
-    string code;
-    foreach (i; 0..U) {
-        code ~= "this[" ~ to!string(i) ~ ",] " ~ op ~ "= m[" ~ to!string(i) ~ ",];";
+        foreach (j; 0..V) {
+            code ~= format!"this[%d,%d] = this[%d,%d] %s m[%d,%d];"(i,j,i,j,op,i,j);
+        }
     }
     return code;
 }
@@ -781,16 +728,16 @@ private static string getLookAtCode() {
 private static string getOrthoCode() {
     string code;
     foreach (i; 0..4) {
-        if (i != 0) code ~= "result[0," ~ to!string(i) ~ "] = 0;";
+        if (i != 0) code ~= format!"result[0,%d] = 0;"(i);
     }
     foreach (i; 0..4) {
-        if (i != 1) code ~= "result[1," ~ to!string(i) ~ "] = 0;";
+        if (i != 1) code ~= format!"result[1,%d] = 0;"(i);
     }
     foreach (i; 0..4) {
-        if (i < 2) code ~= "result[2," ~ to!string(i) ~ "] = 0;";
+        if (i < 2) code ~= format!"result[2,%d] = 0;"(i);
     }
     foreach (i; 0..3) {
-        code ~= "result[3," ~ to!string(i) ~ "] = 0;";
+        code ~= format!"result[3,%d] = 0;"(i);
     }
     code ~= "result[0,0] = 2 / width;";
     code ~= "result[1,1] = 2 / height;";
@@ -822,22 +769,6 @@ private static string getPerspectiveCode() {
     return code;
 }
 
-private static string getStringCode(uint U, uint V) {
-    string code = "T a;\n";
-    code ~= "string r;\n";
-    foreach (y; 0..U) {
-        foreach (x; 0..V) {
-            code ~= "a = this[" ~ to!string(y) ~ "," ~ to!string(x) ~ "];\n";
-            code ~= "if (abs(a) < epsilon) a = 0;\n";
-            code ~= "r ~= to!string(a);\n";
-            if (x < V-1) code ~= "r ~= \",\";\n";
-        }
-        if (y < U-1) code ~= "r ~= \"\\n\";\n";
-    }
-    code ~= "return r;\n";
-    return code;
-}
-
 private static string getCopyCode(string identifier, uint U, uint V) {
     string code;
     foreach (x; 0..U) {
@@ -859,8 +790,46 @@ private static string getColumnCode(uint U, uint V) {
     return code;
 }
 
+private static string getRowCode(uint U, uint V) {
+    string code;
+    foreach (i; 0..U) {
+        foreach (j; 0..V) {
+            code ~= format!"result[%d][%d] = this[%d, %d];"(i, j, i, j);
+        }
+    }
+    return code;
+}
+
 unittest {
-    import std.stdio;
+    auto m1 = mat3(
+            1,4,7,
+            2,5,8,
+            3,6,9);
+    auto m2 = mat3(vec3(1,2,3),vec3(4,5,6),vec3(7,8,9));
+
+    assert(m1 == m2);
+
+    auto m3 = mat3(
+            1,0,1,
+            0,1,1,
+            0,0,1);
+    auto m4 = mat3(
+            1,2,3,
+            4,5,6,
+            1,1,1);
+
+    auto m5 = mat3(
+            2,2,4,
+            4,6,7,
+            1,1,2);
+    auto m6 = mat3(
+            2,3,4,
+            5,6,7,
+            1,1,1);
+
+    assert(m3 + m4 == m5);
+    assert(m3 * m4 == m6);
+
     auto p = vec4(0,1,2,1);
     auto m = mat4(
             1,0,0,100,

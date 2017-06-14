@@ -1,3 +1,4 @@
-Performing "debug" build using dmd for x86.
+Generating test runner configuration '__test__library__' for 'library' (library).
+Performing "unittest" build using dmd for x86.
 derelict-util 3.0.0-beta.1: target for configuration "library" is up to date.
 C:\Users\Sobaya\AppData\Roaming\dub\packages\derelict-util-3.0.0-beta.1\lib\DerelictUtil.lib: プロセスはファイルにアクセスできません。別のプロセスが使用中です。
