@@ -8,13 +8,11 @@ import std.conv;
 interface BufferObject(BufferType Type) {
     void bind() const;
     void unbind() const;
-    size_t size() const;
 }
 
 class BufferObject(BufferType Type, T) : BufferObject!Type {
 
-    private immutable uint id;
-    private size_t _size;
+    protected immutable uint id;
 
     this() {
         uint id;
@@ -26,9 +24,6 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
    //     glDeleteVertexArrays(1, &this.id);
     }
 
-    override size_t size() const {
-        return _size;
-    }
 
     override void bind() const {
         glBindBuffer(Type, this.id);
@@ -38,11 +33,16 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         glBindBuffer(Type, 0);
     }
 
-    void sendData(T[] data, BufferUsage freq) {
+    void sendData(T[] data, BufferUsage freq = BufferUsage.Static) {
         this.bind();
         glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
         this.unbind();
-        this._size = data.length;
+    }
+
+    void sendData(S)(S data, BufferUsage freq = BufferUsage.Static) if (is(S == struct)) {
+        this.bind();
+        glBufferData(Type, S.sizeof, cast(void*)&data, freq);
+        this.unbind();
     }
 
     void sendSubData(T[] data) {

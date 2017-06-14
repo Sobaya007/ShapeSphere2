@@ -1,4 +1,80 @@
 Generating test runner configuration '__test__library__' for 'library' (library).
 Performing "unittest" build using dmd for x86.
 derelict-util 3.0.0-beta.1: target for configuration "library" is up to date.
-C:\Users\Sobaya\AppData\Roaming\dub\packages\derelict-util-3.0.0-beta.1\lib\DerelictUtil.lib: プロセスはファイルにアクセスできません。別のプロセスが使用中です。
+derelict-al 2.0.0-beta.1: target for configuration "derelict-al-dynamic" is up to date.
+derelict-alure 2.0.0-beta.1: target for configuration "library" is up to date.
+derelict-fi 3.0.0-beta.1: target for configuration "library" is up to date.
+derelict-ft 2.0.0-beta.1: target for configuration "library" is up to date.
+derelict-gl3 2.0.0-beta.1: target for configuration "library" is up to date.
+derelict-glfw3 4.0.0-beta.1: target for configuration "derelict-glfw3-dynamic" is up to date.
+derelict-sdl2 3.0.0-beta.2: target for configuration "derelict-sdl2-dynamic" is up to date.
+shapesphere2 ~master: building configuration "__test__library__"...
+Linking...
+To force a rebuild of up-to-date targets, run again with --force.
+Running .\bin\__test__library__.exe 
+Joy Stick num = 0
+in vec3 vNormal;
+in vec2 vUV;
+out vec4 fragColor;
+
+float one = 1.0f;
+
+uniform Po {
+  vec3 color;
+};
+
+vec2 add(vec2 a, vec2 b) {
+  return a + b;
+}
+
+void main() {
+  fragColor = vec4(abs(vec3(vNormal)), 1);
+  fragColor.rgb = color;
+}
+
+["in", "vec3", "vNormal", ";", "in", "vec2", "vUV", ";", "out", "vec4", "fragColor", ";", "float", "one", "=", "1.0f", ";", "uniform", "Po", "{", "vec3", "color", ";", "}", ";", "vec2", "add", "(", "vec2", "a", ",", "vec2", "b", ")", "{", "\n  return a + b;\n", "}", "void", "main", "(", ")", "{", "\n  fragColor = vec4(abs(vec3(vNormal)), 1);\n  fragColor.rgb = color;\n", "}"]
+ROOT
+|---Varible
+|   |---Vec3
+|   |---AttributeList
+|       |---In
+|
+|---Varible
+|   |---Vec2
+|   |---AttributeList
+|       |---In
+|
+|---Varible
+|   |---Vec4
+|   |---AttributeList
+|       |---Out
+|
+|---Varible
+|   |---Float
+|   |---AttributeList
+|
+|---Block
+|   |---Uniform
+|   |---Varible
+|       |---Vec3
+|       |---AttributeList
+
+|
+|---Function
+|   |---Vec2
+|   |---ArgumentList
+|       |---ArgumentDeclare
+|       |   |---Vec2
+|       |   |---AttributeList
+
+|       |---ArgumentDeclare
+|           |---Vec2
+|           |---AttributeList
+
+|
+|---Function
+    |---Void
+    |---ArgumentList
+|
+
+All unit tests have been run successfully.

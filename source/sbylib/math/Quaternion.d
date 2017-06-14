@@ -303,18 +303,3 @@ vec3 rotate(vec3 vec, const quat q) @nogc {
 }
 
 alias Quaternion!float quat;
-
-unittest {
-    //つまりこう使う
-    vec3 v = vec3(1,0,0);
-    vec3 axis = vec3(0,1,0);
-    float angle = PI / 2;
-    v = rotate(v, axis, angle);
-    import std.stdio;
-    writeln(v.x);
-    writeln(v.y);
-    writeln(v.z);
-    assert(vec3(0,0,-1) == vec3(0,0,-1));
-    assert(v == vec3(0,0,-1));
-}
-

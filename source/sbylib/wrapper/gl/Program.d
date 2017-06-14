@@ -7,7 +7,7 @@ import std.ascii;
 
 class Program {
 
-    private immutable uint id;
+    package immutable uint id;
 
     this(const Shader[] shaders) {
         this.id = glCreateProgram();
@@ -38,21 +38,10 @@ class Program {
             buffer.asAttribute(attr.dim, loc);
         }
 
-        void attachUniform(inout Uniform uniform) {
-            immutable loc = this.getUniformLocation(uniform.getName());
-            uniform.apply(loc);
-        }
-
         private uint getAttribLocation(string name) {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);
             //if (vLoc == -1) writeln(name ~ " is not found or used.");
             return vLoc;
-        }
-
-        private uint getUniformLocation(string name) {
-            int uLoc = glGetUniformLocation(this.id, name.toStringz);
-            //if (uLoc == -1) writeln(name ~ " is not found or used."); 
-            return uLoc;
         }
 
         private void attachShader(const Shader shader) {

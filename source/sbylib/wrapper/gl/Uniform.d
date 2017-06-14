@@ -3,13 +3,14 @@ module sbylib.wrapper.gl.Uniform;
 import derelict.opengl;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
+import sbylib.wrapper.gl.Program;
 import std.traits;
 import std.conv;
+import std.string;
+import std.format;
 
 interface Uniform {
-    void apply(uint) inout;
-    string getName() inout;
-    void assign(S)(S val);
+    void apply(const Program, ref uint) const;
 }
 
 class UniformTemp(Type) : Uniform {
@@ -22,23 +23,22 @@ class UniformTemp(Type) : Uniform {
         this.name = name;
     }
 
-    string getString() {
-        return Type.stringof ~ " " ~ name ~ ";";
-    }
-
-    override string getName() inout {
-        return this.name;
-    }
-
-    override void apply(uint loc) inout {
+    override void apply(const Program program, ref uint uniformBlockPoint) const {
+        auto loc = this.getLocation(program);
         static if (isInstanceOf!(Vector, Type)) {
-            mixin("glUniform" ~ to!string(Type.dimension) ~ Type.type[0] ~ "v(loc, 1, this.value.array.ptr);");
+            mixin(format!"glUniform%d%sv(loc, 1, this.value.array.ptr);"(Type.dimension, Type.type[0]));
         } else static if(isInstanceOf!(Matrix, Type)) {
             static assert(Type.dimension1 == Type.dimension2);
-            mixin("glUniformMatrix" ~ to!string(Type.dimension1) ~ Type.type[0] ~ "v(loc, 1,GL_TRUE, this.value.array.ptr);");
+            mixin(format!"glUniformMatrix%d%sv(loc, 1, GL_TRUE, this.value.array.ptr);"(Type.dimension1, Type.type[0]));
         } else {
-            mixin("glUniform1" ~ Type.stringof[0] ~ "(loc, this.value);");
+            mixin(format!"glUniform1%s(loc, this.value);"(Type.stringof[0]));
         }
+    }
+
+    private uint getLocation(const Program program) const {
+        int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
+        //if (uLoc == -1) writeln(name ~ " is not found or used."); 
+        return uLoc;
     }
 
     override string toString() const {

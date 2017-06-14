@@ -4,14 +4,30 @@ import derelict.opengl;
 import sbylib.wrapper.gl.BufferObject;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Functions;
-import std.conv;
+import sbylib.wrapper.gl.Uniform;
+import sbylib.wrapper.gl.Program;
+import std.string;
 
-class UniformBuffer : BufferObject!(BufferType.Uniform, float) {
+class UniformBuffer : BufferObject!(BufferType.Uniform, float), Uniform {
 
-    final void asAttribute(uint dim, uint location) {
-        assert(1 <= dim && dim <= 4, "dimension must be 1 ~ 4. given " ~ to!string(dim));
-        this.bind();
-        glVertexAttribPointer(location, dim, getTypeEnum!(float), false, 0, null);
-        this.unbind();
+    immutable string name;
+
+    this(string name) {
+        this.name = name;
+        super();
     }
+
+    override void apply(const Program program, ref uint uniformBlockPoint) const {
+        auto loc = this.getLocation(program);
+        glUniformBlockBinding(program.id, loc, uniformBlockPoint);
+        glBindBufferBase(BufferType.Uniform, uniformBlockPoint, this.id);
+        uniformBlockPoint++;
+    }
+
+    private uint getLocation(const Program program) const {
+        int uLoc = glGetUniformBlockIndex(program.id, this.name.toStringz);
+        assert(uLoc != -1, name ~ " is not found or used."); 
+        return uLoc;
+    }
+
 }

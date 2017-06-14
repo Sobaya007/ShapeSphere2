@@ -37,8 +37,9 @@ abstract class Material {
     final void set() {
         this.config.set();
         this.shader.use();
+        uint uniformBlockPoint = 0;
         foreach (getUniform; getUniforms) {
-            this.shader.attachUniform(getUniform());
+            getUniform().apply(this.shader, uniformBlockPoint);
             import std.stdio;
             //writeln(getUniform());
         }

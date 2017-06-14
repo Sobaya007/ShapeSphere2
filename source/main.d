@@ -18,6 +18,14 @@ void main() {
         world.camera.lookAt(vec3(0));
     });
     world.meshes ~= mesh;
+    auto uniform = new UniformBuffer("Po");
+    struct Po {
+        vec3 color;
+    }
+    Po po;
+    po.color = vec3(1,0,0);
+    uniform.sendData!Po(po);
+    mesh.mat.addUniform(() => uniform);
     world.camera = new PerspectiveCamera(1, 120, 0.1, 100);
     UniformResolver.resolve(world);
     core.world = world;

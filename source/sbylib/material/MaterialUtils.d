@@ -4,6 +4,7 @@ import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Program;
 import sbylib.setting;
+import sbylib.material.GlslUtils;
 import std.file;
 
 class MaterialUtils {
@@ -13,7 +14,10 @@ class MaterialUtils {
     static {
         const(Shader) createShaderFromPath(string path, ShaderType type) {
             path = ROOT_PATH ~ path;
-            immutable source = readText(path);
+            auto source = readText(path);
+            if (type == ShaderType.Fragment) {
+                source = GlslUtils.deal(source);
+            }
             return new Shader(source, type);
         }
 
