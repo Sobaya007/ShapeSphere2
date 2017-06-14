@@ -8,6 +8,7 @@ import std.conv;
 interface BufferObject(BufferType Type) {
     void bind() const;
     void unbind() const;
+    size_t size() const;
 }
 
 class BufferObject(BufferType Type, T) : BufferObject!Type {
@@ -25,7 +26,7 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
    //     glDeleteVertexArrays(1, &this.id);
     }
 
-    size_t size() {
+    override size_t size() const {
         return _size;
     }
 
@@ -49,14 +50,4 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         glBufferSubData(Type, 0, data.length * T.sizeof, cast(void*)data);
         this.unbind();
     }
-
-    void asAttribute(uint dim, uint location) {
-        assert(1 <= dim && dim <= 4, "dimension must be 1 ~ 4. given " ~ to!string(dim));
-        this.bind();
-        glVertexAttribPointer(location, dim, getTypeEnum!(T), false, 0, null);
-        this.unbind();
-    }
 }
-
-alias VertexBuffer = BufferObject!(BufferType.Array, float);
-alias IndexBuffer = BufferObject!(BufferType.ElementArray, uint);

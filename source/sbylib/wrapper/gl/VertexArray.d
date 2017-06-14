@@ -1,6 +1,11 @@
 module sbylib.wrapper.gl.VertexArray;
 
-import sbylib.wrapper.gl;
+import sbylib.wrapper.gl.Program;
+import sbylib.wrapper.gl.Attribute;
+import sbylib.wrapper.gl.VertexBuffer;
+import sbylib.wrapper.gl.IndexBuffer;
+import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.Functions;
 import derelict.opengl;
 import std.algorithm;
 import std.typecons;
@@ -27,7 +32,7 @@ class VertexArray {
         glBindVertexArray(0);
     }
 
-    void setup(const ShaderProgram program, Tuple!(Attribute, VertexBuffer)[] buffers, IndexBuffer ibo) {
+    void setup(const Program program, Tuple!(Attribute, VertexBuffer)[] buffers, IndexBuffer ibo) {
         this.bind();
         foreach(tuple; buffers) {
             program.enableAttribute(tuple[0]);

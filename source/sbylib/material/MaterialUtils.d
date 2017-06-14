@@ -2,6 +2,7 @@ module sbylib.material.MaterialUtils;
 
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Shader;
+import sbylib.wrapper.gl.Program;
 import sbylib.setting;
 import std.file;
 
@@ -16,7 +17,7 @@ class MaterialUtils {
             return new Shader(source, type);
         }
 
-        const(ShaderProgram) createProgramFromPath(string vertPath, string fragPath, string geomPath = null) {
+        const(Program) createProgramFromPath(string vertPath, string fragPath, string geomPath = null) {
             auto vert = createShaderFromPath(vertPath, ShaderType.Vertex);
             auto frag = createShaderFromPath(fragPath, ShaderType.Fragment);
             auto shaders = [vert, frag];
@@ -24,7 +25,7 @@ class MaterialUtils {
                 auto geom = createShaderFromPath(geomPath, ShaderType.Geometry);
                 shaders ~= geom;
             }
-            return new ShaderProgram(shaders);
+            return new Program(shaders);
         }
     }
 }

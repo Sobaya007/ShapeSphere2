@@ -1,7 +1,7 @@
 module sbylib.material.Material;
 
 import sbylib.wrapper.gl.Uniform;
-import sbylib.wrapper.gl.Shader;
+import sbylib.wrapper.gl.Program;
 import sbylib.wrapper.gl.Attribute;
 import sbylib.wrapper.gl.BufferObject;
 import sbylib.wrapper.gl.VertexArray;
@@ -16,12 +16,12 @@ alias umat4w = Watcher!(umat4);
 
 abstract class Material {
 
-    const ShaderProgram shader;
+    const Program shader;
     const(Uniform) delegate()[] getUniforms;
     UniformDemand[] demands;
     RenderConfig config;
 
-    this(const ShaderProgram shader) {
+    this(const Program shader) {
         this.shader = shader;
         this.demands = createDemands();
         this.config = new RenderConfig();

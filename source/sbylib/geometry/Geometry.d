@@ -2,7 +2,8 @@ module sbylib.geometry.Geometry;
 
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.VertexArray;
-import sbylib.wrapper.gl.BufferObject;
+import sbylib.wrapper.gl.VertexBuffer;
+import sbylib.wrapper.gl.IndexBuffer;
 import sbylib.wrapper.gl.Attribute;
 import sbylib.wrapper.gl.Functions;
 import sbylib.geometry.Vertex;

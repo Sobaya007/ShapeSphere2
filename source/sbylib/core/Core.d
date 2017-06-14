@@ -72,7 +72,7 @@ class Core {
     void start() {
         writeln("APPLICATION STARTED");
         //各種初期化
-        ShaderStore.init;
+        //ShaderStore.init;
         initFunctions();
 
         mainLoop();
