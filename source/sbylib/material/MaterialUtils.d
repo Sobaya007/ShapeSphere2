@@ -12,12 +12,18 @@ class MaterialUtils {
     private this(){}
 
     static {
+
+        const(Program) generateProgramFromFragmentPath(string path) {
+            path = ROOT_PATH ~ path;
+            auto fragSource = readText(path);
+            auto ASTs = GlslUtils.createShaders(fragSource);
+            auto vert = new Shader(ASTs[0].getCode(), ShaderType.Vertex);
+            auto frag = new Shader(ASTs[1].getCode(), ShaderType.Fragment);
+            return new Program([vert, frag]);
+        }
         const(Shader) createShaderFromPath(string path, ShaderType type) {
             path = ROOT_PATH ~ path;
             auto source = readText(path);
-            if (type == ShaderType.Fragment) {
-                source = GlslUtils.deal(source);
-            }
             return new Shader(source, type);
         }
 

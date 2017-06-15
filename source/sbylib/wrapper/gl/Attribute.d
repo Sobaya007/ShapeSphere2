@@ -6,7 +6,7 @@ import std.conv;
 
 struct Attribute {
 
-    enum Position = Attribute(3, "pos");
+    enum Position = Attribute(3, "position");
     enum Normal = Attribute(3, "normal");
     enum UV = Attribute(2, "uv");
 

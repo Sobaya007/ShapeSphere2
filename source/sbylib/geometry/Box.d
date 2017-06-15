@@ -50,7 +50,7 @@ class Box {
             ];
             foreach(j; [0,1,2,2,1,3]) {
                 auto v = new VertexNT;
-                v.pos = positions[j];
+                v.position = positions[j];
                 v.normal = normals[j];
                 v.uv = uvs[j];
                 vertices ~= v;

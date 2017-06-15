@@ -1,18 +1,12 @@
-in vec3 vNormal;
-in vec2 vUV;
-out vec4 fragColor;
+#vertex Proj
 
-float one = 1.0f;
+require Normal in World as vec3 vNormal;
+require UV as vec2 vUV;
 
 uniform Po {
   vec3 color;
 };
 
-vec2 add(vec2 a, vec2 b) {
-  return a + b;
-}
-
 void main() {
-  fragColor = vec4(abs(vec3(vNormal)), 1);
-  fragColor.rgb = color;
+  fragColor = vec4(vUV * .5 + .5, 1, 1);
 }
