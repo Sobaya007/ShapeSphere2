@@ -13,5 +13,5 @@ targetPath "bin"
 
 buildType "syntax" {
 buildOptions "debugMode" "debugInfo"
-dflags "-c" "-J"
+dflags "-c"
 }

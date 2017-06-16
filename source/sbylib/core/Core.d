@@ -53,7 +53,7 @@ class Core {
         AL.init();
         GL.init();
         GLFW.init();
-        FreeType.init();
+        //FreeType.init();
         FreeImage.init();
         JoyStick.init();
     }
@@ -73,7 +73,7 @@ class Core {
         writeln("APPLICATION STARTED");
         //各種初期化
         //ShaderStore.init;
-        initFunctions();
+        //initFunctions();
 
         mainLoop();
     }
