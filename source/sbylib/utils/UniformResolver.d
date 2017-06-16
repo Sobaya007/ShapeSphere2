@@ -1,6 +1,6 @@
 module sbylib.utils.UniformResolver;
 
-import sbylib.material.Constants;
+import sbylib.material.GlslUtils;
 import sbylib.core.World;
 
 class UniformResolver {
@@ -11,13 +11,13 @@ class UniformResolver {
         foreach (mesh; world.meshes) {
             foreach (dem; mesh.mat.demands) {
                 final switch (dem) {
-                case UniformDemand.WorldMatrix:
+                case UniformDemand.World:
                     mesh.mat.addUniform(mesh.obj.worldMatrix);
                     break;
-                case UniformDemand.ViewMatrix:
+                case UniformDemand.View:
                     mesh.mat.addUniform(world.viewMatrix);
                     break;
-                case UniformDemand.ProjMatrix:
+                case UniformDemand.Proj:
                     mesh.mat.addUniform(world.projMatrix);
                     break;
                 }

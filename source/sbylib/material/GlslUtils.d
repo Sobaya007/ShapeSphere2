@@ -299,7 +299,7 @@ private {
         UV = "UV"
     }
 
-    enum UniformDemand : string {
+    public enum UniformDemand : string {
         World = "WorldMatrix",
         View = "ViewMatrix",
         Proj = "ProjMatrix"
