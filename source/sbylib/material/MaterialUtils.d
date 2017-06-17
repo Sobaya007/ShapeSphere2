@@ -4,7 +4,7 @@ import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Program;
 import sbylib.setting;
-import sbylib.material.GlslUtils;
+import sbylib.material.glsl.GlslUtils;
 import std.file;
 
 class MaterialUtils {

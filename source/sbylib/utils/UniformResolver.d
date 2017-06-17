@@ -1,6 +1,6 @@
 module sbylib.utils.UniformResolver;
 
-import sbylib.material.GlslUtils;
+import sbylib.material.glsl.Constants;
 import sbylib.core.World;
 
 class UniformResolver {

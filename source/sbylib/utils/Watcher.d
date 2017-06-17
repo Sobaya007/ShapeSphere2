@@ -17,7 +17,7 @@ class Watch(T) {
         }
     }
 
-   @property T get() {
+    @property T get() {
         return value;
     }
 

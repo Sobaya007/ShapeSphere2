@@ -15,6 +15,14 @@ import std.format;
    は
    Matrix!(float, 2, 4)
    */
+
+alias Matrix!(float, 2, 2) mat2;
+alias Matrix!(double, 2, 2) mat2d;
+alias Matrix!(float, 3, 3) mat3;
+alias Matrix!(double, 3, 3) mat3d;
+alias Matrix!(float, 4, 4) mat4;
+alias Matrix!(double, 4, 4) mat4d;
+
 struct Matrix(T, uint U, uint V) if (__traits(isArithmetic, T) && 1 <= U && U <= 4 && 1 <= V && V <= 4){
 private:
     T[U*V] element;
@@ -529,13 +537,6 @@ public:
         }
     }
 }
-
-alias Matrix!(float, 2, 2) mat2;
-alias Matrix!(double, 2, 2) mat2d;
-alias Matrix!(float, 3, 3) mat3;
-alias Matrix!(double, 3, 3) mat3d;
-alias Matrix!(float, 4, 4) mat4;
-alias Matrix!(double, 4, 4) mat4d;
 
 
 //============================================================================以下mixin用の関数達

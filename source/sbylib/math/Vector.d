@@ -10,6 +10,13 @@ import std.format;
 import std.array;
 import std.traits;
 
+alias Vector!(float, 2) vec2; //========================================適当にaliasしとく
+alias Vector!(float, 3) vec3;
+alias Vector!(float, 4) vec4;
+alias Vector!(int,   2) vec2i;
+alias Vector!(int,   3) vec3i;
+alias Vector!(int,   4) vec4i;
+
 //T型のS個のベクトル
 struct Vector(T, uint S) if (__traits(isArithmetic, T)) {
 private:
@@ -176,13 +183,6 @@ body {
         return r;
     }
 }
-
-alias Vector!(float, 2) vec2; //========================================適当にaliasしとく
-alias Vector!(float, 3) vec3;
-alias Vector!(float, 4) vec4;
-alias Vector!(int,   2) vec2i;
-alias Vector!(int,   3) vec3i;
-alias Vector!(int,   4) vec4i;
 
 //======================================================================以下ベクトル計算系の関数達
 
@@ -381,4 +381,8 @@ unittest {
     assert(vec4(vec2(1), vec2(2)) == vec4(1,1,2,2));
 
     assert(vec3(1) == vec3(1,1,1));
+
+    vec2 d = vec2(2,1);
+    d.xy = d.yx;
+    assert(d.xy == vec2(1,2));
 }

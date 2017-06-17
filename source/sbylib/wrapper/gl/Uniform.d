@@ -9,6 +9,12 @@ import std.conv;
 import std.string;
 import std.format;
 
+alias ufloat = UniformTemp!(float);
+alias uvec2 = UniformTemp!(vec2);
+alias uvec3 = UniformTemp!(vec3);
+alias uvec4 = UniformTemp!(vec4);
+alias umat4 = UniformTemp!(mat4);
+
 interface Uniform {
     void apply(const Program, ref uint) const;
 }
@@ -54,9 +60,3 @@ class UniformTemp(Type) : Uniform {
 
     alias value this;
 }
-
-alias ufloat = UniformTemp!(float);
-alias uvec2 = UniformTemp!(vec2);
-alias uvec3 = UniformTemp!(vec3);
-alias uvec4 = UniformTemp!(vec4);
-alias umat4 = UniformTemp!(mat4);
