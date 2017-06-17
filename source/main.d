@@ -19,9 +19,9 @@ void main() {
     });
     world.meshes ~= mesh;
     auto image = ImageLoader.load("./Resource/d.png");
-    //auto utex = new utexture("tex");
-    //utex.value = Utils.generateTexture(image);
-    //mesh.mat.addUniform(utex);
+    auto utex = new utexture("tex");
+    utex.value = Utils.generateTexture(image);
+    mesh.mat.addUniform(() => utex);
     world.camera = new PerspectiveCamera(1, 120, 0.1, 100);
     UniformResolver.resolve(world);
     core.world = world;

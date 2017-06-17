@@ -25,7 +25,6 @@ class UniformTexture : Uniform {
         glActiveTexture(GL_TEXTURE0 + textureUnit);
         this.value.bind();
         glUniform1i(loc, textureUnit);
-        this.value.unbind();
         textureUnit++;
     }
 

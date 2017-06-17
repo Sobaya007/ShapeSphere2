@@ -28,10 +28,6 @@ abstract class Material {
         this.config = new RenderConfig();
     }
 
-    final void addUniform(const Uniform uniform) {
-        this.addUniform(() => uniform);
-    }
-
     final void addUniform(const(Uniform) delegate() getUniform) {
         this.getUniforms ~= getUniform;
     }
