@@ -1,10 +1,12 @@
 module sbylib.wrapper.freeimage.Image;
 
 import derelict.freeimage.freeimage;
+import sbylib.wrapper.freeimage.Constants;
+import std.conv;
 
 class Image {
 
-    FIBITMAP* bitmap;
+    private FIBITMAP* bitmap;
 
     this(FIBITMAP* bitmap) {
         this.bitmap = bitmap;
@@ -22,7 +24,11 @@ class Image {
         return FreeImage_GetHeight(bitmap);
     }
 
-    void* getBits() {
+    ubyte* getBits() {
         return FreeImage_GetBits(bitmap);
+    }
+
+    ImageType getImageType() {
+        return FreeImage_GetImageType(bitmap).to!ImageType;
     }
 }

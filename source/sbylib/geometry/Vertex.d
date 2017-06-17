@@ -35,7 +35,7 @@ class Vertex(Attribute[] Attributes) {
 
     override string toString() {
         auto res = "Vertex {";
-        foreach (attr; Range!(Attribute, Attributes)) {
+        foreach (attr; Utils.Range!(Attribute, Attributes)) {
             res ~= "\n\t" ~ attr.name ~ " = " ~ __traits(getMember, this, attr.name).toString();
         }
         res ~= "\n}";

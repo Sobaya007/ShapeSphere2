@@ -59,95 +59,95 @@ class Font {
 //        return texture;
 //    }
 
-    Texture getCharacterTexture(T)(inout T character) if (is (T == char) || is (T == wchar) || is (T == dchar)) {
-        int charcode = cast(int)character;
-        auto result = charcode in textures;
-        if (result) return *result;
-
-        return getCharacterTextureFromCode(charcode);
-    }
-
-    private Texture getCharacterTextureFromCode(int charcode) {
-
-        auto err = FT_Load_Char(face, charcode, 0);
-        if (err) assert (false, "Failed to load character!");
-
-        err = FT_Render_Glyph(face.glyph, fontType);
-        if (err) assert (false, "Failed to render glyph!!");
-
-        FT_Bitmap bm = face.glyph.bitmap;
-
-        /*
-Note:FT_Bitmapについて:
-rows:縦に何ピクセルあるか
-width:横に何ピクセルあるか
-pitch:横1列で何Byteあるか
-
-buffer:
-MONOの場合:	1ピクセルあたり1bit。ビットが立っていれば塗って、そうでなければ塗らない
-NORMALの場合: 1ピクセルあたり1Byte。0~0xffでそのピクセルのα値を表す。
-     */
-
-        // ベースラインを考慮してTexture込めるようにします
-        // FT_Pos := signed long です
-
-        FT_Glyph_Metrics met = face.glyph.metrics;
-        // FT_Pos met.width
-        // FT_Pos met.height
-        // FT_Pos met.horiBearingX
-        // FT_Pos met.horiBearingY
-        // FT_Pos met.horiAdvance
-
-        // buffer width := met.advance
-        // buffer height:= maxHeight
-
-        uint advance = cast(uint)met.horiAdvance/64;
-        uint bearingX = cast(uint)met.horiBearingX/64;
-        uint width = cast(uint)met.width/64;
-        uint bearingY = cast(uint)met.horiBearingY/64;
-        uint height = cast(uint)met.height/64;
-
-        ubyte[] buffer;
-        final switch (fontType) {
-        case FontType.Mono:
-            foreach_reverse (i; 0..maxHeight) {
-                foreach (j; 0..advance) {
-                    if( (j < bearingX) || (j >= bearingX + width) ||
-                            (i < baseLineHeight-bearingY) ||
-                            (i >= baseLineHeight-bearingY + height) ){
-                        buffer ~= [0,0,0,0];
-                    }else{
-                        int row = i - (baseLineHeight - bearingY);
-                        int col = j - bearingX;
-                        auto c = bm.buffer[bm.pitch * row + col];
-                        foreach_reverse (bit; 0..8) {
-                            if (((c >> bit) & 1) == 0) {
-                                buffer ~= [0, 0, 0, 0];
-                            } else {
-                                buffer ~= [0xff, 0xff, 0xff, 0xff];
-                            }
-                        }
-                    }
-                }
-            }
-            return textures[charcode] = new Texture(buffer.ptr, advance*8, maxHeight);
-        case FontType.AntiAlias:
-            foreach_reverse (i; 0..maxHeight) {
-                foreach (j; 0..advance) {
-                    if( (j < bearingX) || (j >= bearingX + width) ||
-                            (i < baseLineHeight-bearingY) ||
-                            (i >= baseLineHeight-bearingY + height) ){
-                        buffer ~= [0,0,0,0];
-                    }else{
-                        int row = i - (baseLineHeight - bearingY);
-                        int col = j - bearingX;
-                        auto c = bm.buffer[bm.pitch * row + col];
-                        buffer ~= [0xff,0xff,0xff,c];
-                    }
-                }
-            }
-            return textures[charcode] = new Texture(buffer.ptr, advance, maxHeight);
-        }
-    }
+//    Texture getCharacterTexture(T)(inout T character) if (is (T == char) || is (T == wchar) || is (T == dchar)) {
+//        int charcode = cast(int)character;
+//        auto result = charcode in textures;
+//        if (result) return *result;
+//
+//        return getCharacterTextureFromCode(charcode);
+//    }
+//
+//    private Texture getCharacterTextureFromCode(int charcode) {
+//
+//        auto err = FT_Load_Char(face, charcode, 0);
+//        if (err) assert (false, "Failed to load character!");
+//
+//        err = FT_Render_Glyph(face.glyph, fontType);
+//        if (err) assert (false, "Failed to render glyph!!");
+//
+//        FT_Bitmap bm = face.glyph.bitmap;
+//
+//        /*
+//Note:FT_Bitmapについて:
+//rows:縦に何ピクセルあるか
+//width:横に何ピクセルあるか
+//pitch:横1列で何Byteあるか
+//
+//buffer:
+//MONOの場合:	1ピクセルあたり1bit。ビットが立っていれば塗って、そうでなければ塗らない
+//NORMALの場合: 1ピクセルあたり1Byte。0~0xffでそのピクセルのα値を表す。
+//     */
+//
+//        // ベースラインを考慮してTexture込めるようにします
+//        // FT_Pos := signed long です
+//
+//        FT_Glyph_Metrics met = face.glyph.metrics;
+//        // FT_Pos met.width
+//        // FT_Pos met.height
+//        // FT_Pos met.horiBearingX
+//        // FT_Pos met.horiBearingY
+//        // FT_Pos met.horiAdvance
+//
+//        // buffer width := met.advance
+//        // buffer height:= maxHeight
+//
+//        uint advance = cast(uint)met.horiAdvance/64;
+//        uint bearingX = cast(uint)met.horiBearingX/64;
+//        uint width = cast(uint)met.width/64;
+//        uint bearingY = cast(uint)met.horiBearingY/64;
+//        uint height = cast(uint)met.height/64;
+//
+//        ubyte[] buffer;
+//        final switch (fontType) {
+//        case FontType.Mono:
+//            foreach_reverse (i; 0..maxHeight) {
+//                foreach (j; 0..advance) {
+//                    if( (j < bearingX) || (j >= bearingX + width) ||
+//                            (i < baseLineHeight-bearingY) ||
+//                            (i >= baseLineHeight-bearingY + height) ){
+//                        buffer ~= [0,0,0,0];
+//                    }else{
+//                        int row = i - (baseLineHeight - bearingY);
+//                        int col = j - bearingX;
+//                        auto c = bm.buffer[bm.pitch * row + col];
+//                        foreach_reverse (bit; 0..8) {
+//                            if (((c >> bit) & 1) == 0) {
+//                                buffer ~= [0, 0, 0, 0];
+//                            } else {
+//                                buffer ~= [0xff, 0xff, 0xff, 0xff];
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            return textures[charcode] = new Texture(buffer.ptr, advance*8, maxHeight);
+//        case FontType.AntiAlias:
+//            foreach_reverse (i; 0..maxHeight) {
+//                foreach (j; 0..advance) {
+//                    if( (j < bearingX) || (j >= bearingX + width) ||
+//                            (i < baseLineHeight-bearingY) ||
+//                            (i >= baseLineHeight-bearingY + height) ){
+//                        buffer ~= [0,0,0,0];
+//                    }else{
+//                        int row = i - (baseLineHeight - bearingY);
+//                        int col = j - bearingX;
+//                        auto c = bm.buffer[bm.pitch * row + col];
+//                        buffer ~= [0xff,0xff,0xff,c];
+//                    }
+//                }
+//            }
+//            return textures[charcode] = new Texture(buffer.ptr, advance, maxHeight);
+//        }
+//    }
 
 }

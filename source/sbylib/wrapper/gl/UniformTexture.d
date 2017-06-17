@@ -1,33 +1,39 @@
-module sbylib.wrapper.gl.UniformBuffer;
+module sbylib.wrapper.gl.UniformTexture;
 
 import derelict.opengl;
-import sbylib.wrapper.gl.BufferObject;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.Program;
+import sbylib.wrapper.gl.Texture;
 import std.string;
 
-class UniformBuffer : BufferObject!(BufferType.Uniform, float), Uniform {
+alias utexture = UniformTexture;
+
+class UniformTexture : Uniform {
 
     immutable string name;
+    Texture value;
 
     this(string name) {
         this.name = name;
-        super();
     }
 
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
         auto loc = this.getLocation(program);
-        glUniformBlockBinding(program.id, loc, uniformBlockPoint);
-        glBindBufferBase(BufferType.Uniform, uniformBlockPoint, this.id);
-        uniformBlockPoint++;
+
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+        this.value.bind();
+        glUniform1i(loc, textureUnit);
+        this.value.unbind();
+        textureUnit++;
     }
 
     private uint getLocation(const Program program) const {
-        int uLoc = glGetUniformBlockIndex(program.id, this.name.toStringz);
-        assert(uLoc != -1, name ~ " is not found or used."); 
+        int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
+        assert(uLoc != -1, name ~ " is not found or used.");
         return uLoc;
     }
 
+    alias value this;
 }

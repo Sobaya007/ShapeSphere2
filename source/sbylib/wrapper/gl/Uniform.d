@@ -1,5 +1,4 @@
 module sbylib.wrapper.gl.Uniform;
-
 import derelict.opengl;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
@@ -16,7 +15,7 @@ alias uvec4 = UniformTemp!(vec4);
 alias umat4 = UniformTemp!(mat4);
 
 interface Uniform {
-    void apply(const Program, ref uint) const;
+    void apply(const Program, ref uint, ref uint) const;
 }
 
 class UniformTemp(Type) : Uniform {
@@ -29,7 +28,7 @@ class UniformTemp(Type) : Uniform {
         this.name = name;
     }
 
-    override void apply(const Program program, ref uint uniformBlockPoint) const {
+    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
         auto loc = this.getLocation(program);
         static if (isInstanceOf!(Vector, Type)) {
             mixin(format!"glUniform%d%sv(loc, 1, this.value.array.ptr);"(Type.dimension, Type.type[0]));

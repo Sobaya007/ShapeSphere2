@@ -66,6 +66,7 @@ class Shader {
                     }
                 }
             }
+            lineNum = lineNum.sort().array;
             auto r = assumeSorted(lineNum);
             string result = "\nGLSL Compile Error\n";
             result ~= "==========================================\n";

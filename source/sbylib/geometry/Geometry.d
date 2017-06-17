@@ -33,7 +33,7 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode) : Geometry{
 
     this(VertexA[] vertices, uint[] indices) {
         this.vertices = vertices;
-        foreach (attr; Range!(Attribute, Attributes)) {
+        foreach (attr; Utils.Range!(Attribute, Attributes)) {
             auto buffer = new VertexBuffer;
             buffer.sendData(vertices.map!(vertex => __traits(getMember, vertex, attr.name).array).reduce!((a,b) => a ~ b), BufferUsage.Static);
             this.buffers ~= tuple(attr, buffer);

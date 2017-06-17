@@ -28,6 +28,10 @@ abstract class Material {
         this.config = new RenderConfig();
     }
 
+    final void addUniform(const Uniform uniform) {
+        this.addUniform(() => uniform);
+    }
+
     final void addUniform(const(Uniform) delegate() getUniform) {
         this.getUniforms ~= getUniform;
     }
@@ -39,10 +43,9 @@ abstract class Material {
         this.config.set();
         this.shader.use();
         uint uniformBlockPoint = 0;
+        uint textureUnit = 0;
         foreach (getUniform; getUniforms) {
-            getUniform().apply(this.shader, uniformBlockPoint);
-            import std.stdio;
-            //writeln(getUniform());
+            getUniform().apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
 

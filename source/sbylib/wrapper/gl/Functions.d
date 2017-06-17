@@ -30,10 +30,10 @@ void clearStencil(int stencil) {
 
 void captureScreen(Texture tex, int left, int bottom, int width, int height) {
     tex.bind;
-    glCopyTexImage2D(GL_TEXTURE_2D,0, tex.type, left, bottom, width, height, 0);
-    tex.setWrapS(Texture.TexWrapType.ClampToEdge);
-    tex.setWrapT(Texture.TexWrapType.ClampToEdge);
-    tex.unBind;
+    //glCopyTexImage2D(GL_TEXTURE_2D,0, tex.type, left, bottom, width, height, 0);
+    //tex.setWrapS(Texture.TexWrapType.ClampToEdge);
+    //tex.setWrapT(Texture.TexWrapType.ClampToEdge);
+    tex.unbind;
 }
 
 void enable(Capability cap) {

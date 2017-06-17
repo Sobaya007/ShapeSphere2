@@ -62,7 +62,7 @@ enum StencilWrite {
     DecrementWrap = GL_DECR_WRAP, //-1して負になったら最大値にする
 }
 
-enum ImageType {
+enum ImageInternalFormat {
     R = GL_RED,
     RG = GL_RG,
     RGB = GL_RGB,
@@ -70,6 +70,17 @@ enum ImageType {
     Depth = GL_DEPTH_COMPONENT24,
     DepthStencil = GL_DEPTH_STENCIL
 };
+
+enum ImageFormat {
+    R = GL_RED,
+    RG = GL_RG,
+    RGB = GL_RGB,
+    BGR = GL_BGR,
+    RGBA = GL_RGBA,
+    BGRA = GL_BGRA,
+    Depth = GL_DEPTH_COMPONENT24,
+    DepthStencil = GL_DEPTH_STENCIL
+}
 
 enum ShaderType {
     Vertex = GL_VERTEX_SHADER,
@@ -203,3 +214,57 @@ enum PolygonMode {
     Point = GL_POINT,
     None = 114514
 }
+
+enum TextureTarget {
+    Tex1DArray = GL_TEXTURE_1D_ARRAY,
+    Tex2D = GL_TEXTURE_2D,
+    Rect = GL_TEXTURE_RECTANGLE,
+    CubePosX = GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    CubePosY = GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    CubePosZ = GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    CubeNegX = GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    CubeNegY = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    CubeNegZ = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+    Proxy1DArray = GL_PROXY_TEXTURE_1D_ARRAY,
+    Proxy2D = GL_PROXY_TEXTURE_2D,
+    ProxyRect = GL_PROXY_TEXTURE_RECTANGLE,
+    ProxyCube = GL_PROXY_TEXTURE_CUBE_MAP
+}
+
+enum TextureParamName {
+    DepthStencilMode = GL_DEPTH_STENCIL_TEXTURE_MODE,
+    BaseLevel = GL_TEXTURE_BASE_LEVEL,
+    CompareFunc = GL_TEXTURE_COMPARE_FUNC,
+    CompareMode = GL_TEXTURE_COMPARE_MODE,
+    LodBias = GL_TEXTURE_LOD_BIAS,
+    MinFilter = GL_TEXTURE_MIN_FILTER,
+    MagFilter = GL_TEXTURE_MAG_FILTER,
+    MinLod = GL_TEXTURE_MIN_LOD,
+    MaxLod = GL_TEXTURE_MAX_LOD,
+    MaxLevel = GL_TEXTURE_MAX_LEVEL,
+    SwizzleR = GL_TEXTURE_SWIZZLE_R,
+    SwizzleG = GL_TEXTURE_SWIZZLE_G,
+    SwizzleB = GL_TEXTURE_SWIZZLE_B,
+    SwizzleA = GL_TEXTURE_SWIZZLE_A,
+    WrapS = GL_TEXTURE_WRAP_S,
+    WrapT = GL_TEXTURE_WRAP_T,
+    WrapR = GL_TEXTURE_WRAP_R,
+}
+
+enum DepthStencilMode {
+    Depth = GL_DEPTH_COMPONENT,
+    Stencil = GL_STENCIL_COMPONENTS
+}
+
+enum TextureFilter {
+    Nearest = GL_NEAREST,
+    Linear = GL_LINEAR
+}
+
+enum TextureWrap {
+    Repeat = GL_REPEAT,
+    ClampToEdge = GL_CLAMP_TO_EDGE,
+    ClampToBorder = GL_CLAMP_TO_BORDER,
+    MirroredRepeat = GL_MIRRORED_REPEAT
+}
+

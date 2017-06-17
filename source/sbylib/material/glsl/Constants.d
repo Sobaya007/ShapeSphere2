@@ -14,6 +14,7 @@ enum Type : string {
     Mat2 = "mat2",
     Mat3 = "mat3",
     Mat4 = "mat4",
+    Sampler2D = "sampler2D"
 }
 
 enum VaryingDemand : string {
