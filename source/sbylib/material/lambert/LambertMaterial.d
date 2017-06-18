@@ -14,11 +14,12 @@ class LambertMaterial : Material {
         super(shader);
     }
 
-    override UniformDemand[] createDemands() {
-        return [
-        UniformDemand.World,
-        UniformDemand.View,
-        UniformDemand.Proj
-        ];
+    override UniformDemand[] getDemands() {
+        enum result = [
+            UniformDemand.World,
+            UniformDemand.View,
+            UniformDemand.Proj
+            ];
+        return result;
     }
 }

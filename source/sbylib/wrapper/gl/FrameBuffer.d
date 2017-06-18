@@ -17,11 +17,11 @@ class FrameBuffer {
         glDeleteBuffers(1, &id);
     }
 
-    private void bind(FrameBufferBindType type) {
+    void bind(FrameBufferBindType type) const {
         glBindFramebuffer(type, this.id);
     }
 
-    private void unbind(FrameBufferBindType type) {
-        glBindFramebuffer(type, this.id);
+    void unbind(FrameBufferBindType type) const {
+        glBindFramebuffer(type, 0);
     }
 }

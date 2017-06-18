@@ -58,8 +58,7 @@ class Core {
         JoyStick.init();
     }
 
-    Window window; //現在のウインドウ
-    World world;
+    private Window window; //現在のウインドウ
     private FpsBalancer fpsBalancer;
     private Process[] processes;
 
@@ -87,10 +86,9 @@ class Core {
     //メインループ
     private void mainLoop() {
         this.fpsBalancer.loop(() {
-            this.processes = this.processes.filter!(proc => proc.step).array;
             clearColor(vec4(0,.5,.5,1));
             clear(ClearMode.Color, ClearMode.Depth);
-            this.world.render();
+            this.processes = this.processes.filter!(proc => proc.step).array;
             this.window.swapBuffers();
             this.window.pollEvents();
             return window.shouldClose();
@@ -98,5 +96,9 @@ class Core {
         //後始末
         GLFW.terminate();
         AL.terminate();
+    }
+
+    const(Window) getWindow() const {
+        return this.window;
     }
 }

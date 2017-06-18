@@ -19,6 +19,10 @@ class UniformTexture : Uniform {
         this.name = name;
     }
 
+    override string getName() const {
+        return this.name;
+    }
+
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
         auto loc = this.getLocation(program);
 

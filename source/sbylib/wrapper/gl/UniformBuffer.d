@@ -17,6 +17,10 @@ class UniformBuffer : BufferObject!(BufferType.Uniform, float), Uniform {
         super();
     }
 
+    override string getName() const {
+        return this.name;
+    }
+
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
         auto loc = this.getLocation(program);
         glUniformBlockBinding(program.id, loc, uniformBlockPoint);

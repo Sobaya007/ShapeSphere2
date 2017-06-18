@@ -15,6 +15,7 @@ alias uvec4 = UniformTemp!(vec4);
 alias umat4 = UniformTemp!(mat4);
 
 interface Uniform {
+    string getName() const;
     void apply(const Program, ref uint, ref uint) const;
 }
 
@@ -26,6 +27,10 @@ class UniformTemp(Type) : Uniform {
 
     this(string name) {
         this.name = name;
+    }
+
+    override string getName() const {
+        return this.name;
     }
 
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {

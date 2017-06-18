@@ -18,21 +18,22 @@ alias umat4w = Watcher!(umat4);
 abstract class Material {
 
     const Program shader;
-    const(Uniform) delegate()[] getUniforms;
-    UniformDemand[] demands;
+    const(Uniform) delegate()[string] getUniforms;
     RenderConfig config;
 
     this(const Program shader) {
         this.shader = shader;
-        this.demands = createDemands();
         this.config = new RenderConfig();
     }
 
-    final void addUniform(const(Uniform) delegate() getUniform) {
-        this.getUniforms ~= getUniform;
+    final void setUniform(const(Uniform) delegate() getUniform) {
+        auto name = getUniform().getName();
+        this.getUniforms[name] = getUniform;
     }
-    final void addUniform(T...)(Watcher!(UniformTemp!T) watcher) {
-        this.getUniforms ~= () => watcher.get();
+
+    final void setUniform(T...)(Watcher!(UniformTemp!T) watcher) {
+        auto name = watcher.get().getName();
+        this.getUniforms[name] = () => watcher.get();
     }
 
     final void set() {
@@ -45,5 +46,5 @@ abstract class Material {
         }
     }
 
-    protected abstract UniformDemand[] createDemands();
+    abstract UniformDemand[] getDemands();
 }

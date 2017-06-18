@@ -66,21 +66,5 @@ class Texture {
         glFramebufferTexture2D(bindType, attachType, this.target, this.id, 0);
     }
 
-//    void write(void delegate() func) {
-//        if (writeFbo is null) writeFbo = new FrameBuffer;
-//        //writeFbo.attachTextureAsColor(this);
-//        writeFbo.write(width, height, func);
-//    }
-//
-//    void writeBegin() {
-//        if (writeFbo is null) writeFbo = new FrameBuffer;
-//        //writeFbo.attachTextureAsDepth(this);
-//        writeFbo.writeBegin(width, height);
-//    }
-//
-//    void writeEnd(){
-//        writeFbo.writeEnd();
-//    }
-
     alias id this;
 }

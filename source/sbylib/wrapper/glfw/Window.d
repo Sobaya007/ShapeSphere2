@@ -12,8 +12,7 @@ import sbylib.math;
 
 class Window {
 private:
-    int _width, _height;
-    int[4] _viewport;
+    int width, height;
     string _title;
     vec2i _pos;
     GLFWwindow *window;
@@ -22,8 +21,8 @@ public:
 
     this(string _title, int width, int height) {
         this._title = _title;
-        this._width = width;
-        this._height = height;
+        this.width = width;
+        this.height = height;
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -32,7 +31,6 @@ public:
         if(!window){
             assert(false, "Failed to create window");
         }
-        setViewport(0,0, width, height);
         pos = vec2i(100,100);
 
         glfwMakeContextCurrent(window);
@@ -51,13 +49,9 @@ public:
     }
 
     void setSize(int width, int height) {
-        _width = width;
-        _height = height;
+        this.width = width;
+        this.height = height;
         glfwSetWindowSize(window, width, height);
-    }
-
-    void setViewport(int left, int right, int width, int height) {
-        glViewport(left, right, width, height);
     }
 
 @property:
@@ -80,37 +74,12 @@ public:
         return _pos;
     }
 
-    int width() {
-        return _width;
+    uint getWidth() const {
+        return this.width;
     }
 
-    ///width & height
-    int height() {
-        return _height;
-    }
-
-    int viewportLeft() {
-        int[4] data;
-        glGetIntegerv(GL_VIEWPORT, data.ptr);
-        return data[0];
-    }
-
-    int viewportTop() {
-        int[4] data;
-        glGetIntegerv(GL_VIEWPORT, data.ptr);
-        return data[1];
-    }
-
-    int viewportWidth() {
-        int[4] data;
-        glGetIntegerv(GL_VIEWPORT, data.ptr);
-        return data[2];
-    }
-
-    int viewportHeight() {
-        int[4] data;
-        glGetIntegerv(GL_VIEWPORT, data.ptr);
-        return data[3];
+    uint getHeight() const {
+        return this.height;
     }
 
     bool getKey(int key) {

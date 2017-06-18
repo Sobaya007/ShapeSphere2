@@ -7,22 +7,21 @@ class UniformResolver {
 
     private this() {}
 
-    public static void resolve(World world) {
-        foreach (mesh; world.meshes) {
-            foreach (dem; mesh.mat.demands) {
-                final switch (dem) {
-                case UniformDemand.World:
-                    mesh.mat.addUniform(mesh.obj.worldMatrix);
-                    break;
-                case UniformDemand.View:
-                    mesh.mat.addUniform(world.viewMatrix);
-                    break;
-                case UniformDemand.Proj:
-                    mesh.mat.addUniform(world.projMatrix);
-                    break;
-                }
-            }
-            mesh.mat.demands = [];
-        }
-    }
+//    public static void resolve(World world) {
+//        foreach (mesh; world.meshes) {
+//            foreach (dem; mesh.mat.demands) {
+//                final switch (dem) {
+//                case UniformDemand.World:
+//                    mesh.mat.setUniform(mesh.obj.worldMatrix);
+//                    break;
+//                case UniformDemand.View:
+//                    mesh.mat.setUniform(world.viewMatrix);
+//                    break;
+//                case UniformDemand.Proj:
+//                    mesh.mat.setUniform(world.projMatrix);
+//                    break;
+//                }
+//            }
+//        }
+//    }
 }
