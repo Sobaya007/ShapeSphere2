@@ -34,55 +34,6 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         this(v.x,v.y,v.z,w);
     }
 
-    //from marupeke296.com
-    deprecated this(Matrix!(T, 3, 3) m) {
-        auto elem = [
-         +m[0,0] - m[1,1] - m[2,2] + 1,
-        -m[0,0] + m[1,1] - m[2,2] + 1,
-        -m[0,0] - m[1,1] + m[2,2] + 1,
-        +m[0,0] + m[1,1] + m[2,2] + 1,
-        ];
-
-        uint biggestIndex = 0;
-        foreach (i; 1..4) {
-            if (elem[i] > elem[biggestIndex]) {
-                biggestIndex = i;
-            }
-        }
-        assert(elem[biggestIndex] >= 0);
-
-        auto v = sqrt(elem[biggestIndex]) / 2;
-        auto q = new T[4];
-        q[biggestIndex] = v;
-        float mult = 0.25f / v;
-        final switch (biggestIndex) {
-        case 0:
-            q[1] = (m[0,1] + m[1,0]) * mult;
-            q[2] = (m[0,2] + m[2,0]) * mult;
-            q[3] = (m[2,1] - m[1,2]) * mult;
-            break;
-        case 1:
-            q[0] = (m[0,1] + m[1,0]) * mult;
-            q[2] = (m[1,2] + m[2,1]) * mult;
-            q[3] = (m[0,2] - m[2,0]) * mult;
-            break;
-        case 2:
-            q[0] = (m[0,2] + m[2,0]) * mult;
-            q[1] = (m[1,2] + m[2,1]) * mult;
-            q[3] = (m[1,0] - m[0,1]) * mult;
-            break;
-        case 3:
-            q[0] = (m[2,1] - m[1,2]) * mult;
-            q[1] = (m[0,2] - m[2,0]) * mult;
-            q[2] = (m[0,1] - m[1,0]) * mult;
-            break;
-        }
-        this.x = q[0];
-        this.y = q[1];
-        this.z = q[2];
-        this.w = q[3];
-    }
-
     inout {
         vec3 baseX() {
             return vec3(1-2*(y*y+z*z),
@@ -234,7 +185,7 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         }
     }
 
-    static Quaternion!T createAxisAngle(Vector!(T,3) axis, T angle) @nogc {
+    static Quaternion!T axisAngle(Vector!(T,3) axis, T angle) @nogc {
         Quaternion!T result;
         float s = sin(angle/2);
         result.x = axis.x * s;
@@ -244,10 +195,10 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         return result;
     }
 
-    static Quaternion!T createAxisAngle(Vector!(T,3) axisAngle) @nogc {
-        T angle = sbylib.math.Vector.length(axisAngle);
+    static Quaternion!T axisAngle(Vector!(T,3) a) @nogc {
+        T angle = sbylib.math.Vector.length(a);
         if (angle == 0) return Quaternion!T(0,0,0,1);
-        return createAxisAngle(axisAngle / angle, angle);
+        return axisAngle(a / angle, angle);
     }
 
     static Quaternion!T rotFromTo(Vector!(T,3) from, Vector!(T,3) to) {
@@ -268,7 +219,7 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
                 return Quaternion!T(axis.x,axis.y,axis.z,0);
             }
         }
-        return createAxisAngle(v, c.acos);
+        return axisAngle(v, c.acos);
     }
 }
 
@@ -290,7 +241,7 @@ Quaternion!T normalize(T)(Quaternion!T q) {
 
 
 vec3 rotate(vec3 vec, vec3 axis, float angle) @nogc {
-    quat q = quat.createAxisAngle(axis, angle);
+    quat q = quat.axisAngle(axis, angle);
     return rotate(vec, q);
 }
 

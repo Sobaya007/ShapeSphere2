@@ -22,7 +22,7 @@ interface Geometry {
     IndexBuffer getIndexBuffer();
 }
 
-class GeometryTemp(Attribute[] Attributes, Prim Mode) : Geometry{
+class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry{
     alias VertexA = Vertex!(Attributes);
 
     const VertexA[] vertices;

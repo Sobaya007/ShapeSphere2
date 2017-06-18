@@ -45,11 +45,11 @@ public:
                 } else static if (__traits(compiles, typeof(arg).dimension) && __traits(hasMember, typeof(arg), "opIndex")) {
                     this.elements[cnt..cnt+arg.elements.length] = arg.elements;
                     cnt += arg.elements.length;
-                } else static if (is(typeof(arg) == T)) {
+                } else static if (isAssignable!(T, typeof(arg))) {
                     this.elements[cnt] = arg;
                     cnt++;
                 } else {
-                    static assert(false);
+                    static assert(false, typeof(arg));
                 }
             }
         }

@@ -4,6 +4,7 @@ public:
 
 import sbylib.camera;
 import sbylib.character;
+import sbylib.control;
 import sbylib.core;
 import sbylib.input;
 import sbylib.math;

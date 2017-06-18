@@ -17,6 +17,13 @@ class Watch(T) {
         }
     }
 
+    void opOpAssign(string op)(T value) {
+        this.value.opOpAssign!op(value);
+        foreach (watcher; watchers) {
+            watcher.onChange();
+        }
+    }
+
     @property T get() {
         return value;
     }

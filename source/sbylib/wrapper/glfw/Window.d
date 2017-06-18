@@ -4,7 +4,8 @@ import derelict.glfw3.glfw3;
 import derelict.opengl;
 
 import std.string, std.stdio;
-import sbylib.math;
+import sbylib.math.Vector;
+import sbylib.wrapper.glfw.Constants;
 
 /*
    GLFW準拠のウインドウのクラスです
@@ -12,15 +13,13 @@ import sbylib.math;
 
 class Window {
 private:
-    int width, height;
-    string _title;
-    vec2i _pos;
     GLFWwindow *window;
-
+    uint width, height;
+    string title;
 public:
 
-    this(string _title, int width, int height) {
-        this._title = _title;
+    this(string title, int width, int height) {
+        this.title = title;
         this.width = width;
         this.height = height;
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
@@ -31,9 +30,11 @@ public:
         if(!window){
             assert(false, "Failed to create window");
         }
-        pos = vec2i(100,100);
 
         glfwMakeContextCurrent(window);
+
+        this.setTitle(title);
+        this.setSize(width, height);
 
         auto glver = DerelictGL3.reload();
         writeln("Version = ", glver);
@@ -54,25 +55,12 @@ public:
         glfwSetWindowSize(window, width, height);
     }
 
-@property:
-
-    void title(string title) {
-        this._title = title;
+    void setTitle(string title) {
+        this.title = title;
         window.glfwSetWindowTitle(title.toStringz);
     }
 
-    string title() {
-        return _title;
-    }
-
-    void pos(vec2i pos) {
-        _pos = pos;
-        window.glfwSetWindowPos(pos.x, pos.y);
-    }
-
-    vec2i pos() {
-        return _pos;
-    }
+@property:
 
     uint getWidth() const {
         return this.width;
@@ -82,16 +70,34 @@ public:
         return this.height;
     }
 
-    bool getKey(int key) {
-        return glfwGetKey(this.window, key) != 0;
+    string getTitle() const {
+        return this.title;
     }
 
-    bool getMouseButton(int button) {
-        return glfwGetMouseButton(this.window, button) == GLFW_PRESS;
+    bool getKey(KeyButton key) {
+        return isPressed(glfwGetKey(this.window, key));
+    }
+
+    bool getMouseButton(MouseButton button) {
+        return isPressed(glfwGetMouseButton(this.window, button));
+    }
+
+    vec2 getMousePos() {
+        double x, y;
+        glfwGetCursorPos(this.window, &x, &y);
+        return vec2(cast(float)x, cast(float)y);
+    }
+
+    bool isPressed(int state) {
+        final switch(state) {
+        case ButtonState.Press:
+            return true;
+        case ButtonState.Release:
+            return false;
+        }
     }
 
     void pollEvents() {
         glfwPollEvents();
     }
-
 }

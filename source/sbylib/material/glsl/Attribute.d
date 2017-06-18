@@ -10,6 +10,8 @@ enum Attribute {
     In = "in",
     Out = "out",
     Uniform = "uniform",
+    Const = "const",
+    Flat = "flat"
 }
 
 class AttributeList {

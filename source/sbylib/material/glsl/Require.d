@@ -4,14 +4,14 @@ import sbylib.material.glsl.Statement;
 import sbylib.material.glsl.Token;
 import sbylib.material.glsl.Constants;
 import sbylib.material.glsl.Function;
+import sbylib.material.glsl.VariableDeclare;
 
 import std.format;
 
 class Require : Statement {
     VaryingDemand attr;
     Space space;
-    Type type;
-    string id;
+    VariableDeclare variable;
 
     this(ref Token[] tokens) {
         expect(tokens, ["require"]);
@@ -21,20 +21,22 @@ class Require : Statement {
             this.space = convert!Space(tokens);
         }
         expect(tokens, ["as"]);
-        this.type = convert!Type(tokens);
-        this.id = convert(tokens);
-        expect(tokens, [";"]);
+        this.variable = new VariableDeclare(tokens);
     }
 
     override string graph(bool[] isEnd) {
         string code = indent(isEnd[0..$-1]) ~ "|---Require\n";
         code ~= indent(isEnd) ~ "|---" ~ this.attr ~ "\n";
         code ~= indent(isEnd) ~ "|---" ~ this.space ~ "\n";
-        code ~= indent(isEnd) ~ "|---" ~ this.type ~ "\n";
+        code ~= this.variable.graph(isEnd ~ true);
         return code;
     }
 
     override string getCode() {
-        return format!"in %s %s;"(cast(string)this.type, this.id);
+        string code;
+        if (this.variable.attributes.attributes.length > 0) {
+            code = format!"%s "(this.variable.attributes.getCode());
+        }
+        return format!"%sin %s %s;"(code, cast(string)this.variable.type, this.variable.id);
     }
 }

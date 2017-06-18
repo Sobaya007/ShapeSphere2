@@ -1,4 +1,4 @@
-module sbylib.geometry.Box;
+module sbylib.geometry.geometry3d.Box;
 
 import sbylib.geometry.Geometry;
 import sbylib.geometry.GeometryUtil;
@@ -14,17 +14,9 @@ import std.range;
 
 class Box {
 
-    private static Geometry geom;
+    private this()  {}
 
-    private this()  {
-    }
-
-    public static Geometry get() {
-        if (geom) return geom;
-        return geom = create();
-    }
-
-    private static Geometry create(float width = 1, float height = 1, float depth = 1) {
+    public static Geometry create(float width = 1, float height = 1, float depth = 1) {
         VertexNT[] vertices;
         foreach (i; 0..6) {
             const s = i % 2 ? +1 : -1;

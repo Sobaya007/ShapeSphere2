@@ -201,7 +201,7 @@ public:
         }
 
         static if (U == 3) {
-            static Matrix rotAxisAngle(Vector!(T,3) v, T angle) {
+            static Matrix axisAngle(Vector!(T,3) v, T angle) {
                 auto c = cos(angle);
                 auto s = sin(angle);
                 Matrix result;
@@ -254,7 +254,7 @@ public:
             }
         } else static if (U == 4) {
 
-            static Matrix rotAxisAngle(Vector!(T,3) v, T angle) {
+            static Matrix axisAngle(Vector!(T,3) v, T angle) {
                 auto c = cos(angle);
                 auto s = sin(angle);
                 Matrix result;

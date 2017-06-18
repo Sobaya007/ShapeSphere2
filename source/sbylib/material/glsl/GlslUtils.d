@@ -64,7 +64,7 @@ static:
             vertexAst.sentences ~= attr;
         }
         foreach (v; varyings) {
-            auto tokens = tokenize(format!"out %s %s;"(cast(string)v.type, v.id));
+            auto tokens = tokenize(v.getCode().replace("in", "out"));
             vertexAst.sentences ~= new VariableDeclare(tokens);
         }
         auto dependentUniforms = getDependentUniform(varyings, vertexDeclare);
@@ -73,7 +73,7 @@ static:
         vertexAst.sentences ~= uniformDeclares.map!(a => cast(Statement)a).array;
         string[] contents;
         foreach (v; varyings) {
-            contents ~= format!"%s = %s"(v.id, varyingExpression(v.attr, v.space, v.type));
+            contents ~= format!"%s = %s"(v.variable.id, varyingExpression(v.attr, v.space, v.variable.type));
         }
         contents ~= vertexExpression(vertexDeclare);
         auto tokens = tokenize(format!"void main() {\n  %s\n}"(contents.join("\n  ")));
@@ -238,5 +238,6 @@ unittest {
     import std.stdio, std.file;
     auto file = readText("./source/sbylib/material/lambert/LambertMaterial.frag");
     auto asts = GlslUtils.createShaders(file);
+    writeln(asts[1].getCode());
     writeln(GlslUtils.getUniformNames(asts));
 }

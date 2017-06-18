@@ -98,7 +98,7 @@ class Core {
         AL.terminate();
     }
 
-    const(Window) getWindow() const {
+    Window getWindow() {
         return this.window;
     }
 }
