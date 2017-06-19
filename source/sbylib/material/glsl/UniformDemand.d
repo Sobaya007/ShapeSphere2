@@ -35,10 +35,7 @@ Statement[] getUniformDemandDeclare(UniformDemand u) {
     case UniformDemand.Light:
         Statement[] results = [
         new BlockDeclare(PointLightDeclareCode),
-        new BlockDeclare("uniform PointLightBlock {
-                            int pointLightNum;
-                            float po;
-                        };")];
+        new BlockDeclare(PointLightBlockDeclareCode)];
         return results;
     }
 }

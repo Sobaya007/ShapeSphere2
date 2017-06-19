@@ -63,4 +63,20 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         checkGlError();
         this.unbind();
     }
+
+    void* map(BufferAccess access) {
+        this.bind();
+        auto res = glMapBuffer(Type, access);
+        checkGlError();
+        this.unbind();
+        return res;
+    }
+
+    void unmap() {
+        this.bind();
+        glUnmapBuffer(Type);
+        checkGlError();
+        this.unbind();
+    }
+
 }

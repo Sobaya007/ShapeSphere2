@@ -15,7 +15,6 @@ class Sharp : Statement {
     string type;
     string value;
 
-    this() {}
 
     this(ref Token[] tokens) {
         assert(tokens[0].str == "#");

@@ -7,6 +7,7 @@ import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.Program;
 import std.string;
+import sbylib.math.Vector;
 
 class UniformBuffer : BufferObject!(BufferType.Uniform, float), Uniform {
 

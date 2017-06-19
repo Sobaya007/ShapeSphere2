@@ -33,7 +33,8 @@ class World {
         this.pointLightBlock = new UniformBuffer("PointLightBlock");
         PointLightBlock block;
         block.num = 1;
-        block.a = 1;
+        block.lights[0].pos = vec3(1,1,0);
+        block.lights[0].diffuse = vec3(1,0,1);
         this.pointLightBlock.sendData(block);
     }
 

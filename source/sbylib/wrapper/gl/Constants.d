@@ -139,6 +139,11 @@ enum BufferUsage {
     Static = GL_STATIC_DRAW,
 }
 
+enum BufferAccess {
+    Read = GL_READ_ONLY,
+    Write = GL_WRITE_ONLY,
+    Both = GL_READ_WRITE
+}
 
 enum FrameBufferBindType {
     Read = GL_READ_FRAMEBUFFER,

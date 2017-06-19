@@ -19,6 +19,8 @@ class MaterialUtils {
             auto ASTs = GlslUtils.createShaders(fragSource);
             auto vert = new Shader(ASTs[0].getCode(), ShaderType.Vertex);
             auto frag = new Shader(ASTs[1].getCode(), ShaderType.Fragment);
+            import std.stdio;
+            writeln(ASTs[1].getCode());
             return new Program([vert, frag]);
         }
         const(Shader) createShaderFromPath(string path, ShaderType type) {
