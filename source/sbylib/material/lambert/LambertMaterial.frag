@@ -10,8 +10,8 @@ uniform vec3 diffuse = vec3(1);
 void main() {
     fragColor = vec4(ambient, 1);
     for (int i = 0; i < pointLightNum; i++) {
-        float d = max(0., dot(normalize(pointLights[i].pos - vPosition), vNormal));
-        fragColor.rgb += pointLights[i].diffuse;
-        fragColor.rgb = vec3(1);
+        //float d = max(0., dot(normalize(pointLights[i].pos - vPosition), vNormal));
+        //fragColor.rgb += pointLights[i].diffuse;
+        fragColor.rgb = po.xyz;
     }
 }

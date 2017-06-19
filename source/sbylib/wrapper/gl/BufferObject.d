@@ -40,6 +40,9 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     }
 
     void sendData(S)(S data, BufferUsage freq = BufferUsage.Static) if (is(S == struct)) {
+        import std.stdio;
+        writeln(S.stringof);
+        writeln(S.sizeof);
         this.bind();
         glBufferData(Type, S.sizeof, cast(void*)&data, freq);
         this.unbind();

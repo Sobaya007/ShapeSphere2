@@ -9,7 +9,7 @@ struct PointLight {
 
 struct PointLightBlock {
     int num;
-    PointLight[10] lights;
+    float[4] po;
 }
 
 enum PointLightDeclareCode = 

@@ -43,6 +43,9 @@ class BlockDeclare : Statement {
 
     override string getCode() {
         string code = format!"%s %s {\n"(getBlockTypeCode(this.type), this.id);
+        if (type == BlockType.Uniform) {
+            code = "layout(std140) " ~ code;
+        }
         foreach (v; variables) {
             code ~= format!"  %s\n"(v.getCode());
         }
