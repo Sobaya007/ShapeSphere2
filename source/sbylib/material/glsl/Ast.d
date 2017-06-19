@@ -8,8 +8,10 @@ import sbylib.material.glsl.FunctionDeclare;
 import sbylib.material.glsl.VariableDeclare;
 import sbylib.material.glsl.BlockDeclare;
 import sbylib.material.glsl.Attribute;
+import sbylib.material.glsl.AttributeDemand;
 import sbylib.material.glsl.Sharp;
-import sbylib.material.glsl.Require;
+import sbylib.material.glsl.RequireAttribute;
+import sbylib.material.glsl.RequireUniform;
 
 import std.traits;
 import std.algorithm;
@@ -36,7 +38,13 @@ class Ast {
             } else if (tokens[0].str == "#") {
                 sentences ~= new Sharp(tokens);
             } else if (tokens[0].str == "require") {
-                sentences ~= new Require(tokens);
+                if (isConvertible!(AttributeDemand, getAttributeDemandKeyWord)(tokens[1].str)) {
+                    sentences ~= new RequireAttribute(tokens);
+                } else if (isConvertible!(UniformDemand, getUniformDemandName)(tokens[1].str)) {
+                    sentences ~= new RequireUniform(tokens);
+                } else {
+                    assert(false);
+                }
             } else {
                 //Variable or Function
                 if (tokens[2].str == "(") {

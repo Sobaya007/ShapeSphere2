@@ -9,6 +9,7 @@ import sbylib.wrapper.gl.Viewport;
 import sbylib.core.RenderTarget;
 import sbylib.light.PointLight;
 import sbylib.material.glsl.UniformDemand;
+import sbylib.math.Vector;
 
 class World {
     private Mesh[] meshes;
@@ -30,6 +31,11 @@ class World {
         }, new umat4("projMatrix"));
         this.projMatrix.addWatch(this.camera);
         this.pointLightBlock = new UniformBuffer("PointLightBlock");
+        PointLightBlock block;
+        block.num = 1;
+        block.lights[0].pos = vec3(1);
+        block.lights[0].diffuse = vec3(1);
+        this.pointLightBlock.sendData(block);
     }
 
     void addMesh(Mesh mesh) in {
@@ -66,6 +72,7 @@ class World {
             mesh.mat.setUniform(this.projMatrix);
             break;
         case UniformDemand.Light:
+            mesh.mat.setUniform(() => this.pointLightBlock);
             break;
         }
     }

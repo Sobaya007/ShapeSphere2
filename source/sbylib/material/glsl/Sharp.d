@@ -4,8 +4,12 @@ import sbylib.material.glsl.Statement;
 import sbylib.material.glsl.Space;
 import sbylib.material.glsl.Token;
 import sbylib.material.glsl.Function;
+import sbylib.material.glsl.RequireAttribute;
+import sbylib.material.glsl.UniformDemand;
 
 import std.format;
+import std.algorithm;
+import std.range;
 
 class Sharp : Statement {
     string type;
@@ -35,5 +39,17 @@ class Sharp : Statement {
         assert(this.type == "vertex");
     } body {
         return find!(Space, getSpaceName)(this.value);
+    }
+
+    RequireAttribute getRequireAttribute() in {
+        assert(this.type == "vertex");
+    } body {
+        return new RequireAttribute(format!"require Position in %s as vec3 po;"(this.value));
+    }
+
+    string getGlPositionCode() in {
+        assert(this.type == "vertex");
+    } body {
+        return format!"gl_Position = %s * vec4(position,1);"(this.getVertexSpace().getUniformDemands().map!(u => getUniformDemandName(u)).join(" * "));
     }
 }

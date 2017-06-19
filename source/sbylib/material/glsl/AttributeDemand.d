@@ -1,5 +1,7 @@
 module sbylib.material.glsl.AttributeDemand;
 
+import std.format;
+
 enum AttributeDemand {
     Position,
     Normal,
@@ -16,6 +18,17 @@ string getAttributeDemandType(AttributeDemand v) {
     }
 }
 
+string getAttributeDemandKeyWord(AttributeDemand v) {
+    final switch(v) {
+    case AttributeDemand.Position:
+        return "Position";
+    case AttributeDemand.Normal:
+        return "Normal";
+    case AttributeDemand.UV:
+        return "UV";
+    }
+}
+
 string getAttributeDemandName(AttributeDemand v) {
     final switch(v) {
     case AttributeDemand.Position:
@@ -24,5 +37,16 @@ string getAttributeDemandName(AttributeDemand v) {
         return "normal";
     case AttributeDemand.UV:
         return "uv";
+    }
+}
+
+string getAttributeDemandBodyExpression(AttributeDemand v) {
+    final switch(v) {
+    case AttributeDemand.Position:
+        return format!"vec4(%s, 1)"(getAttributeDemandName(v));
+    case AttributeDemand.Normal:
+        return format!"vec4(%s, 0)"(getAttributeDemandName(v));
+    case AttributeDemand.UV:
+        return getAttributeDemandName(v);
     }
 }

@@ -16,7 +16,10 @@ class BlockDeclare : Statement {
     string id;
     VariableDeclare[] variables;
 
-    this() {}
+    this(string str) {
+        auto tokens = tokenize(str);
+        this(tokens);
+    }
 
     this(ref Token[] tokens) {
         this.type = find!(BlockType, getBlockTypeCode)(tokens);

@@ -22,7 +22,7 @@ class VariableDeclare : Statement {
         this.attributes = new AttributeList(tokens);
         this.type = convert(tokens);
         this.id = convert(tokens);
-        if (tokens[0].str == "=") {
+        if (tokens.length > 0 && tokens[0].str == "=") {
             expect(tokens, ["="]);
             while (tokens[0].str != ";") {
                 this.assignedValue ~= convert(tokens);

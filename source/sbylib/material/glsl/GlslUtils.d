@@ -13,7 +13,7 @@ import sbylib.material.glsl.Ast;
 import sbylib.material.glsl.BlockType;
 import sbylib.material.glsl.Token;
 import sbylib.material.glsl.Sharp;
-import sbylib.material.glsl.Require;
+import sbylib.material.glsl.RequireAttribute;
 import sbylib.material.glsl.VariableDeclare;
 import sbylib.material.glsl.BlockDeclare;
 import sbylib.material.glsl.Statement;
@@ -58,20 +58,36 @@ static:
 
     Ast createVertexShaderAst(Ast fragmentAst) {
         Ast vertexAst = new Ast;
+
+        //Pull fragment #vertex
+        Sharp vertexDeclare = pullVertexDeclare(fragmentAst);
+
+        RequireAttribute[] requires = fragmentAst.getSentence!RequireAttribute();
+        RequireAttribute positionRequireAttribute = vertexDeclare.getRequireAttribute();
+
+        //Add Version
         addVersion(vertexAst);
-        auto requires = fragmentAst.getSentence!Require();
-        requires ~= new Require("require Position in Proj as vec3 position;");
-        auto vertexIn = requires.map!(v => v.getVertexIn()).array;
-        vertexIn = vertexIn.sort!((a,b) => a.getCode() < b.getCode())().uniq().array;
+
+        //Add vertex in declare
+        auto vertexIn = (requires ~ positionRequireAttribute).map!(v => v.getVertexIn()).array;
+        vertexIn = vertexIn
+        .sort!((a,b) => a.getCode() <  b.getCode())
+        .uniq!((a,b) => a.getCode() == b.getCode())
+        .array;
         vertexAst.sentences ~= vertexIn;
-        vertexAst.sentences ~= requires.map!(r => new VariableDeclare(r.getCode().replace("in", "out"))).array;
-        pullVertexDeclare(fragmentAst);
-        auto dependentUniforms = requires.map!(r => r.space.getUniformDemands()).join().sort().uniq().array;
-        auto uniformDeclares = dependentUniforms.map!(u => declareUniform(u)).join();
-        uniformDeclares = sort!((a,b) => a.getCode() < b.getCode())(uniformDeclares).uniq().array;
-        vertexAst.sentences ~= uniformDeclares.map!(a => cast(Statement)a).array;
+
+        //Add vertex out declare
+        vertexAst.sentences ~= requires.map!(r => r.getVertexOut()).array;
+
+        //Add vertex uniform declare
+        auto dependentUniforms = (requires ~ positionRequireAttribute).map!(r => r.space.getUniformDemands()).join().sort().uniq().array;
+        auto uniformDeclares = dependentUniforms.map!(u => getUniformDemandDeclare(u)).join();
+        vertexAst.sentences ~= uniformDeclares;
+
+        //Add main function
         string[] contents;
         contents ~= requires.map!(r => r.getVertexBodyCode()).array;
+        contents ~= vertexDeclare.getGlPositionCode();
         auto tokens = tokenize(format!"void main() {\n  %s\n}"(contents.join("\n  ")));
         vertexAst.sentences ~= new FunctionDeclare(tokens);
         return vertexAst;
@@ -102,7 +118,7 @@ static:
     }
 
     string vertexExpression(Sharp s) {
-        return format!"gl_Position = %s * vec4(position, 1);"(s.getVertexSpace().getUniformDemands().map!(u => u.getUniformDemandCode()).join(" * "));
+        return format!"gl_Position = %s * vec4(position, 1);"(s.getVertexSpace().getUniformDemands().map!(u => u.getUniformDemandName()).join(" * "));
     }
 
     VariableDeclare[] requiredUniform(Ast ast) {
@@ -115,7 +131,7 @@ static:
         .filter!(s => s.type == BlockType.Uniform).array;
     }
 
-    UniformDemand[] getDependentUniform(Require[] requires, Sharp vertexDeclare) {
+    UniformDemand[] getDependentUniform(RequireAttribute[] requires, Sharp vertexDeclare) {
         return (requires.map!(r => getDependentUniform(r.space)).array.join() ~ getDependentUniform(vertexDeclare.getVertexSpace())).sort().uniq().array;
     }
 
@@ -129,31 +145,6 @@ static:
             return [UniformDemand.World, UniformDemand.View];
         case Space.Proj:
             return [UniformDemand.World, UniformDemand.View, UniformDemand.Proj];
-        }
-    }
-
-    Statement[] declareUniform(UniformDemand uniform) {
-        Token[] tokens;
-        final switch (uniform) {
-        case UniformDemand.World:
-            tokens = tokenize("uniform mat4 worldMatrix;");
-            return [new VariableDeclare(tokens)];
-        case UniformDemand.View:
-            tokens = tokenize("uniform mat4 viewMatrix;");
-            return [new VariableDeclare(tokens)];
-        case UniformDemand.Proj:
-            tokens = tokenize("uniform mat4 projMatrix;");
-            return [new VariableDeclare(tokens)];
-        case UniformDemand.Light:
-            tokens = tokenize(PointLight.declareCode);
-            Statement[] results = [new BlockDeclare(tokens)];
-            tokens = tokenize(
-                        "uniform LightBlock {
-                            int pointLightNum;
-                            PointLight pointLights[10];
-                        }");
-            results ~= new BlockDeclare(tokens);
-            return results;
         }
     }
 

@@ -1,7 +1,6 @@
 module sbylib.material.glsl.Token;
-
-import std.algorithm;
 import std.conv;
+import std.algorithm;
 
 class Token {
     string str;

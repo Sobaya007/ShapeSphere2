@@ -7,9 +7,14 @@ import std.algorithm;
 import std.array;
 
 bool isConvertible(T, alias conv)(Token[] tokens) if (is(T == enum)){
+    if (tokens.length == 0) return false;
     auto t = tokens[0];
+    return isConvertible!(T, conv)(t.str);
+}
+
+bool isConvertible(T, alias conv)(string str) if (is(T == enum)) {
     foreach (mem; [EnumMembers!T]) {
-        if (conv(mem) == t.str)
+        if (conv(mem) == str)
             return true;
     }
     return false;
@@ -29,16 +34,19 @@ T find(T, alias conv)(string str) if (is(T == enum)) {
     assert(false, format!"%s is not %s"(str, T.stringof));
 }
 
-string convert(ref Token[] tokens) {
+string convert(ref Token[] tokens) in {
+    assert(tokens.length > 0);
+} body{
     auto t = tokens[0];
     tokens = tokens[1..$];
     return t.str;
 }
 
 void expect(ref Token[] tokens, string[] expected) {
+    auto strs = expected.map!(a => format!"'%s'"(a)).array;
+    assert(tokens.length > 0, format!"%s was expected, but no tokens found here."(strs.join(" or ")));
     auto token = tokens[0];
     tokens = tokens[1..$];
-    auto strs = expected.map!(a => format!"'%s'"(a)).array;
     assert(expected.any!(a => a == token.str), format!"Error[%d, %d]:%s was expected, not '%s'"(token.line, token.column, strs.join(" or "), token.str));
 }
 

@@ -19,8 +19,8 @@ void main() {
     });
 
     auto mat = new LambertMaterial();
-    mat.ambient = vec3(1,0,0);
-    auto mesh = new Mesh(Sphere.create(0.5, 2), mat);
+    mat.ambient = vec3(.1);
+    auto mesh = new Mesh(Box.create(), mat);
     world.addMesh(mesh);
 
     Viewport viewport = new Viewport(0,0, core.getWindow().getWidth(), core.getWindow().getHeight());
