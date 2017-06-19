@@ -1,5 +1,7 @@
 module sbylib.wrapper.gl.Viewport;
 
+import sbylib.wrapper.gl.Functions;
+
 import derelict.opengl;
 
 class Viewport {
@@ -12,7 +14,9 @@ class Viewport {
         this.h = h;
     }
 
-    void set() {
+    void set() out {
+        checkGlError();
+    } body {
         glViewport(x,y,w,h);
     }
 }

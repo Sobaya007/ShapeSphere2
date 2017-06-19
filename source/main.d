@@ -9,6 +9,7 @@ void main() {
     auto world = new World;
     auto time = 0.0f;
     world.camera = new PerspectiveCamera(1, 120, 0.1, 100);
+
     core.addProcess((proc){
         time += 0.006;
         auto c = cos(time);

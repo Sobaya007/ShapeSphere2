@@ -4,6 +4,7 @@ import sbylib.geometry.Geometry;
 import sbylib.geometry.Vertex;
 import sbylib.math.Vector;
 import sbylib.wrapper.gl.Attribute;
+import sbylib.wrapper.gl.Functions;
 
 import std.algorithm;
 import std.array;

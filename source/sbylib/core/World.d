@@ -33,10 +33,7 @@ class World {
         this.pointLightBlock = new UniformBuffer("PointLightBlock");
         PointLightBlock block;
         block.num = 1;
-        block.po[0] = 1;
-        block.po[1] = 1;
-        block.po[2] = 1;
-        block.po[3] = 1;
+        block.a = 1;
         this.pointLightBlock.sendData(block);
     }
 

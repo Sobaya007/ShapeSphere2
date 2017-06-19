@@ -21,14 +21,18 @@ class UniformBuffer : BufferObject!(BufferType.Uniform, float), Uniform {
         return this.name;
     }
 
-    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
+    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const out {
+        checkGlError();
+    } body {
         auto loc = this.getLocation(program);
         glUniformBlockBinding(program.id, loc, uniformBlockPoint);
         glBindBufferBase(BufferType.Uniform, uniformBlockPoint, this.id);
         uniformBlockPoint++;
     }
 
-    private uint getLocation(const Program program) const {
+    private uint getLocation(const Program program) const out {
+        checkGlError();
+    } body {
         int uLoc = glGetUniformBlockIndex(program.id, this.name.toStringz);
         assert(uLoc != -1, name ~ " is not found or used."); 
         return uLoc;

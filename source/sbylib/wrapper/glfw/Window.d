@@ -26,6 +26,7 @@ public:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
         window = glfwCreateWindow(width, height,title.toStringz, null, null);
         if(!window){
             assert(false, "Failed to create window");

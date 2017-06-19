@@ -7,9 +7,16 @@ struct PointLight {
     vec3 diffuse;
 }
 
+struct float4 {
+    float x;
+    float y;
+    float z;
+    float w;
+}
+
 struct PointLightBlock {
     int num;
-    float[4] po;
+    float a;
 }
 
 enum PointLightDeclareCode = 

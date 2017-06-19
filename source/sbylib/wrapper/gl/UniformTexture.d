@@ -27,12 +27,16 @@ class UniformTexture : Uniform {
         auto loc = this.getLocation(program);
 
         glActiveTexture(GL_TEXTURE0 + textureUnit);
+        checkGlError();
         this.value.bind();
         glUniform1i(loc, textureUnit);
+        checkGlError();
         textureUnit++;
     }
 
-    private uint getLocation(const Program program) const {
+    private uint getLocation(const Program program) const out {
+        checkGlError();
+    } body {
         int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
         assert(uLoc != -1, name ~ " is not found or used.");
         return uLoc;

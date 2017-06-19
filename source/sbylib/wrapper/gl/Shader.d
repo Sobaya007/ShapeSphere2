@@ -1,6 +1,7 @@
 module sbylib.wrapper.gl.Shader;
 
-import sbylib.wrapper.gl;
+import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.Functions;
 import derelict.opengl;
 import std.file, std.stdio, std.string, std.conv, std.range, std.algorithm;
 import std.ascii;
@@ -8,7 +9,9 @@ import std.ascii;
 class Shader {
     package immutable uint id;
 
-    this(string sourceCode, ShaderType type) {
+    this(string sourceCode, ShaderType type) out {
+        checkGlError();
+    } body {
         this.id = glCreateShader(type);
         auto str = sourceCode.toStringz;
         glShaderSource(this.id, 1, &str, null);
@@ -40,13 +43,17 @@ class Shader {
             return getInfo(ShaderParamName.CompileStatus) == GL_TRUE;
         }
 
-        int getInfo(ShaderParamName name) {
+        int getInfo(ShaderParamName name) out {
+            checkGlError();
+        } body {
             int res;
             glGetShaderiv(this.id, name, &res);
             return res;
         }
 
-        string getInfoLog() {
+        string getInfoLog() out {
+            checkGlError();
+        } body {
             auto logLength = getLogLength();
             char[] log = new char[logLength];
             glGetShaderInfoLog(this.id, logLength, &logLength, &log[0]);

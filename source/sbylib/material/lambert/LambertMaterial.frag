@@ -12,6 +12,6 @@ void main() {
     for (int i = 0; i < pointLightNum; i++) {
         //float d = max(0., dot(normalize(pointLights[i].pos - vPosition), vNormal));
         //fragColor.rgb += pointLights[i].diffuse;
-        fragColor.rgb = po.xyz;
+        fragColor.rgb = vec3(po);
     }
 }

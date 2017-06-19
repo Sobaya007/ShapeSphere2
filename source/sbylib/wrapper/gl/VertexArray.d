@@ -14,27 +14,36 @@ class VertexArray {
 
     immutable uint id;
 
-    this() {
+    this() out {
+        checkGlError();
+    } body {
         uint vao;
         glGenVertexArrays(1, &vao);
         this.id = vao;
     }
 
-    ~this() {
-        //        glDeleteVertexArrays(1, &id);
+    ~this() out {
+        checkGlError();
+    } body {
+        glDeleteVertexArrays(1, &id);
     }
 
-    void bind() const {
+    void bind() const out {
+        checkGlError();
+    } body {
         glBindVertexArray(id);
     }
 
-    void unbind() const {
+    void unbind() const out {
+        checkGlError();
+    } body {
         glBindVertexArray(0);
     }
 
     void setup(const Program program, Tuple!(Attribute, VertexBuffer)[] buffers, IndexBuffer ibo) {
         this.bind();
         foreach(tuple; buffers) {
+            if (!program.hasAttribute(tuple[0].name)) continue;
             program.enableAttribute(tuple[0]);
             tuple[1].bind();
             program.attachAttribute(tuple[0], tuple[1]);
@@ -46,6 +55,7 @@ class VertexArray {
     void drawArrays(Prim prim, uint offset, uint count) {
         this.bind();
         glDrawArrays(prim, offset, count);
+        checkGlError();
         this.unbind();
     }
 
@@ -53,6 +63,7 @@ class VertexArray {
     if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
         this.bind();
         glDrawElements(prim, indices.length, getTypeEnum!(IndexType), indices.ptr);
+        checkGlError();
         this.unbind();
     }
 
@@ -60,6 +71,7 @@ class VertexArray {
     if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
         this.bind();
         glDrawElements(prim, count, getTypeEnum!(IndexType), null);
+        checkGlError();
         this.unbind();
     }
 }

@@ -1,6 +1,10 @@
 module sbylib.wrapper.gl.Program;
 
-import sbylib.wrapper.gl;
+import sbylib.wrapper.gl.Attribute;
+import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.Shader;
+import sbylib.wrapper.gl.Functions;
+import sbylib.wrapper.gl.VertexBuffer;
 import derelict.opengl;
 import std.file, std.stdio, std.string, std.conv, std.range, std.algorithm;
 import std.ascii;
@@ -9,7 +13,9 @@ class Program {
 
     package immutable uint id;
 
-    this(const Shader[] shaders) {
+    this(const Shader[] shaders) out {
+        checkGlError();
+    } body {
         this.id = glCreateProgram();
         foreach (shader; shaders) {
             this.attachShader(shader);
@@ -18,41 +24,64 @@ class Program {
         assert(this.getLinkStatus, getLogString());
     }
 
-    ~this() {
+    ~this() out {
+        checkGlError();
+    } body {
         glDeleteProgram(id);
     }
 
     inout {
 
-        void use() {
+        void use() out {
+            checkGlError();
+        } body {
             glUseProgram(id);
         }
 
-        void enableAttribute(Attribute attr) {
+        void enableAttribute(Attribute attr) out {
+            checkGlError();
+        } body {
             immutable loc = this.getAttribLocation(attr.name);
             glEnableVertexAttribArray(loc);
         }
 
-        void attachAttribute(Attribute attr, VertexBuffer buffer) {
+        void attachAttribute(Attribute attr, VertexBuffer buffer) out {
+            checkGlError();
+        } body {
             immutable loc = this.getAttribLocation(attr.name);
             buffer.asAttribute(attr.dim, loc);
         }
 
-        private uint getAttribLocation(string name) {
+        bool hasAttribute(string name) out {
+            checkGlError();
+        } body {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);
-            //if (vLoc == -1) writeln(name ~ " is not found or used.");
+            return vLoc != -1;
+        }
+
+        uint getAttribLocation(string name) out {
+            checkGlError();
+        } body {
+            int vLoc = glGetAttribLocation(this.id, name.toStringz);
+            assert(vLoc != -1);
             return vLoc;
         }
 
-        private void attachShader(const Shader shader) {
+        private void attachShader(const Shader shader) out {
+            checkGlError();
+        } body {
             glAttachShader(this.id, shader.id);
         }
 
-        private void linkProgram() {
+        private void linkProgram() out {
+            checkGlError();
+        } body {
             glLinkProgram(id);
         }
 
-        private int getInfo(ProgramParamName name) {
+        private int getInfo(ProgramParamName name) out {
+            checkGlError();
+        } body {
             int res;
             glGetProgramiv(this.id, name, &res);
             return res;
@@ -66,7 +95,9 @@ class Program {
             return getInfo(ProgramParamName.InfoLogLength);
         }
 
-        private string getInfoLog() {
+        private string getInfoLog() out {
+            checkGlError();
+        } body {
             immutable logLength = this.getLogLength;
             char[] log = new char[logLength];
             int a;

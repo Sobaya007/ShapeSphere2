@@ -37,7 +37,7 @@ Statement[] getUniformDemandDeclare(UniformDemand u) {
         new BlockDeclare(PointLightDeclareCode),
         new BlockDeclare("uniform PointLightBlock {
                             int pointLightNum;
-                            vec4 po;
+                            float po;
                         };")];
         return results;
     }

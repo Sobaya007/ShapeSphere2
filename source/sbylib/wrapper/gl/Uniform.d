@@ -2,6 +2,7 @@ module sbylib.wrapper.gl.Uniform;
 import derelict.opengl;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
+import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.Program;
 import std.traits;
 import std.conv;
@@ -33,7 +34,9 @@ class UniformTemp(Type) : Uniform {
         return this.name;
     }
 
-    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
+    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const out {
+        checkGlError();
+    } body {
         auto loc = this.getLocation(program);
         static if (isInstanceOf!(Vector, Type)) {
             mixin(format!"glUniform%d%sv(loc, 1, this.value.array.ptr);"(Type.dimension, Type.type[0]));
@@ -45,7 +48,9 @@ class UniformTemp(Type) : Uniform {
         }
     }
 
-    private uint getLocation(const Program program) const {
+    private uint getLocation(const Program program) const out {
+        checkGlError();
+    } body {
         int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
         //if (uLoc == -1) writeln(name ~ " is not found or used."); 
         return uLoc;
@@ -57,8 +62,6 @@ class UniformTemp(Type) : Uniform {
     }
 
     inout(Type) get() inout {
-        import std.stdio;
-        writeln(this.toString());
         return value;
     }
 

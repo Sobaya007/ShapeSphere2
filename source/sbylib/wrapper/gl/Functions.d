@@ -1,7 +1,7 @@
 module sbylib.wrapper.gl.Functions;
 
 import sbylib.math, sbylib.wrapper.gl;
-import std.algorithm;
+import std.algorithm, std.conv;
 import derelict.opengl;
 
 template getTypeEnum(T) {
@@ -16,15 +16,21 @@ template getTypeEnum(T) {
     else static assert(false, T.stringof ~ " is an invalid type.");
 }
 
-void clear(ClearMode[] mode...) {
+void clear(ClearMode[] mode...) out {
+    checkGlError();
+} body {
     glClear(reduce!((a,b)=>a|b)(mode));
 }
 
-void clearColor(vec4 color) {
+void clearColor(vec4 color) out {
+    checkGlError();
+} body {
     glClearColor(color.x, color.y, color.z, color.w);
 }
 
-void clearStencil(int stencil) {
+void clearStencil(int stencil) out {
+    checkGlError();
+} body {
     glClearStencil(stencil);
 }
 
@@ -36,20 +42,28 @@ void captureScreen(Texture tex, int left, int bottom, int width, int height) {
     tex.unbind;
 }
 
-void enable(Capability cap) {
+void enable(Capability cap) out {
+    checkGlError();
+} body {
     glEnable(cap);
 }
 
-void disable(Capability cap) {
+void disable(Capability cap) out {
+    checkGlError();
+} body {
     glDisable(cap);
 }
 
-void depthFunc(TestFunc func) {
+void depthFunc(TestFunc func) out {
+    checkGlError();
+} body {
     enable(Capability.DepthTest);
     glDepthFunc(func);
 }
 
-void faceSetting(PolygonMode polygon, FaceMode face = FaceMode.FrontBack) {
+void faceSetting(PolygonMode polygon, FaceMode face = FaceMode.FrontBack) out {
+    checkGlError();
+} body {
     if (polygon == PolygonMode.None) {
         assert(face == FaceMode.FrontBack);
         glEnable(Capability.CullFace);
@@ -74,20 +88,31 @@ void faceSetting(PolygonMode polygon, FaceMode face = FaceMode.FrontBack) {
     }
 }
 
-void stencil(TestFunc test, uint reffer, uint mask, StencilWrite sfail, StencilWrite dpfail, StencilWrite pass) {
+void stencil(TestFunc test, uint reffer, uint mask, StencilWrite sfail, StencilWrite dpfail, StencilWrite pass) out {
+    checkGlError();
+} body {
     enable(Capability.StencilTest);
     glStencilFunc(test, reffer, mask);
     glStencilOp(sfail, dpfail, pass);
 }
 
-void blendFunc(BlendFactor src, BlendFactor dst) {
+void blendFunc(BlendFactor src, BlendFactor dst) out {
+    checkGlError();
+} body {
     enable(Capability.Blend);
     glBlendFunc(src, dst);
 }
 
-void blendEquation(BlendEquation eq) {
+void blendEquation(BlendEquation eq) out {
+    checkGlError();
+} body {
     enable(Capability.Blend);
     glBlendEquation(eq);
+}
+
+debug void checkGlError() {
+    auto errorCode = glGetError().to!GlErrorType;
+    assert(errorCode == GlErrorType.NoError, errorCode.to!string);
 }
 
 deprecated void lineWidth(float width) {

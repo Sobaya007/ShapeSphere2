@@ -14,43 +14,53 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
 
     protected immutable uint id;
 
-    this() {
+    this() out {
+        checkGlError();
+    } body {
         uint id;
         glGenBuffers(1, &id);
         this.id = id;
+        checkGlError();
     }
 
-    ~this() {
-   //     glDeleteVertexArrays(1, &this.id);
+    ~this() out {
+        checkGlError();
+    } body {
+        glDeleteVertexArrays(1, &this.id);
     }
 
 
-    override void bind() const {
+    override void bind() const out {
+        checkGlError();
+    } body {
         glBindBuffer(Type, this.id);
     }
 
-    override void unbind() const {
+    override void unbind() const out {
+        checkGlError();
+    } body {
         glBindBuffer(Type, 0);
+        checkGlError();
     }
 
     void sendData(T[] data, BufferUsage freq = BufferUsage.Static) {
         this.bind();
         glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
+        checkGlError();
         this.unbind();
     }
 
     void sendData(S)(S data, BufferUsage freq = BufferUsage.Static) if (is(S == struct)) {
-        import std.stdio;
-        writeln(S.stringof);
-        writeln(S.sizeof);
         this.bind();
-        glBufferData(Type, S.sizeof, cast(void*)&data, freq);
+        glBufferData(Type, S.sizeof, &data, freq);
+        checkGlError();
         this.unbind();
     }
 
     void sendSubData(T[] data) {
         this.bind();
         glBufferSubData(Type, 0, data.length * T.sizeof, cast(void*)data);
+        checkGlError();
         this.unbind();
     }
 }

@@ -12,6 +12,7 @@ class VertexBuffer : BufferObject!(BufferType.Array, float) {
         assert(1 <= dim && dim <= 4, "dimension must be 1 ~ 4. given " ~ to!string(dim));
         this.bind();
         glVertexAttribPointer(location, dim, getTypeEnum!(float), false, 0, null);
+        checkGlError();
         this.unbind();
     }
 }
