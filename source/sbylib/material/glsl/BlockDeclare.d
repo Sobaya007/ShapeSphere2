@@ -1,10 +1,10 @@
 module sbylib.material.glsl.BlockDeclare;
 
-import sbylib.material.glsl.Constants;
 import sbylib.material.glsl.Statement;
 import sbylib.material.glsl.Token;
 import sbylib.material.glsl.VariableDeclare;
 import sbylib.material.glsl.Function;
+import sbylib.material.glsl.BlockType;
 
 import std.algorithm;
 import std.conv;
@@ -12,14 +12,14 @@ import std.range;
 import std.format;
 
 class BlockDeclare : Statement {
-    StructType type;
+    BlockType type;
     string id;
     VariableDeclare[] variables;
 
     this() {}
 
     this(ref Token[] tokens) {
-        this.type = convert!StructType(tokens);
+        this.type = find!(BlockType, getBlockTypeCode)(tokens);
         this.id = convert(tokens);
         expect(tokens, ["{"]);
         while (tokens[0].str != "}") {
@@ -39,7 +39,7 @@ class BlockDeclare : Statement {
     }
 
     override string getCode() {
-        string code = format!"%s %s {\n"(cast(string)type, id);
+        string code = format!"%s %s {\n"(getBlockTypeCode(this.type), this.id);
         foreach (v; variables) {
             code ~= format!"  %s\n"(v.getCode());
         }

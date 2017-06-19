@@ -5,7 +5,8 @@ import sbylib.wrapper.gl.Functions;
 
 class RenderConfig {
     TestFunc depthFunc;
-    PolygonMode frontMode, backMode;
+    PolygonMode polygonMode;
+    FaceMode faceMode;
     TestFunc stencilFunc;
     uint stencilValue;
     uint stencilMask;
@@ -15,8 +16,8 @@ class RenderConfig {
 
     this() {
         this.depthFunc = TestFunc.Less;
-        this.frontMode = PolygonMode.Fill;
-        this.backMode = PolygonMode.Line;
+        this.polygonMode = PolygonMode.Fill;
+        this.faceMode = FaceMode.FrontBack;
         this.stencilFunc = stencilFunc.Always;
         this.stencilValue = 1;
         this.stencilMask = 1;
@@ -30,7 +31,7 @@ class RenderConfig {
 
     void set() {
         sbylib.wrapper.gl.Functions.depthFunc(this.depthFunc);
-        polygonMode(this.frontMode, this.backMode);
+        faceSetting(this.polygonMode, this.faceMode);
         stencil(this.stencilFunc, this.stencilValue, this.stencilMask, this.sfail, this.dpfail, this.pass);
         blendFunc(this.srcFactor, this.dstFactor);
         sbylib.wrapper.gl.Functions.blendEquation(this.blendEquation);

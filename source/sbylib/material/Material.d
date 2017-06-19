@@ -7,7 +7,7 @@ import sbylib.wrapper.gl.BufferObject;
 import sbylib.wrapper.gl.VertexArray;
 import sbylib.utils.Watcher;
 import sbylib.material.glsl.GlslUtils;
-import sbylib.material.glsl.Constants;
+import sbylib.material.glsl.UniformDemand;
 import sbylib.material.RenderConfig;
 import std.algorithm;
 import std.typecons;

@@ -1,7 +1,7 @@
 module sbylib.material.glsl.Ast;
 
 import sbylib.material.glsl.Token;
-import sbylib.material.glsl.Constants;
+import sbylib.material.glsl.UniformDemand;
 import sbylib.material.glsl.Statement;
 import sbylib.material.glsl.Function;
 import sbylib.material.glsl.FunctionDeclare;
@@ -22,15 +22,7 @@ class Ast {
 
     this(Token[] tokens) {
         while (tokens.length > 0) {
-            if (isConvertible!Type(tokens)) {
-                //Variable or Function
-                if (tokens[2].str == "(") {
-                    //Function
-                    sentences ~= new FunctionDeclare(tokens);
-                } else if (tokens[2].str == "=" || tokens[2].str == ";") {
-                    sentences ~= new VariableDeclare(tokens);
-                }
-            } else if (isConvertible!Attribute(tokens)) {
+            if (isConvertible!(Attribute, getAttributeCode)(tokens)) {
                 //Variable or Block(uniform)
                 if (tokens[2].str == "{") {
                     //Block(uniform)
@@ -46,14 +38,21 @@ class Ast {
             } else if (tokens[0].str == "require") {
                 sentences ~= new Require(tokens);
             } else {
-                auto expected = ["struct", "#", "require"];
-                foreach (type; EnumMembers!Type) {
-                    expected ~= cast(string)type;
+                //Variable or Function
+                if (tokens[2].str == "(") {
+                    //Function
+                    sentences ~= new FunctionDeclare(tokens);
+                } else if (tokens[2].str == "=" || tokens[2].str == ";") {
+                    sentences ~= new VariableDeclare(tokens);
                 }
-                foreach (attr; EnumMembers!Attribute) {
-                    expected ~= cast(string)attr;
-                }
-                expect(tokens, expected);
+                //auto expected = ["struct", "#", "require"];
+                //foreach (type; EnumMembers!Type) {
+                //    expected ~= cast(string)type;
+                //}
+                //foreach (attr; EnumMembers!Attribute) {
+                //    expected ~= cast(string)attr;
+                //}
+                //expect(tokens, expected);
             }
         }
     }

@@ -49,22 +49,28 @@ void depthFunc(TestFunc func) {
     glDepthFunc(func);
 }
 
-void polygonMode(PolygonMode frontMode, PolygonMode backMode) {
-    if (frontMode == PolygonMode.None && backMode == PolygonMode.None) {
+void faceSetting(PolygonMode polygon, FaceMode face = FaceMode.FrontBack) {
+    if (polygon == PolygonMode.None) {
+        assert(face == FaceMode.FrontBack);
         glEnable(Capability.CullFace);
         glCullFace(FaceMode.FrontBack);
-    } else if (frontMode == PolygonMode.None && backMode != PolygonMode.None) {
-        glEnable(Capability.CullFace);
-        glCullFace(FaceMode.Front);
-        glPolygonMode(FaceMode.Back, backMode);
-    } else if (frontMode != PolygonMode.None && backMode == PolygonMode.None) {
-        glEnable(Capability.CullFace);
-        glCullFace(FaceMode.Back);
-        glPolygonMode(FaceMode.Front, frontMode);
     } else {
-        glDisable(Capability.CullFace);
-        glPolygonMode(FaceMode.Front, frontMode);
-        glPolygonMode(FaceMode.Back, backMode);
+        final switch (face) {
+        case FaceMode.FrontBack:
+            glDisable(Capability.CullFace);
+            glPolygonMode(face, polygon);
+            break;
+        case FaceMode.Front:
+            glEnable(Capability.CullFace);
+            glCullFace(FaceMode.Back);
+            glPolygonMode(face, polygon);
+            break;
+        case FaceMode.Back:
+            glEnable(Capability.CullFace);
+            glCullFace(FaceMode.Front);
+            glPolygonMode(face, polygon);
+            break;
+        }
     }
 }
 

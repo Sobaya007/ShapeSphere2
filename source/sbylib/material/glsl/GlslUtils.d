@@ -7,9 +7,10 @@ import std.traits;
 import std.range;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Constants;
+import sbylib.light.PointLight;
 
 import sbylib.material.glsl.Ast;
-import sbylib.material.glsl.Constants;
+import sbylib.material.glsl.BlockType;
 import sbylib.material.glsl.Token;
 import sbylib.material.glsl.Sharp;
 import sbylib.material.glsl.Require;
@@ -19,6 +20,9 @@ import sbylib.material.glsl.Statement;
 import sbylib.material.glsl.Attribute;
 import sbylib.material.glsl.FunctionDeclare;
 import sbylib.material.glsl.Function;
+import sbylib.material.glsl.UniformDemand;
+import sbylib.material.glsl.Space;
+import sbylib.material.glsl.AttributeDemand;
 
 //GLSLをいいかんじにする
 // 1. version宣言の省略
@@ -55,27 +59,19 @@ static:
     Ast createVertexShaderAst(Ast fragmentAst) {
         Ast vertexAst = new Ast;
         addVersion(vertexAst);
-        auto varyings = fragmentAst.getSentence!Require();
-        auto requireAttributes = varyings.map!(v => declareRequiredAttribute(v.attr)).array;
-        requireAttributes ~= declareRequiredAttribute(VaryingDemand.Position);
-        requireAttributes = requireAttributes.sort!((a,b) => a.getCode() < b.getCode()).uniq!((a,b) => a.getCode() == b.getCode()).array;
-        auto vertexDeclare = pullVertexDeclare(fragmentAst);
-        foreach (attr; requireAttributes) {
-            vertexAst.sentences ~= attr;
-        }
-        foreach (v; varyings) {
-            auto tokens = tokenize(v.getCode().replace("in", "out"));
-            vertexAst.sentences ~= new VariableDeclare(tokens);
-        }
-        auto dependentUniforms = getDependentUniform(varyings, vertexDeclare);
-        auto uniformDeclares = dependentUniforms.map!(u => declareUniform(u)).array;
+        auto requires = fragmentAst.getSentence!Require();
+        requires ~= new Require("require Position in Proj as vec3 position;");
+        auto vertexIn = requires.map!(v => v.getVertexIn()).array;
+        vertexIn = vertexIn.sort!((a,b) => a.getCode() < b.getCode())().uniq().array;
+        vertexAst.sentences ~= vertexIn;
+        vertexAst.sentences ~= requires.map!(r => new VariableDeclare(r.getCode().replace("in", "out"))).array;
+        pullVertexDeclare(fragmentAst);
+        auto dependentUniforms = requires.map!(r => r.space.getUniformDemands()).join().sort().uniq().array;
+        auto uniformDeclares = dependentUniforms.map!(u => declareUniform(u)).join();
         uniformDeclares = sort!((a,b) => a.getCode() < b.getCode())(uniformDeclares).uniq().array;
         vertexAst.sentences ~= uniformDeclares.map!(a => cast(Statement)a).array;
         string[] contents;
-        foreach (v; varyings) {
-            contents ~= format!"%s = %s"(v.variable.id, varyingExpression(v.attr, v.space, v.variable.type));
-        }
-        contents ~= vertexExpression(vertexDeclare);
+        contents ~= requires.map!(r => r.getVertexBodyCode()).array;
         auto tokens = tokenize(format!"void main() {\n  %s\n}"(contents.join("\n  ")));
         vertexAst.sentences ~= new FunctionDeclare(tokens);
         return vertexAst;
@@ -105,12 +101,8 @@ static:
         return res;
     }
 
-    Space getVertexSpace(Sharp s) {
-        return convert!Space(s.value);
-    }
-
     string vertexExpression(Sharp s) {
-        return format!"gl_Position = %s * vec4(position, 1);"(multMatrixExpression(getVertexSpace(s)));
+        return format!"gl_Position = %s * vec4(position, 1);"(s.getVertexSpace().getUniformDemands().map!(u => u.getUniformDemandCode()).join(" * "));
     }
 
     VariableDeclare[] requiredUniform(Ast ast) {
@@ -120,11 +112,11 @@ static:
 
     BlockDeclare[] requiredUniformBlock(Ast ast) {
         return ast.getSentence!BlockDeclare()
-        .filter!(s => s.type == StructType.Uniform).array;
+        .filter!(s => s.type == BlockType.Uniform).array;
     }
 
     UniformDemand[] getDependentUniform(Require[] requires, Sharp vertexDeclare) {
-        return (requires.map!(r => getDependentUniform(r.space)).array.join() ~ getDependentUniform(getVertexSpace(vertexDeclare))).sort().uniq().array;
+        return (requires.map!(r => getDependentUniform(r.space)).array.join() ~ getDependentUniform(vertexDeclare.getVertexSpace())).sort().uniq().array;
     }
 
     UniformDemand[] getDependentUniform(Space space) {
@@ -140,87 +132,29 @@ static:
         }
     }
 
-    VariableDeclare declareUniform(UniformDemand uniform) {
+    Statement[] declareUniform(UniformDemand uniform) {
         Token[] tokens;
         final switch (uniform) {
         case UniformDemand.World:
             tokens = tokenize("uniform mat4 worldMatrix;");
-            break;
+            return [new VariableDeclare(tokens)];
         case UniformDemand.View:
             tokens = tokenize("uniform mat4 viewMatrix;");
-            break;
+            return [new VariableDeclare(tokens)];
         case UniformDemand.Proj:
             tokens = tokenize("uniform mat4 projMatrix;");
-            break;
+            return [new VariableDeclare(tokens)];
+        case UniformDemand.Light:
+            tokens = tokenize(PointLight.declareCode);
+            Statement[] results = [new BlockDeclare(tokens)];
+            tokens = tokenize(
+                        "uniform LightBlock {
+                            int pointLightNum;
+                            PointLight pointLights[10];
+                        }");
+            results ~= new BlockDeclare(tokens);
+            return results;
         }
-        return new VariableDeclare(tokens);
-    }
-
-    string varyingName(VaryingDemand v) {
-        final switch(v) {
-        case VaryingDemand.Position:
-            return "position";
-        case VaryingDemand.Normal:
-            return "normal";
-        case VaryingDemand.UV:
-            return "uv";
-        }
-    }
-
-    VariableDeclare declareRequiredAttribute(VaryingDemand v) {
-        Token[] tokens;
-        final switch(v) {
-        case VaryingDemand.Position:
-            tokens = tokenize(format!"in vec3 %s;"(varyingName(v)));
-            break;
-        case VaryingDemand.Normal:
-            tokens = tokenize(format!"in vec3 %s;"(varyingName(v)));
-            break;
-        case VaryingDemand.UV:
-            tokens = tokenize(format!"in vec2 %s;"(varyingName(v)));
-            break;
-        }
-        return new VariableDeclare(tokens);
-    }
-
-    string multMatrixExpression(Space s) {
-        final switch (s) {
-        case Space.None:
-            return "";
-        case Space.World:
-            return "worldMatrix";
-        case Space.View:
-            return "viewMatrix * worldMatrix";
-        case Space.Proj:
-            return "projMatrix * viewMatrix * worldMatrix";
-        }
-    }
-
-    string varyingExpression(VaryingDemand v, Space s, Type type) {
-        string code = multMatrixExpression(s);
-        final switch(v) {
-        case VaryingDemand.Position:
-            code ~= format!" *  vec4(%s, 1)"(varyingName(v));
-            break;
-        case VaryingDemand.Normal:
-            code ~= format!" * vec4(%s, 0)"(varyingName(v));
-            break;
-        case VaryingDemand.UV:
-            code ~= format!"%s"(varyingName(v));
-            break;
-        }
-        switch (type) {
-        case Type.Vec2:
-            break;
-        case Type.Vec3:
-            code = format!"(%s).xyz"(code);
-            break;
-        case Type.Vec4:
-            break;
-        default:
-            assert(false);
-        }
-        return format!"%s;"(code);
     }
 
     private bool hasVersion(Ast ast) {
@@ -230,7 +164,7 @@ static:
 
     private bool hasColorOutput(const Ast ast) {
         return ast.getSentence!VariableDeclare()
-        .any!(declare => declare.attributes.has(Attribute.Out) && declare.type == Type.Vec4);
+        .any!(declare => declare.attributes.has(Attribute.Out) && declare.type == "vec4");
     }
 }
 

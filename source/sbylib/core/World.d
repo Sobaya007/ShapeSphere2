@@ -3,16 +3,19 @@ module sbylib.core.World;
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
 import sbylib.utils.Watcher;
-import sbylib.material.glsl.Constants;
 import sbylib.wrapper.gl.Uniform;
+import sbylib.wrapper.gl.UniformBuffer;
 import sbylib.wrapper.gl.Viewport;
 import sbylib.core.RenderTarget;
+import sbylib.light.PointLight;
+import sbylib.material.glsl.UniformDemand;
 
 class World {
     private Mesh[] meshes;
     Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
     private Watcher!umat4 viewMatrix;
     private Watcher!umat4 projMatrix;
+    private UniformBuffer pointLightBlock;
 
     this() {
         this.camera = new Watch!Camera;
@@ -26,6 +29,7 @@ class World {
             this.projMatrix.addWatch(this.camera.projMatrix);
         }, new umat4("projMatrix"));
         this.projMatrix.addWatch(this.camera);
+        this.pointLightBlock = new UniformBuffer("PointLightBlock");
     }
 
     void addMesh(Mesh mesh) in {
@@ -60,6 +64,8 @@ class World {
             break;
         case UniformDemand.Proj:
             mesh.mat.setUniform(this.projMatrix);
+            break;
+        case UniformDemand.Light:
             break;
         }
     }

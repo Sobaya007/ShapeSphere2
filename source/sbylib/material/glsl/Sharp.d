@@ -1,6 +1,7 @@
 module sbylib.material.glsl.Sharp;
 
 import sbylib.material.glsl.Statement;
+import sbylib.material.glsl.Space;
 import sbylib.material.glsl.Token;
 import sbylib.material.glsl.Function;
 
@@ -29,5 +30,10 @@ class Sharp : Statement {
     override string getCode() {
         return format!"#%s %s"(this.type, this.value);
     }
-}
 
+    Space getVertexSpace() in {
+        assert(this.type == "vertex");
+    } body {
+        return find!(Space, getSpaceName)(this.value);
+    }
+}

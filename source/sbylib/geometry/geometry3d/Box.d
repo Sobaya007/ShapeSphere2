@@ -1,11 +1,8 @@
 module sbylib.geometry.geometry3d.Box;
 
 import sbylib.geometry.Geometry;
-import sbylib.geometry.GeometryUtil;
-import sbylib.geometry.Face;
 import sbylib.geometry.Vertex;
 import sbylib.math.Vector;
-import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Attribute;
 
 import std.algorithm;
@@ -49,7 +46,7 @@ class Box {
             }
         }
         uint[] indices = cast(uint[])iota(vertices.length).array;
-        auto g = new GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV], Prim.Triangle)(vertices, indices);
+        auto g = new GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV])(vertices, indices);
         return g;
     }
 }
