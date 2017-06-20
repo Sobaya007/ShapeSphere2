@@ -34,7 +34,10 @@ class Sharp : Statement {
     }
 
     override string getCode() {
-        return format!"#%s %s"(this.type, this.value);
+        if (this.type == "version")
+            return format!"#%s %s"(this.type, this.value);
+        else
+            return "";
     }
 
     Space getVertexSpace() in {

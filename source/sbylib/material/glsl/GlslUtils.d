@@ -14,6 +14,7 @@ import sbylib.material.glsl.BlockType;
 import sbylib.material.glsl.Token;
 import sbylib.material.glsl.Sharp;
 import sbylib.material.glsl.RequireAttribute;
+import sbylib.material.glsl.RequireUniform;
 import sbylib.material.glsl.VariableDeclare;
 import sbylib.material.glsl.BlockDeclare;
 import sbylib.material.glsl.Statement;
@@ -41,7 +42,7 @@ uniform vec4 color
 class GlslUtils {
 static:
 
-    Ast[2] createShaders(string fragSource) {
+    Ast[2] generateAstFromFragmentSource(string fragSource) {
         auto tokens = tokenize(fragSource);
         auto fragAst = new Ast(tokens);
         auto vertAst = createVertexShaderAst(fragAst);
@@ -54,10 +55,15 @@ static:
         return [vertAst, fragAst];
     }
 
-    string[] getUniformNames(Ast[] asts) {
-        return asts.map!(ast => ast.getStatements!VariableDeclare()
-                .filter!(a => a.attributes.has(Attribute.Uniform))
-                .map!(a => a.id).array).join().sort().uniq().array;
+    UniformDemand[] requiredUniformDemands(Ast[] asts) {
+        return asts.map!(ast => ast.getStatements!RequireUniform()
+                .map!(ru => ru.uni).array ~
+                (ast.getStatements!RequireAttribute() ~
+                    ast.getStatements!Sharp()
+                    .filter!(sharp => sharp.type == "vertex")
+                    .map!(sharp => sharp.getRequireAttribute()).array)
+                .map!(ra => ra.space.getUniformDemands()).join())
+        .join().sort().uniq().array;
     }
 
     Ast createVertexShaderAst(Ast fragmentAst) {
@@ -103,9 +109,7 @@ static:
         auto statements = ast.getStatements!Sharp().filter!(sharp => sharp.type == "vertex").array;
         assert(statements.length != 0, "#vertex declare is required.");
         assert(statements.length <= 1, "#vertex declare must be only one.");
-        auto res = statements[0];
-        ast.statements = ast.statements.remove!(s => s == res);
-        return res;
+        return statements[0];
     }
 }
 

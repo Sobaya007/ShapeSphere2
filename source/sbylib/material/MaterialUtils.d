@@ -5,6 +5,7 @@ import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Program;
 import sbylib.setting;
 import sbylib.material.glsl.GlslUtils;
+import sbylib.material.glsl.Ast;
 import std.file;
 
 class MaterialUtils {
@@ -13,16 +14,13 @@ class MaterialUtils {
 
     static {
 
-        const(Program) generateProgramFromFragmentPath(string path) {
+        Ast[2] generateAstFromFragmentPath(string path) {
             path = ROOT_PATH ~ path;
             auto fragSource = readText(path);
-            auto ASTs = GlslUtils.createShaders(fragSource);
-            auto vert = new Shader(ASTs[0].getCode(), ShaderType.Vertex);
-            auto frag = new Shader(ASTs[1].getCode(), ShaderType.Fragment);
-            import std.stdio;
-            writeln(ASTs[1].getCode());
-            return new Program([vert, frag]);
+            auto ASTs = GlslUtils.generateAstFromFragmentSource(fragSource);
+            return ASTs;
         }
+
         const(Shader) createShaderFromPath(string path, ShaderType type) {
             path = ROOT_PATH ~ path;
             auto source = readText(path);
