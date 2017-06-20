@@ -53,7 +53,7 @@ class Core {
         AL.init();
         GL.init();
         GLFW.init();
-        //FreeType.init();
+        FreeType.init();
         FreeImage.init();
         JoyStick.init();
     }
@@ -66,6 +66,12 @@ class Core {
     this() {
         this.window = new Window("Window Title", 800, 600);
         this.fpsBalancer = new FpsBalancer(60);
+    }
+
+    ~this() {
+        //後始末
+        //GLFW.terminate();
+        AL.terminate();
     }
 
     void start() {
@@ -93,9 +99,6 @@ class Core {
             this.window.pollEvents();
             return window.shouldClose();
         });
-        //後始末
-        GLFW.terminate();
-        AL.terminate();
     }
 
     Window getWindow() {

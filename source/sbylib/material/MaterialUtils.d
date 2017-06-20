@@ -38,4 +38,38 @@ class MaterialUtils {
             return new Program(shaders);
         }
     }
+
+    mixin template declare(string file = __FILE__) {
+        import sbylib.material.glsl.UniformDemand;
+        import sbylib.wrapper.gl.Constants;
+        import sbylib.wrapper.gl.Shader;
+        import sbylib.wrapper.gl.Program;
+        import sbylib.setting;
+        import std.string;
+        enum FRAG_ROOT = file.replace(".d", ".frag");
+        static UniformDemand[] uniformDemands;
+        static Shader vertexShader;
+        static Shader fragmentShader;
+
+        override UniformDemand[] getDemands() {
+            return uniformDemands;
+        }
+    }
+
+    static string init() {
+        return q{
+            import sbylib.wrapper.gl.Shader;
+            import sbylib.wrapper.gl.Program;
+            import sbylib.wrapper.gl.Constants;
+            import sbylib.material.glsl.GlslUtils;
+            if (!uniformDemands) {
+                auto asts = MaterialUtils.generateAstFromFragmentPath(FRAG_ROOT);
+                uniformDemands = GlslUtils.requiredUniformDemands(asts);
+                vertexShader = new Shader(asts[0].getCode(), ShaderType.Vertex);
+                fragmentShader = new Shader(asts[1].getCode(), ShaderType.Fragment);
+            }
+            const program = new Program([vertexShader, fragmentShader]);
+            super(program);
+        };
+    }
 }

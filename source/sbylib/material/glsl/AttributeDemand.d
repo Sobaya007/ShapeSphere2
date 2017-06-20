@@ -32,11 +32,11 @@ string getAttributeDemandKeyWord(AttributeDemand v) {
 string getAttributeDemandName(AttributeDemand v) {
     final switch(v) {
     case AttributeDemand.Position:
-        return "position";
+        return "_position";
     case AttributeDemand.Normal:
-        return "normal";
+        return "_normal";
     case AttributeDemand.UV:
-        return "uv";
+        return "_uv";
     }
 }
 

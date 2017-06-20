@@ -14,3 +14,4 @@ import sbylib.geometry;
 import sbylib.shadertemplates;
 import sbylib.utils;
 import sbylib.wrapper;
+import sbylib.setting;

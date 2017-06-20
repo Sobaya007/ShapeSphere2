@@ -55,6 +55,6 @@ class Sharp : Statement {
     string getGlPositionCode() in {
         assert(this.type == "vertex");
     } body {
-        return format!"gl_Position = %s * vec4(position,1);"(this.getVertexSpace().getUniformDemands().map!(u => getUniformDemandName(u)).join(" * "));
+        return format!"gl_Position = %s * vec4(_position,1);"(this.getVertexSpace().getUniformDemands().map!(u => getUniformDemandName(u)).join(" * "));
     }
 }

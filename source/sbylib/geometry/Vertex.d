@@ -6,6 +6,7 @@ import sbylib.wrapper.gl.Attribute;
 import sbylib.utils.Functions;
 
 import std.math, std.algorithm, std.array, std.range;
+import std.format;
 
 alias VertexV = Vertex!([Attribute.Position]);
 alias VertexN = Vertex!([Attribute.Position, Attribute.Normal]);
@@ -13,7 +14,7 @@ alias VertexT = Vertex!([Attribute.Position, Attribute.UV]);
 alias VertexNT = Vertex!([Attribute.Position, Attribute.Normal, Attribute.UV]);
 
 template GenAttribute(Attribute[] attr) {
-    const char[] GenAttribute = attr.map!(a => a.getString()).join("\n");
+    const char[] GenAttribute = attr.map!(a => format!"vec%s %s;"(a.dim, a.name.dropOne())).join("\n");
 }
 
 class Vertex(Attribute[] Attributes) {
@@ -36,7 +37,7 @@ class Vertex(Attribute[] Attributes) {
     override string toString() {
         auto res = "Vertex {";
         foreach (attr; Utils.Range!(Attribute, Attributes)) {
-            res ~= "\n\t" ~ attr.name ~ " = " ~ __traits(getMember, this, attr.name).toString();
+            res ~= format!"\n  %s = %s"(attr.name, __traits(getMember, this, attr.name.dropOne()).toString());
         }
         res ~= "\n}";
         return res;

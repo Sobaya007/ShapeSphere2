@@ -2,7 +2,6 @@ import std.stdio;
 import std.math;
 
 import sbylib;
-import derelict.opengl;
 
 void main() {
     auto core = new Core();
@@ -19,10 +18,11 @@ void main() {
         world.camera.lookAt(vec3(0));
     });
 
-    auto mat = new LambertMaterial();
-    mat.ambient = vec3(.1);
-    mat.diffuse = vec3(1);
-    auto mesh = new Mesh(Sphere.create(.5, 2), mat);
+    Font font = FontLoader.load(RESOURCE_ROOT  ~ "consola.ttf", FontType.Mono, 256);
+
+    auto mat = new TextureMaterial();
+    mat.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
+    auto mesh = new Mesh(SphereUV.create(), mat);
     world.addMesh(mesh);
 
     Viewport viewport = new Viewport(0,0, core.getWindow().getWidth(), core.getWindow().getHeight());

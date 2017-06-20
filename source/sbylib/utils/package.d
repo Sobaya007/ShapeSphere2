@@ -1,7 +1,6 @@
 module sbylib.utils;
 
 public:
-import sbylib.utils.customobject;
 import sbylib.utils.FpsCounter;
 import sbylib.utils.Functions;
 import sbylib.utils.LimitedArray;
@@ -10,4 +9,3 @@ import sbylib.utils.ObjectPool;
 import sbylib.utils.Stack;
 import sbylib.utils.ObjectPool;
 import sbylib.utils.Watcher;
-import sbylib.utils.UniformResolver;

@@ -6,9 +6,9 @@ import std.conv;
 
 struct Attribute {
 
-    enum Position = Attribute(3, "position");
-    enum Normal = Attribute(3, "normal");
-    enum UV = Attribute(2, "uv");
+    enum Position = Attribute(3, "_position");
+    enum Normal = Attribute(3, "_normal");
+    enum UV = Attribute(2, "_uv");
 
     immutable {
         uint dim;
@@ -18,9 +18,5 @@ struct Attribute {
     this(uint dim, string name) {
         this.dim = dim;
         this.name = name;
-    }
-
-    string getString() {
-        return "vec" ~ to!string(dim) ~ " " ~ name ~ ";";
     }
 }

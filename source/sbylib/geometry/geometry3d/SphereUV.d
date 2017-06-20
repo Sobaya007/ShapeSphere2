@@ -21,50 +21,55 @@ class SphereUV {
             return v;
         }).array;
         auto indices = getNorthernIndices(tCut, pCut) ~ getSouthernIndices(tCut, pCut);
-        auto g = new GeometryTemp!([Attribute.Position, Attribute.Normal])(vertices, indices);
+        auto g = new GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV])(vertices, indices);
         return g;
     }
 
-    private static VertexN[] northern(uint tCut, uint pCut) {
-        vec3[] result;
-        result ~= vec3(0,1,0);
+    private static VertexNT[] northern(uint tCut, uint pCut) {
+        struct TP {float t; float p;}
+        TP[] tps;
+        tps ~= TP(0,1);
         foreach_reverse (i; 0..pCut) {
-            auto phi = i * PI / (2 * pCut);
-            foreach (j; 0..tCut) {
-                auto theta = j * 2 * PI / tCut;
-                result ~= vec3(
-                         cos(phi) * cos(theta),
-                         sin(phi),
-                         cos(phi) * sin(theta)
-                );
+            auto p = cast(float)i / pCut;
+            foreach (j; 0..tCut+1) {
+                auto t = cast(float)j / tCut;
+                tps ~= TP(t,p);
             }
         }
-        return result.map!((v) {
-            VertexN res = new VertexN;
-            res.position = v;
-            res.normal = v;
+        return tps.map!((tp) {
+            auto theta = tp.t * 2 * PI;
+            auto phi = tp.p * PI / 2;
+            auto vec = vec3(
+                cos(phi) * cos(theta),
+                sin(phi),
+                cos(phi) * sin(theta));
+            auto res = new VertexNT;
+            res.position = vec;
+            res.normal = vec;
+            res.uv = vec2(tp.t, tp.p*.5 + .5);
             return res;
         }).array;
     }
 
-    private static VertexN[] southern(uint tCut, uint pCut) {
+    private static VertexNT[] southern(uint tCut, uint pCut) {
         return northern(tCut, pCut)
         .map!((v) {
             v.position = -v.position;
             v.normal = -v.normal;
+            v.uv = vec2(.5 + v.uv.x, 1 - v.uv.y);
             return v;
         }).array;
     }
 
     private static uint[] getNorthernIndices(uint tCut, uint pCut) {
         uint[] result;
-        foreach (i; 0..tCut) {
-            result ~= [0, i+1, (i+1) % tCut + 1];
+        foreach (i; 0..tCut+1) {
+            result ~= [0, i+1, i+2];
         }
-        foreach (i; 0..pCut-1) {
+        foreach (i; 0..pCut) {
             auto ni = i+1;
-            foreach (j; 0..tCut) {
-                auto nj = (j+1) % tCut;
+            foreach (j; 0..tCut+1) {
+                auto nj = j+1;
                 result ~= [
                 1 +  j +  i * tCut,
                 1 +  j + ni * tCut,
@@ -82,19 +87,6 @@ class SphereUV {
 
     private static uint[] getSouthernIndices(uint tCut, uint pCut) {
         return getNorthernIndices(tCut, pCut)
-        .map!(idx => idx+pCut*tCut+1).array;
+        .map!(idx => idx+(tCut+1)*pCut+1).array;
     }
-
-//    static uint[][] getIndices(uint tCut, uint pCut) {
-//        //側面
-//        foreach (i; 0..tCut) {
-//            result ~= [
-//            (pCut-1) * tCut + 1 + i,
-//            (2*pCut-2) * tCut + 2 + i + tCut / 2,
-//                (2*pCut-2) * tCut + 2 + (i+1) % tCut + tCut / 2,
-//                (pCut-1) * tCut + 1 + (i+1) % tCut,
-//                ];
-//        }
-//        return result;
-//    }
 }
