@@ -24,13 +24,13 @@ class RequireAttribute : Statement {
     }
 
     this(ref Token[] tokens) {
-        expect(tokens, ["require"]);
-        this.attr = find!(AttributeDemand, getAttributeDemandKeyWord)(tokens);
+        expect(tokens, "require");
+        this.attr = convert!(AttributeDemand, getAttributeDemandKeyWord)(tokens);
         if (tokens[0].str == "in") {
-            expect(tokens, ["in"]);
-            this.space = find!(Space, getSpaceName)(tokens);
+            expect(tokens, "in");
+            this.space = convert!(Space, getSpaceName)(tokens);
         }
-        expect(tokens, ["as"]);
+        expect(tokens, "as");
         this.variable = new VariableDeclare(tokens);
     }
 

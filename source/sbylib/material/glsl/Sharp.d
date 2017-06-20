@@ -15,12 +15,15 @@ class Sharp : Statement {
     string type;
     string value;
 
+    this(string str) {
+        auto tokens = tokenize(str);
+        this(tokens);
+    }
 
     this(ref Token[] tokens) {
-        assert(tokens[0].str == "#");
-        this.type = tokens[1].str;
-        this.value = tokens[2].str;
-        tokens = tokens[3..$];
+        expect(tokens, "#");
+        this.type = convert(tokens);
+        this.value = convert(tokens);
     }
 
     override string graph(bool[] isEnd) {
@@ -37,7 +40,7 @@ class Sharp : Statement {
     Space getVertexSpace() in {
         assert(this.type == "vertex");
     } body {
-        return find!(Space, getSpaceName)(this.value);
+        return convert!(Space, getSpaceName)(this.value);
     }
 
     RequireAttribute getRequireAttribute() in {

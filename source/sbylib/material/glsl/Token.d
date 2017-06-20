@@ -26,7 +26,12 @@ Token[] tokenize(string code) {
 }
 
 Token[] tokenizeNormal(string code, Token buffer, Token[] tokens, uint line, uint column) {
-    if (code.length == 0) return tokens;
+    if (code.length == 0) {
+        if (buffer) {
+            tokens ~= buffer;
+        }
+        return tokens;
+    }
     column++;
     const c = code[0];
     if (Delimitor.any!(d => d == c)) {

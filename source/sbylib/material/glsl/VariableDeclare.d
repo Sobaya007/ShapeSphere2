@@ -23,12 +23,12 @@ class VariableDeclare : Statement {
         this.type = convert(tokens);
         this.id = convert(tokens);
         if (tokens.length > 0 && tokens[0].str == "=") {
-            expect(tokens, ["="]);
+            expect(tokens, "=");
             while (tokens[0].str != ";") {
                 this.assignedValue ~= convert(tokens);
             }
         }
-        expect(tokens, [";"]);
+        expect(tokens, ";");
     }
 
     override string graph(bool[] isEnd) {

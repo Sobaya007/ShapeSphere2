@@ -10,11 +10,9 @@ import std.range;
 class AttributeList {
     Attribute[] attributes;
 
-    this() {}
-
     this(ref Token[] tokens) {
         while (isConvertible!(Attribute, getAttributeCode)(tokens)) {
-            this.attributes ~= find!(Attribute, getAttributeCode)(tokens);
+            this.attributes ~= convert!(Attribute, getAttributeCode)(tokens);
         }
     }
 

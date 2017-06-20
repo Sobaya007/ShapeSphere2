@@ -20,13 +20,13 @@ bool isConvertible(T, alias conv)(string str) if (is(T == enum)) {
     return false;
 }
 
-T find(T, alias conv)(ref Token[] tokens) if (is(T == enum)) {
+T convert(T, alias conv)(ref Token[] tokens) if (is(T == enum)) {
     auto t = tokens[0];
     tokens = tokens[1..$];
-    return find!(T, conv)(t.str);
+    return convert!(T, conv)(t.str);
 }
 
-T find(T, alias conv)(string str) if (is(T == enum)) {
+T convert(T, alias conv)(string str) if (is(T == enum)) {
     foreach (mem; [EnumMembers!T]) {
         if (conv(mem) == str)
             return mem;
@@ -50,13 +50,10 @@ void expect(ref Token[] tokens, string[] expected) {
     assert(expected.any!(a => a == token.str), format!"Error[%d, %d]:%s was expected, not '%s'"(token.line, token.column, strs.join(" or "), token.str));
 }
 
-string indent(bool[] isEnd) {
-    return isEnd.map!(e => e ? "    " : "|   ").array.join;
+void expect(ref Token[] tokens, string expected) {
+    expect(tokens, [expected]);
 }
 
-mixin template constructor() {
-    this (string str) {
-        auto tokens = tokenize(str);
-        this(tokens);
-    }
+string indent(bool[] isEnd) {
+    return isEnd.map!(e => e ? "    " : "|   ").array.join;
 }

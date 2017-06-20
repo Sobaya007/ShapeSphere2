@@ -10,16 +10,14 @@ import std.range;
 class ArgumentList {
     Argument[] arguments;
 
-    this() {}
-
     this(ref Token[] tokens) {
         while (tokens[0].str != ")") {
             this.arguments ~= new Argument(tokens);
             if (tokens[0].str == ",") {
-                expect(tokens, [","]);
+                expect(tokens, ",");
             }
         }
-        expect(tokens, [")"]);
+        expect(tokens, ")");
     }
 
     string graph(bool[] isEnd) {

@@ -18,7 +18,7 @@ import std.algorithm;
 import std.range;
 
 class Ast {
-    Statement[] sentences;
+    Statement[] statements;
 
     this() {}
 
@@ -28,20 +28,20 @@ class Ast {
                 //Variable or Block(uniform)
                 if (tokens[2].str == "{") {
                     //Block(uniform)
-                    sentences ~= new BlockDeclare(tokens);
+                    statements ~= new BlockDeclare(tokens);
                 } else {
                     //Variable
-                    sentences ~= new VariableDeclare(tokens);
+                    statements ~= new VariableDeclare(tokens);
                 }
             } else if (tokens[0].str == "struct") {
-                sentences ~= new BlockDeclare(tokens);
+                statements ~= new BlockDeclare(tokens);
             } else if (tokens[0].str == "#") {
-                sentences ~= new Sharp(tokens);
+                statements ~= new Sharp(tokens);
             } else if (tokens[0].str == "require") {
                 if (isConvertible!(AttributeDemand, getAttributeDemandKeyWord)(tokens[1].str)) {
-                    sentences ~= new RequireAttribute(tokens);
+                    statements ~= new RequireAttribute(tokens);
                 } else if (isConvertible!(UniformDemand, getUniformDemandName)(tokens[1].str)) {
-                    sentences ~= new RequireUniform(tokens);
+                    statements ~= new RequireUniform(tokens);
                 } else {
                     assert(false);
                 }
@@ -49,36 +49,39 @@ class Ast {
                 //Variable or Function
                 if (tokens[2].str == "(") {
                     //Function
-                    sentences ~= new FunctionDeclare(tokens);
+                    statements ~= new FunctionDeclare(tokens);
                 } else if (tokens[2].str == "=" || tokens[2].str == ";") {
-                    sentences ~= new VariableDeclare(tokens);
+                    statements ~= new VariableDeclare(tokens);
+                } else {
+                    assert(false);
                 }
-                //auto expected = ["struct", "#", "require"];
-                //foreach (type; EnumMembers!Type) {
-                //    expected ~= cast(string)type;
-                //}
-                //foreach (attr; EnumMembers!Attribute) {
-                //    expected ~= cast(string)attr;
-                //}
-                //expect(tokens, expected);
             }
         }
     }
 
     override string toString() {
-        import std.stdio;
         string code = "ROOT\n";
-        foreach (i, s; this.sentences) {
-            code ~= s.graph([i == this.sentences.length-1]);
+        foreach (i, s; this.statements) {
+            code ~= s.graph([i == this.statements.length-1]);
         }
         return code;
     }
 
     string getCode() {
-        return sentences.map!(s => s.getCode()).join("\n");
+        return statements.map!(s => s.getCode()).join("\n");
     }
 
-    T[] getSentence(T)() const {
-        return this.sentences.map!(sentence => cast(T)sentence).filter!(sentence => sentence !is null).array;
+    T[] getStatements(T)() const {
+        return this.statements.map!(sentence => cast(T)sentence).filter!(sentence => sentence !is null).array;
+    }
+
+    bool hasVersion() {
+        return this.getStatements!Sharp()
+        .any!(sharp => sharp.type == "version");
+    }
+
+    bool hasColorOutput() {
+        return this.getStatements!VariableDeclare()
+        .any!(declare => declare.attributes.has(Attribute.Out) && declare.type == "vec4");
     }
 }

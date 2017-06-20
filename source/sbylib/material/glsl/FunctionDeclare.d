@@ -14,16 +14,14 @@ class FunctionDeclare : Statement {
     ArgumentList arguments;
     string content;
 
-    this() {}
-
     this(ref Token[] tokens) {
         this.returnType = convert(tokens);
         this.id = convert(tokens);
-        expect(tokens, ["("]);
+        expect(tokens, "(");
         this.arguments = new ArgumentList(tokens);
-        expect(tokens, ["{"]);
+        expect(tokens, "{");
         this.content = convert(tokens);
-        expect(tokens, ["}"]);
+        expect(tokens, "}");
     }
 
     override string graph(bool[] isEnd) {

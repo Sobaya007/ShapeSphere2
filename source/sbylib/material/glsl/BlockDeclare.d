@@ -22,14 +22,14 @@ class BlockDeclare : Statement {
     }
 
     this(ref Token[] tokens) {
-        this.type = find!(BlockType, getBlockTypeCode)(tokens);
+        this.type = convert!(BlockType, getBlockTypeCode)(tokens);
         this.id = convert(tokens);
-        expect(tokens, ["{"]);
+        expect(tokens, "{");
         while (tokens[0].str != "}") {
             this.variables ~= new VariableDeclare(tokens);
         }
-        expect(tokens, ["}"]);
-        expect(tokens, [";"]);
+        expect(tokens, "}");
+        expect(tokens, ";");
     }
 
     override string graph(bool[] isEnd) {

@@ -11,8 +11,6 @@ class Argument {
     string type;
     string id;
 
-    this() {}
-
     this(ref Token[] tokens) {
         this.attributes = new AttributeList(tokens);
         this.type = convert(tokens);

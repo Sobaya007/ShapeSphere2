@@ -18,9 +18,9 @@ class RequireUniform : Statement {
     }
 
     this(ref Token[] tokens) {
-        expect(tokens, ["require"]);
-        this.uni = find!(UniformDemand, getUniformDemandName)(tokens);
-        expect(tokens, [";"]);
+        expect(tokens, "require");
+        this.uni = convert!(UniformDemand, getUniformDemandName)(tokens);
+        expect(tokens, ";");
     }
 
     override string graph(bool[] isEnd) {
