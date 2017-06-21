@@ -280,3 +280,8 @@ enum GlErrorType {
     InvaliedOperation = GL_INVALID_OPERATION,
     OutOfMemory = GL_OUT_OF_MEMORY
 }
+
+enum PixelAlignType {
+    Pack = GL_PACK_ALIGNMENT,
+    Unpack = GL_UNPACK_ALIGNMENT
+}

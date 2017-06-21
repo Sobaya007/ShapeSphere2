@@ -110,6 +110,24 @@ void blendEquation(BlendEquation eq) out {
     glBlendEquation(eq);
 }
 
+void setPixelPackAlign(int alignment) in {
+    assert(alignment == 1
+            || alignment == 2
+            || alignment == 4
+            || alignment == 8);
+} body {
+    glPixelStorei(PixelAlignType.Pack, alignment);
+}
+
+void setPixelUnpackAlign(int alignment) in {
+    assert(alignment == 1
+            || alignment == 2
+            || alignment == 4
+            || alignment == 8);
+} body {
+    glPixelStorei(PixelAlignType.Unpack, alignment);
+}
+
 debug void checkGlError() {
     auto errorCode = glGetError().to!GlErrorType;
     assert(errorCode == GlErrorType.NoError, errorCode.to!string);

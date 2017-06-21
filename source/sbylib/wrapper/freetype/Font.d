@@ -4,77 +4,63 @@ import derelict.freetype.ft;
 import sbylib.wrapper.gl;
 import sbylib.setting;
 import std.string;
-
-enum FontType {
-    Mono = FT_RENDER_MODE_MONO,
-    AntiAlias = FT_RENDER_MODE_NORMAL
-}
+import sbylib.wrapper.freetype.Constants;
+import sbylib.wrapper.freetype.Character;
 
 class Font {
 
     private {
         FT_Face face;
-        immutable FontType fontType;
-        Texture[int] textures;
-        immutable int maxWidthPerChar;
-        immutable int baseLineHeight;
-        immutable int maxHeight;
     }
     immutable int size;
+    Character[char] characters;
+    private FontType fontType;
 
-    this(FT_Face face, FontType fontType, int size) {
+    this(FT_Face face, int size, FontType fontType) {
         this.face = face;
-        this.fontType = fontType;
         this.size = size;
-        assert(!FT_Set_Pixel_Sizes(face, size, size), "Failed to set pixel size!");
-
-        FT_Size_Metrics sz = face.size.metrics;
-        maxWidthPerChar = cast(int)sz.max_advance / 64;
-        baseLineHeight = cast(int)sz.ascender / 64;
-        maxHeight = cast(int)(sz.ascender - sz.descender) / 64;
+        assert(!FT_Set_Pixel_Sizes(this.face, 0, size), "Failed to set pixel size!");
     }
 
-//    Texture renderText(wstring text, float font_size = this.size) {
-//        int len = cast(int)text.length;
-//        int texWidth = cast(int)(cast(float)maxWidthPerChar*len*font_size/size);
-//        int texHeight = cast(int)(cast(float)maxHeight*font_size/size);
-//        Texture texture = new Texture(texWidth,texHeight,ImageType.RGBA);
-//        static FrameBuffer fbo;
-//        if (fbo is null) fbo = new FrameBuffer;
-//        fbo.attachTextureAsColor(texture);
-//        fbo.write(texture.width, texture.height, {
-//            int x = 0;
-//            foreach (c; text) {
-//                Texture charaTex = getCharacterTexture(c);
-//                uint width = cast(uint)(cast(float)charaTex.width / size * font_size);
-//                uint height = cast(uint)(cast(float)charaTex.height / size * font_size);
-//                //writeln("(poo) width * height = " ~ "(" ~ to!string(width) ~ "," ~ to!string(font_size) ~ ")" );
-//                //writeln("(tex) width * height = " ~ "(" ~ to!string(charaTex.width) ~ "," ~ to!string(charaTex.height) ~ ")" );
-//                /*
-//        drawImage(x+width/2, height/2, width, height, charaTex);
-//*/
-//                x += width;
-//            }
-//        });
-//        return texture;
-//    }
+    void loadChar(char c, FontLoadType loadType) {
+        assert (!FT_Load_Char(this.face, c, loadType), "Failed to load character!");
+        this.characters[c] = new Character(this.face.glyph, this.face.size.metrics, this.fontType);
+    }
 
-//    Texture getCharacterTexture(T)(inout T character) if (is (T == char) || is (T == wchar) || is (T == dchar)) {
-//        int charcode = cast(int)character;
-//        auto result = charcode in textures;
-//        if (result) return *result;
-//
-//        return getCharacterTextureFromCode(charcode);
-//    }
-//
-//    private Texture getCharacterTextureFromCode(int charcode) {
-//
-//        auto err = FT_Load_Char(face, charcode, 0);
-//        if (err) assert (false, "Failed to load character!");
-//
-//        err = FT_Render_Glyph(face.glyph, fontType);
-//        if (err) assert (false, "Failed to render glyph!!");
-//
+    //    Texture renderText(wstring text, float font_size = this.size) {
+    //        int len = cast(int)text.length;
+    //        int texWidth = cast(int)(cast(float)maxWidthPerChar*len*font_size/size);
+    //        int texHeight = cast(int)(cast(float)maxHeight*font_size/size);
+    //        Texture texture = new Texture(texWidth,texHeight,ImageType.RGBA);
+    //        static FrameBuffer fbo;
+    //        if (fbo is null) fbo = new FrameBuffer;
+    //        fbo.attachTextureAsColor(texture);
+    //        fbo.write(texture.width, texture.height, {
+    //            int x = 0;
+    //            foreach (c; text) {
+    //                Texture charaTex = getCharacterTexture(c);
+    //                uint width = cast(uint)(cast(float)charaTex.width / size * font_size);
+    //                uint height = cast(uint)(cast(float)charaTex.height / size * font_size);
+    //                x += width;
+    //            }
+    //        });
+    //        return texture;
+    //    }
+
+    //    Texture getCharacterTexture(T)(inout T character) if (is (T == char) || is (T == wchar) || is (T == dchar)) {
+    //        int charcode = cast(int)character;
+    //        auto result = charcode in textures;
+    //        if (result) return *result;
+    //
+    //        return getCharacterTextureFromCode(charcode);
+    //    }
+    //
+
+//    Texture getCharacterTextureFromCode(char chara) {
+//        uint charcode = cast(uint)chara;
+//        charcode = 65;
+//        this.loadChar(charcode, FontLoadType.Default);
+//        this.renderGlyph();
 //        FT_Bitmap bm = face.glyph.bitmap;
 //
 //        /*
@@ -108,18 +94,18 @@ class Font {
 //        uint height = cast(uint)met.height/64;
 //
 //        ubyte[] buffer;
-//        final switch (fontType) {
-//        case FontType.Mono:
-//            foreach_reverse (i; 0..maxHeight) {
-//                foreach (j; 0..advance) {
-//                    if( (j < bearingX) || (j >= bearingX + width) ||
-//                            (i < baseLineHeight-bearingY) ||
-//                            (i >= baseLineHeight-bearingY + height) ){
-//                        buffer ~= [0,0,0,0];
-//                    }else{
-//                        int row = i - (baseLineHeight - bearingY);
-//                        int col = j - bearingX;
-//                        auto c = bm.buffer[bm.pitch * row + col];
+//        foreach_reverse (i; 0..maxHeight) {
+//            foreach (j; 0..advance) {
+//                if( (j < bearingX) || (j >= bearingX + width) ||
+//                        (i < baseLineHeight-bearingY) ||
+//                        (i >= baseLineHeight-bearingY + height) ){
+//                    buffer ~= [0,0,0,0];
+//                }else{
+//                    int row = i - (baseLineHeight - bearingY);
+//                    int col = j - bearingX;
+//                    auto c = bm.buffer[bm.pitch * row + col];
+//                    final switch (fontType) {
+//                    case FontType.Mono:
 //                        foreach_reverse (bit; 0..8) {
 //                            if (((c >> bit) & 1) == 0) {
 //                                buffer ~= [0, 0, 0, 0];
@@ -127,27 +113,23 @@ class Font {
 //                                buffer ~= [0xff, 0xff, 0xff, 0xff];
 //                            }
 //                        }
-//                    }
-//                }
-//            }
-//            return textures[charcode] = new Texture(buffer.ptr, advance*8, maxHeight);
-//        case FontType.AntiAlias:
-//            foreach_reverse (i; 0..maxHeight) {
-//                foreach (j; 0..advance) {
-//                    if( (j < bearingX) || (j >= bearingX + width) ||
-//                            (i < baseLineHeight-bearingY) ||
-//                            (i >= baseLineHeight-bearingY + height) ){
-//                        buffer ~= [0,0,0,0];
-//                    }else{
-//                        int row = i - (baseLineHeight - bearingY);
-//                        int col = j - bearingX;
-//                        auto c = bm.buffer[bm.pitch * row + col];
+//                        break;
+//                    case FontType.AntiAlias:
 //                        buffer ~= [0xff,0xff,0xff,c];
+//                        break;
 //                    }
 //                }
 //            }
-//            return textures[charcode] = new Texture(buffer.ptr, advance, maxHeight);
 //        }
+//        uint maxWidth;
+//        final switch (fontType) {
+//        case FontType.Mono:
+//            maxWidth = advance*8;
+//            break;
+//        case FontType.AntiAlias:
+//            maxWidth = advance;
+//            break;
+//        }
+//        return new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.RGBA, maxWidth, maxHeight, ImageFormat.RGBA, buffer.ptr);
 //    }
-
 }

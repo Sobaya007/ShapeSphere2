@@ -34,6 +34,10 @@ class Texture {
         this.unbind();
     }
 
+    ~this() {
+        glDeleteTextures(1, &id);
+    }
+
     void setMagFilter(TextureFilter type) {
         this.setParameter(TextureParamName.MagFilter, type);
     }
