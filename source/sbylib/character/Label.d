@@ -1,51 +1,63 @@
 module sbylib.character.Label;
 
-import sbylib;
+import sbylib.geometry.geometry2d.Rect;
+import sbylib.wrapper.freetype.Character;
+import sbylib.wrapper.freetype.Constants;
+import sbylib.wrapper.freetype.Font;
+import sbylib.mesh.Mesh;
+import sbylib.material.TextureMaterial;
+import sbylib.mesh.Object3D;
+import sbylib.math.Vector;
+import sbylib.utils.Watcher;
+import std.typecons;
 
-// 担当 : _n_ari
+class Label {
 
-// 文字列を描画するラベルを生成
-// 左上基準で描画するようにした
+    private Font font;
+    Watch!string text;
+    Object3D obj;
+    Watcher!(Mesh[]) meshes;
+    private float width;
+    private float height;
 
-// 実は font.renderText で TextureObject を返しているだけなので
-// Label クラス使わなくてもいいよ(適当)
-//それマジ？！
+    this(Font font, float scale = 1) {
+        this.font = font;
+        this.text = new Watch!string;
+        this.obj = new Object3D;
+        this.meshes = new Watcher!(Mesh[])((ref Mesh[] m) {
+            m = generateMesh(scale * 0.01);
+        }, null);
+    }
 
-//class Label {
-//
-//    Texture tex;
-//    Font font;
-//    float size;
-//    wstring str;
-//    int w, h;
-//
-//    this(Font font, wstring s = "Hello, World!", float size = -1) {
-//        setFont(font);
-//        setString(s,size);
-//    }
-//
-//    void setFont(Font font, float size = -1){
-//        this.font = font;
-//        this.size = size;
-//        if(size<0) this.size = font.size;
-//    }
-//
-//    void setString(wstring s, float size = -1){
-//        if(size<0)size = this.size;
-//        if(font is null)font = this.font;
-//        this.str = s;
-////        this.tex = font.renderText(s,size);
-////        this.w = this.tex.width;
-////        this.h = this.tex.height;
-//    }
-//
-//    // 左下(0,0)です
-//    void draw(float x = 0f,float y = 0f,vec4 color=white) {
-//        float cx,cy;
-//        cx = x + w/2;
-//        cy = y + h/2;
-//        //// 可視化
-//        //drawRect(cx,cy,w,h,vec4(1f,0f,0f,0.5f));
-//        //drawImageWithColor(cx,cy,w,h,tex,color);
-//    }
-//}
+    float getWidth() {
+        return this.width;
+    }
+
+    float getHeight() {
+        return this.height;
+    }
+
+    private auto generateMesh(float scale) {
+        auto x = 0.0f;
+        Mesh[] meshes;
+        this.width = 0;
+        foreach (c; text) {
+            font.loadChar(c, FontLoadType.Render);
+            auto chara = font.characters[c];
+            auto geom = Rect.create(chara.width * scale, chara.height * scale);
+            auto mat = new TextureMaterial;
+            mat.texture = chara.texture;
+            auto mesh = new Mesh(geom, mat);
+            mesh.obj.setParent(obj);
+            mesh.obj.pos = vec3(x,0,0);
+            x += chara.width * scale;
+            meshes ~= mesh;
+            this.width += chara.width * scale;
+            this.height = chara.height * scale;
+        }
+        foreach (m; meshes) {
+            m.obj.pos.x -= this.width / 2;
+        }
+        return meshes;
+    }
+}

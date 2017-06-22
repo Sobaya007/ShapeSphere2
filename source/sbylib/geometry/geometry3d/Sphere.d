@@ -23,7 +23,7 @@ class Sphere {
             return res;
         }).array;
         auto index = vertexIndex[1];
-        auto g = new GeometryTemp!([Attribute.Position, Attribute.Normal])(vertex, index);
+        auto g = new GeometryN(vertex, index);
         return g;
     }
 

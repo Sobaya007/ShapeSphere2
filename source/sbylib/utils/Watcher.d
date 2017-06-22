@@ -1,6 +1,7 @@
 module sbylib.utils.Watcher;
 
 import std.functional;
+import std.algorithm;
 
 class Watch(T) {
     private T value;
@@ -24,13 +25,34 @@ class Watch(T) {
         }
     }
 
-    @property T get() {
-        return value;
+    ref auto opDispatch(string s, Args...)(Args args) {
+        foreach (watcher; watchers) {
+            watcher.onChange();
+        }
+        import std.traits;
+        static if (__traits(hasMember, T, "opDispatch")) {
+            return this.value.opDispatch!(s, Args)(args);
+        } else static if (isCallable!(__traits(getMember, T, s))) {
+            static if (is(ReturnType!(__traits(getMember, T, s)) == void)) {
+                mixin("this.value." ~ s)(args);
+            } else {
+                return mixin("this.value." ~ s)(args);
+            }
+        } else static if (Args.length > 0) {
+            return mixin("this.value." ~ s ~ "= args");
+        } else {
+            pragma(msg, s ~ "2");
+            return mixin("this.value." ~ s);
+        }
     }
 
     override string toString() {
         import std.conv;
         return this.get().to!string;
+    }
+
+    T get() {
+        return this.value;
     }
 
     alias get this;
@@ -65,6 +87,14 @@ class Watcher(T) : IWatcher {
         watcher.watchers ~= this;
     }
 
+    void removeWatch(S)(Watch!S watch) {
+        watch.watchers = watch.watchers.remove!(w => w == this);
+    }
+
+    void removeWatch(S)(Watcher!S watcher) {
+        watcher.watchers = watcher.watchers.remove!(w => w == this);
+    }
+
     void setDefineFunc(void delegate(ref T) defineFunc) {
         this.defineFunc = defineFunc;
     }
@@ -76,7 +106,7 @@ class Watcher(T) : IWatcher {
         }
     }
 
-    const(T) get() {
+    T get() {
         if (this.needsUpdate) {
             this.defineFunc(this.value);
             this.needsUpdate = false;
@@ -85,7 +115,8 @@ class Watcher(T) : IWatcher {
     }
 
     override string toString() {
-        return this.get().toString();
+        import std.conv;
+        return this.get().to!string;
     }
 
     alias get this;

@@ -9,6 +9,7 @@ import sbylib.wrapper.freetype.Constants;
 
 class Character {
     Texture texture;
+    uint width, height;
 
     this(FT_GlyphSlotRec* glyph, FT_Size_Metrics sz, FontType fontType) {
         // ベースラインを考慮してTexture込めるようにします
@@ -32,81 +33,34 @@ class Character {
         uint maxWidth = cast(uint)met.horiAdvance/64;
         uint maxHeight = cast(int)(sz.ascender - sz.descender) / 64;
 
-        import std.stdio;
-        writeln(glyph.bitmap.pitch);
-        writeln(width);
-        writeln(height);
-        writeln(bearingX);
-        writeln(bearingY);
-
-        writeln(baseLineHeight);
-
-        writeln(maxWidth);
-        writeln(maxHeight);
         auto bm = glyph.bitmap;
 
         ubyte[] buffer;
- //       foreach_reverse (i; 0..maxHeight) {
- //           foreach (j; 0..advance) {
- //               if( (j < bearingX) || (j >= bearingX + width) ||
- //                       (i < baseLineHeight-bearingY) ||
- //                       (i >= baseLineHeight-bearingY + height) ){
- //                   buffer ~= 0;
- //               }else{
- //                   int row = i - (baseLineHeight - bearingY);
- //                   int col = j - bearingX;
- //                   auto c = bm.buffer[bm.pitch * row + col];
- //                   final switch (fontType) {
- //                   case FontType.Mono:
- //                       foreach_reverse (bit; 0..8) {
- //                           buffer ~= 0xff;
- //                           //if (((c >> bit) & 1) == 0) {
- //                           //    buffer ~= 0;
- //                           //} else {
- //                           //    buffer ~= 0xff;
- //                           //}
- //                       }
- //                       break;
- //                   case FontType.AntiAlias:
- //                       buffer ~= c;
- //                       break;
- //                   }
- //               }
- //           }
- //       }
-        foreach (y; 0..maxHeight) {
+        foreach_reverse (y; 0..maxHeight) {
             foreach (x; 0..maxWidth) {
                 if (   x < bearingX
                     || y < baseLineHeight-bearingY
                     || x >= bearingX + width
-                    || y >= baseLineHeight-k) {
-                }
-                if (i < height /2 && j < width / 2) {
-                    buffer ~= 0xff;
-                } else {
+                    || y >= baseLineHeight-bearingY+height) {
                     buffer ~= 0;
+                } else {
+                    auto row = y - (baseLineHeight - bearingY);
+                    auto col = x - bearingX;
+                    auto c = bm.buffer[bm.pitch * row + col];
+                    buffer ~= c;
                 }
             }
         }
-//        uint maxWidth;
-//        final switch (fontType) {
-//        case FontType.Mono:
-//            maxWidth = advance*8;
-//            break;
-//        case FontType.AntiAlias:
-//            maxWidth = advance;
-//            break;
-//        }
 
         setPixelUnpackAlign(1);
         auto texture = new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.R, maxWidth, maxHeight, ImageFormat.R, buffer.ptr);
         setPixelUnpackAlign(4);
- //       auto texture = new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.R, maxWidth, maxHeight, ImageFormat.R, buffer.ptr);
-//        auto texture = new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.R, bm.width, bm.rows, ImageFormat.R, bm.buffer);
 
         texture.setWrapS(TextureWrap.ClampToEdge);
         texture.setWrapT(TextureWrap.ClampToEdge);
 
         this.texture = texture;
+        this.width = maxWidth;
+        this.height = maxHeight;
     }
 }

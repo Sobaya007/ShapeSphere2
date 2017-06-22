@@ -21,8 +21,8 @@ class World {
     this() {
         this.camera = new Watch!Camera;
         this.viewMatrix = new Watcher!umat4((ref umat4 mat) {
-            mat.value = this.camera.viewMatrix;
-            this.viewMatrix.addWatch(this.camera.viewMatrix);
+            mat.value = this.camera.getObj().viewMatrix;
+            this.viewMatrix.addWatch(this.camera.getObj().viewMatrix);
         }, new umat4("viewMatrix"));
         this.viewMatrix.addWatch(this.camera);
         this.projMatrix = new Watcher!umat4((ref umat4 mat) {

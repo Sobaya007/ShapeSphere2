@@ -21,7 +21,7 @@ class SphereUV {
             return v;
         }).array;
         auto indices = getNorthernIndices(tCut, pCut) ~ getSouthernIndices(tCut, pCut);
-        auto g = new GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV])(vertices, indices);
+        auto g = new GeometryNT(vertices, indices);
         return g;
     }
 

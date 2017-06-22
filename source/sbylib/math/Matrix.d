@@ -81,6 +81,17 @@ public:
         return result;
     }
 
+    Matrix!(S,U,Q) opBinaryRight(string op, S, uint P, uint Q)(const Matrix!(S,P,Q) m) if (op == "*" && V == P) {
+        static if (isImplicitlyConvertible!(T,S)) {
+            alias Type = S;
+        } else {
+            alias Type = T;
+        }
+        Matrix!(Type,U,Q) result;
+        mixin(multMMRightCode(U,V,P,Q));
+        return result;
+    }
+
     Matrix opBinary(string op)(T s) const {
         Matrix result;
         static if (op == "*" || op == "/") {
@@ -548,6 +559,20 @@ private static string multMMCode(uint U, uint V, uint P, uint Q) {
             code ~= format!"result[%d,%d] = "(i,j);
             foreach (k; 0..V) {
                 code ~= format!"+ this[%d,%d] * m[%d,%d]"(i,k,k,j);
+            }
+            code ~= ";";
+        }
+    }
+    return code;
+}
+
+private static string multMMRightCode(uint U, uint V, uint P, uint Q) {
+    string code;
+    foreach (i; 0..U) {
+        foreach (j; 0..V) {
+            code ~= format!"result[%d,%d] = "(i,j);
+            foreach (k; 0..V) {
+                code ~= format!"+ m[%d,%d] * this[%d,%d]"(i,k,k,j);
             }
             code ~= ";";
         }

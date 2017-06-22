@@ -22,6 +22,10 @@ interface Geometry {
     IndexBuffer getIndexBuffer();
 }
 
+alias GeometryN = GeometryTemp!([Attribute.Position, Attribute.Normal]);
+alias GeometryT = GeometryTemp!([Attribute.Position, Attribute.UV]);
+alias GeometryNT = GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV]);
+
 class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry{
     alias VertexA = Vertex!(Attributes);
 

@@ -9,6 +9,8 @@ import std.algorithm;
 import std.range;
 import std.array;
 
+alias GeometryRect = GeometryTemp!([Attribute.Position, Attribute.UV], Prim.TriangleFan);
+
 class Rect {
 
     public static Geometry create(float width=0.5, float height = 0.5) {
@@ -32,7 +34,7 @@ class Rect {
             v.uv = tuple[1];
             vertices ~= v;
         }
-        auto g = new GeometryTemp!([Attribute.Position, Attribute.UV], Prim.TriangleFan)(vertices, indices);
+        auto g = new GeometryRect(vertices, indices);
         return g;
     }
 }

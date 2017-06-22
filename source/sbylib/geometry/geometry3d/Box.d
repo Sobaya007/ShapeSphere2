@@ -47,7 +47,7 @@ class Box {
             }
         }
         uint[] indices = cast(uint[])iota(vertices.length).array;
-        auto g = new GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV])(vertices, indices);
+        auto g = new GeometryNT(vertices, indices);
         return g;
     }
 }

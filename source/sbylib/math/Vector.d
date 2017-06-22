@@ -111,7 +111,7 @@ body {
             return elements;
         }
 
-        auto opDispatch(string s, Args...)(Args args)
+        ref auto opDispatch(string s, Args...)(Args args)
         if (s.all!(a => countUntil("xyzw", a) != -1)
             || s.all!(a => countUntil("rgba", a) != -1)){
             enum isXYZW = s.all!(a => countUntil("xyzw", a) != -1);

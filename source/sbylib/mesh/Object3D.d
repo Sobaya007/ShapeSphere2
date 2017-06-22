@@ -9,6 +9,9 @@ import sbylib.wrapper.gl.Uniform;
 class Object3D {
     Watch!vec3 pos;
     Watch!mat3 rot;
+    private Watcher!mat4 parentWorldMatrix;
+    private Watcher!mat4 parentViewMatrix;
+    private Object3D parent;
     Watcher!umat4 worldMatrix;
     Watcher!umat4 viewMatrix;
 
@@ -20,16 +23,27 @@ class Object3D {
         this.rot = mat3.identity();
 
         this.worldMatrix = new Watcher!umat4((ref umat4 mat) {
-            mat.value = generateWorldMatrix();
+            mat.value = parentWorldMatrix * generateWorldMatrix();
         }, new umat4("worldMatrix"));
-        this.worldMatrix.addWatch(this.pos);
-        this.worldMatrix.addWatch(this.rot);
 
         this.viewMatrix = new Watcher!umat4((ref umat4 mat) {
-            mat.value = generateViewMatrix();
+            mat.value = parentViewMatrix * generateViewMatrix();
         }, new umat4("viewMatrix"));
+
+        this.parentWorldMatrix = new Watcher!mat4((ref mat4 mat) {
+            mat = mat4.identity();
+        }, mat4.identity());
+
+        this.parentViewMatrix = new Watcher!mat4((ref mat4 mat) {
+            mat = mat4.identity();
+        }, mat4.identity());
+
+        this.worldMatrix.addWatch(this.pos);
+        this.worldMatrix.addWatch(this.rot);
+        this.worldMatrix.addWatch(this.parentWorldMatrix);
         this.viewMatrix.addWatch(this.pos);
         this.viewMatrix.addWatch(this.rot);
+        this.viewMatrix.addWatch(this.parentViewMatrix);
     }
 
     void lookAt(vec3 target, vec3 up = vec3(0,1,0)) {
@@ -40,6 +54,20 @@ class Object3D {
         auto side = normalize(cross(up, v));
         up = normalize(cross(v, side));
         this.rot = mat3(side, up, v);
+    }
+
+    void setParent(Object3D obj) {
+        this.parentWorldMatrix.setDefineFunc((ref mat4 mat) {
+            mat = obj.worldMatrix.get().value;
+        });
+        if (parent) this.parentWorldMatrix.removeWatch(parent.worldMatrix);
+        this.parentWorldMatrix.addWatch(obj.worldMatrix);
+        this.parentViewMatrix.setDefineFunc((ref mat4 mat) {
+            mat = obj.viewMatrix.get().value;
+        });
+        if (parent) this.parentViewMatrix.removeWatch(parent.viewMatrix);
+        this.parentViewMatrix.addWatch(obj.viewMatrix);
+        this.parent = obj;
     }
 
     private mat4 generateWorldMatrix() {
