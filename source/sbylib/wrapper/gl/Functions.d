@@ -128,6 +128,12 @@ void setPixelUnpackAlign(int alignment) in {
     glPixelStorei(PixelAlignType.Unpack, alignment);
 }
 
+void setViewport(uint x, uint y, uint w, uint h) out {
+    checkGlError();
+} body {
+    glViewport(x,y,w,h);
+}
+
 debug void checkGlError() {
     auto errorCode = glGetError().to!GlErrorType;
     assert(errorCode == GlErrorType.NoError, errorCode.to!string);

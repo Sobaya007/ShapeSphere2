@@ -41,7 +41,6 @@ class Watch(T) {
         } else static if (Args.length > 0) {
             return mixin("this.value." ~ s ~ "= args");
         } else {
-            pragma(msg, s ~ "2");
             return mixin("this.value." ~ s);
         }
     }

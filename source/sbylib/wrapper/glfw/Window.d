@@ -6,6 +6,7 @@ import derelict.opengl;
 import std.string, std.stdio;
 import sbylib.math.Vector;
 import sbylib.wrapper.glfw.Constants;
+import sbylib.core.RenderTarget;
 
 /*
    GLFW準拠のウインドウのクラスです
@@ -16,6 +17,7 @@ private:
     GLFWwindow *window;
     uint width, height;
     string title;
+    RenderTarget renderTarget;
 public:
 
     this(string title, int width, int height) {
@@ -40,6 +42,8 @@ public:
         auto glver = DerelictGL3.reload();
         writeln("Version = ", glver);
         assert(glver > GLVersion.gl33, "OpenGL version is too low");
+
+        this.renderTarget = new RenderTarget(this);
     }
 
     bool shouldClose() {
@@ -59,6 +63,10 @@ public:
     void setTitle(string title) {
         this.title = title;
         window.glfwSetWindowTitle(title.toStringz);
+    }
+
+    RenderTarget getRenderTarget() {
+        return this.renderTarget;
     }
 
 @property:

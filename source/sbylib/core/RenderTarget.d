@@ -4,6 +4,7 @@ import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.FrameBuffer;
 import sbylib.wrapper.gl.RenderBuffer;
 import sbylib.wrapper.gl.Texture;
+import sbylib.wrapper.glfw.Window;
 
 class RenderTarget {
 
@@ -11,11 +12,26 @@ class RenderTarget {
 
     private Texture[FrameBufferAttachType] textures;
     const uint width, height;
+    uint viewportX, viewportY, viewportWidth, viewportHeight;
 
     this(uint width, uint height) {
         this.frameBuffer = new FrameBuffer();
         this.width = width;
         this.height = height;
+        this.viewportX = 0;
+        this.viewportY = 0;
+        this.viewportWidth = width;
+        this.viewportHeight = height;
+    }
+
+    this(Window window) {
+        this.frameBuffer = null;
+        this.width = window.getWidth();
+        this.height = window.getHeight();
+        this.viewportX = 0;
+        this.viewportY = 0;
+        this.viewportWidth = width;
+        this.viewportHeight = height;
     }
 
     void attachTexture(T)(FrameBufferAttachType attachType) {
@@ -28,13 +44,17 @@ class RenderTarget {
         this.attach(rbo, attachType);
     }
 
-    private void attach(RenderBuffer renderBuffer, FrameBufferAttachType attachType) {
+    private void attach(RenderBuffer renderBuffer, FrameBufferAttachType attachType) in {
+        assert(this.frameBuffer);
+    } body {
         this.frameBuffer.bind(FrameBufferBindType.Both);
         renderBuffer.attachFrameBuffer(FrameBufferBindType.Both, attachType);
         this.frameBuffer.unbind(FrameBufferBindType.Both);
     }
 
-    private void attach(Texture texture, FrameBufferAttachType attachType) {
+    private void attach(Texture texture, FrameBufferAttachType attachType) in {
+        assert(this.frameBuffer);
+    } body {
         this.frameBuffer.bind(FrameBufferBindType.Both);
         texture.attachFrameBuffer(FrameBufferBindType.Both, attachType);
         this.frameBuffer.unbind(FrameBufferBindType.Both);
@@ -50,10 +70,12 @@ class RenderTarget {
     }
 
     void renderBegin() {
+        if (!this.frameBuffer) return;
         this.frameBuffer.bind(FrameBufferBindType.Both);
     }
 
     void renderEnd() {
+        if (!this.frameBuffer) return;
         this.frameBuffer.unbind(FrameBufferBindType.Both);
     }
 }

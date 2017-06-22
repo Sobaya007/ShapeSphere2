@@ -3,6 +3,7 @@ module sbylib.core.Process;
 class Process {
     private const void delegate(Process) func;
     private bool _isAlive;
+    private uint frame;
 
     this(const void delegate(Process) func) {
         this.func = func;
@@ -11,12 +12,14 @@ class Process {
 
     package bool step() {
         this.func(this);
-        return _isAlive;
+        this.frame++;
+        return this._isAlive;
     }
 
     void kill() {
         this._isAlive = false;
     }
 
-    bool isAlive() {return isAlive;}
+    bool isAlive() {return this.isAlive;}
+    uint getFrame() {return this.frame;}
 }

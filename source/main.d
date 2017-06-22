@@ -5,36 +5,33 @@ import sbylib;
 
 void main() {
     auto core = new Core();
-    auto world = new World;
-    auto time = 0.0f;
-    world.camera = new PerspectiveCamera(1, 120, 0.1, 100);
 
-    core.addProcess((proc){
-        time += 0.006;
-        time = 0;
-        auto c = cos(time);
-        auto s = sin(time);
-        world.camera.getObj().pos = vec3(5*s,2,5*c);
-        //world.camera.pos = vec3(0,2,-5);
-        world.camera.getObj().lookAt(vec3(0));
-    });
+    auto world3d = new World;
+    world3d.camera = new PerspectiveCamera(1, 120, 0.1, 100);
+    world3d.camera.getObj().pos.z += 3;
+
+    auto world2d = new World;
+    world2d.camera = new OrthoCamera(2,2,-1,1);
+
+    auto sphere = new Mesh(Sphere.create(0.5, 2), new NormalMaterial());
+    world3d.addMesh(sphere);
 
     Font font = FontLoader.load(RESOURCE_ROOT  ~ "consola.ttf", 128);
+
     auto label = new Label(font, 0.1);
     label.text = "abcdefghijklmnopqrstuvwxyz";
-    foreach (mesh; label.meshes) {
-        world.addMesh(mesh);
-    }
+    world2d.addMesh(label.meshes);
 
-    Viewport viewport = new Viewport(0,0, core.getWindow().getWidth(), core.getWindow().getHeight());
     core.addProcess((proc) {
-        world.render(viewport);
+        world3d.render(core.getWindow().getRenderTarget());
+        clear(ClearMode.Depth);
+        world2d.render(core.getWindow().getRenderTarget());
     });
 
-    BasicControl control = new BasicControl(label.obj);
+    BasicControl control = new BasicControl(sphere.obj);
 
     core.addProcess((proc) {
-        control.update(core.getWindow(), world.camera);
+        control.update(core.getWindow(), world2d.camera);
     });
 
     core.start();

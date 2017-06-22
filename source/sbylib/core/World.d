@@ -5,7 +5,6 @@ import sbylib.camera.Camera;
 import sbylib.utils.Watcher;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
-import sbylib.wrapper.gl.Viewport;
 import sbylib.core.RenderTarget;
 import sbylib.light.PointLight;
 import sbylib.material.glsl.UniformDemand;
@@ -38,26 +37,23 @@ class World {
         this.pointLightBlock.sendData(block);
     }
 
-    void addMesh(Mesh mesh) in {
+    void addMesh(Mesh[] meshes...) in {
         assert(this.camera.get());
     } body{
-        this.meshes ~= mesh;
-        foreach (demand; mesh.mat.getDemands()) {
-            this.resolveUniformDemand(mesh, demand);
+        this.meshes ~= meshes;
+        foreach (mesh; meshes) {
+            foreach (demand; mesh.mat.getDemands()) {
+                this.resolveUniformDemand(mesh, demand);
+            }
         }
     }
 
-    void render(Viewport viewport, RenderTarget target) {
+    void render(RenderTarget target) {
         target.renderBegin();
-        this.render(viewport);
-        target.renderEnd();
-    }
-
-    void render(Viewport viewport) {
-        viewport.set();
         foreach(Mesh m; meshes) {
             m.render();
         }
+        target.renderEnd();
     }
 
     private void resolveUniformDemand(Mesh mesh, UniformDemand demand) {
