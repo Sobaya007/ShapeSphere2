@@ -13,7 +13,7 @@ void main() {
     auto world2d = new World;
     world2d.camera = new OrthoCamera(2,2,-1,1);
 
-    auto sphere = new Mesh(Sphere.create(0.5, 2), new NormalMaterial());
+    auto sphere = new Mesh(Poll.create(0.5, 1), new NormalMaterial());
     world3d.addMesh(sphere);
 
     Font font = FontLoader.load(RESOURCE_ROOT  ~ "consola.ttf", 128);

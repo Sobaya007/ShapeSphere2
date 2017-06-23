@@ -167,7 +167,7 @@ GlslUtils	./source/sbylib/material/glsl/GlslUtils.d	42;"	c	line:42	access:public
 Greater	./source/sbylib/wrapper/gl/Constants.d	47;"	e	line:47	enum:TestFunc
 GreaterEqual	./source/sbylib/wrapper/gl/Constants.d	49;"	e	line:49	enum:TestFunc
 HalfFloat	./source/sbylib/wrapper/gl/Constants.d	174;"	e	line:174	enum:GLType
-IWatcher	./source/sbylib/utils/Watcher.d	61;"	i	line:61	access:public
+IWatcher	./source/sbylib/utils/Watcher.d	60;"	i	line:60	access:public
 IgnoreGlobalAdvanceWidth	./source/sbylib/wrapper/freetype/Constants.d	20;"	e	line:20	enum:FontLoadType
 IgnoreTransform	./source/sbylib/wrapper/freetype/Constants.d	22;"	e	line:22	enum:FontLoadType
 Image	./source/sbylib/wrapper/freeimage/Image.d	7;"	c	line:7	access:public
@@ -244,6 +244,7 @@ Linear	./source/sbylib/wrapper/gl/Constants.d	266;"	e	line:266	enum:TextureFilte
 LinearDesign	./source/sbylib/wrapper/freetype/Constants.d	24;"	e	line:24	enum:FontLoadType
 LinkList	./source/sbylib/utils/LinkList.d	3;"	s	line:3	access:public
 LinkStatus	./source/sbylib/wrapper/gl/Constants.d	101;"	e	line:101	enum:ProgramParamName
+Local	./source/sbylib/material/glsl/Space.d	7;"	e	line:7	enum:Space
 LodBias	./source/sbylib/wrapper/gl/Constants.d	244;"	e	line:244	enum:TextureParamName
 MagFilter	./source/sbylib/wrapper/gl/Constants.d	246;"	e	line:246	enum:TextureParamName
 Material	./source/sbylib/material/Material.d	18;"	c	line:18	access:public
@@ -309,6 +310,7 @@ PointLight	./source/sbylib/light/PointLight.d	4;"	s	line:4	access:public
 PointLightBlock	./source/sbylib/light/PointLight.d	10;"	s	line:10	access:public
 PointLightBlockDeclareCode	./source/sbylib/light/PointLight.d	22;"	v	line:22	access:public
 PointLightDeclareCode	./source/sbylib/light/PointLight.d	16;"	v	line:16	access:public
+Poll	./source/sbylib/geometry/geometry3d/Poll.d	10;"	c	line:10	access:public
 PolygonMode	./source/sbylib/wrapper/gl/Constants.d	216;"	g	line:216	access:public
 PolygonOffsetFill	./source/sbylib/wrapper/gl/Constants.d	192;"	e	line:192	enum:Capability
 PolygonOffsetLine	./source/sbylib/wrapper/gl/Constants.d	193;"	e	line:193	enum:Capability
@@ -326,7 +328,7 @@ Program	./source/sbylib/wrapper/gl/Program.d	12;"	c	line:12	access:public
 ProgramBinaryLength	./source/sbylib/wrapper/gl/Constants.d	110;"	e	line:110	enum:ProgramParamName
 ProgramParamName	./source/sbylib/wrapper/gl/Constants.d	99;"	g	line:99	access:public
 ProgramPointSize	./source/sbylib/wrapper/gl/Constants.d	207;"	e	line:207	enum:Capability
-Proj	./source/sbylib/material/glsl/Space.d	9;"	e	line:9	enum:Space
+Proj	./source/sbylib/material/glsl/Space.d	10;"	e	line:10	enum:Space
 Proj	./source/sbylib/material/glsl/UniformDemand.d	12;"	e	line:12	enum:UniformDemand
 Proxy1DArray	./source/sbylib/wrapper/gl/Constants.d	233;"	e	line:233	enum:TextureTarget
 Proxy2D	./source/sbylib/wrapper/gl/Constants.d	234;"	e	line:234	enum:TextureTarget
@@ -479,13 +481,13 @@ VertexNT	./source/sbylib/geometry/Vertex.d	14;"	a	line:14	access:public
 VertexT	./source/sbylib/geometry/Vertex.d	13;"	a	line:13	access:public
 VertexV	./source/sbylib/geometry/Vertex.d	11;"	a	line:11	access:public
 VerticalLayout	./source/sbylib/wrapper/freetype/Constants.d	16;"	e	line:16	enum:FontLoadType
-View	./source/sbylib/material/glsl/Space.d	8;"	e	line:8	enum:Space
+View	./source/sbylib/material/glsl/Space.d	9;"	e	line:9	enum:Space
 View	./source/sbylib/material/glsl/UniformDemand.d	11;"	e	line:11	enum:UniformDemand
 Watch	./source/sbylib/utils/Watcher.d	6;"	c	line:6	access:public
-Watcher	./source/sbylib/utils/Watcher.d	65;"	c	line:65	access:public
+Watcher	./source/sbylib/utils/Watcher.d	64;"	c	line:64	access:public
 Window	./source/sbylib/wrapper/glfw/Window.d	15;"	c	line:15	access:public
 World	./source/sbylib/core/World.d	13;"	c	line:13	access:public
-World	./source/sbylib/material/glsl/Space.d	7;"	e	line:7	enum:Space
+World	./source/sbylib/material/glsl/Space.d	8;"	e	line:8	enum:Space
 World	./source/sbylib/material/glsl/UniformDemand.d	10;"	e	line:10	enum:UniformDemand
 WrapR	./source/sbylib/wrapper/gl/Constants.d	256;"	e	line:256	enum:TextureParamName
 WrapS	./source/sbylib/wrapper/gl/Constants.d	254;"	e	line:254	enum:TextureParamName
@@ -505,8 +507,8 @@ add	./source/sbylib/utils/LimitedArray.d	10;"	f	line:10	class:LimitedArray	acces
 addMat4	./source/sbylib/math/Matrix.d	623;"	f	line:623	access:private	signature:(string code)
 addMesh	./source/sbylib/core/World.d	40;"	f	line:40	class:World	access:public	signature:(Mesh[] meshes...)
 addProcess	./source/sbylib/core/Core.d	86;"	f	line:86	class:Core	access:public	signature:(const void delegate(Process) func)
-addWatch	./source/sbylib/utils/Watcher.d	82;"	f	line:82	class:Watcher	access:public	signature:(Watch!S watch)
-addWatch	./source/sbylib/utils/Watcher.d	86;"	f	line:86	class:Watcher	access:public	signature:(Watcher!S watcher)
+addWatch	./source/sbylib/utils/Watcher.d	81;"	f	line:81	class:Watcher	access:public	signature:(Watch!S watch)
+addWatch	./source/sbylib/utils/Watcher.d	85;"	f	line:85	class:Watcher	access:public	signature:(Watcher!S watcher)
 allocate	./source/sbylib/utils/Stack.d	112;"	f	line:112	struct:Stack	access:public	signature:(size_t leng)
 allocatedNodes	./source/sbylib/utils/LinkList.d	20;"	v	line:20	struct:LinkList	access:private
 allocatedNodes	./source/sbylib/utils/Stack.d	17;"	v	line:17	struct:Stack	access:private
@@ -586,6 +588,7 @@ convert	./source/sbylib/material/glsl/Function.d	29;"	f	line:29	access:public	si
 convert	./source/sbylib/material/glsl/Function.d	37;"	f	line:37	access:public	signature:(ref Token[] tokens)
 create	./source/sbylib/geometry/geometry2d/Rect.d	16;"	f	line:16	class:Rect	access:public	signature:(float width = 0.5, float height = 0.5)
 create	./source/sbylib/geometry/geometry3d/Box.d	17;"	f	line:17	class:Box	access:public	signature:(float width = 1, float height = 1, float depth = 1)
+create	./source/sbylib/geometry/geometry3d/Poll.d	14;"	f	line:14	class:Poll	access:public	signature:(float radius, float length, uint cut = 20)
 create	./source/sbylib/geometry/geometry3d/Sphere.d	17;"	f	line:17	class:Sphere	access:public	signature:(float radius = 0.5, uint level = 0)
 create	./source/sbylib/geometry/geometry3d/SphereUV.d	17;"	f	line:17	class:SphereUV	access:public	signature:(float radius = 0.5, uint tCut = 20, uint pCut = 20)
 createProgramFromPath	./source/sbylib/material/MaterialUtils.d	30;"	f	line:30	class:MaterialUtils	access:public	signature:(string vertPath, string fragPath, string geomPath = null)
@@ -600,7 +603,7 @@ current	./source/sbylib/utils/LinkList.d	88;"	v	line:88	struct:Iterator	access:p
 cyan	./source/sbylib/utils/Functions.d	30;"	f	line:30	class:Utils	access:public	signature:()
 deadFunctions	./source/sbylib/wrapper/freetype/FreeType.d	9;"	v	line:9	access:private
 declare	./source/sbylib/material/MaterialUtils.d	42;"	T	line:42	class:MaterialUtils	access:public	signature:(string file = __FILE__)
-defineFunc	./source/sbylib/utils/Watcher.d	69;"	v	line:69	class:Watcher	access:private
+defineFunc	./source/sbylib/utils/Watcher.d	68;"	v	line:68	class:Watcher	access:private
 deno	./source/sbylib/math/Rational.d	10;"	v	line:10	struct:Rational	access:public
 depthFunc	./source/sbylib/material/RenderConfig.d	7;"	v	line:7	class:RenderConfig	access:public
 depthFunc	./source/sbylib/wrapper/gl/Functions.d	57;"	f	line:57	access:public	signature:(TestFunc func)
@@ -667,10 +670,10 @@ generateViewMatrix	./source/sbylib/mesh/Object3D.d	81;"	f	line:81	class:Object3D
 generateWorldMatrix	./source/sbylib/mesh/Object3D.d	73;"	f	line:73	class:Object3D	access:private	signature:()
 geom	./source/sbylib/mesh/Mesh.d	11;"	v	line:11	class:Mesh	access:public
 get	./source/sbylib/utils/ObjectPool.d	17;"	f	line:17	class:ObjectPool	access:public	signature:()
-get	./source/sbylib/utils/Watcher.d	109;"	f	line:109	class:Watcher	access:public	signature:()
-get	./source/sbylib/utils/Watcher.d	122;"	a	line:122	class:Watcher	access:public
-get	./source/sbylib/utils/Watcher.d	54;"	f	line:54	class:Watch	access:public	signature:()
-get	./source/sbylib/utils/Watcher.d	58;"	a	line:58	class:Watch	access:public
+get	./source/sbylib/utils/Watcher.d	108;"	f	line:108	class:Watcher	access:public	signature:()
+get	./source/sbylib/utils/Watcher.d	121;"	a	line:121	class:Watcher	access:public
+get	./source/sbylib/utils/Watcher.d	53;"	f	line:53	class:Watch	access:public	signature:()
+get	./source/sbylib/utils/Watcher.d	57;"	a	line:57	class:Watch	access:public
 get	./source/sbylib/wrapper/gl/Uniform.d	64;"	f	line:64	class:UniformTemp	access:public	signature:()
 getAttribLocation	./source/sbylib/wrapper/gl/Program.d	62;"	f	line:62	class:Program	access:public	signature:(string name)
 getAttributeCode	./source/sbylib/material/glsl/Attribute.d	17;"	f	line:17	access:public	signature:(Attribute attr)
@@ -714,6 +717,7 @@ getHeight	./source/sbylib/wrapper/glfw/Window.d	78;"	f	line:78	class:Window	acce
 getImageType	./source/sbylib/wrapper/freeimage/Image.d	31;"	f	line:31	class:Image	access:public	signature:()
 getIndexBuffer	./source/sbylib/geometry/Geometry.d	22;"	f	line:22	interface:Geometry	access:public	signature:()
 getIndexBuffer	./source/sbylib/geometry/Geometry.d	83;"	f	line:83	class:GeometryTemp	access:public	signature:()
+getIndices	./source/sbylib/geometry/geometry3d/Poll.d	42;"	f	line:42	class:Poll	access:private	signature:(uint cut)
 getInfo	./source/sbylib/wrapper/gl/Program.d	82;"	f	line:82	class:Program	access:private	signature:(ProgramParamName name)
 getInfo	./source/sbylib/wrapper/gl/Shader.d	46;"	f	line:46	class:Shader	access:public	signature:(ShaderParamName name)
 getInfoLog	./source/sbylib/wrapper/gl/Program.d	98;"	f	line:98	class:Program	access:private	signature:()
@@ -756,7 +760,7 @@ getScale	./source/sbylib/math/Matrix.d	309;"	f	line:309	struct:Matrix	access:pub
 getScaleCode	./source/sbylib/math/Matrix.d	632;"	f	line:632	access:private	signature:(uint U)
 getShaderType	./source/sbylib/wrapper/gl/Shader.d	24;"	f	line:24	class:Shader	access:public	signature:()
 getSouthernIndices	./source/sbylib/geometry/geometry3d/SphereUV.d	88;"	f	line:88	class:SphereUV	access:private	signature:(uint tCut, uint pCut)
-getSpaceName	./source/sbylib/material/glsl/Space.d	12;"	f	line:12	access:public	signature:(Space s)
+getSpaceName	./source/sbylib/material/glsl/Space.d	13;"	f	line:13	access:public	signature:(Space s)
 getStatements	./source/sbylib/material/glsl/Ast.d	74;"	f	line:74	class:Ast	access:public	signature:()
 getTitle	./source/sbylib/wrapper/glfw/Window.d	82;"	f	line:82	class:Window	access:public	signature:()
 getTranslation	./source/sbylib/math/Matrix.d	313;"	f	line:313	struct:Matrix	access:public	signature:()
@@ -773,7 +777,7 @@ getTypeEnum	./source/sbylib/wrapper/gl/Functions.d	9;"	v	line:9	template:getType
 getUnaryCode	./source/sbylib/math/Vector.d	355;"	f	line:355	access:private	signature:(string op, int S)
 getUniformDemandDeclare	./source/sbylib/material/glsl/UniformDemand.d	29;"	f	line:29	access:public	signature:(UniformDemand u)
 getUniformDemandName	./source/sbylib/material/glsl/UniformDemand.d	16;"	f	line:16	access:public	signature:(UniformDemand u)
-getUniformDemands	./source/sbylib/material/glsl/Space.d	25;"	f	line:25	access:public	signature:(Space s)
+getUniformDemands	./source/sbylib/material/glsl/Space.d	28;"	f	line:28	access:public	signature:(Space s)
 getUniforms	./source/sbylib/material/Material.d	21;"	v	line:21	class:Material	access:public
 getValue	./source/sbylib/math/Rational.d	20;"	f	line:20	struct:Rational	access:public	signature:()
 getVertexBodyCode	./source/sbylib/material/glsl/RequireAttribute.d	57;"	f	line:57	class:RequireAttribute	access:public	signature:()
@@ -898,12 +902,13 @@ name	./source/sbylib/wrapper/gl/UniformBuffer.d	14;"	v	line:14	class:UniformBuff
 name	./source/sbylib/wrapper/gl/UniformTexture.d	15;"	v	line:15	class:UniformTexture	access:public
 nearZ	./source/sbylib/camera/OrthoCamera.d	19;"	v	line:19	class:OrthoCamera	access:public
 nearZ	./source/sbylib/camera/PerspectiveCamera.d	18;"	v	line:18	class:PerspectiveCamera	access:public
-needsUpdate	./source/sbylib/utils/Watcher.d	68;"	v	line:68	class:Watcher	access:private
+needsUpdate	./source/sbylib/utils/Watcher.d	67;"	v	line:67	class:Watcher	access:private
 next	./source/sbylib/utils/LinkList.d	7;"	v	line:7	class:Node	access:public
 next	./source/sbylib/utils/LinkList.d	94;"	f	line:94	struct:Iterator	access:public	signature:()
 next	./source/sbylib/utils/Stack.d	9;"	v	line:9	class:Node	access:public
 normalize	./source/sbylib/math/Quaternion.d	238;"	f	line:238	access:public	signature:(Quaternion!T q)
 normalize	./source/sbylib/math/Vector.d	317;"	f	line:317	access:public	signature:(Vector!(T, S) v)
+northCap	./source/sbylib/geometry/geometry3d/Poll.d	22;"	f	line:22	class:Poll	access:private	signature:(float radius, float length, uint cut)
 northern	./source/sbylib/geometry/geometry3d/SphereUV.d	28;"	f	line:28	class:SphereUV	access:private	signature:(uint tCut, uint pCut)
 num	./source/sbylib/light/PointLight.d	12;"	v	line:12	struct:PointLightBlock	access:public
 nume	./source/sbylib/math/Rational.d	9;"	v	line:9	struct:Rational	access:public
@@ -912,8 +917,8 @@ obj	./source/sbylib/camera/PerspectiveCamera.d	21;"	v	line:21	class:PerspectiveC
 obj	./source/sbylib/character/Label.d	18;"	v	line:18	class:Label	access:public
 obj	./source/sbylib/contorol/BasicControl.d	16;"	v	line:16	class:BasicControl	access:private
 obj	./source/sbylib/mesh/Mesh.d	10;"	v	line:10	class:Mesh	access:public
-onChange	./source/sbylib/utils/Watcher.d	102;"	f	line:102	class:Watcher	access:public	signature:()
-onChange	./source/sbylib/utils/Watcher.d	62;"	f	line:62	interface:IWatcher	access:public	signature:()
+onChange	./source/sbylib/utils/Watcher.d	101;"	f	line:101	class:Watcher	access:public	signature:()
+onChange	./source/sbylib/utils/Watcher.d	61;"	f	line:61	interface:IWatcher	access:public	signature:()
 opApply	./source/sbylib/utils/LimitedArray.d	29;"	f	line:29	class:LimitedArray	access:public	signature:(int delegate(ref T) dg)
 opApply	./source/sbylib/utils/LinkList.d	69;"	f	line:69	struct:LinkList	access:public	signature:(int delegate(ref T) dg)
 opApply	./source/sbylib/utils/Stack.d	86;"	f	line:86	struct:Stack	access:public	signature:(int delegate(ref T) dg)
@@ -1006,8 +1011,8 @@ remove	./source/sbylib/utils/LinkList.d	104;"	f	line:104	struct:Iterator	access:
 remove	./source/sbylib/utils/LinkList.d	10;"	f	line:10	class:Node	access:public	signature:()
 remove	./source/sbylib/utils/Stack.d	62;"	f	line:62	struct:Stack	access:public	signature:(T elem)
 removeBack	./source/sbylib/utils/Stack.d	143;"	a	line:143	struct:Stack	access:public
-removeWatch	./source/sbylib/utils/Watcher.d	90;"	f	line:90	class:Watcher	access:public	signature:(Watch!S watch)
-removeWatch	./source/sbylib/utils/Watcher.d	94;"	f	line:94	class:Watcher	access:public	signature:(Watcher!S watcher)
+removeWatch	./source/sbylib/utils/Watcher.d	89;"	f	line:89	class:Watcher	access:public	signature:(Watch!S watch)
+removeWatch	./source/sbylib/utils/Watcher.d	93;"	f	line:93	class:Watcher	access:public	signature:(Watcher!S watcher)
 render	./source/sbylib/core/World.d	51;"	f	line:51	class:World	access:public	signature:(RenderTarget target)
 render	./source/sbylib/geometry/Geometry.d	20;"	f	line:20	interface:Geometry	access:public	signature:(VertexArray vao)
 render	./source/sbylib/geometry/Geometry.d	76;"	f	line:76	class:GeometryTemp	access:public	signature:(VertexArray vao)
@@ -1034,7 +1039,7 @@ sendData	./source/sbylib/wrapper/gl/BufferObject.d	53;"	f	line:53	class:BufferOb
 sendSubData	./source/sbylib/wrapper/gl/BufferObject.d	60;"	f	line:60	class:BufferObject	access:public	signature:(T[] data)
 set	./source/sbylib/material/Material.d	39;"	f	line:39	class:Material	access:public	signature:()
 set	./source/sbylib/material/RenderConfig.d	32;"	f	line:32	class:RenderConfig	access:public	signature:()
-setDefineFunc	./source/sbylib/utils/Watcher.d	98;"	f	line:98	class:Watcher	access:public	signature:(void delegate(ref T) defineFunc)
+setDefineFunc	./source/sbylib/utils/Watcher.d	97;"	f	line:97	class:Watcher	access:public	signature:(void delegate(ref T) defineFunc)
 setLoopPos	./source/sbylib/wrapper/al/AudioStore.d	116;"	f	line:116	class:AudioStore	access:public	signature:(uint bufID, float from, float to)
 setLoopPos	./source/sbylib/wrapper/al/AudioStore.d	120;"	f	line:120	class:AudioStore	access:public	signature:(string filePath, float from, float to)
 setMagFilter	./source/sbylib/wrapper/gl/Texture.d	41;"	f	line:41	class:Texture	access:public	signature:(TextureFilter type)
@@ -1060,6 +1065,7 @@ singleton	./source/sbylib/utils/Functions.d	328;"	T	line:328	class:Utils	access:
 size	./source/sbylib/wrapper/freetype/Font.d	15;"	v	line:15	class:Font	access:public
 solveLinearEquation	./source/sbylib/utils/Functions.d	49;"	f	line:49	class:Utils	access:public	signature:(float a, float b)
 solveQuadraticEquation	./source/sbylib/utils/Functions.d	53;"	f	line:53	class:Utils	access:public	signature:(float a, float b, float c)
+southCap	./source/sbylib/geometry/geometry3d/Poll.d	34;"	f	line:34	class:Poll	access:private	signature:(float radius, float length, uint cut)
 southern	./source/sbylib/geometry/geometry3d/SphereUV.d	54;"	f	line:54	class:SphereUV	access:private	signature:(uint tCut, uint pCut)
 space	./source/sbylib/material/glsl/RequireAttribute.d	18;"	v	line:18	class:RequireAttribute	access:public
 srcFactor	./source/sbylib/material/RenderConfig.d	14;"	v	line:14	class:RenderConfig	access:public
@@ -1095,6 +1101,7 @@ this	./source/sbylib/core/World.d	20;"	f	line:20	class:World	signature:()	access
 this	./source/sbylib/geometry/Face.d	11;"	f	line:11	class:Face	signature:(uint[] indexList)	access:public
 this	./source/sbylib/geometry/Geometry.d	38;"	f	line:38	class:GeometryTemp	signature:(VertexA[] vertices, uint[] indices)	access:public
 this	./source/sbylib/geometry/geometry3d/Box.d	15;"	f	line:15	class:Box	signature:()	access:private
+this	./source/sbylib/geometry/geometry3d/Poll.d	12;"	f	line:12	class:Poll	signature:()	access:private
 this	./source/sbylib/geometry/geometry3d/Sphere.d	15;"	f	line:15	class:Sphere	signature:()	access:private
 this	./source/sbylib/geometry/geometry3d/SphereUV.d	15;"	f	line:15	class:SphereUV	signature:()	access:private
 this	./source/sbylib/input/JoyStick.d	20;"	f	line:20	class:JoyStick	signature:(int index)	access:private
@@ -1144,8 +1151,8 @@ this	./source/sbylib/utils/LinkList.d	90;"	f	line:90	struct:Iterator	signature:(
 this	./source/sbylib/utils/ObjectPool.d	10;"	f	line:10	class:ObjectPool	signature:()	access:public
 this	./source/sbylib/utils/Stack.d	10;"	f	line:10	class:Node	signature:(T elem)	access:public
 this	./source/sbylib/utils/Watcher.d	10;"	f	line:10	class:Watch	signature:(T init = T.init)	access:public
-this	./source/sbylib/utils/Watcher.d	72;"	f	line:72	class:Watcher	signature:(T init = T.init)	access:public
-this	./source/sbylib/utils/Watcher.d	76;"	f	line:76	class:Watcher	signature:(void delegate(ref T) defineFunc, T init = T.init)	access:public
+this	./source/sbylib/utils/Watcher.d	71;"	f	line:71	class:Watcher	signature:(T init = T.init)	access:public
+this	./source/sbylib/utils/Watcher.d	75;"	f	line:75	class:Watcher	signature:(void delegate(ref T) defineFunc, T init = T.init)	access:public
 this	./source/sbylib/wrapper/freeimage/Image.d	11;"	f	line:11	class:Image	signature:(FIBITMAP* bitmap)	access:public
 this	./source/sbylib/wrapper/freetype/Character.d	14;"	f	line:14	class:Character	signature:(FT_GlyphSlotRec* glyph, FT_Size_Metrics sz, FontType fontType)	access:public
 this	./source/sbylib/wrapper/freetype/Font.d	19;"	f	line:19	class:Font	signature:(FT_Face face, int size, FontType fontType)	access:public
@@ -1180,8 +1187,8 @@ toString	./source/sbylib/math/NumLimited.d	40;"	f	line:40	struct:NumLimited	acce
 toString	./source/sbylib/math/Quaternion.d	171;"	f	line:171	struct:Quaternion	access:public	signature:()
 toString	./source/sbylib/math/Rational.d	73;"	f	line:73	struct:Rational	access:public	signature:()
 toString	./source/sbylib/math/Vector.d	154;"	f	line:154	struct:Vector	access:public	signature:()
-toString	./source/sbylib/utils/Watcher.d	117;"	f	line:117	class:Watcher	access:public	signature:()
-toString	./source/sbylib/utils/Watcher.d	49;"	f	line:49	class:Watch	access:public	signature:()
+toString	./source/sbylib/utils/Watcher.d	116;"	f	line:116	class:Watcher	access:public	signature:()
+toString	./source/sbylib/utils/Watcher.d	48;"	f	line:48	class:Watch	access:public	signature:()
 toString	./source/sbylib/wrapper/gl/Uniform.d	59;"	f	line:59	class:UniformTemp	access:public	signature:()
 tokenize	./source/sbylib/material/glsl/Token.d	24;"	f	line:24	access:public	signature:(string code)
 tokenizeFunction	./source/sbylib/material/glsl/Token.d	65;"	f	line:65	access:public	signature:(string code, Token buffer, Token[] tokens, uint line, uint column, uint parensCount)
@@ -1219,7 +1226,7 @@ uvec2	./source/sbylib/wrapper/gl/Uniform.d	13;"	a	line:13	access:public
 uvec3	./source/sbylib/wrapper/gl/Uniform.d	14;"	a	line:14	access:public
 uvec4	./source/sbylib/wrapper/gl/Uniform.d	15;"	a	line:15	access:public
 value	./source/sbylib/material/glsl/Sharp.d	16;"	v	line:16	class:Sharp	access:public
-value	./source/sbylib/utils/Watcher.d	67;"	v	line:67	class:Watcher	access:private
+value	./source/sbylib/utils/Watcher.d	66;"	v	line:66	class:Watcher	access:private
 value	./source/sbylib/utils/Watcher.d	7;"	v	line:7	class:Watch	access:private
 value	./source/sbylib/wrapper/gl/Uniform.d	27;"	v	line:27	class:UniformTemp	access:public
 value	./source/sbylib/wrapper/gl/Uniform.d	68;"	a	line:68	class:UniformTemp	access:public
@@ -1243,7 +1250,7 @@ viewportWidth	./source/sbylib/core/RenderTarget.d	15;"	v	line:15	class:RenderTar
 viewportX	./source/sbylib/core/RenderTarget.d	15;"	v	line:15	class:RenderTarget	access:public
 viewportY	./source/sbylib/core/RenderTarget.d	15;"	v	line:15	class:RenderTarget	access:public
 w	./source/sbylib/math/Quaternion.d	24;"	v	line:24	struct:Quaternion	access:public
-watchers	./source/sbylib/utils/Watcher.d	70;"	v	line:70	class:Watcher	access:private
+watchers	./source/sbylib/utils/Watcher.d	69;"	v	line:69	class:Watcher	access:private
 watchers	./source/sbylib/utils/Watcher.d	8;"	v	line:8	class:Watch	access:private
 white	./source/sbylib/utils/Functions.d	32;"	f	line:32	class:Utils	access:public	signature:()
 width	./source/sbylib/camera/OrthoCamera.d	17;"	v	line:17	class:OrthoCamera	access:public
