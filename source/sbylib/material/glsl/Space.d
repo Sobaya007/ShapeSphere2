@@ -4,8 +4,9 @@ import sbylib.material.glsl.UniformDemand;
 
 enum Space {
     None,
+    Local,
     World,
-    View ,
+    View,
     Proj
 }
 
@@ -13,6 +14,8 @@ string getSpaceName(Space s) {
     final switch(s) {
     case Space.None:
         return "";
+    case Space.Local:
+        return "Local";
     case Space.World:
         return "World";
     case Space.View:
@@ -25,6 +28,7 @@ string getSpaceName(Space s) {
 UniformDemand[] getUniformDemands(Space s) {
     final switch (s) {
     case Space.None:
+    case Space.Local:
         return [];
     case Space.World:
         return [UniformDemand.World];
