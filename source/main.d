@@ -13,14 +13,15 @@ void main() {
     auto world2d = new World;
     world2d.camera = new OrthoCamera(2,2,-1,1);
 
-    auto sphere = new Mesh(Poll.create(0.5, 1), new NormalMaterial());
+    auto sphere = new Mesh(Capsule.create(0.2, 1), new NormalMaterial());
+    //sphere.mat.config.polygonMode = PolygonMode.Line;
     world3d.addMesh(sphere);
 
     Font font = FontLoader.load(RESOURCE_ROOT  ~ "consola.ttf", 128);
 
     auto label = new Label(font, 0.1);
     label.text = "abcdefghijklmnopqrstuvwxyz";
-    world2d.addMesh(label.meshes);
+    //world2d.addMesh(label.meshes);
 
     core.addProcess((proc) {
         world3d.render(core.getWindow().getRenderTarget());
