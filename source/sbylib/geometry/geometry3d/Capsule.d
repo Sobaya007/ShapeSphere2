@@ -42,15 +42,15 @@ class Capsule {
 
     private static uint[] getPollIndices(uint tCut, uint pCut) {
         uint[] result;
-        uint nhead = 1 + tCut *  pCut;
-        uint shead = 1 + tCut * (pCut+1) + 1 + tCut * pCut;
+        uint nhead = 1 + (tCut+1) * (pCut-1);
+        uint shead = nhead + 1 + (tCut+1) * (pCut-1);
         foreach (i; 0..tCut) {
             result ~= nhead + i;
             result ~= shead + i;
-            result ~= nhead + (i+1) % tCut;
+            result ~= nhead + i+1;
             result ~= shead + i;
-            result ~= nhead + (i+1) % tCut;
-            result ~= shead + (i+1) % tCut;
+            result ~= nhead + i+1;
+            result ~= shead + i+1;
         }
         return result;
     }

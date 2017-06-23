@@ -5,6 +5,7 @@ import sbylib.geometry.Geometry;
 import sbylib.material.Material;
 import sbylib.camera.Camera;
 import sbylib.wrapper.gl.VertexArray;
+import std.traits;
 
 class Mesh {
     Object3D obj;

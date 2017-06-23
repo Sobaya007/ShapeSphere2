@@ -13,9 +13,11 @@ void main() {
     auto world2d = new World;
     world2d.camera = new OrthoCamera(2,2,-1,1);
 
-    auto sphere = new Mesh(Capsule.create(0.2, 1), new NormalMaterial());
-    //sphere.mat.config.polygonMode = PolygonMode.Line;
+    auto material = new TextureMaterial;
+    auto sphere = new Mesh(Capsule.create(0.2, 1), material);
     world3d.addMesh(sphere);
+
+   material.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
 
     Font font = FontLoader.load(RESOURCE_ROOT  ~ "consola.ttf", 128);
 
