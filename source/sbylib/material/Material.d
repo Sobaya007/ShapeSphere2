@@ -28,17 +28,7 @@ class Material {
 
     final void setUniform(Uniform delegate() getUniform) {
         auto name = getUniform().getName();
-        import std.stdio;
-        writeln();
-        if ("condition" in getUniforms) {
-            writeln("before, ", getUniforms["condition"]());
-        }
-        writeln(name, "  ", getUniform());
         this.getUniforms[name] = getUniform;
-        if ("condition" in getUniforms) {
-            writeln("after, ", getUniforms["condition"]());
-        }
-        writeln();
     }
 
     final void setUniform(T...)(Watcher!(UniformTemp!T) watcher) {

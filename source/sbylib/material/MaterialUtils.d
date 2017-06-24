@@ -78,6 +78,8 @@ class MaterialUtils {
         import sbylib.material.glsl.Ast;
         import sbylib.material.glsl.GlslUtils;
         enum FRAG_ROOT = file.replace(".d", ".frag");
+        private A.Keeper a;
+        private B.Keeper b;
 
         static Ast[2] generateASTs() {
             Ast[] fragASTs;
@@ -116,10 +118,6 @@ class MaterialUtils {
                     result ~= mixin("this." ~ FieldNameTuple!(B.Keeper)[i]);
                 }
             }
-            import std.stdio;
-            import std.algorithm;
-            import std.array;
-            //writeln(result.map!(r => r.getName()).array);
             return result;
         }
 
@@ -128,15 +126,26 @@ class MaterialUtils {
         }
 
         this(Material mat, string delegate(string) replace) {
-            static if(__traits(hasMember, typeof(this), "constructor")) {
-                constructor(mat);
+            import std.meta;
+            static if(staticIndexOf!("constructor",  __traits(allMembers, typeof(this))) != -1) {
+                mixin("this.constructor();");
             }
-            import std.stdio;
+            this.a = new A.Keeper(mat, s => MaterialName1 ~ capitalize(s));
+            this.b = new B.Keeper(mat, s => MaterialName2 ~ capitalize(s));
             foreach (uni; this.getUniforms()) {
-                () { //謎回避
-                    auto u = uni;
+                (u) { //謎回避
                     mat.setUniform(() => u);
-                }();
+                }(uni);
+            }
+        }
+
+        ref auto opDispatch(string s)() {
+            static if (__traits(hasMember, this.a, s)) {
+                return mixin("this.a." ~ s);
+            } else static if (__traits(hasMember, this.b, s)) {
+                return mixin("this.b." ~ s);
+            } else {
+                static assert(false);
             }
         }
     }
