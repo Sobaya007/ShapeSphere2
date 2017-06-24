@@ -15,18 +15,16 @@ void main() {
 
     auto colcap1 = new CollisionCapsule(0.2, 1);
     auto col1 = new CollisionMesh(colcap1);
-    auto material = new ConditionalMaterial();
-    material.trueColor = vec3(1,0,0);
-    material.falseColor = vec3(0.5);
+    auto material = new ConditionalMaterial!(NormalMaterial, TextureMaterial)();
     auto capsule1 = new Mesh(colcap1.createGeometry(), material, colcap1.obj);
     world3d.addMesh(capsule1);
+    material.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
 
     auto colcap2 = new CollisionCapsule(0.2, 1);
     auto col2 = new CollisionMesh(colcap2);
-    auto material2 = new ConditionalMaterial();
-    material2.trueColor = vec3(1,0,0);
-    material2.falseColor = vec3(0.5);
+    auto material2 = new ConditionalMaterial!(NormalMaterial, TextureMaterial)();
     auto capsule2 = new Mesh(colcap2.createGeometry(), material2, colcap2.obj);
+    material2.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
     world3d.addMesh(capsule2);
 
     core.addProcess((proc) {

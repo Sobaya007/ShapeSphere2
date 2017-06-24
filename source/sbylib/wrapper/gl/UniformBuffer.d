@@ -11,7 +11,7 @@ import sbylib.math.Vector;
 
 class UniformBuffer : BufferObject!(BufferType.Uniform, float), Uniform {
 
-    immutable string name;
+    string name;
 
     this(string name) {
         this.name = name;
@@ -20,6 +20,10 @@ class UniformBuffer : BufferObject!(BufferType.Uniform, float), Uniform {
 
     override string getName() const {
         return this.name;
+    }
+
+    override void setName(string name) {
+        this.name = name;
     }
 
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const out {

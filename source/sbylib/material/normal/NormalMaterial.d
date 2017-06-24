@@ -2,13 +2,12 @@ module sbylib.material.NormalMaterial;
 
 import sbylib.material.Material;
 import sbylib.material.MaterialUtils;
+import sbylib.material.UniformKeeper;
 import sbylib.wrapper.gl.Uniform;
 
-class NormalMaterial : Material {
+class NormalMaterialUniformKeeper : UniformKeeper {
 
     mixin MaterialUtils.declare;
-
-    this() {
-        mixin(MaterialUtils.init());
-    }
 }
+
+alias NormalMaterial = MaterialTemp!NormalMaterialUniformKeeper;

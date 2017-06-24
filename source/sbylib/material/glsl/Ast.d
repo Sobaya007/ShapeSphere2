@@ -13,6 +13,7 @@ import sbylib.material.glsl.AttributeDemand;
 import sbylib.material.glsl.Sharp;
 import sbylib.material.glsl.RequireAttribute;
 import sbylib.material.glsl.RequireUniform;
+import sbylib.material.glsl.RequireShader;
 
 import std.traits;
 import std.algorithm;
@@ -24,7 +25,8 @@ class Ast {
 
     this() {}
 
-    this(Token[] tokens) {
+    this(string str) {
+        Token[] tokens = tokenize(str);
         while (tokens.length > 0) {
             if (isConvertible!(Attribute, getAttributeCode)(tokens)) {
                 //Variable or Block(uniform)
@@ -44,6 +46,8 @@ class Ast {
                     statements ~= new RequireAttribute(tokens);
                 } else if (isConvertible!(UniformDemand, getUniformDemandName)(tokens[1].str)) {
                     statements ~= new RequireUniform(tokens);
+                } else if (tokens[1].str == "Shader") {
+                    statements ~= new RequireShader(tokens);
                 } else {
                     assert(false);
                 }
@@ -90,6 +94,7 @@ class Ast {
     void replaceID(string delegate(string) replace) {
         import std.conv;
         string[] IDs = [
+            this.getStatements!RequireAttribute.map!(a => a.variable.id).array,
             this.getStatements!VariableDeclare.map!(v => v.id).array,
             this.getStatements!BlockDeclare.map!(b => b.getIDs()).join(),
             this.getStatements!FunctionDeclare.map!(f => f.getIDs()).join()].join();

@@ -1,9 +1,15 @@
 #vertex Proj
 
 uniform bool condition;
-uniform vec3 trueColor;
-uniform vec3 falseColor;
+require Shader TrueMaterial;
+require Shader FalseMaterial;
 
 void main() {
-    fragColor = vec4(condition ? trueColor : falseColor, 1);
+    vec4 color;
+    if (condition) {
+        TrueMaterial(color);
+    } else {
+        FalseMaterial(color);
+    }
+    fragColor = color;
 }

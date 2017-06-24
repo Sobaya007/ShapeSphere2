@@ -12,7 +12,7 @@ alias utexture = UniformTexture;
 
 class UniformTexture : Uniform {
 
-    immutable string name;
+    string name;
     Texture value;
 
     this(string name) {
@@ -21,6 +21,10 @@ class UniformTexture : Uniform {
 
     override string getName() const {
         return this.name;
+    }
+
+    override void setName(string name) {
+        this.name = name;
     }
 
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {

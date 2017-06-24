@@ -54,9 +54,7 @@ static:
         .join().sort().uniq().array;
     }
 
-    Ast generateFragmentAST(string fragSource) {
-        auto tokens = tokenize(fragSource);
-        auto fragAst = new Ast(tokens);
+    Ast generateFragmentAST(Ast fragAst) {
         if (!fragAst.hasColorOutput()) {
             fragAst.statements = new VariableDeclare("out vec4 fragColor;") ~ fragAst.statements;
         }
@@ -103,11 +101,13 @@ static:
         return vertexAst;
     }
 
-    Ast mergeAst(Ast[] asts) {
+    Ast mergeASTs(Ast[] asts) {
         // modify AST
         asts = asts.map!((ast) {
+            if (ast.name == "main") return ast;
             ast.outParameterIntoMain();
-            ast.replaceID(str => ast.name ~ str);
+            ast.getMainFunction().id = "";
+            ast.replaceID(str => ast.name ~ capitalize(str));
             return ast;
         }).array;
         auto vertex = asts.map!(ast => ast.getStatements!Sharp().filter!(sharp => sharp.type == "vertex")).join;

@@ -2,13 +2,11 @@ module sbylib.material.UvMaterial;
 
 import sbylib.material.Material;
 import sbylib.material.MaterialUtils;
+import sbylib.material.UniformKeeper;
 import sbylib.wrapper.gl.Uniform;
 
-class UvMaterial : Material {
-
+class UvMaterialUniformKeeper : UniformKeeper {
     mixin MaterialUtils.declare;
-
-    this() {
-        mixin(MaterialUtils.init());
-    }
 }
+
+alias UvMaterial = MaterialTemp!UvMaterialUniformKeeper;

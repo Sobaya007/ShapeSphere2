@@ -2,19 +2,19 @@ module sbylib.material.TextureMaterial;
 
 import sbylib.material.Material;
 import sbylib.material.MaterialUtils;
+import sbylib.material.UniformKeeper;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformTexture;
 
-class TextureMaterial : Material {
+class TextureMaterialUniformKeeper : UniformKeeper {
 
     mixin MaterialUtils.declare;
 
-    utexture texture; 
+    utexture texture;
 
-    this() {
-        mixin(MaterialUtils.init());
+    void constructor() {
         this.texture = new utexture("tex");
-
-        this.setUniform(() => this.texture);
     }
 }
+
+alias TextureMaterial = MaterialTemp!TextureMaterialUniformKeeper;

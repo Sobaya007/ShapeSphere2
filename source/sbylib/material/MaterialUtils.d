@@ -13,15 +13,6 @@ class MaterialUtils {
     private this(){}
 
     static {
-
-        Ast[2] generateAstFromFragmentPath(string path) {
-            path = ROOT_PATH ~ path;
-            auto fragSource = readText(path);
-            auto frag = GlslUtils.generateFragmentAST(fragSource);
-            auto vert = GlslUtils.generateVertexAST(frag);
-            return [vert, frag];
-        }
-
         const(Shader) createShaderFromPath(string path, ShaderType type) {
             path = ROOT_PATH ~ path;
             auto source = readText(path);
@@ -41,36 +32,85 @@ class MaterialUtils {
     }
 
     mixin template declare(string file = __FILE__) {
-        import sbylib.material.glsl.UniformDemand;
-        import sbylib.wrapper.gl.Constants;
-        import sbylib.wrapper.gl.Shader;
-        import sbylib.wrapper.gl.Program;
-        import sbylib.setting;
         import std.string;
+        import std.file;
+        import sbylib.material.glsl.Ast;
+        import sbylib.material.glsl.GlslUtils;
         enum FRAG_ROOT = file.replace(".d", ".frag");
-        static UniformDemand[] uniformDemands;
-        static Shader vertexShader;
-        static Shader fragmentShader;
 
-        override UniformDemand[] getDemands() {
-            return uniformDemands;
+        static Ast[2] generateASTs() {
+            auto fragSource = readText(FRAG_ROOT);
+            auto fragAST = GlslUtils.generateFragmentAST(new Ast(fragSource));
+            auto vertAST = GlslUtils.generateVertexAST(fragAST);
+            return [vertAST, fragAST];
+        }
+
+        override Uniform[] getUniforms() {
+            import std.traits;
+            Uniform[] result;
+            foreach (i, type; FieldTypeTuple!(typeof(this))) {
+                if (isAssignable!(Uniform, type)) {
+                    result ~= mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
+                }
+            }
+            return result;
+        }
+
+        this(Material mat) {
+            this(mat, s => s);
+        }
+
+        this(Material mat, string delegate(string) replace) {
+            static if(__traits(hasMember, typeof(this), "constructor")) {
+                constructor();
+            }
+            foreach (uni; this.getUniforms) {
+                uni.setName(replace(uni.getName()));
+                mat.setUniform(() => uni);
+            }
+        }
+
+    }
+
+    mixin template declareMix(alias A, alias B, string file = __FILE__) {
+
+        import std.string;
+        import std.file;
+        import sbylib.material.glsl.Ast;
+        import sbylib.material.glsl.GlslUtils;
+        enum FRAG_ROOT = file.replace(".d", ".frag");
+
+        static Ast[2] generateASTs() {
+            Ast[] fragASTs;
+            auto ast1 = GlslUtils.generateFragmentAST(new Ast(readText(A.Keeper.FRAG_ROOT)));
+            ast1.name = MaterialName1;
+            fragASTs ~= ast1;
+            auto ast2 = GlslUtils.generateFragmentAST(new Ast(readText(B.Keeper.FRAG_ROOT)));
+            ast2.name = MaterialName2;
+            fragASTs ~= ast2;
+            auto mainAst = GlslUtils.generateFragmentAST(new Ast(readText(FRAG_ROOT)));
+            mainAst.name = "main";
+            auto fragAST = GlslUtils.mergeASTs(fragASTs ~ mainAst);
+            fragAST = GlslUtils.generateFragmentAST(fragAST);
+            import std.stdio;
+            writeln(fragAST.getCode());
+            auto vertAST = GlslUtils.generateVertexAST(fragAST);
+            return [vertAST, fragAST];
+        }
+
+        this(Material mat) {
+            this(mat, s => s);
+        }
+
+        this(Material mat, string delegate(string) replace) {
+            static if(__traits(hasMember, typeof(this), "constructor")) {
+                constructor(mat);
+            }
+            foreach (uni; this.getUniforms) {
+                uni.setName(replace(uni.getName()));
+                mat.setUniform(() => uni);
+            }
         }
     }
 
-    static string init() {
-        return q{
-            import sbylib.wrapper.gl.Shader;
-            import sbylib.wrapper.gl.Program;
-            import sbylib.wrapper.gl.Constants;
-            import sbylib.material.glsl.GlslUtils;
-            if (!uniformDemands) {
-                auto asts = MaterialUtils.generateAstFromFragmentPath(FRAG_ROOT);
-                uniformDemands = GlslUtils.requiredUniformDemands(asts);
-                vertexShader = new Shader(asts[0].getCode(), ShaderType.Vertex);
-                fragmentShader = new Shader(asts[1].getCode(), ShaderType.Fragment);
-            }
-            const program = new Program([vertexShader, fragmentShader]);
-            super(program);
-        };
-    }
 }

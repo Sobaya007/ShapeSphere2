@@ -18,13 +18,12 @@ alias umat4 = UniformTemp!(mat4);
 
 interface Uniform {
     string getName() const;
+    void setName(string);
     void apply(const Program, ref uint, ref uint) const;
 }
 
 class UniformTemp(Type) : Uniform {
-    immutable {
-        string name;
-    }
+    string name;
     Type value;
 
     this(string name) {
@@ -33,6 +32,10 @@ class UniformTemp(Type) : Uniform {
 
     override string getName() const {
         return this.name;
+    }
+
+    override void setName(string name) {
+        this.name = name;
     }
 
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const out {
