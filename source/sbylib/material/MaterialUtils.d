@@ -17,8 +17,9 @@ class MaterialUtils {
         Ast[2] generateAstFromFragmentPath(string path) {
             path = ROOT_PATH ~ path;
             auto fragSource = readText(path);
-            auto ASTs = GlslUtils.generateAstFromFragmentSource(fragSource);
-            return ASTs;
+            auto frag = GlslUtils.generateFragmentAST(fragSource);
+            auto vert = GlslUtils.generateVertexAST(frag);
+            return [vert, frag];
         }
 
         const(Shader) createShaderFromPath(string path, ShaderType type) {

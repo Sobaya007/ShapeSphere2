@@ -52,4 +52,19 @@ class BlockDeclare : Statement {
         code ~= "};";
         return code;
     }
+
+    void replaceID(string delegate(string) replace) {
+        this.id = replace(this.id);
+        foreach (variable; this.variables) {
+            variable.replaceID(replace);
+        }
+    }
+
+    string[] getIDs() {
+        string[] ids = [this.id];
+        foreach (variable; this.variables) {
+            ids ~= variable.id;
+        }
+        return ids;
+    }
 }

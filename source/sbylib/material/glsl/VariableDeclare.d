@@ -52,4 +52,8 @@ class VariableDeclare : Statement {
         }
         return code;
     }
+
+    void replaceID(string delegate(string) replace) {
+        this.id = replace(this.id);
+    }
 }

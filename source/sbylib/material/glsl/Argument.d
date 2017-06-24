@@ -11,6 +11,11 @@ class Argument {
     string type;
     string id;
 
+    this(string str) {
+        auto tokens = tokenize(str);
+        this(tokens);
+    }
+
     this(ref Token[] tokens) {
         this.attributes = new AttributeList(tokens);
         this.type = convert(tokens);

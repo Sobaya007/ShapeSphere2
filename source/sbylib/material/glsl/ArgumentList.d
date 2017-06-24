@@ -31,5 +31,11 @@ class ArgumentList {
     string getCode() {
         return arguments.map!(arg => arg.getCode()).join(", ");
     }
+
+    void replaceID(string delegate(string) replace) {
+        foreach (arg; this.arguments) {
+            arg.id = replace(arg.id);
+        }
+    }
 }
 

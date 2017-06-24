@@ -72,4 +72,8 @@ class RequireAttribute : Statement {
     string getFragmentIn() {
         return format!"%sin %s %s;"(this.variable.attributes.getCode(), getAttributeDemandType(attr), variable.id);
     }
+
+    void replaceID(string delegate(string) replace) {
+        this.variable.replaceID(replace);
+    }
 }

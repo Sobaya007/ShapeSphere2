@@ -5,6 +5,7 @@ import std.algorithm;
 import std.conv;
 import std.traits;
 import std.range;
+import std.typecons;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Constants;
 import sbylib.light.PointLight;
@@ -42,19 +43,6 @@ uniform vec4 color
 class GlslUtils {
 static:
 
-    Ast[2] generateAstFromFragmentSource(string fragSource) {
-        auto tokens = tokenize(fragSource);
-        auto fragAst = new Ast(tokens);
-        auto vertAst = createVertexShaderAst(fragAst);
-        if (!fragAst.hasColorOutput()) {
-            fragAst.statements = new VariableDeclare("out vec4 fragColor;") ~ fragAst.statements;
-        }
-        if (!fragAst.hasVersion()) {
-            fragAst.statements = new Sharp("#version 400") ~ fragAst.statements;
-        }
-        return [vertAst, fragAst];
-    }
-
     UniformDemand[] requiredUniformDemands(Ast[] asts) {
         return asts.map!(ast => ast.getStatements!RequireUniform()
                 .map!(ru => ru.uni).array ~
@@ -66,19 +54,29 @@ static:
         .join().sort().uniq().array;
     }
 
-    Ast createVertexShaderAst(Ast fragmentAst) {
+    Ast generateFragmentAST(string fragSource) {
+        auto tokens = tokenize(fragSource);
+        auto fragAst = new Ast(tokens);
+        if (!fragAst.hasColorOutput()) {
+            fragAst.statements = new VariableDeclare("out vec4 fragColor;") ~ fragAst.statements;
+        }
+        if (!fragAst.hasVersion()) {
+            fragAst.statements = new Sharp("#version 400") ~ fragAst.statements;
+        }
+        return fragAst;
+    }
+
+    Ast generateVertexAST(Ast fragmentAst) {
         Ast vertexAst = new Ast;
 
-        //Pull fragment #vertex
-        Sharp vertexDeclare = pullVertexDeclare(fragmentAst);
+        // fragment #vertex
+        Sharp vertexDeclare = fragmentAst.getVertexDeclare();
 
         RequireAttribute[] requires = fragmentAst.getStatements!RequireAttribute();
         RequireAttribute positionRequireAttribute = vertexDeclare.getRequireAttribute();
 
         //Add Version
-        if (!vertexAst.hasVersion()) {
-            vertexAst.statements ~= new Sharp("#version 400");
-        }
+        vertexAst.statements ~= new Sharp("#version 400");
 
         //Add vertex in declare
         auto vertexIn = (requires ~ positionRequireAttribute).map!(v => v.getVertexIn()).array;
@@ -105,18 +103,42 @@ static:
         return vertexAst;
     }
 
-    Sharp pullVertexDeclare(Ast ast) {
-        auto statements = ast.getStatements!Sharp().filter!(sharp => sharp.type == "vertex").array;
-        assert(statements.length != 0, "#vertex declare is required.");
-        assert(statements.length <= 1, "#vertex declare must be only one.");
-        return statements[0];
+    Ast mergeAst(Ast[] asts) {
+        // modify AST
+        asts = asts.map!((ast) {
+            ast.outParameterIntoMain();
+            ast.replaceID(str => ast.name ~ str);
+            return ast;
+        }).array;
+        auto vertex = asts.map!(ast => ast.getStatements!Sharp().filter!(sharp => sharp.type == "vertex")).join;
+        auto variables = asts.map!(ast => ast.getStatements!VariableDeclare).join;
+        auto requireAttributes = asts.map!(ast => ast.getStatements!RequireAttribute).join;
+        auto requireUniforms = asts.map!(ast => ast.getStatements!RequireUniform).join;
+        auto blocks = asts.map!(ast => ast.getStatements!BlockDeclare).join;
+        auto functions = asts.map!(ast => ast.getStatements!FunctionDeclare).join;
+
+        assert(vertex.all!(v => vertex[0].value == v.value), "Vertex Space differs between ASTs");
+        requireUniforms = requireUniforms.sort!((a,b) => a.getCode() < b.getCode()).uniq!((a,b) => a.getCode() == b.getCode()).array;
+        Ast ast = new Ast;
+        alias append = a => ast.statements ~= a.map!(s => cast(Statement)s).array;
+        ast.statements ~= cast(Statement)vertex[0];
+        append(requireAttributes);
+        append(requireUniforms);
+        append(variables);
+        append(blocks);
+        append(functions);
+        return ast;
     }
 }
 
 unittest {
     import std.stdio, std.file;
-    auto file = readText("./source/sbylib/material/lambert/LambertMaterial.frag");
-    auto asts = GlslUtils.createShaders(file);
-    writeln(asts[1].getCode());
-    writeln(GlslUtils.getUniformNames(asts));
+    auto file1 = readText("./source/sbylib/material/lambert/LambertMaterial.frag");
+    auto file2 = readText("./source/sbylib/material/normal/NormalMaterial.frag");
+    auto frag1 = GlslUtils.generateFragmentAST(file1);
+    auto frag2 = GlslUtils.generateFragmentAST(file2);
+    frag1.name = "A";
+    frag2.name = "B";
+    auto merged = GlslUtils.mergeAst([frag1, frag2]);
+    writeln(merged.getCode());
 }
