@@ -13,8 +13,8 @@ class Mesh {
     Material mat;
     private VertexArray vao;
 
-    this(Geometry geom, Material mat) {
-        this.obj = new Object3D();
+    this(Geometry geom, Material mat, Object3D obj = new Object3D) {
+        this.obj = obj;
         this.geom = geom;
         this.mat = mat;
         this.vao = new VertexArray;

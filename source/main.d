@@ -13,17 +13,21 @@ void main() {
     auto world2d = new World;
     world2d.camera = new OrthoCamera(2,2,-1,1);
 
-    auto material = new TextureMaterial;
-    auto sphere = new Mesh(Capsule.create(0.2, 1), material);
-    world3d.addMesh(sphere);
+    auto colcap1 = new CollisionCapsule(0.2, 1);
+    auto col1 = new CollisionMesh(colcap1);
+    auto material = new ConditionalMaterial();
+    material.trueColor = vec3(1,0,0);
+    material.falseColor = vec3(0.5);
+    auto capsule1 = new Mesh(colcap1.createGeometry(), material, colcap1.obj);
+    world3d.addMesh(capsule1);
 
-   material.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
-
-    Font font = FontLoader.load(RESOURCE_ROOT  ~ "consola.ttf", 128);
-
-    auto label = new Label(font, 0.1);
-    label.text = "abcdefghijklmnopqrstuvwxyz";
-    //world2d.addMesh(label.meshes);
+    auto colcap2 = new CollisionCapsule(0.2, 1);
+    auto col2 = new CollisionMesh(colcap2);
+    auto material2 = new ConditionalMaterial();
+    material2.trueColor = vec3(1,0,0);
+    material2.falseColor = vec3(0.5);
+    auto capsule2 = new Mesh(colcap2.createGeometry(), material2, colcap2.obj);
+    world3d.addMesh(capsule2);
 
     core.addProcess((proc) {
         world3d.render(core.getWindow().getRenderTarget());
@@ -31,10 +35,12 @@ void main() {
         world2d.render(core.getWindow().getRenderTarget());
     });
 
-    BasicControl control = new BasicControl(sphere.obj);
+    BasicControl control = new BasicControl(capsule1.obj);
 
     core.addProcess((proc) {
         control.update(core.getWindow(), world2d.camera);
+        material.condition = col1.collide(col2).collided;
+        material2.condition = col2.collide(col1).collided;
     });
 
     core.start();

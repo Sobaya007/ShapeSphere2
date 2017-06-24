@@ -36,6 +36,7 @@ class Capsule {
         .map!((v) {
             v.position.y = -v.position.y;
             v.normal.y = -v.normal.y;
+            v.uv = vec2(.5 + v.uv.x, 1 - v.uv.y);
             return v;
         }).array;
     }

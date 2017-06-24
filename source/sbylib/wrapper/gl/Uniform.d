@@ -9,6 +9,7 @@ import std.conv;
 import std.string;
 import std.format;
 
+alias ubool = UniformTemp!(bool);
 alias ufloat = UniformTemp!(float);
 alias uvec2 = UniformTemp!(vec2);
 alias uvec3 = UniformTemp!(vec3);
@@ -43,6 +44,8 @@ class UniformTemp(Type) : Uniform {
         } else static if(isInstanceOf!(Matrix, Type)) {
             static assert(Type.dimension1 == Type.dimension2);
             mixin(format!"glUniformMatrix%d%sv(loc, 1, GL_TRUE, this.value.array.ptr);"(Type.dimension1, Type.type[0]));
+        } else static if (is(Type == bool)) {
+            glUniform1i(loc, this.value);
         } else {
             mixin(format!"glUniform1%s(loc, this.value);"(Type.stringof[0]));
         }
