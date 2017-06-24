@@ -49,7 +49,7 @@ class MaterialUtils {
             import std.traits;
             Uniform[] result;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
-                if (isAssignable!(Uniform, type)) {
+                static if (isAssignable!(Uniform, type)) {
                     result ~= mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
                 }
             }
@@ -69,7 +69,6 @@ class MaterialUtils {
                 mat.setUniform(() => uni);
             }
         }
-
     }
 
     mixin template declareMix(alias A, alias B, string file = __FILE__) {
@@ -92,10 +91,36 @@ class MaterialUtils {
             mainAst.name = "main";
             auto fragAST = GlslUtils.mergeASTs(fragASTs ~ mainAst);
             fragAST = GlslUtils.generateFragmentAST(fragAST);
-            import std.stdio;
-            writeln(fragAST.getCode());
             auto vertAST = GlslUtils.generateVertexAST(fragAST);
+            import std.stdio;
+//            writeln(vertAST.getCode());
+//            writeln(fragAST.getCode());
             return [vertAST, fragAST];
+        }
+
+        override Uniform[] getUniforms() {
+            import std.traits;
+            Uniform[] result;
+            foreach (i, type; FieldTypeTuple!(typeof(this))) {
+                static if (isAssignable!(Uniform, type)) {
+                    result ~= mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
+                }
+            }
+            foreach (i, type; FieldTypeTuple!(A.Keeper)) {
+                static if (isAssignable!(Uniform, type)) {
+                    result ~= mixin("this." ~ FieldNameTuple!(A.Keeper)[i]);
+                }
+            }
+            foreach (i, type; FieldTypeTuple!(B.Keeper)) {
+                static if (isAssignable!(Uniform, type)) {
+                    result ~= mixin("this." ~ FieldNameTuple!(B.Keeper)[i]);
+                }
+            }
+            import std.stdio;
+            import std.algorithm;
+            import std.array;
+            //writeln(result.map!(r => r.getName()).array);
+            return result;
         }
 
         this(Material mat) {
@@ -106,9 +131,12 @@ class MaterialUtils {
             static if(__traits(hasMember, typeof(this), "constructor")) {
                 constructor(mat);
             }
-            foreach (uni; this.getUniforms) {
-                uni.setName(replace(uni.getName()));
-                mat.setUniform(() => uni);
+            import std.stdio;
+            foreach (uni; this.getUniforms()) {
+                () { //謎回避
+                    auto u = uni;
+                    mat.setUniform(() => u);
+                }();
             }
         }
     }

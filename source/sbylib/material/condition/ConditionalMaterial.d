@@ -33,10 +33,6 @@ class ConditionalMaterialUniformMaterial(TrueMaterial, FalseMaterial) : UniformK
             static assert(false);
         }
     }
-
-    override Uniform[] getUniforms() {
-        return [condition];
-    }
 }
 
 alias ConditionalMaterial(TrueMaterial, FalseMaterial) = MaterialTemp!(ConditionalMaterialUniformMaterial!(TrueMaterial, FalseMaterial));

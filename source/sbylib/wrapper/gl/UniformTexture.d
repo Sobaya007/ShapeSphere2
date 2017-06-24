@@ -12,7 +12,7 @@ alias utexture = UniformTexture;
 
 class UniformTexture : Uniform {
 
-    string name;
+    private string name;
     Texture value;
 
     this(string name) {

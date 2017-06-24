@@ -18,7 +18,7 @@ alias umat4w = Watcher!(umat4);
 class Material {
 
     const Program shader;
-    Uniform delegate()[string] getUniforms;
+    private Uniform delegate()[string] getUniforms;
     RenderConfig config;
 
     this(const Program shader) {
@@ -28,7 +28,17 @@ class Material {
 
     final void setUniform(Uniform delegate() getUniform) {
         auto name = getUniform().getName();
+        import std.stdio;
+        writeln();
+        if ("condition" in getUniforms) {
+            writeln("before, ", getUniforms["condition"]());
+        }
+        writeln(name, "  ", getUniform());
         this.getUniforms[name] = getUniform;
+        if ("condition" in getUniforms) {
+            writeln("after, ", getUniforms["condition"]());
+        }
+        writeln();
     }
 
     final void setUniform(T...)(Watcher!(UniformTemp!T) watcher) {
@@ -41,16 +51,18 @@ class Material {
         this.shader.use();
         uint uniformBlockPoint = 0;
         uint textureUnit = 0;
+        import std.stdio;
+        //writeln(getUniforms["condition"]());
         foreach (getUniform; getUniforms) {
             getUniform().apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
 
-    ref auto opDispatch(string s)() in {
-        assert(s in getUniforms);
-    } body {
-        return getUniform[s];
-    }
+//    ref auto opDispatch(string s)() in {
+//        assert(s in getUniforms);
+//    } body {
+//        return getUniform[s];
+//    }
 
     abstract UniformDemand[] getDemands();
 }
