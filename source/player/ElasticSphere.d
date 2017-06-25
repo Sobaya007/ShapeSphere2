@@ -19,12 +19,13 @@ class ElasticSphere {
         float c = 2 * ZETA * OMEGA * MASS;
         float k = MASS * OMEGA * OMEGA;
         float FRICTION = 0.3;
-        float GRAVITY = 180;
+        float GRAVITY = 100;
+        uint ITERATION_COUNT = 20;
 
         float VEL_COEF = 1 / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
         float POS_COEF = - (TIME_STEP*k/MASS) / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
         float FORCE_COEF = (TIME_STEP/MASS) / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
-        float BALOON_COEF = 1;
+        float BALOON_COEF = 20000;
     }
 
     uint[][] pairIndex;
@@ -45,7 +46,6 @@ class ElasticSphere {
 
     this()  {
         this.radius = DEFAULT_RADIUS;
-        this.deflen = this.radius * 2 * (1 - 1 / sqrt(5.0f)) / (RECURSION_LEVEL + 1);
         this.geom = Sphere.create(this.radius, RECURSION_LEVEL);
         foreach (v; geom.vertices) {
             this.particleList ~= new Particle(v.position);
@@ -80,7 +80,12 @@ class ElasticSphere {
         this.forceList = new vec3[pairIndex.length];
         this.floorSinkList = new vec3[geom.vertices.length];
         this.mesh = new Mesh(geom, new NormalMaterial());
-        this.floors = [new CollisionPolygon([vec3(-1,0,-1), vec3(0,0,+1), vec3(+1, 0, -1)])];
+        this.floors = [new CollisionPolygon([vec3(-1,0,-1), vec3(+1, 0, -1), vec3(0,0,+1)])];
+        this.deflen = 0;
+        foreach (pair; this.pairIndex) {
+            this.deflen += length(this.particleList[pair[0]].p - this.particleList[pair[1]].p);
+        }
+        this.deflen /= this.pairIndex.length;
     }
 
     void draw() {
@@ -127,11 +132,6 @@ class ElasticSphere {
         lVel = this.particleList.map!(a => a.v).sum / this.particleList.length;
         aVel = vec3(0);
 
-        writeln("volume = ", volume);
-        writeln("area = ", area);
-        writeln("radius = ", radius);
-        writeln("g = ", g);
-
         //移動量から強引に回転させる
         //{
         //    vec3 dif = g - this.mesh.obj.pos;
@@ -153,14 +153,13 @@ class ElasticSphere {
         //†ちょっと†ふくらませる
         {
             float force = BALOON_COEF * area / (volume * particleList.length);
-            writeln("force = ", force);
             foreach (ref particle; this.particleList) {
                 particle.force += particle.n * force;
             }
         }
         //重力
         foreach (p; this.particleList) {
-            //p.force.y -= GRAVITY * MASS;
+            p.force.y -= GRAVITY * MASS;
         }
         //拘束解消
         {
@@ -178,7 +177,7 @@ class ElasticSphere {
             foreach (i, p; particleList) {
                 floorSinkList[i] = vec3(0, -min(0, p.p.y), 0);
             }
-            foreach (k; 0..20){
+            foreach (k; 0..ITERATION_COUNT){
                 //隣との拘束
                 foreach (i; 0..pairIndex.length) {
                     auto id0 = pairIndex[i][0], id1 = pairIndex[i][1];
@@ -190,7 +189,6 @@ class ElasticSphere {
                 }
             }
         }
-        //なんかうまくいかないので定数だけ分離
         foreach (ref particle; this.particleList) {
             particle.v += (particle.force + particle.extForce) * FORCE_COEF;
         }
@@ -257,14 +255,9 @@ class ElasticSphere {
             isGround = false;
 
             foreach (f; floors) {
-                float depth = -(p - f.positions[0]).dot(f.normal) + radius + needleCount;
-                vec4 foot = mat4.invert(f.obj.viewMatrix) * vec4(p, 1);
-                if (foot.x < -1) continue;
-                if (foot.x > 1) continue;
-                if (foot.z < -1) continue;
-                if (foot.z > 1) continue;
-                if (depth > radius) {
-                    //v.y = (depth - radius) / TIME_STEP;
+                float depth = -(p - f.positions[0]).dot(f.normal) + needleCount;
+                if (depth > 0) {
+                    v.y = depth / TIME_STEP;
                     //v.x *= 1 - FRICTION;
                     //v.z *= 1 - FRICTION;
                     isGround = true;
