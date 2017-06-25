@@ -34,6 +34,7 @@ public:
             assert(false, "Failed to create window");
         }
 
+        glfwSetWindowPos(this.window, 200, 200);
         glfwMakeContextCurrent(window);
 
         this.setTitle(title);

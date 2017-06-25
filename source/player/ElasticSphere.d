@@ -55,7 +55,7 @@ class ElasticSphere {
         //    foreach (n; p.next) if (n.isStinger) ok = false;
         //    if (ok) p.isStinger = true;
         //}
-        this.particleList.each!( p => p.p += vec3(0,0,0));
+        this.particleList.each!( p => p.p += vec3(0,20,0));
 
         uint[] makePair(uint a, uint b) {
             return a < b ? [a,b] : [b,a];
@@ -197,7 +197,7 @@ class ElasticSphere {
             particle.move();
         }
         foreach (i, ref p; this.particleList) {
-            this.geom.vertices[i].position = p.p;
+            this.geom.vertices[i].position = (this.mesh.obj.viewMatrix * vec4(p.p, 1)).xyz;
         }
         this.geom.updateBuffer();
     }
@@ -255,9 +255,11 @@ class ElasticSphere {
             isGround = false;
 
             foreach (f; floors) {
-                float depth = -(p - f.positions[0]).dot(f.normal) + needleCount;
-                if (depth > 0) {
-                    v.y = depth / TIME_STEP;
+                float depth = -(p - f.positions[0]).dot(f.normal);
+                if (depth > 0 && dot(v, f.normal) < 0) {
+                    p += f.normal * depth;
+                    v *= -0.5;
+                    writeln(p.y);
                     //v.x *= 1 - FRICTION;
                     //v.z *= 1 - FRICTION;
                     isGround = true;

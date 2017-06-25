@@ -9,7 +9,7 @@ void main() {
 
     auto world3d = new World;
     world3d.camera = new PerspectiveCamera(1, 120, 0.1, 100);
-    world3d.camera.getObj().pos = vec3(3, 5, 9);
+    world3d.camera.getObj().pos = vec3(3, 0.5, 9);
     world3d.camera.getObj().lookAt(vec3(0));
 
     auto world2d = new World;
