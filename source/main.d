@@ -2,30 +2,18 @@ import std.stdio;
 import std.math;
 
 import sbylib;
+import player.ElasticSphere;
 
 void main() {
     auto core = new Core();
 
     auto world3d = new World;
     world3d.camera = new PerspectiveCamera(1, 120, 0.1, 100);
-    world3d.camera.getObj().pos.z += 3;
+    world3d.camera.getObj().pos = vec3(3, 4, 5);
+    world3d.camera.getObj().lookAt(vec3(0));
 
     auto world2d = new World;
     world2d.camera = new OrthoCamera(2,2,-1,1);
-
-    auto colpol1 = new CollisionPolygon([vec3(-0.5, 0, 0), vec3(+0.5, 0, -0.5), vec3(+0.5, -0.1, +0.5)]);
-    auto col1 = new CollisionMesh(colpol1);
-    auto material = new ConditionalMaterial!(NormalMaterial, TextureMaterial)();
-    auto capsule1 = new Mesh(colpol1.createGeometry(), material, colpol1.obj);
-    world3d.addMesh(capsule1);
-    material.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
-
-    auto colpol2 = new CollisionPolygon([vec3(-0.5, -0.5, 0), vec3(0, 0.5, 0), vec3(+0.5, -0.5, 0)]);
-    auto col2 = new CollisionMesh(colpol2);
-    auto material2 = new ConditionalMaterial!(NormalMaterial, TextureMaterial)();
-    auto capsule2 = new Mesh(colpol2.createGeometry(), material2, colpol2.obj);
-    material2.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
-    world3d.addMesh(capsule2);
 
     core.addProcess((proc) {
         world3d.render(core.getWindow().getRenderTarget());
@@ -33,12 +21,10 @@ void main() {
         world2d.render(core.getWindow().getRenderTarget());
     });
 
-    BasicControl control = new BasicControl(capsule2.obj);
-
+    ElasticSphere esphere = new ElasticSphere();
+    world3d.addMesh(esphere.mesh);
     core.addProcess((proc) {
-        control.update(core.getWindow(), world2d.camera);
-        material.condition = col1.collide(col2).collided;
-        material2.condition = col2.collide(col1).collided;
+        esphere.move();
     });
 
     core.start();

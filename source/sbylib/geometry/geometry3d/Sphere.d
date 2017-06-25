@@ -14,7 +14,7 @@ class Sphere {
 
     private this(){}
 
-    public static Geometry create(float radius = 0.5, uint level = 0) {
+    public static GeometryN create(float radius = 0.5, uint level = 0) {
         auto vertexIndex = createVertexIndex(level);
         auto vertex = vertexIndex[0].map!((v) {
             VertexN res = new VertexN;

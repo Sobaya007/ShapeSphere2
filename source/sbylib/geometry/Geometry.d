@@ -20,6 +20,7 @@ interface Geometry {
     void render(VertexArray vao);
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
     IndexBuffer getIndexBuffer();
+    void updateBuffer();
 }
 
 alias GeometryN = GeometryTemp!([Attribute.Position, Attribute.Normal]);
@@ -29,7 +30,7 @@ alias GeometryNT = GeometryTemp!([Attribute.Position, Attribute.Normal, Attribut
 class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry{
     alias VertexA = Vertex!(Attributes);
 
-    const VertexA[] vertices;
+    VertexA[] vertices;
     const Face[] faces;
     const uint indicesCount;
     private IndexBuffer ibo;
@@ -82,5 +83,16 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
     }
     override IndexBuffer getIndexBuffer() {
         return this.ibo;
+    }
+
+    override void updateBuffer() {
+        foreach (i, attr; Utils.Range!(Attribute, Attributes)) {
+            auto buffer = buffers[i][1];
+            float* data = cast(float*)buffer.map(BufferAccess.Write);
+            foreach (j, v; this.vertices) {
+                data[j*3..(j+1)*3] = __traits(getMember, v, attr.name.dropOne()).array;
+            }
+            buffer.unmap();
+        }
     }
 }
