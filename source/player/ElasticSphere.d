@@ -39,6 +39,7 @@ class ElasticSphere {
     Particle[] particleList;
     float radius;
     float deflen;
+    float lowerY, upperY;
     vec3 lVel, aVel;
     flim needleCount;
 
@@ -88,37 +89,6 @@ class ElasticSphere {
         this.deflen /= this.pairIndex.length;
     }
 
-    void draw() {
-//
-//        foreach (i, ref p;particleList) {
-//            if (p.isStinger)
-//                vertexArray[i*3..i*3+3] = (p.p + p.n * needle).array;
-//            else
-//                vertexArray[i*3..i*3+3] = (p.p - p.n * needle * .3).array;
-//        }
-//
-//        // Recalculate the normal for Graphics
-//        foreach (ref n;normalSum) n = vec3(0,0,0);
-//        foreach (face; this.geom.faces) {
-//            int i0 = face.indexList[0];
-//            int i1 = face.indexList[1];
-//            int i2 = face.indexList[2];
-//            vec3 v01 = particleList[i1].p - particleList[i0].p;
-//            vec3 v02 = particleList[i2].p - particleList[i0].p;
-//            vec3 n = normalize(cross(v01, v02));
-//            normalSum[i0] += n;
-//            normalSum[i1] += n;
-//            normalSum[i2] += n;
-//            normalCount[i0]++;
-//            normalCount[i1]++;
-//            normalCount[i2]++;
-//        }
-//        for(int i=0;i<particleList.length;i++){
-//            if(normalCount[i] > 0)normalSum[i] /= normalCount[i];
-//            normalArray[i*3..(i+1)*3] = normalize(normalSum[i]).array;
-//        }
-    }
-
     void move() {
         //体積の測定
         float volume = this.calcVolume();
@@ -131,23 +101,25 @@ class ElasticSphere {
         //速度を求める
         lVel = this.particleList.map!(a => a.v).sum / this.particleList.length;
         aVel = vec3(0);
+        this.lowerY = this.particleList.map!(p => p.p.y).reduce!min;
+        this.upperY = this.particleList.map!(p => p.p.y).reduce!max;
 
         //移動量から強引に回転させる
-        //{
-        //    vec3 dif = g - this.mesh.obj.pos;
-        //    dif.y = 0;
-        //    vec3 axis = vec3(0,1,0).cross(dif);
-        //    float len = axis.length;
-        //    if (len > 0) {
-        //        axis /= len;
-        //        float angle = dif.length / this.radius;
-        //        quat rot = quat.axisAngle(axis, angle);
-        //        foreach (p;particleList) {
-        //            p.p = rotate(p.p-g, rot) + g;
-        //            p.n = rotate(p.n, rot);
-        //        }
-        //    }
-        //}
+        {
+            vec3 dif = g - this.mesh.obj.pos;
+            dif.y = 0;
+            vec3 axis = vec3(0,1,0).cross(dif);
+            float len = axis.length;
+            if (len > 0) {
+                axis /= len;
+                float angle = dif.length / this.radius;
+                quat rot = quat.axisAngle(axis, angle);
+                foreach (p;particleList) {
+                    p.p = rotate(p.p-g, rot) + g;
+                    p.n = rotate(p.n, rot);
+                }
+            }
+        }
         this.mesh.obj.pos = g;
 
         //†ちょっと†ふくらませる
@@ -198,6 +170,18 @@ class ElasticSphere {
         }
         foreach (i, ref p; this.particleList) {
             this.geom.vertices[i].position = (this.mesh.obj.viewMatrix * vec4(p.p, 1)).xyz;
+            this.geom.vertices[i].normal = vec3(0);
+        }
+        foreach (face; this.geom.faces) {
+            auto normal = normalize(cross(
+                    this.geom.vertices[face.indexList[2]].position - this.geom.vertices[face.indexList[0]].position,
+                    this.geom.vertices[face.indexList[1]].position - this.geom.vertices[face.indexList[0]].position));
+            this.geom.vertices[face.indexList[0]].normal += normal;
+            this.geom.vertices[face.indexList[1]].normal += normal;
+            this.geom.vertices[face.indexList[2]].normal += normal;
+        }
+        foreach (v; this.geom.vertices) {
+            v.normal = normalize(v.normal);
         }
         this.geom.updateBuffer();
     }
@@ -259,7 +243,6 @@ class ElasticSphere {
                 if (depth > 0 && dot(v, f.normal) < 0) {
                     p += f.normal * depth;
                     v *= -0.5;
-                    writeln(p.y);
                     //v.x *= 1 - FRICTION;
                     //v.z *= 1 - FRICTION;
                     isGround = true;

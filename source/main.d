@@ -3,13 +3,14 @@ import std.math;
 
 import sbylib;
 import player.ElasticSphere;
+import player.Player;
 
 void main() {
     auto core = new Core();
 
     auto world3d = new World;
     world3d.camera = new PerspectiveCamera(1, 120, 0.1, 100);
-    world3d.camera.getObj().pos = vec3(3, 0.5, 9);
+    world3d.camera.getObj().pos = vec3(3, 5, 9);
     world3d.camera.getObj().lookAt(vec3(0));
 
     auto world2d = new World;
@@ -22,15 +23,17 @@ void main() {
     });
 
     auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
-    ElasticSphere esphere = new ElasticSphere();
-    foreach (floor; esphere.floors) {
+    Player player = new Player(core.getWindow(), world3d.camera);
+    foreach (floor; player.esphere.floors) {
         auto mat = new TextureMaterial();
         mat.texture = texture;
         world3d.addMesh(new Mesh(floor.createGeometry(), mat, floor.obj));
     }
-    world3d.addMesh(esphere.mesh);
+    world3d.addMesh(player.esphere.mesh);
     core.addProcess((proc) {
-        esphere.move();
+        player.esphere.move();
+        player.step();
+        if (core.getKey(KeyButton.Escape)) core.end();
     });
 
     core.start();

@@ -61,6 +61,7 @@ class Core {
     private Window window; //現在のウインドウ
     private FpsBalancer fpsBalancer;
     private Process[] processes;
+    private bool endFlag;
 
     //初期化関数
     this() {
@@ -83,6 +84,10 @@ class Core {
         mainLoop();
     }
 
+    void end() {
+        this.endFlag = true;
+    }
+
     Process addProcess(const void delegate(Process) func) {
         auto proc = new Process(func);
         this.processes ~= proc;
@@ -97,11 +102,13 @@ class Core {
             this.processes = this.processes.filter!(proc => proc.step).array;
             this.window.swapBuffers();
             this.window.pollEvents();
-            return window.shouldClose();
+            return window.shouldClose() || endFlag;
         });
     }
 
     Window getWindow() {
         return this.window;
     }
+
+    alias getWindow this;
 }
