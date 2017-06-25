@@ -60,8 +60,8 @@ class CollisionMesh {
                            val;
 
     private static float segDistance(vec3 s1, vec3 e1, vec3 s2, vec3 e2) {
-        vec3 v1 = e1 - s1;
-        vec3 v2 = e2 - s2;
+        vec3 v1 = normalize(e1 - s1);
+        vec3 v2 = normalize(e2 - s2);
         float d1 = dot(s2 - s1, v1);
         float d2 = dot(s2 - s1, v2);
         float dv = dot(v1, v2);
@@ -110,49 +110,28 @@ class CollisionMesh {
     private static float polySegDistance(vec3 s, vec3 e, vec3 p0, vec3 p1, vec3 p2, vec3 n) {
         vec3 v = e - s;
         float denom = dot(v, n);
-        if (denom > 0) {
+        if (denom != 0) {
             float t1 = dot(p0 - s, n) / denom;
-            if (0 <= t1 && t1 <= 1) {
+            // point & polygon
+            t1 = clamp(t1, 0, 1);
+            vec3 p = s + t1 * v;
+            vec3 pn = p - n * dot(p-p0, n);
+            vec3 t = mat3.invert(mat3(p0, p1, p2)) * pn;
+            if (0 <= t.x && t.x <= 1
+                 && 0 <= t.y && t.y <= 1
+                 && 0 <= t.z && t.z <= 1) {
+                // near face
+                return abs(dot(p - p0, n));
             } else {
-                // point & polygon
-                t1 = clamp(t1, 0, 1);
-                vec3 p = s + t1 * v;
-                return polyPointDistance(p, p0, p1, p2, n);
+                import std.algorithm;
+                return min(
+                        segDistance(s, e, p0, p1),
+                        segDistance(s, e, p1, p2),
+                        segDistance(s, e, p2, p0));
             }
         }
         // parallel
         return abs(dot(s - p0, n));
-    }
-
-    private static float polyPointDistance(vec3 p, vec3 p0, vec3 p1, vec3 p2, vec3 n) {
-        vec3 pn = p - n * dot(p-p0, n);
-        vec3 t = mat3.invert(mat3(p0, p1, p2)) * pn;
-        assert(abs(t.x + t.y + t.z - 1) < 0.01);
-        if (t[1] < 0 && t[2] < 0) {
-            // near point0
-            return length(p - p0);
-        } else if (t[2] < 0 && t[0] < 0) {
-            // near point1
-            return length(p - p1);
-        } else if (t[0] < 0 && t[1] < 0) {
-            // near point2
-            return length(p - p2);
-        } else if (t[2] > 1) {
-            // near edge0, 1
-            return segPointDistance(p0, p1 - p0, p);
-        } else if (t[0] > 1) {
-            // near edge1, 2
-            return segPointDistance(p1, p2 - p1, p);
-        } else if (t[1] > 1) {
-            // near edge2, 0
-            return segPointDistance(p2, p0 - p2, p);
-        } else {
-            // near face
-            assert(0 <= t[0] && t[0] <= 1
-                    && 0 <= t[1] && t[1] <= 1
-                    && 0 <= t[2] && t[2] <= 1);
-            return length(p - pn);
-        }
     }
 
     private static bool polygonDetection(CollisionPolygon poly1, CollisionPolygon poly2) {

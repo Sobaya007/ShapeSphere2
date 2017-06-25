@@ -20,10 +20,10 @@ void main() {
     world3d.addMesh(capsule1);
     material.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
 
-    auto colcap2 = new CollisionCapsule(0.2, 1);
-    auto col2 = new CollisionMesh(colcap2);
+    auto colpol = new CollisionPolygon([vec3(-0.5, -0.5, 0), vec3(0, 0.5, 0), vec3(+0.5, -0.5, 0)]);
+    auto col2 = new CollisionMesh(colpol);
     auto material2 = new ConditionalMaterial!(NormalMaterial, TextureMaterial)();
-    auto capsule2 = new Mesh(colcap2.createGeometry(), material2, colcap2.obj);
+    auto capsule2 = new Mesh(colpol.createGeometry(), material2, colpol.obj);
     material2.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
     world3d.addMesh(capsule2);
 
@@ -33,7 +33,7 @@ void main() {
         world2d.render(core.getWindow().getRenderTarget());
     });
 
-    BasicControl control = new BasicControl(capsule1.obj);
+    BasicControl control = new BasicControl(capsule2.obj);
 
     core.addProcess((proc) {
         control.update(core.getWindow(), world2d.camera);
