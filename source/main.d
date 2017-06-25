@@ -13,17 +13,17 @@ void main() {
     auto world2d = new World;
     world2d.camera = new OrthoCamera(2,2,-1,1);
 
-    auto colcap1 = new CollisionCapsule(0.2, 1);
-    auto col1 = new CollisionMesh(colcap1);
+    auto colpol1 = new CollisionPolygon([vec3(-0.5, 0, 0), vec3(+0.5, 0, -0.5), vec3(+0.5, -0.1, +0.5)]);
+    auto col1 = new CollisionMesh(colpol1);
     auto material = new ConditionalMaterial!(NormalMaterial, TextureMaterial)();
-    auto capsule1 = new Mesh(colcap1.createGeometry(), material, colcap1.obj);
+    auto capsule1 = new Mesh(colpol1.createGeometry(), material, colpol1.obj);
     world3d.addMesh(capsule1);
     material.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
 
-    auto colpol = new CollisionPolygon([vec3(-0.5, -0.5, 0), vec3(0, 0.5, 0), vec3(+0.5, -0.5, 0)]);
-    auto col2 = new CollisionMesh(colpol);
+    auto colpol2 = new CollisionPolygon([vec3(-0.5, -0.5, 0), vec3(0, 0.5, 0), vec3(+0.5, -0.5, 0)]);
+    auto col2 = new CollisionMesh(colpol2);
     auto material2 = new ConditionalMaterial!(NormalMaterial, TextureMaterial)();
-    auto capsule2 = new Mesh(colpol.createGeometry(), material2, colpol.obj);
+    auto capsule2 = new Mesh(colpol2.createGeometry(), material2, colpol2.obj);
     material2.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
     world3d.addMesh(capsule2);
 

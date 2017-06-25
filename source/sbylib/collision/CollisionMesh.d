@@ -153,13 +153,13 @@ class CollisionMesh {
                 auto a = i;
                 auto b = (i+1) % 3;
                 auto c = (i+2) % 3;
-                str ~= format!"if (d%d > 0 && d%d > 0 && d%d < 0) {"(a,b,c);
+                str ~= format!"if (d%d > 0 && d%d > 0 && d%d <= 0) {"(a,b,c);
                     str ~= format!"p0 = poly1.positions[%d] + (poly1.positions[%d] - poly1.positions[%d]) * (d%d / (d%d - d%d));"(a,c,a,a,a,c);
                     str ~= format!"p1 = poly1.positions[%d] + (poly1.positions[%d] - poly1.positions[%d]) * (d%d / (d%d - d%d));"(b,c,b,b,b,c);
                 str ~= "}";
-                str ~= format!"if (d%d < 0 && d%d < 0 && d%d > 0) {"(a,b,c);
-                    str ~= format!"p0 = poly1.positions[%d] + (poly1.positions[%d] - poly1.positions[%d]) * (d%d / (d%d - d%d));"(a,c,a,a,c,a);
-                    str ~= format!"p1 = poly1.positions[%d] + (poly1.positions[%d] - poly1.positions[%d]) * (d%d / (d%d - d%d));"(b,c,b,b,c,b);
+                str ~= format!"if (d%d <= 0 && d%d <= 0 && d%d > 0) {"(a,b,c);
+                    str ~= format!"p0 = poly1.positions[%d] + (poly1.positions[%d] - poly1.positions[%d]) * (d%d / (d%d - d%d));"(a,c,a,a,a,c);
+                    str ~= format!"p1 = poly1.positions[%d] + (poly1.positions[%d] - poly1.positions[%d]) * (d%d / (d%d - d%d));"(b,c,b,b,b,c);
                 str ~= "}";
             }
             return str;
@@ -179,13 +179,13 @@ class CollisionMesh {
                 auto a = i;
                 auto b = (i+1) % 3;
                 auto c = (i+2) % 3;
-                str ~= format!"if (d%d > 0 && d%d > 0 && d%d < 0) {"(a,b,c);
+                str ~= format!"if (d%d > 0 && d%d > 0 && d%d <= 0) {"(a,b,c);
                     str ~= format!"p2 = poly2.positions[%d] + (poly2.positions[%d] - poly2.positions[%d]) * (d%d / (d%d - d%d));"(a,c,a,a,a,c);
                     str ~= format!"p3 = poly2.positions[%d] + (poly2.positions[%d] - poly2.positions[%d]) * (d%d / (d%d - d%d));"(b,c,b,b,b,c);
                 str ~= "}";
-                str ~= format!"if (d%d < 0 && d%d < 0 && d%d > 0) {"(a,b,c);
-                    str ~= format!"p0 = poly1.positions[%d] + (poly1.positions[%d] - poly1.positions[%d]) * (d%d / (d%d - d%d));"(a,c,a,a,c,a);
-                    str ~= format!"p1 = poly1.positions[%d] + (poly1.positions[%d] - poly1.positions[%d]) * (d%d / (d%d - d%d));"(b,c,b,b,c,b);
+                str ~= format!"if (d%d <= 0 && d%d <= 0 && d%d > 0) {"(a,b,c);
+                    str ~= format!"p2 = poly2.positions[%d] + (poly2.positions[%d] - poly2.positions[%d]) * (d%d / (d%d - d%d));"(a,c,a,a,a,c);
+                    str ~= format!"p3 = poly2.positions[%d] + (poly2.positions[%d] - poly2.positions[%d]) * (d%d / (d%d - d%d));"(b,c,b,b,b,c);
                 str ~= "}";
             }
             return str;
