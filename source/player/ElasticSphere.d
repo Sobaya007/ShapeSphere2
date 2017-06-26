@@ -1,5 +1,6 @@
 module player.ElasticSphere;
 
+import player.PlayerMaterial;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -12,7 +13,7 @@ class ElasticSphere {
     immutable {
         uint RECURSION_LEVEL = 2;
         float DEFAULT_RADIUS = 0.5;
-        float MASS = 0.1;
+        float MASS = 0.05;
         float TIME_STEP = 0.02;
         float ZETA = 0.5;
         float OMEGA = 100;
@@ -80,7 +81,7 @@ class ElasticSphere {
         this.dList = new vec3[pairIndex.length];
         this.forceList = new vec3[pairIndex.length];
         this.floorSinkList = new vec3[geom.vertices.length];
-        this.mesh = new Mesh(geom, new NormalMaterial());
+        this.mesh = new Mesh(geom, new PlayerMaterial());
         this.floors = [new CollisionPolygon([vec3(-1,0,-1), vec3(+1, 0, -1), vec3(0,0,+1)])];
         this.deflen = 0;
         foreach (pair; this.pairIndex) {
@@ -243,8 +244,8 @@ class ElasticSphere {
                 if (depth > 0 && dot(v, f.normal) < 0) {
                     p += f.normal * depth;
                     v *= -0.5;
-                    //v.x *= 1 - FRICTION;
-                    //v.z *= 1 - FRICTION;
+                    v.x *= 1 - FRICTION;
+                    v.z *= 1 - FRICTION;
                     isGround = true;
                 }
             }

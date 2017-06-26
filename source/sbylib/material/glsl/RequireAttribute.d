@@ -51,7 +51,7 @@ class RequireAttribute : Statement {
     }
 
     Statement getVertexOut() {
-        return new VariableDeclare(format!("out %s %s;")(getAttributeDemandType(attr), variable.id));
+        return new VariableDeclare(format!("out %s %s;")(variable.type, variable.id));
     }
 
     string getVertexBodyCode() {
@@ -70,7 +70,7 @@ class RequireAttribute : Statement {
     }
 
     string getFragmentIn() {
-        return format!"%sin %s %s;"(this.variable.attributes.getCode(), getAttributeDemandType(attr), variable.id);
+        return format!"%sin %s %s;"(this.variable.attributes.getCode(), variable.type, variable.id);
     }
 
     void replaceID(string delegate(string) replace) {

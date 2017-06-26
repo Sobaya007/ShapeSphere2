@@ -32,18 +32,9 @@ class CollisionPolygon {
 
     Geometry createGeometry() {
         VertexNT[] vertex = new VertexNT[3];
-        vertex[0] = new VertexNT;
-        vertex[0].position = this.positions[0];
-        vertex[0].normal = this.normal;
-        vertex[0].uv = vec2(0,0);
-        vertex[1] = new VertexNT;
-        vertex[1].position = this.positions[1];
-        vertex[1].normal = this.normal;
-        vertex[1].uv = vec2(0.5,1);
-        vertex[2] = new VertexNT;
-        vertex[2].position = this.positions[2];
-        vertex[2].normal = this.normal;
-        vertex[2].uv = vec2(1,0);
+        vertex[0] = new VertexNT(this.positions[0], this.normal, vec2(0,0));
+        vertex[1] = new VertexNT(this.positions[1], this.normal, vec2(0.5,1));
+        vertex[2] = new VertexNT(this.positions[2], this.normal, vec2(1,0));
         return new GeometryNT(vertex, [0,1,2]);
     }
 }

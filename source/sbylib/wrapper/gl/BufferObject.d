@@ -43,18 +43,20 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         checkGlError();
     }
 
-    void sendData(T[] data, BufferUsage freq = BufferUsage.Static) {
-        this.bind();
-        glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
-        checkGlError();
-        this.unbind();
-    }
-
-    void sendData(S)(S data, BufferUsage freq = BufferUsage.Static) if (is(S == struct)) {
-        this.bind();
-        glBufferData(Type, S.sizeof, &data, freq);
-        checkGlError();
-        this.unbind();
+    static if (is(T == struct)) {
+        void sendData(T data, BufferUsage freq = BufferUsage.Static) {
+            this.bind();
+            glBufferData(Type, T.sizeof, &data, freq);
+            checkGlError();
+            this.unbind();
+        }
+    } else {
+        void sendData(T[] data, BufferUsage freq = BufferUsage.Static) {
+            this.bind();
+            glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
+            checkGlError();
+            this.unbind();
+        }
     }
 
     void sendSubData(T[] data) {
@@ -64,12 +66,12 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         this.unbind();
     }
 
-    void* map(BufferAccess access) {
+    T* map(BufferAccess access) {
         this.bind();
         auto res = glMapBuffer(Type, access);
         checkGlError();
         this.unbind();
-        return res;
+        return cast(T*)res;
     }
 
     void unmap() {

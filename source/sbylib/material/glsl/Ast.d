@@ -1,6 +1,7 @@
 module sbylib.material.glsl.Ast;
 
 import sbylib.material.glsl.Argument;
+import sbylib.material.glsl.Comment;
 import sbylib.material.glsl.Token;
 import sbylib.material.glsl.UniformDemand;
 import sbylib.material.glsl.Statement;
@@ -51,6 +52,8 @@ class Ast {
                 } else {
                     assert(false);
                 }
+            } else if (tokens[0].str == "//") {
+                statements ~= new Comment(tokens);
             } else {
                 //Variable or Function
                 if (tokens[2].str == "(") {

@@ -17,14 +17,22 @@ template GenAttribute(Attribute[] attr) {
     const char[] GenAttribute = attr.map!(a => format!"vec%s %s;"(a.dim, a.name.dropOne())).join("\n");
 }
 
-class Vertex(Attribute[] Attributes) {
-    mixin(GenAttribute!(Attributes));
+class Vertex(Attribute[] attr) {
+    mixin(GenAttribute!(attr));
 
-    Vertex!(Attributes2) to(Attribute[] Attributes2)() {
-        static names = Attributes.map!(a => a.name).array;
-        static names2 = Attributes2.map!(a => a.name).array;
+    this() {}
+
+    mixin((attr) {
+        return format!"this(%s) {%s}"(
+            attr.map!(a => format!"vec%s %s"(a.dim, a.name.dropOne())).join(", "),
+            attr.map!(a => format!"this.%s = %s;"(a.name.dropOne(), a.name.dropOne())).join("\n"));
+    }(attr));
+
+    Vertex!(attr2) to(Attribute[] attr2)() {
+        static names = attr.map!(a => a.name).array;
+        static names2 = attr2.map!(a => a.name).array;
         static intersection = names.filter(name => true);
-        Vertex!Attributes2 result;
+        Vertex!attr2 result;
         mixin((() {
                 auto str = "";
                 foreach (name; intersection) {
@@ -36,7 +44,7 @@ class Vertex(Attribute[] Attributes) {
 
     override string toString() {
         auto res = "Vertex {";
-        foreach (attr; Utils.Range!(Attribute, Attributes)) {
+        foreach (attr; Utils.Range!(Attribute, attr)) {
             res ~= format!"\n  %s = %s"(attr.name, __traits(getMember, this, attr.name.dropOne()).toString());
         }
         res ~= "\n}";

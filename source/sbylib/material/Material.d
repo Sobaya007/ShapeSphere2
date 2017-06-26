@@ -31,7 +31,7 @@ class Material {
         this.getUniforms[name] = getUniform;
     }
 
-    final void setUniform(T...)(Watcher!(UniformTemp!T) watcher) {
+    final void setUniform(T)(Watcher!(T) watcher) {
         auto name = watcher.get().getName();
         this.getUniforms[name] = () => watcher.get();
     }

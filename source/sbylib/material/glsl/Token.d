@@ -22,10 +22,11 @@ enum Delimitor = [' ', '\t', '\n', '\r'];
 enum Symbol = [';', '{', '}', '(', ')', ',', '#'];
 
 Token[] tokenize(string code) {
-    return tokenize(code, null, new Token[0], 1, 0);
+    auto po = tokenize(code, null, new Token[0], 1, 0, false);
+    return po;
 }
 
-Token[] tokenize(string code, Token buffer, Token[] tokens, uint line, uint column) {
+Token[] tokenize(string code, Token buffer, Token[] tokens, uint line, uint column, bool commentFlag) {
     if (code.length == 0) {
         if (buffer) {
             tokens ~= buffer;
@@ -42,18 +43,43 @@ Token[] tokenize(string code, Token buffer, Token[] tokens, uint line, uint colu
         if (buffer) {
             tokens ~= buffer;
         }
-        return tokenize(code[1..$], null, tokens, line, column);
+        return tokenize(code[1..$], null, tokens, line, column, false);
     }
     if (Symbol.any!(s => s == c)) {
         if (buffer) {
             tokens ~= buffer;
         }
         tokens ~= new Token(to!string(c), line, column);
-        return tokenize(code[1..$], null, tokens, line, column);
+        return tokenize(code[1..$], null, tokens, line, column, false);
+    }
+    if (c == '/') {
+        if (commentFlag) {
+            buffer.str ~= c;
+            tokens ~= buffer;
+            return tokenizeComment(code[1..$], tokens, line, column);
+        } else {
+            if (buffer) {
+                tokens ~= buffer;
+            }
+            return tokenize(code[1..$], new Token("/", line, column), tokens, line, column, true);
+        }
+    }
+    if (commentFlag) {
+        tokens ~= buffer;
+        buffer = null;
     }
     if (!buffer) {
         buffer = new Token("", line, column);
     }
     buffer.str ~= c;
-    return tokenize(code[1..$], buffer, tokens, line, column);
+    return tokenize(code[1..$], buffer, tokens, line, column, false);
+}
+
+Token[] tokenizeComment(string code, Token[] tokens, uint line, int column) {
+    column++;
+    uint pos = 0;
+    while (code[pos] != '\n') pos++;
+    Token buffer = new Token(code[0..pos], line, column);
+    tokens ~= buffer;
+    return tokenize(code[pos+1..$], null, tokens, line+1, 0, false);
 }

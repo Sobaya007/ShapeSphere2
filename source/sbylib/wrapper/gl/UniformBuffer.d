@@ -9,7 +9,7 @@ import sbylib.wrapper.gl.Program;
 import std.string;
 import sbylib.math.Vector;
 
-class UniformBuffer : BufferObject!(BufferType.Uniform, float), Uniform {
+class UniformBuffer(T) : BufferObject!(BufferType.Uniform, T), Uniform {
 
     string name;
 

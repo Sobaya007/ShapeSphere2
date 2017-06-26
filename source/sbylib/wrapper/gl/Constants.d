@@ -277,7 +277,7 @@ enum GlErrorType {
     NoError = GL_NO_ERROR,
     InvalidEnum = GL_INVALID_ENUM,
     InvalidValue = GL_INVALID_VALUE,
-    InvaliedOperation = GL_INVALID_OPERATION,
+    InvalidOperation = GL_INVALID_OPERATION,
     OutOfMemory = GL_OUT_OF_MEMORY
 }
 

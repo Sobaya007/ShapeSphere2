@@ -3,6 +3,7 @@ module sbylib.core.World;
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
 import sbylib.utils.Watcher;
+import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
 import sbylib.core.RenderTarget;
@@ -15,7 +16,8 @@ class World {
     Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
     private Watcher!umat4 viewMatrix;
     private Watcher!umat4 projMatrix;
-    private UniformBuffer pointLightBlock;
+    private Watcher!(UniformBuffer!PointLightBlock) pointLightBlockBuffer;
+    private Watch!(PointLightBlock) pointLightBlock;
 
     this() {
         this.camera = new Watch!Camera;
@@ -29,12 +31,16 @@ class World {
             this.projMatrix.addWatch(this.camera.projMatrix);
         }, new umat4("projMatrix"));
         this.projMatrix.addWatch(this.camera);
-        this.pointLightBlock = new UniformBuffer("PointLightBlock");
-        PointLightBlock block;
-        block.num = 1;
-        block.lights[0].pos = vec3(1,1,0);
-        block.lights[0].diffuse = vec3(1,0,1);
-        this.pointLightBlock.sendData(block);
+        this.pointLightBlock = new Watch!PointLightBlock;
+        auto uni = new UniformBuffer!PointLightBlock("PointLightBlock");
+        uni.sendData(this.pointLightBlock.get(), BufferUsage.Dynamic);
+        this.pointLightBlockBuffer = new Watcher!(UniformBuffer!PointLightBlock)((ref UniformBuffer!PointLightBlock uni) {
+            PointLightBlock* buffer = uni.map(BufferAccess.Write);
+            buffer.num = this.pointLightBlock.num;
+            buffer.lights = this.pointLightBlock.lights;
+            uni.unmap();
+        }, uni);
+        this.pointLightBlockBuffer.addWatch(this.pointLightBlock);
     }
 
     void addMesh(Mesh[] meshes...) in {
@@ -46,6 +52,10 @@ class World {
                 this.resolveUniformDemand(mesh, demand);
             }
         }
+    }
+
+    void addPointLight(PointLight pointLight) {
+        this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
     }
 
     void render(RenderTarget target) {
@@ -68,7 +78,7 @@ class World {
             mesh.mat.setUniform(this.projMatrix);
             break;
         case UniformDemand.Light:
-            mesh.mat.setUniform(() => this.pointLightBlock);
+            mesh.mat.setUniform(this.pointLightBlockBuffer);
             break;
         }
     }

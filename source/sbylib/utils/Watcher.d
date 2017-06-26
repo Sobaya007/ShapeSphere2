@@ -2,6 +2,7 @@ module sbylib.utils.Watcher;
 
 import std.functional;
 import std.algorithm;
+import sbylib;
 
 class Watch(T) {
     private T value;
@@ -38,8 +39,6 @@ class Watch(T) {
             } else {
                 return mixin("this.value." ~ s)(args);
             }
-        } else static if (Args.length > 0) {
-            return mixin("this.value." ~ s ~ "= args");
         } else {
             return mixin("this.value." ~ s);
         }

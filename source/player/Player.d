@@ -9,7 +9,7 @@ class Player {
 
     enum DOWN_PUSH_FORCE = 600;
     enum DOWN_PUSH_FORE_MIN = 800;
-    enum SIDE_PUSH_FORCE = 300;
+    enum SIDE_PUSH_FORCE = 10;
 
     ElasticSphere esphere;
     private Window window;
@@ -54,10 +54,10 @@ class Player {
             if (this.window.getKey(KeyButton.Down)) {
                 f += this.camera.getObj().rot.get().column[2].xyz;
             }
+            f.y = 0;
             if (f.length > 0) f = normalize(f) * SIDE_PUSH_FORCE;
             foreach (p; this.esphere.particleList) {
-                if (p.isGround)
-                    p.force += f;
+                p.force += f;
             }
         }
     }

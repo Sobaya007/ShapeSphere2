@@ -54,6 +54,7 @@ class FunctionDeclare : Statement {
                 beforeLine = token.line;
                 beforeColumn = 0;
             }
+            assert(token.column >= beforeColumn);
             contentCode ~= repeat(' ', token.column - beforeColumn).array;
             beforeColumn = token.column + cast(uint)token.str.length;
             contentCode ~= token.str;
