@@ -34,10 +34,15 @@ void main() {
     pointLight.pos = vec3(0,2,0);
     pointLight.diffuse = vec3(1);
     world3d.addPointLight(pointLight);
+
+    CameraChaseControl control = new CameraChaseControl(world3d.camera, player.esphere.mesh.obj);
+
     core.addProcess((proc) {
         player.esphere.move();
         player.step();
+        control.step();
         if (core.getKey(KeyButton.Escape)) core.end();
+        if (core.getKey(KeyButton.KeyR)) ConstantManager.reload();
     });
 
     core.start();

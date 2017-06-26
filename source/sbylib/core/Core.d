@@ -5,6 +5,7 @@ import core.thread;
 import derelict.sdl2.sdl;
 import sbylib.core;
 import sbylib.camera;
+import sbylib.constant.ConstantManager;
 import sbylib.input;
 import sbylib.shadertemplates;
 import sbylib.utils;
@@ -65,6 +66,7 @@ class Core {
 
     //初期化関数
     this() {
+        ConstantManager.init();
         this.window = new Window("Window Title", 800, 600);
         this.fpsBalancer = new FpsBalancer(60);
     }
@@ -78,8 +80,6 @@ class Core {
     void start() {
         writeln("APPLICATION STARTED");
         //各種初期化
-        //ShaderStore.init;
-        //initFunctions();
 
         mainLoop();
     }

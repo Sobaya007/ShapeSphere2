@@ -242,6 +242,7 @@ class ElasticSphere {
             foreach (f; floors) {
                 float depth = -(p - f.positions[0]).dot(f.normal);
                 if (depth > 0 && dot(v, f.normal) < 0) {
+                    import std.stdio;
                     p += f.normal * depth;
                     v *= -0.5;
                     v.x *= 1 - FRICTION;
