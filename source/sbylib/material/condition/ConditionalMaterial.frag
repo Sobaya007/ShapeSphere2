@@ -5,11 +5,9 @@ require Shader TrueMaterial;
 require Shader FalseMaterial;
 
 void main() {
-    vec4 color;
     if (condition) {
-        TrueMaterial(color);
+        TrueMaterial(fragColor);
     } else {
-        FalseMaterial(color);
+        FalseMaterial(fragColor);
     }
-    fragColor = color;
 }

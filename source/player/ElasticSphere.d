@@ -45,6 +45,7 @@ class ElasticSphere {
     flim needleCount;
 
     vec3 collisionNormal;
+    ubool condition;
 
     this()  {
         this.radius = DEFAULT_RADIUS;
@@ -52,11 +53,6 @@ class ElasticSphere {
         foreach (v; geom.vertices) {
             this.particleList ~= new Particle(v.position);
         }
-        //foreach(p; this.particleList) {
-        //    bool ok = true;
-        //    foreach (n; p.next) if (n.isStinger) ok = false;
-        //    if (ok) p.isStinger = true;
-        //}
         this.particleList.each!( p => p.p += vec3(0,20,0));
 
         uint[] makePair(uint a, uint b) {
@@ -76,12 +72,18 @@ class ElasticSphere {
             this.particleList[i[0]].next ~= particleList[i[1]];
             this.particleList[i[1]].next ~= particleList[i[0]];
         }
+        foreach(p; this.particleList) {
+            p.isStinger = p.next.all!(a => a.isStinger == false);
+        }
 
         this.needleCount = flim(0,0,1);
         this.dList = new vec3[pairIndex.length];
         this.forceList = new vec3[pairIndex.length];
         this.floorSinkList = new vec3[geom.vertices.length];
-        this.mesh = new Mesh(geom, new PlayerMaterial());
+        auto mat = new ConditionalMaterial!(PlayerMaterial, LambertMaterial);
+        mat.ambient = vec3(1);
+        this.condition = mat.condition;
+        this.mesh = new Mesh(geom, mat);
         this.deflen = 0;
         foreach (pair; this.pairIndex) {
             this.deflen += length(this.particleList[pair[0]].p - this.particleList[pair[1]].p);
@@ -169,9 +171,9 @@ class ElasticSphere {
             particle.move();
         }
         foreach (i, ref p; this.particleList) {
-            this.geom.vertices[i].position = (this.mesh.obj.viewMatrix * vec4(p.p, 1)).xyz;
             this.geom.vertices[i].normal = vec3(0);
         }
+        import std.stdio;
         foreach (face; this.geom.faces) {
             auto normal = normalize(cross(
                     this.geom.vertices[face.indexList[2]].position - this.geom.vertices[face.indexList[0]].position,
@@ -180,14 +182,20 @@ class ElasticSphere {
             this.geom.vertices[face.indexList[1]].normal += normal;
             this.geom.vertices[face.indexList[2]].normal += normal;
         }
-        foreach (v; this.geom.vertices) {
-            v.normal = normalize(v.normal);
+        foreach (i,v; this.geom.vertices) {
+            auto p = this.particleList[i];
+            v.normal = safeNormalize(v.normal);
+            v.position = (this.mesh.obj.viewMatrix * vec4(p.p - v.normal * needle(p.isStinger), 1)).xyz;
         }
         this.geom.updateBuffer();
+        writeln("P = ", this.geom.vertices[0].position);
+        writeln("N = ", this.geom.vertices[0].normal);
     }
 
-    private float needle(){
-        return ( -pow( 2, -5 * needleCount ) + 1 );
+    private float needle(bool isNeedle){
+        float t = needleCount;
+        float arrival = isNeedle ? 2 : 1;
+        return -t + t * arrival;
     }
 
     private float calcVolume() {
@@ -239,7 +247,7 @@ class ElasticSphere {
             isGround = false;
 
             foreach (f; floors) {
-                float depth = -(p - f.positions[0]).dot(f.normal);
+                float depth = -(p + n * needle(isStinger) - f.positions[0]).dot(f.normal);
                 if (depth > 0 && dot(v, f.normal) < 0) {
                     p += f.normal * depth;
                     v *= -0.5;

@@ -60,5 +60,10 @@ class Player {
                 p.force += f;
             }
         }
+        if (this.window.getKey(KeyButton.KeyX)) {
+            this.esphere.needleCount += 0.1;
+        } else {
+            this.esphere.needleCount -= 0.3;
+        }
     }
 }

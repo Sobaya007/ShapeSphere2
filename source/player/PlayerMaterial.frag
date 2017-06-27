@@ -2,15 +2,13 @@
 
 require Light;
 
-require Position in View as vec4 p;
+require Position in View as vec3 pos;
 require Normal in View as vec3 n;
-require UV as vec2 tc;
 
 // yawaraka orange
 
 void main() {
     vec3 nrm = -normalize(n);
-    vec3 pos = p.xyz / p.w;
     vec3 camV = normalize(pos);
     vec3 col = vec3(1,0.5,0.1);
     vec3 acc = vec3(0);

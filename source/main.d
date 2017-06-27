@@ -57,10 +57,13 @@ void main() {
         control.step();
         if (core.getKey(KeyButton.Escape)) core.end();
         if (core.getKey(KeyButton.KeyR)) ConstantManager.reload();
+        if (core.getKey(KeyButton.KeyW)) player.esphere.mesh.mat.config.polygonMode = PolygonMode.Line;
+        else player.esphere.mesh.mat.config.polygonMode = PolygonMode.Fill;
         mat.fogColor1 = ConstantManager.get!vec3("fogColor");
         mat.fogColor2 = ConstantManager.get!vec3("fogColor");
         mat.fogDensity1 = ConstantManager.get!float("fogDensity");
         mat.fogDensity2 = ConstantManager.get!float("fogDensity");
+        player.esphere.condition = !core.getKey(KeyButton.Enter);
     });
 
     core.start();

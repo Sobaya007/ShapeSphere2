@@ -178,9 +178,9 @@ class MaterialUtils {
         }
 
         ref auto opDispatch(string s)() {
-            static assert(!__traits(hasMember, this, s) || !__traits(hasMember, this.a, s), "cannot specify member. please add suffix '0', '1' or '2'");
-            static assert(!__traits(hasMember, this, s) || !__traits(hasMember, this.b, s), "cannot specify member. please add suffix '0', '1' or '2'");
-            static assert(!__traits(hasMember, this.a, s) || !__traits(hasMember, this.b, s), "cannot specify member. please add suffix '0', '1' or '2'");
+//            static assert(!__traits(hasMember, this, s) || !__traits(hasMember, this.a, s), "cannot specify member. please add suffix '0', '1' or '2'");
+//            static assert(!__traits(hasMember, this, s) || !__traits(hasMember, this.b, s), "cannot specify member. please add suffix '0', '1' or '2'");
+//            static assert(!__traits(hasMember, this.a, s) || !__traits(hasMember, this.b, s), "cannot specify member. please add suffix '0', '1' or '2'");
             static if (__traits(hasMember, this.a, s)) {
                 return mixin("this.a." ~ s);
             } else static if (__traits(hasMember, this.b, s)) {
