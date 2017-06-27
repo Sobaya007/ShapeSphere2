@@ -82,7 +82,6 @@ class ElasticSphere {
         this.forceList = new vec3[pairIndex.length];
         this.floorSinkList = new vec3[geom.vertices.length];
         this.mesh = new Mesh(geom, new PlayerMaterial());
-        this.floors = [new CollisionPolygon([vec3(-1,0,-1), vec3(+1, 0, -1), vec3(0,0,+1)])];
         this.deflen = 0;
         foreach (pair; this.pairIndex) {
             this.deflen += length(this.particleList[pair[0]].p - this.particleList[pair[1]].p);
@@ -242,7 +241,6 @@ class ElasticSphere {
             foreach (f; floors) {
                 float depth = -(p - f.positions[0]).dot(f.normal);
                 if (depth > 0 && dot(v, f.normal) < 0) {
-                    import std.stdio;
                     p += f.normal * depth;
                     v *= -0.5;
                     v.x *= 1 - FRICTION;

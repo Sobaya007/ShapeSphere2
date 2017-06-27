@@ -1,5 +1,7 @@
 {
     "defaultLength": 10.0,
     "k" : 0.05,
-    "c" : 0.2
+    "c" : 0.2,
+    "fogDensity": 0.037,
+    "fogColor" : [0.5,0.6,0.6]
 }

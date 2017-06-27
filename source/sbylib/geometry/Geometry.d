@@ -90,7 +90,7 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
             auto buffer = buffers[i][1];
             float* data = cast(float*)buffer.map(BufferAccess.Write);
             foreach (j, v; this.vertices) {
-                data[j*3..(j+1)*3] = __traits(getMember, v, attr.name.dropOne()).array;
+                data[j*attr.dim..(j+1)*attr.dim] = __traits(getMember, v, attr.name.dropOne()).array;
             }
             buffer.unmap();
         }

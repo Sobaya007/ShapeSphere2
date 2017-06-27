@@ -29,7 +29,7 @@ class CameraChaseControl {
         vel -= (k * dp + c * dot(vel, v)) * v;
         vel *= 1 - c;
         this.camera.getObj().pos += vel;
-        this.camera.getObj().pos.y = 3;
+        this.camera.getObj().pos.y = 3 + target.pos.y;
         this.camera.getObj().lookAt(this.target.pos);
     }
 }

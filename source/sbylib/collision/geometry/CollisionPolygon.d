@@ -30,7 +30,7 @@ class CollisionPolygon {
         this.normal.addWatch(this.obj.worldMatrix);
     }
 
-    Geometry createGeometry() {
+    GeometryNT createGeometry() {
         VertexNT[] vertex = new VertexNT[3];
         vertex[0] = new VertexNT(this.positions[0], this.normal, vec2(0,0));
         vertex[1] = new VertexNT(this.positions[1], this.normal, vec2(0.5,1));

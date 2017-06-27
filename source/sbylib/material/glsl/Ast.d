@@ -56,6 +56,7 @@ class Ast {
                 statements ~= new Comment(tokens);
             } else {
                 //Variable or Function
+                assert(tokens.length >= 3);
                 if (tokens[2].str == "(") {
                     //Function
                     statements ~= new FunctionDeclare(tokens);

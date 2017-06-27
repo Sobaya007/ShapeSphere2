@@ -24,11 +24,25 @@ void main() {
 
     auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
     Player player = new Player(core.getWindow(), world3d.camera);
-    foreach (floor; player.esphere.floors) {
-        auto mat = new TextureMaterial();
-        mat.texture = texture;
-        world3d.addMesh(new Mesh(floor.createGeometry(), mat, floor.obj));
-    }
+    player.esphere.floors = [
+    new CollisionPolygon([vec3(100,0,-100),vec3(100,0,100), vec3(-100, 0, +100)]),
+    new CollisionPolygon([vec3(100,0,-100), vec3(-100, 0, 100), vec3(-100,0,-100)])];
+    auto mat = new CheckerMaterial!(LambertMaterial, LambertMaterial);
+    mat.ambient1 = vec3(1);
+    mat.ambient2 = vec3(0);
+    mat.size = 0.015;
+    auto geom0 = player.esphere.floors[0].createGeometry();
+    geom0.vertices[0].uv = vec2(1,0);
+    geom0.vertices[1].uv = vec2(1,1);
+    geom0.vertices[2].uv = vec2(0,1);
+    geom0.updateBuffer();
+    auto geom1 = player.esphere.floors[1].createGeometry();
+    geom1.vertices[0].uv = vec2(1,0);
+    geom1.vertices[1].uv = vec2(0,1);
+    geom1.vertices[2].uv = vec2(0,0);
+    geom1.updateBuffer();
+    world3d.addMesh(new Mesh(geom0, mat, player.esphere.floors[0].obj));
+    world3d.addMesh(new Mesh(geom1, mat, player.esphere.floors[1].obj));
     world3d.addMesh(player.esphere.mesh);
     PointLight pointLight;
     pointLight.pos = vec3(0,2,0);
@@ -43,6 +57,10 @@ void main() {
         control.step();
         if (core.getKey(KeyButton.Escape)) core.end();
         if (core.getKey(KeyButton.KeyR)) ConstantManager.reload();
+        mat.fogColor1 = ConstantManager.get!vec3("fogColor");
+        mat.fogColor2 = ConstantManager.get!vec3("fogColor");
+        mat.fogDensity1 = ConstantManager.get!float("fogDensity");
+        mat.fogDensity2 = ConstantManager.get!float("fogDensity");
     });
 
     core.start();

@@ -19,7 +19,7 @@ class Token {
 }
 
 enum Delimitor = [' ', '\t', '\n', '\r'];
-enum Symbol = [';', '{', '}', '(', ')', ',', '#'];
+enum Symbol = [';', '{', '}', '(', ')', ',', '#', '+', '-', '*'];
 
 Token[] tokenize(string code) {
     auto po = tokenize(code, null, new Token[0], 1, 0, false);

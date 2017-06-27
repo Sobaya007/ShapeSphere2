@@ -21,10 +21,15 @@ class FunctionDeclare : Statement {
         this.arguments = new ArgumentList(tokens);
         expect(tokens, "{");
         uint parensCount = 1;
-        while (tokens.length > 0) {
+        while (true) {
+            assert(tokens.length > 0, "expected '}'");
             Token token = tokens[0];
             tokens = tokens[1..$];
-            if (token.str == "{") {
+            if (token.str == "//") {
+                content ~= token;
+                content ~= tokens[0];
+                tokens = tokens[1..$];
+            } else if (token.str == "{") {
                 parensCount++;
                 content ~= token;
             } else if (token.str == "}") {
@@ -74,7 +79,8 @@ class FunctionDeclare : Statement {
                 offset = 0;
             }
             c.column += offset;
-            if (IDs.all!(id => id != c.str)) continue;
+            if (IDs.all!(id => id != c.str
+                && (c.str.split(".").length < 2 ||  c.str.split(".")[0] != id))) continue;
             auto len = c.str.length;
             c.str = replace(c.str);
             offset += cast(uint)c.str.length - len;
