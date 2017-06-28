@@ -6,6 +6,8 @@ import player.ElasticSphere;
 import player.Player;
 
 void main() {
+    example1();
+    /*
     auto core = new Core();
 
     auto world3d = new World;
@@ -67,4 +69,5 @@ void main() {
     });
 
     core.start();
+*/
 }

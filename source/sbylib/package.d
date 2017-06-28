@@ -8,6 +8,7 @@ import sbylib.collision;
 import sbylib.constant;
 import sbylib.control;
 import sbylib.core;
+import sbylib.examples;
 import sbylib.input;
 import sbylib.light;
 import sbylib.math;
