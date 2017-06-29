@@ -7,9 +7,9 @@ import std.math;
 
 class Player {
 
-    enum DOWN_PUSH_FORCE = 600;
-    enum DOWN_PUSH_FORE_MIN = 800;
-    enum SIDE_PUSH_FORCE = 10;
+    enum DOWN_PUSH_FORCE = 2;
+    enum DOWN_PUSH_FORE_MIN = 1;
+    enum SIDE_PUSH_FORCE = .1;
 
     ElasticSphere esphere;
     private Window window;
@@ -33,9 +33,10 @@ class Player {
             this.pushCount += 0.1;
             foreach (p; this.esphere.particleList) {
                 //下向きの力
-                float len = length(p.p.xz - g.xz);
-                float powerMax = min(DOWN_PUSH_FORE_MIN, DOWN_PUSH_FORCE / pow(len + 0.6, 2.5)) * (p.p.y - this.esphere.lowerY) / (this.esphere.upperY - this.esphere.lowerY);
-                p.extForce.y -= powerMax * this.pushCount;
+                float r = length(p.p.xz - g.xz);
+                float h = this.esphere.upperY - this.esphere.lowerY;
+                float f = exp(-r*r * 5) * DOWN_PUSH_FORCE * 5;
+                p.extForce.y -= f * this.pushCount;
             }
         } else {
             this.pushCount = 0;
