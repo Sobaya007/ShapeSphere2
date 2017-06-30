@@ -183,7 +183,7 @@ class ElasticSphere {
 
     private float needle(bool isNeedle){
         float t = needleCount;
-        float arrival = isNeedle ? 2 : 1;
+        float arrival = isNeedle ? 2 : 0.9;
         return -t + t * arrival;
     }
 

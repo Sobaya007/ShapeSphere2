@@ -31,9 +31,7 @@ void main() {
         auto polygons = [
         new CollisionPolygon([p[0], p[1], p[2]]),
         new CollisionPolygon([p[0], p[2], p[3]])];
-        auto mat = new CheckerMaterial!(LambertMaterial, LambertMaterial);
-        mat.ambient1 = vec3(1);
-        mat.ambient2 = vec3(0);
+        auto mat = new CheckerMaterial!(NormalMaterial, UvMaterial);
         mat.size = 0.118;
         auto geom0 = polygons[0].createGeometry();
         geom0.vertices[0].uv = vec2(1,0);
