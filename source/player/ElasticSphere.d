@@ -157,6 +157,12 @@ class ElasticSphere {
         foreach (ref particle; this.particleList) {
             particle.move();
         }
+        foreach (ref particle; this.particleList) {
+            particle.collision();
+        }
+        foreach (ref particle; this.particleList) {
+            particle.end();
+        }
         foreach (i, ref p; this.particleList) {
             this.geom.vertices[i].normal = vec3(0);
         }
@@ -234,11 +240,12 @@ class ElasticSphere {
         }
 
         void move() {
-
             p += v * TIME_STEP;
 
             isGround = false;
+        }
 
+        void collision() {
             foreach (f; floors) {
                 if (!f.collide(this.colMesh).collided) {
                     continue;
@@ -246,15 +253,18 @@ class ElasticSphere {
                 auto floor = f.geom.peek!CollisionPolygon;
                 float depth = -(p + n * needle(isStinger) - floor.positions[0]).dot(floor.normal);
                 if (depth > 0) {
-                    p += floor.normal * depth;
                     auto po = v - dot(v, floor.normal) * floor.normal;
                     v -= po * FRICTION;
                     isGround = true;
                     if (dot(v, floor.normal) < 0) {
                         v -= floor.normal * dot(floor.normal, v) * 1.2;
                     }
+                    p += floor.normal * depth;
                 }
             }
+        }
+
+        void end() {
             force = vec3(0,0,0); //用済み
             this.capsule.end = this.capsule.start;
             this.capsule.start = p + n * needle(isStinger);
