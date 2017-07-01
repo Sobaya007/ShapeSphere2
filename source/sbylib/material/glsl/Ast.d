@@ -19,6 +19,7 @@ import sbylib.material.glsl.RequireShader;
 import std.traits;
 import std.algorithm;
 import std.range;
+import std.conv;
 
 class Ast {
     string name;
@@ -50,7 +51,7 @@ class Ast {
                 } else if (tokens[1].str == "Shader") {
                     statements ~= new RequireShader(tokens);
                 } else {
-                    assert(false);
+                    assert(false, to!string(tokens));
                 }
             } else if (tokens[0].str == "//") {
                 statements ~= new Comment(tokens);
@@ -63,7 +64,7 @@ class Ast {
                 } else if (tokens[2].str == "=" || tokens[2].str == ";") {
                     statements ~= new VariableDeclare(tokens);
                 } else {
-                    assert(false);
+                    assert(false, to!string(tokens));
                 }
             }
         }

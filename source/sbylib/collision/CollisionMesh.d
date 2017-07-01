@@ -20,17 +20,30 @@ class CollisionMesh {
     }
 
     CollisionInfo collide(CollisionMesh mesh) {
-        CollisionInfo info =
-            this.geom.visit!(
-                (CollisionCapsule cap) =>
-                    mesh.geom.visit!(
-                        (CollisionCapsule cap2) => collide(cap, cap2),
-                        (CollisionPolygon pol) => collide(cap, pol)),
-                (CollisionPolygon pol) =>
-                    mesh.geom.visit!(
-                        (CollisionCapsule cap) => collide(cap, pol),
-                        (CollisionPolygon pol2) => collide(pol, pol2)
-                    ));
+        CollisionInfo info;
+        if (this.geom.type == typeid(CollisionCapsule)) {
+            auto cap = *this.geom.peek!CollisionCapsule;
+            if (mesh.geom.type == typeid(CollisionCapsule)) {
+                auto cap2 = *mesh.geom.peek!CollisionCapsule;
+                info = collide(cap, cap2);
+            } else if (mesh.geom.type == typeid(CollisionPolygon)) {
+                auto pol = *mesh.geom.peek!CollisionPolygon;
+                info = collide(cap, pol);
+            } else {
+                assert(false);
+            }
+        } else if (this.geom.type == typeid(CollisionPolygon)) {
+            auto pol = *this.geom.peek!CollisionPolygon;
+            if (mesh.geom.type == typeid(CollisionCapsule)) {
+                auto cap = *mesh.geom.peek!CollisionCapsule;
+                info = collide(cap, pol);
+            } else if (mesh.geom.type == typeid(CollisionPolygon)) {
+                auto pol2 = *mesh.geom.peek!CollisionPolygon;
+                info = collide(pol, pol2);
+            } else {
+                assert(false);
+            }
+        } 
         info.mesh1 = this;
         info.mesh2 = mesh;
         return info;
@@ -108,30 +121,47 @@ class CollisionMesh {
     }
 
     private static float polySegDistance(vec3 s, vec3 e, vec3 p0, vec3 p1, vec3 p2, vec3 n) {
+        import std.algorithm;
+        import std.stdio;
         vec3 v = e - s;
+        float dist = min(
+                segDistance(s, e, p0, p1),
+                segDistance(s, e, p1, p2),
+                segDistance(s, e, p2, p0));
         float denom = dot(v, n);
         if (denom != 0) {
             float t1 = dot(p0 - s, n) / denom;
             // point & polygon
             t1 = clamp(t1, 0, 1);
             vec3 p = s + t1 * v;
-            vec3 pn = p - n * dot(p-p0, n);
-            vec3 t = mat3.invert(mat3(p0, p1, p2)) * pn;
-            if (0 <= t.x && t.x <= 1
-                 && 0 <= t.y && t.y <= 1
-                 && 0 <= t.z && t.z <= 1) {
-                // near face
-                return abs(dot(p - p0, n));
+            auto s0 = dot(n, cross(p1 - p0, p0 - p));
+            auto s1 = dot(n, cross(p2 - p1, p1 - p));
+            auto s2 = dot(n, cross(p0 - p2, p2 - p));
+            if (s0 > 0 && s1 > 0 && s2 > 0
+                || s0 < 0 && s1 < 0 && s2 < 0) {
+                vec3 pn = p - n * dot(p-p0, n);
+                dist = min(dist, abs(dot(p - p0, n)));
+            }
+        } else {
+            auto s0 = dot(n, cross(p1 - p0, p0 - s));
+            auto s1 = dot(n, cross(p2 - p1, p1 - s));
+            auto s2 = dot(n, cross(p0 - p2, p2 - s));
+            if (s0 > 0 && s1 > 0 && s2 > 0
+                || s0 < 0 && s1 < 0 && s2 < 0) {
+                vec3 pn = s - n * dot(s-p0, n);
+                dist = min(dist, abs(dot(s - p0, n)));
             } else {
-                import std.algorithm;
-                return min(
-                        segDistance(s, e, p0, p1),
-                        segDistance(s, e, p1, p2),
-                        segDistance(s, e, p2, p0));
+                s0 = dot(n, cross(p1 - p0, p0 - e));
+                s1 = dot(n, cross(p2 - p1, p1 - e));
+                s2 = dot(n, cross(p0 - p2, p2 - e));
+                if (s0 > 0 && s1 > 0 && s2 > 0
+                     || s0 < 0 && s1 < 0 && s2 < 0) {
+                    vec3 pn = s - n * dot(s-p0, n);
+                    dist = min(dist, abs(dot(s - p0, n)));
+                }
             }
         }
-        // parallel
-        return abs(dot(s - p0, n));
+        return dist;
     }
 
     private static bool polygonDetection(CollisionPolygon poly1, CollisionPolygon poly2) {

@@ -23,6 +23,7 @@ interface Geometry {
     void updateBuffer();
 }
 
+alias GeometryP = GeometryTemp!([Attribute.Position]);
 alias GeometryN = GeometryTemp!([Attribute.Position, Attribute.Normal]);
 alias GeometryT = GeometryTemp!([Attribute.Position, Attribute.UV]);
 alias GeometryNT = GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV]);
@@ -35,6 +36,10 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
     const uint indicesCount;
     private IndexBuffer ibo;
     private Tuple!(Attribute, VertexBuffer)[] buffers;
+
+    this(VertexA[] vertices) {
+        this(vertices, iota(cast(uint)vertices.length).array);
+    }
 
     this(VertexA[] vertices, uint[] indices) {
         this.vertices = vertices;
@@ -68,6 +73,8 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
             }
             break;
         case Prim.Line:
+        case Prim.LineStrip:
+        case Prim.LineLoop:
             faces = [];
             break;
         }

@@ -19,9 +19,9 @@ class ElasticSphere {
         float c = 2 * ZETA * OMEGA * MASS;
         float k = MASS * OMEGA * OMEGA;
         float h = 0.02;
-        float FRICTION = 0.3;
+        float FRICTION = 100;
         float GRAVITY = .5;
-        uint ITERATION_COUNT = 20;
+        uint ITERATION_COUNT = 50;
 
         float ERP = h * k / c;
         float CFM = 1 / c;
@@ -33,9 +33,10 @@ class ElasticSphere {
     }
 
     Pair[] pairList;
+    Collision[] collisionList;
     vec3[] floorSinkList;
 
-    CollisionPolygon[] floors;
+    CollisionMesh[] floors;
     Mesh mesh;
     GeometryN geom;
     Particle[] particleList;
@@ -46,6 +47,7 @@ class ElasticSphere {
 
     vec3 collisionNormal;
     ubool condition;
+    TimeLogger logger;
 
     this()  {
         this.radius = DEFAULT_RADIUS;
@@ -53,7 +55,6 @@ class ElasticSphere {
         foreach (v; geom.vertices) {
             this.particleList ~= new Particle(v.position);
         }
-        this.particleList.each!( p => p.p += vec3(0,20,0));
 
         uint[2] makePair(uint a, uint b) {
             return a < b ? [a,b] : [b,a];
@@ -84,9 +85,11 @@ class ElasticSphere {
         mat.ambient = vec3(1);
         this.condition = mat.condition;
         this.mesh = new Mesh(geom, mat);
+        this.logger = new TimeLogger("Elastic logger");
     }
 
     void move() {
+        logger.start("1");
         //体積の測定
         float volume = this.calcVolume();
         //表面積の測定
@@ -112,7 +115,7 @@ class ElasticSphere {
                 float angle = dif.length / this.radius;
                 quat rot = quat.axisAngle(axis, angle);
                 foreach (p;particleList) {
-                    p.p = rotate(p.p-g, rot) + g;
+                    //p.p = rotate(p.p-g, rot) + g;
                     p.n = rotate(p.n, rot);
                 }
             }
@@ -123,7 +126,7 @@ class ElasticSphere {
         {
             float force = BALOON_COEF * area / (volume * particleList.length);
             foreach (ref particle; this.particleList) {
-                particle.force += particle.n * force;
+                particle.force += normalize(particle.p - g) * force;
             }
         }
         //重力
@@ -132,6 +135,16 @@ class ElasticSphere {
         }
         foreach (ref particle; this.particleList) {
             particle.v += (particle.force + particle.extForce) / MASS;
+        }
+        logger.stop();
+        logger.start("2");
+
+        this.collisionList = null;
+        foreach (floor; this.floors) {
+            foreach (particle; this.particleList) {
+                if (!floor.collide(particle.colMesh).collided) continue;
+                this.collisionList ~= new Collision(particle, *floor.geom.peek!CollisionPolygon);
+            }
         }
         //拘束解消
         {
@@ -143,13 +156,21 @@ class ElasticSphere {
             foreach (i, p; particleList) {
                 floorSinkList[i] = vec3(0, -min(0, p.p.y), 0);
             }
+            logger.stop();
+            logger.start("2.5");
             foreach (k; 0..ITERATION_COUNT){
                 //隣との拘束
                 foreach (pair; this.pairList) {
                     pair.solve();
                 }
+                //床の拘束
+                foreach (col; this.collisionList) {
+                    col.solve();
+                }
             }
         }
+        logger.stop();
+        logger.start("3");
 
         foreach (ref particle; this.particleList) {
             particle.move();
@@ -170,7 +191,10 @@ class ElasticSphere {
             v.normal = safeNormalize(v.normal);
             v.position = (this.mesh.obj.viewMatrix * vec4(p.p - v.normal * needle(p.isStinger), 1)).xyz;
         }
+        logger.stop();
+        logger.start("4");
         this.geom.updateBuffer();
+        logger.stop();
     }
 
     private float needle(bool isNeedle){
@@ -202,6 +226,60 @@ class ElasticSphere {
         return area / 2;
     }
 
+    class Collision {
+        Particle particle;
+        CollisionPolygon polygon;
+        float targetVel;
+        vec3 nor, tan, bin;
+        float normalTotalImpulse;
+        float tangentTotalImpulse;
+        float binTotalImpulse;
+
+        this(Particle particle, CollisionPolygon polygon) {
+            this.particle = particle;
+            this.polygon = polygon;
+            this.nor = this.polygon.normal;
+            import std.random;
+            vec3 po;
+            do {
+                po = vec3(uniform(0, 1.0), uniform(0, 1.0), uniform(0, 1.0));
+            } while(abs(dot(po, this.nor)) == 1.0);
+            this.tan = normalize(po - dot(po, this.nor) * this.nor);
+            this.bin = cross(this.nor, this.tan);
+            this.targetVel = 0;
+            this.normalTotalImpulse = 0;
+            this.tangentTotalImpulse = 0;
+            this.binTotalImpulse = 0;
+        }
+
+        void solve() {
+            // normal
+            float oldImpulse = this.normalTotalImpulse;
+            float newImpulse = (targetVel - this.particle.v.dot(this.nor));
+            this.normalTotalImpulse += newImpulse;
+            if (this.normalTotalImpulse < 0) this.normalTotalImpulse = 0;
+            newImpulse = this.normalTotalImpulse - oldImpulse;
+            particle.v += newImpulse * this.nor;
+
+            //tan
+            float oldTanImpulse = this.tangentTotalImpulse;
+            float newTanImpulse = -this.particle.v.dot(this.tan);
+            this.tangentTotalImpulse += newTanImpulse;
+            if (abs(this.tangentTotalImpulse) > this.normalTotalImpulse * FRICTION)
+                this.tangentTotalImpulse = this.normalTotalImpulse * FRICTION * sgn(this.tangentTotalImpulse);
+            newTanImpulse = this.tangentTotalImpulse - oldTanImpulse;
+            particle.v += newTanImpulse * this.tan;
+
+            //bin
+            float oldBinImpulse = this.binTotalImpulse;
+            float newBinImpulse = -this.particle.v.dot(this.bin);
+            this.binTotalImpulse += newBinImpulse;
+            if (abs(this.binTotalImpulse) > this.normalTotalImpulse * FRICTION)
+                this.binTotalImpulse = this.normalTotalImpulse * FRICTION * sgn(this.tangentTotalImpulse);
+            newBinImpulse = this.binTotalImpulse - oldBinImpulse;
+            particle.v += newBinImpulse * this.bin;
+        }
+    }
 
     class Particle {
         vec3 p;
@@ -212,6 +290,8 @@ class ElasticSphere {
         bool isGround;
         bool isStinger;
         Particle[] next;
+        CollisionMesh colMesh;
+        CollisionCapsule capsule;
 
         this(vec3 p) {
             this.p = p;
@@ -219,25 +299,17 @@ class ElasticSphere {
             this.v = vec3(0,0,0);
             this.force = vec3(0,0,0);
             this.extForce = vec3(0,0,0);
+            this.p.y += 20;
+            this.capsule = new CollisionCapsule(0.1, this.p, this.p);
+            this.colMesh = new CollisionMesh(this.capsule);
         }
 
         void move() {
-
             p += v * h;
-
-            isGround = false;
-
-            foreach (f; floors) {
-                float depth = -(p + n * needle(isStinger) - f.positions[0]).dot(f.normal);
-                if (depth > 0 && dot(v, f.normal) < 0) {
-                    p += f.normal * depth;
-                    v *= -0.2;
-                    v.x *= 1 - FRICTION;
-                    v.z *= 1 - FRICTION;
-                    isGround = true;
-                }
-            }
             force = vec3(0,0,0); //用済み
+
+            this.capsule.end = this.capsule.start;
+            this.capsule.start = p;
         }
     }
 

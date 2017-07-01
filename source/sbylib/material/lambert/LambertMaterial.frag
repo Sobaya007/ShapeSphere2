@@ -12,9 +12,9 @@ uniform float fogDensity;
 
 void main() {
     fragColor = vec4(ambient, 1);
-    for (int i = 0; i < pointLightNum; i++) {
-        float d = max(0., dot(normalize(pointLights[i].pos - position), normal));
-        fragColor.rgb += pointLights[i].diffuse * diffuse * d;
-    }
-    fragColor.rgb = mix(fragColor.rgb, fogColor, 1 - exp(-fogDensity * length(vPosition)));
+//    for (int i = 0; i < pointLightNum; i++) {
+//        float d = max(0., dot(normalize(pointLights[i].pos - position), normal));
+//        fragColor.rgb += pointLights[i].diffuse * diffuse * d;
+//    }
+//    fragColor.rgb = mix(fragColor.rgb, fogColor, 1 - exp(-fogDensity * length(vPosition)));
 }
