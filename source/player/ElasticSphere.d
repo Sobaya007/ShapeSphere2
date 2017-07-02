@@ -125,18 +125,6 @@ class ElasticSphere {
         }
         this.mesh.obj.pos = g;
 
-        //†ちょっと†ふくらませる
-        {
-            import std.stdio;
-            float force = BALOON_COEF * area / (volume * particleList.length);
-            foreach (ref particle; this.particleList) {
-                particle.force += particle.n * force;
-            }
-        }
-        //重力
-        foreach (p; this.particleList) {
-            p.force.y -= GRAVITY * MASS;
-        }
         //拘束解消
         {
             //隣との距離を計算
@@ -149,6 +137,18 @@ class ElasticSphere {
                     pair.solve();
                 }
             }
+        }
+        //†ちょっと†ふくらませる
+        {
+            import std.stdio;
+            float force = BALOON_COEF * area / (volume * particleList.length);
+            foreach (ref particle; this.particleList) {
+                particle.force += particle.n * force;
+            }
+        }
+        //重力
+        foreach (p; this.particleList) {
+            p.force.y -= GRAVITY * MASS;
         }
         foreach (ref particle; this.particleList) {
             particle.v += (particle.force + particle.extForce) * FORCE_COEF;
@@ -241,7 +241,6 @@ class ElasticSphere {
 
         void move() {
             p += v * TIME_STEP;
-
             isGround = false;
         }
 
@@ -257,7 +256,7 @@ class ElasticSphere {
                     v -= po * FRICTION;
                     isGround = true;
                     if (dot(v, floor.normal) < 0) {
-                        v -= floor.normal * dot(floor.normal, v) * 1.2;
+                        v -= floor.normal * dot(floor.normal, v) * 1;
                     }
                     p += floor.normal * depth;
                 }

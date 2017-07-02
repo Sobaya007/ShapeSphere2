@@ -42,7 +42,6 @@ class Material {
         uint uniformBlockPoint = 0;
         uint textureUnit = 0;
         import std.stdio;
-        //writeln(getUniforms["condition"]());
         foreach (getUniform; getUniforms) {
             getUniform().apply(this.shader, uniformBlockPoint, textureUnit);
         }

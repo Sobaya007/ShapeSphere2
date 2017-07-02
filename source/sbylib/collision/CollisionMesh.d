@@ -20,17 +20,30 @@ class CollisionMesh {
     }
 
     CollisionInfo collide(CollisionMesh mesh) {
-        CollisionInfo info =
-            this.geom.visit!(
-                (CollisionCapsule cap) =>
-                    mesh.geom.visit!(
-                        (CollisionCapsule cap2) => collide(cap, cap2),
-                        (CollisionPolygon pol) => collide(cap, pol)),
-                (CollisionPolygon pol) =>
-                    mesh.geom.visit!(
-                        (CollisionCapsule cap) => collide(cap, pol),
-                        (CollisionPolygon pol2) => collide(pol, pol2)
-                    ));
+        CollisionInfo info;
+        if (this.geom.type == typeid(CollisionCapsule)) {
+            auto cap = *this.geom.peek!CollisionCapsule;
+            if (mesh.geom.type == typeid(CollisionCapsule)) {
+                auto cap2 = *mesh.geom.peek!CollisionCapsule;
+                info = collide(cap, cap2);
+            } else if (mesh.geom.type == typeid(CollisionPolygon)) {
+                auto pol = *mesh.geom.peek!CollisionPolygon;
+                info = collide(cap, pol);
+            } else {
+                assert(false);
+            }
+        } else if (this.geom.type == typeid(CollisionPolygon)) {
+            auto pol = *this.geom.peek!CollisionPolygon;
+            if (mesh.geom.type == typeid(CollisionCapsule)) {
+                auto cap = *mesh.geom.peek!CollisionCapsule;
+                info = collide(cap, pol);
+            } else if (mesh.geom.type == typeid(CollisionPolygon)) {
+                auto pol2 = *mesh.geom.peek!CollisionPolygon;
+                info = collide(pol, pol2);
+            } else {
+                assert(false);
+            }
+        } 
         info.mesh1 = this;
         info.mesh2 = mesh;
         return info;

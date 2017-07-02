@@ -134,9 +134,11 @@ void setViewport(uint x, uint y, uint w, uint h) out {
     glViewport(x,y,w,h);
 }
 
-debug void checkGlError() {
-    auto errorCode = glGetError().to!GlErrorType;
-    assert(errorCode == GlErrorType.NoError, errorCode.to!string);
+void checkGlError() {
+    debug {
+        auto errorCode = glGetError().to!GlErrorType;
+        assert(errorCode == GlErrorType.NoError, errorCode.to!string);
+    }
 }
 
 deprecated void lineWidth(float width) {

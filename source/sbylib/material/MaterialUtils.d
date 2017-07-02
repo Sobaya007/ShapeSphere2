@@ -65,8 +65,11 @@ class MaterialUtils {
                 constructor();
             }
             foreach (uni; this.getUniforms) {
-                uni.setName(replace(uni.getName()));
-                mat.setUniform(() => uni);
+                assert(uni, "Uniform variable must be initialized");
+                (u) { //謎回避
+                    u.setName(replace(u.getName()));
+                    mat.setUniform(() => u);
+                }(uni);
             }
         }
     }

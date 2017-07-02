@@ -88,15 +88,15 @@ class Core {
         this.endFlag = true;
     }
 
-    Process addProcess(const void delegate(Process) func) {
-        auto proc = new Process(func);
+    Process addProcess(const void delegate(Process) func, string name) {
+        auto proc = new Process(func, name);
         this.processes ~= proc;
         return proc;
     }
 
     //メインループ
     private void mainLoop() {
-        this.fpsBalancer.loop(() {
+        this.fpsBalancer.loop({
             clearColor(vec4(0,.5,.5,1));
             clear(ClearMode.Color, ClearMode.Depth);
             this.processes = this.processes.filter!(proc => proc.step).array;

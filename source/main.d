@@ -2,12 +2,28 @@ import std.stdio;
 import std.math;
 import std.algorithm;
 import std.array;
+import std.getopt;
 
 import sbylib;
 import player.ElasticSphere;
 import player.Player;
+import plot.Main;
 
-void main() {
+extern(C) __gshared string[] rt_options = ["gcopt=profile:1"];
+
+void main(string[] args) {
+    getopt(args, "mode", &runMode);
+    final switch(runMode) {
+    case RunMode.Game:
+        gameMain();
+        break;
+    case RunMode.Plot:
+        plotMain();
+        break;
+    }
+}
+
+void gameMain() {
     auto core = new Core();
 
     auto world3d = new World;
@@ -22,7 +38,7 @@ void main() {
         world3d.render(core.getWindow().getRenderTarget());
         clear(ClearMode.Depth);
         world2d.render(core.getWindow().getRenderTarget());
-    });
+    }, "render");
 
     auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
     Player player = new Player(core.getWindow(), world3d.camera);
@@ -61,18 +77,25 @@ void main() {
     auto fpsCounter = new FpsCounter!100();
     import std.format;
 
+    auto fpsLogger = new TimeLogger("FPS");
+
     core.addProcess((proc) {
         fpsCounter.update();
+        fpsLogger.directWrite(fpsCounter.getFPS());
         core.getWindow().setTitle(format!"FPS[%d]"(fpsCounter.getFPS()));
+    }, "fps update");
+    core.addProcess((proc) {
         player.esphere.move();
         player.step();
         control.step();
+    }, "player update");
+    core.addProcess((proc) {
         if (core.getKey(KeyButton.Escape)) core.end();
         if (core.getKey(KeyButton.KeyR)) ConstantManager.reload();
         if (core.getKey(KeyButton.KeyW)) player.esphere.mesh.mat.config.polygonMode = PolygonMode.Line;
         else player.esphere.mesh.mat.config.polygonMode = PolygonMode.Fill;
         player.esphere.condition = !core.getKey(KeyButton.Enter);
-    });
+    }, "last");
 
     core.start();
 }

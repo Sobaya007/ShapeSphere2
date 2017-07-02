@@ -3,6 +3,8 @@ module sbylib.utils.FpsCounter;
 import sbylib;
 import std.datetime;
 
+import std.datetime;
+
 class FpsCounter(uint N) {
     long[N] periods;
 

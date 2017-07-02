@@ -7,7 +7,8 @@ import sbylib.mesh.Object3D;
 import sbylib.utils.Watcher;
 
 class CollisionCapsule {
-    float radius;
+    const float radius;
+    Object3D obj;
     vec3 start;
     vec3 end;
 
@@ -15,5 +16,6 @@ class CollisionCapsule {
         this.radius = radius;
         this.start = start;
         this.end = end;
+        this.obj = new Object3D();
     }
 }
