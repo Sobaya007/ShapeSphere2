@@ -50,9 +50,11 @@ class DataSet {
             mat.ambient = color;
             auto mesh = new Mesh(geom, mat);
             lineMesh[key] = mesh;
-            Label label = new Label(font, 0.05, color);
-            label.text = key;
+            Label label = new Label(font);
+            label.setSize(0.05);
+            label.renderText(cast(dstring)key);
             label.obj.pos = vec3(0.9, baseY, 0);
+            label.setColor(vec4(color, 1));
             labels[key] = label;
 
             baseY -= 0.1;

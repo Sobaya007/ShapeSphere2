@@ -8,6 +8,8 @@ import sbylib;
 import std.stdio;
 import std.random;
 import std.math;
+import std.algorithm;
+import std.array;
 
 void plotMain() {
     auto core = Core();
@@ -24,7 +26,7 @@ void plotMain() {
         world.addMesh(value);
     }
     foreach (key, value; dataset.labels) {
-        world.addMesh(value.meshes);
+        world.addMesh(value.letters.map!(l => l.getMesh()).array);
     }
 
     auto render = delegate (Process proc) {

@@ -5,7 +5,7 @@ import sbylib.wrapper.gl;
 import sbylib.setting;
 import std.string;
 import sbylib.wrapper.freetype.Constants;
-import sbylib.wrapper.freetype.Character;
+import sbylib.wrapper.freetype.LetterInfo;
 
 class Font {
 
@@ -13,7 +13,7 @@ class Font {
         FT_Face face;
     }
     immutable int size;
-    Character[char] characters;
+    LetterInfo[dchar] characters;
     private FontType fontType;
 
     this(FT_Face face, int size, FontType fontType) {
@@ -22,9 +22,10 @@ class Font {
         assert(!FT_Set_Pixel_Sizes(this.face, 0, size), "Failed to set pixel size!");
     }
 
-    void loadChar(char c, FontLoadType loadType) {
+    void loadChar(dchar c, FontLoadType loadType) {
+        if (c in this.characters) return;
         assert (!FT_Load_Char(this.face, c, loadType), "Failed to load character!");
-        this.characters[c] = new Character(this.face.glyph, this.face.size.metrics, this.fontType);
+        this.characters[c] = new LetterInfo(this.face.glyph, this.face.size.metrics, this.fontType);
     }
 
 }

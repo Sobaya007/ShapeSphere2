@@ -10,6 +10,7 @@ import sbylib.core.RenderTarget;
 import sbylib.light.PointLight;
 import sbylib.material.glsl.UniformDemand;
 import sbylib.math.Vector;
+import std.traits;
 
 class World {
     private Mesh[] meshes;
@@ -43,7 +44,8 @@ class World {
         this.pointLightBlockBuffer.addWatch(this.pointLightBlock);
     }
 
-    void addMesh(Mesh[] meshes...) in {
+    void addMesh(T)(T[] meshes...) 
+    if (isAssignable!(Mesh, T)) in {
         assert(this.camera.get());
     } body{
         this.meshes ~= meshes;

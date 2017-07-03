@@ -1,4 +1,4 @@
-module sbylib.wrapper.freetype.LetterInfo;
+module sbylib.wrapper.freetype.Character;
 
 import derelict.freetype.ft;
 import sbylib.wrapper.gl.Constants;

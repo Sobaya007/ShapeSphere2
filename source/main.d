@@ -8,6 +8,7 @@ import sbylib;
 import player.ElasticSphere;
 import player.Player;
 import plot.Main;
+import examples.text2d;
 
 extern(C) __gshared string[] rt_options = ["gcopt=profile:1"];
 
@@ -15,7 +16,8 @@ void main(string[] args) {
     getopt(args, "mode", &runMode);
     final switch(runMode) {
     case RunMode.Game:
-        gameMain();
+        //gameMain();
+        mainText2d();
         break;
     case RunMode.Plot:
         plotMain();

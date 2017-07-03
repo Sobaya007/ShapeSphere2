@@ -29,3 +29,15 @@ class Mesh {
         this.geom.render(this.vao);
     }
 }
+
+class MeshTemp(G, M) : Mesh {
+
+    G geom;
+    M mat;
+
+    this(G geom, M mat, Object3D obj = new Object3D) {
+        super(geom, mat, obj);
+        this.geom = geom;
+        this.mat = mat;
+    }
+}
