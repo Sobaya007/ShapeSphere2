@@ -9,7 +9,7 @@ class FrameBuffer {
     private immutable uint id;
 
     this() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         uint id;
         glGenFramebuffers(1, &id);
@@ -17,19 +17,19 @@ class FrameBuffer {
     }
 
     ~this() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glDeleteBuffers(1, &id);
     }
 
     void bind(FrameBufferBindType type) const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glBindFramebuffer(type, this.id);
     }
 
     void unbind(FrameBufferBindType type) const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glBindFramebuffer(type, 0);
     }

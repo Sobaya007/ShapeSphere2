@@ -39,7 +39,7 @@ class UniformTemp(Type) : Uniform {
     }
 
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         auto loc = this.getLocation(program);
         static if (isInstanceOf!(Vector, Type)) {
@@ -55,7 +55,7 @@ class UniformTemp(Type) : Uniform {
     }
 
     private uint getLocation(const Program program) const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
         //if (uLoc == -1) writeln(name ~ " is not found or used."); 

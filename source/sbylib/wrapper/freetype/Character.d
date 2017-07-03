@@ -52,9 +52,9 @@ class Character {
             }
         }
 
-        setPixelUnpackAlign(1);
+        GlFunction.setPixelUnpackAlign(1);
         auto texture = new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.R, maxWidth, maxHeight, ImageFormat.R, buffer.ptr);
-        setPixelUnpackAlign(4);
+        GlFunction.setPixelUnpackAlign(4);
 
         texture.setWrapS(TextureWrap.ClampToEdge);
         texture.setWrapT(TextureWrap.ClampToEdge);

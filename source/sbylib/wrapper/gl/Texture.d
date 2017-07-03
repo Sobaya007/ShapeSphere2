@@ -21,12 +21,12 @@ class Texture {
     } body {
         uint id;
         glGenTextures(1, &id);
-        checkGlError();
+        GlFunction.checkError();
         this.id = id;
         this.target = target;
         this.bind();
-        glTexImage2D(target, mipmapLevel, iformat, width, height, 0, format, getTypeEnum!Type, data);
-        checkGlError();
+        glTexImage2D(target, mipmapLevel, iformat, width, height, 0, format, GlFunction.getTypeEnum!Type, data);
+        GlFunction.checkError();
         this.setMagFilter(TextureFilter.Linear);
         this.setMinFilter(TextureFilter.Linear);
         this.setWrapS(TextureWrap.Repeat);
@@ -57,24 +57,24 @@ class Texture {
     private void setParameter(T)(TextureParamName pname, T value) {
         this.bind();
         glTexParameteri(this.target, pname, value);
-        checkGlError();
+        GlFunction.checkError();
         this.unbind();
     }
 
     void bind() const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glBindTexture(this.target, this.id);
     }
 
     void unbind() const out {
-        checkGlError();
+        GlFunction.checkError();
     } body{
         glBindTexture(this.target, 0);
     }
 
     void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glFramebufferTexture2D(bindType, attachType, this.target, this.id, 0);
     }

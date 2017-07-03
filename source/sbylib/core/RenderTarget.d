@@ -1,10 +1,14 @@
 module sbylib.core.RenderTarget;
 
+import sbylib.math.Vector;
 import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.FrameBuffer;
 import sbylib.wrapper.gl.RenderBuffer;
 import sbylib.wrapper.gl.Texture;
 import sbylib.wrapper.glfw.Window;
+
+import std.algorithm;
 
 class RenderTarget {
 
@@ -13,6 +17,8 @@ class RenderTarget {
     private Texture[FrameBufferAttachType] textures;
     const uint width, height;
     uint viewportX, viewportY, viewportWidth, viewportHeight;
+    vec4 clearColor = vec4(0, .5, .5, 1);
+    int clearStencil;
 
     this(uint width, uint height) {
         this.frameBuffer = new FrameBuffer();
@@ -77,5 +83,15 @@ class RenderTarget {
     void renderEnd() {
         if (!this.frameBuffer) return;
         this.frameBuffer.unbind(FrameBufferBindType.Both);
+    }
+   
+    void clear(ClearMode[] clearMode...) {
+        if (clearMode.canFind(ClearMode.Color)) {
+            GlFunction.clearColor(this.clearColor);
+        }
+        if (clearMode.canFind(ClearMode.Stencil)) {
+            GlFunction.clearStencil(this.clearStencil);
+        }
+        GlFunction.clear(clearMode);
     }
 }

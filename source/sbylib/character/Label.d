@@ -62,4 +62,6 @@ class Label {
         }
         return meshes;
     }
+
+    alias meshes this;
 }

@@ -24,7 +24,8 @@ void main(string[] args) {
 }
 
 void gameMain() {
-    auto core = new Core();
+    auto core = Core();
+    auto screen = core.getWindow().getRenderTarget();
 
     auto world3d = new World;
     world3d.camera = new PerspectiveCamera(1, 120, 0.1, 100);
@@ -35,9 +36,10 @@ void gameMain() {
     world2d.camera = new OrthoCamera(2,2,-1,1);
 
     core.addProcess((proc) {
-        world3d.render(core.getWindow().getRenderTarget());
-        clear(ClearMode.Depth);
-        world2d.render(core.getWindow().getRenderTarget());
+        screen.clear(ClearMode.Color, ClearMode.Depth);
+        world3d.render(screen);
+        screen.clear(ClearMode.Depth);
+        world2d.render(screen);
     }, "render");
 
     auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));

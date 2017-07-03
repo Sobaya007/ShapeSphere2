@@ -14,7 +14,7 @@ class Program {
     package immutable uint id;
 
     this(const Shader[] shaders) out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         this.id = glCreateProgram();
         foreach (shader; shaders) {
@@ -25,7 +25,7 @@ class Program {
     }
 
     ~this() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glDeleteProgram(id);
     }
@@ -33,34 +33,34 @@ class Program {
     inout {
 
         void use() out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             glUseProgram(id);
         }
 
         void enableAttribute(Attribute attr) out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             immutable loc = this.getAttribLocation(attr.name);
             glEnableVertexAttribArray(loc);
         }
 
         void attachAttribute(Attribute attr, VertexBuffer buffer) out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             immutable loc = this.getAttribLocation(attr.name);
             buffer.asAttribute(attr.dim, loc);
         }
 
         bool hasAttribute(string name) out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);
             return vLoc != -1;
         }
 
         uint getAttribLocation(string name) out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);
             assert(vLoc != -1);
@@ -68,19 +68,19 @@ class Program {
         }
 
         private void attachShader(const Shader shader) out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             glAttachShader(this.id, shader.id);
         }
 
         private void linkProgram() out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             glLinkProgram(id);
         }
 
         private int getInfo(ProgramParamName name) out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             int res;
             glGetProgramiv(this.id, name, &res);
@@ -96,7 +96,7 @@ class Program {
         }
 
         private string getInfoLog() out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             immutable logLength = this.getLogLength;
             char[] log = new char[logLength];

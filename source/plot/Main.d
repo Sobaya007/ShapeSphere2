@@ -10,7 +10,8 @@ import std.random;
 import std.math;
 
 void plotMain() {
-    auto core = new Core;
+    auto core = Core();
+    auto screen = core.getWindow().getRenderTarget();
     auto world = new World();
 
     auto camera = new OrthoCamera(1, 1, -1, 1);
@@ -27,8 +28,8 @@ void plotMain() {
     }
 
     auto render = delegate (Process proc) {
-        clear(ClearMode.Color, ClearMode.Depth);
-        world.render(core.getWindow().getRenderTarget());
+        screen.clear(ClearMode.Color, ClearMode.Depth);
+        world.render(screen);
     };
 
     auto mouse = new Mouse;

@@ -33,6 +33,9 @@ import std.array;
  */
 
 class Core {
+
+    mixin Utils.singleton;
+
     static this() {
         /*
         string path = std.file.thisExePath();
@@ -65,7 +68,7 @@ class Core {
     private bool endFlag;
 
     //初期化関数
-    this() {
+    private this() {
         ConstantManager.init();
         this.window = new Window("Window Title", 800, 600);
         this.fpsBalancer = new FpsBalancer(60);
@@ -94,11 +97,13 @@ class Core {
         return proc;
     }
 
+    Process addProcess(alias func)() {
+        return this.addProcess(func, "Po");
+    }
+
     //メインループ
     private void mainLoop() {
         this.fpsBalancer.loop({
-            clearColor(vec4(0,.5,.5,1));
-            clear(ClearMode.Color, ClearMode.Depth);
             this.processes = this.processes.filter!(proc => proc.step).array;
             this.window.swapBuffers();
             this.window.pollEvents();
