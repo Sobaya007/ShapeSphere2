@@ -1,6 +1,7 @@
 module sbylib.camera.Camera;
 
 import sbylib.math.Matrix;
+import sbylib.math.Vector;
 import sbylib.mesh.Object3D;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.utils.Watcher;

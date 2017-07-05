@@ -8,11 +8,13 @@ import sbylib.geometry.Geometry;
 import sbylib.geometry.geometry3d.SphereUV;
 import sbylib.geometry.Vertex;
 
+alias GeometryCapsule = GeometryNT;
+
 class Capsule {
 
     private this() {}
 
-    public static Geometry create(float radius, float length, uint tCut = 20, uint pCut = 20) {
+    public static GeometryCapsule create(float radius, float length, uint tCut = 20, uint pCut = 20) {
         VertexNT[] vertices =
             northern(radius, length, tCut, pCut)
           ~ southern(radius, length, tCut, pCut);

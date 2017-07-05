@@ -1,3 +1,7 @@
 module sbylib.collision.geometry.CollisionGeometry;
 
-interface CollisionGeometry {}
+import sbylib.collision.CollisionEntry;
+
+interface CollisionGeometry {
+    void setParent(CollisionEntry);
+}

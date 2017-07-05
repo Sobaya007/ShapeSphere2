@@ -9,9 +9,9 @@ import sbylib.math.Vector;
 import std.range;
 import std.algorithm;
 
-class Line {
+alias GeometryLine = GeometryTemp!([Attribute.Position, Attribute.UV], Prim.Line);
 
-    alias GeometryLine = GeometryTemp!([Attribute.Position, Attribute.UV], Prim.Line);
+class Line {
 
     static GeometryLine create(vec3 s, vec3 e) {
         auto positions = [s, e];

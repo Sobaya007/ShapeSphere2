@@ -13,7 +13,8 @@ import std.array;
 
 void plotMain() {
     auto core = Core();
-    auto screen = core.getWindow().getRenderTarget();
+    auto window = core.getWindow();
+    auto screen = window.getRenderTarget();
     auto world = new World();
 
     auto camera = new OrthoCamera(1, 1, -1, 1);
@@ -34,9 +35,9 @@ void plotMain() {
         world.render(screen);
     };
 
-    auto mouse = new Mouse;
+    auto mouse = new Mouse(window);
     auto mouseMove = delegate (Process proc) {
-        mouse.update(core.getWindow());
+        mouse.update();
         if (mouse.isPressed(MouseButton.Button1)) {
             camera.width  -= mouse.getDif().x * 0.001;
             camera.height -= mouse.getDif().y * 0.001;

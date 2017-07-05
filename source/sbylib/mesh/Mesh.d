@@ -28,6 +28,10 @@ class Mesh {
         this.mat.set();
         this.geom.render(this.vao);
     }
+
+    void createCollisionPolygons() {
+        this.geom.createCollisionPolygons(this.obj);
+    }
 }
 
 class MeshTemp(G, M) : Mesh {
@@ -35,9 +39,9 @@ class MeshTemp(G, M) : Mesh {
     G geom;
     M mat;
 
-    this(G geom, M mat, Object3D obj = new Object3D) {
-        super(geom, mat, obj);
+    this(G geom, Object3D obj = new Object3D) {
+        this.mat = new M;
+        super(geom, this.mat, obj);
         this.geom = geom;
-        this.mat = mat;
     }
 }

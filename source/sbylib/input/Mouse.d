@@ -1,8 +1,12 @@
 module sbylib.input.Mouse;
 
 import sbylib.math.Vector;
+import sbylib.math.Matrix;
 import sbylib.wrapper.glfw.Constants;
 import sbylib.wrapper.glfw.Window;
+import sbylib.collision.geometry.CollisionRay;
+import sbylib.camera.Camera;
+import sbylib.utils.Functions;
 
 import std.traits;
 
@@ -10,17 +14,24 @@ class Mouse {
 
     private vec2 pos;
     private vec2 dif;
+    private bool[MouseButton] before;
     private bool[MouseButton] pressed;
+    private Window window;
 
-    this() {
+    this(Window window) {
+        this.window = window;
+        foreach (button; EnumMembers!MouseButton) {
+            this.pressed[button] = false;
+        }
     }
 
-    void update(Window window) {
+    void update() {
         auto before = this.pos;
-        this.pos = window.getMousePos();
+        this.pos = (this.window.getMousePos() / vec2(this.window.getWidth(), this.window.getHeight()) * 2 - 1) * vec2(1, -1);
         this.dif = pos - before;
         foreach (button; EnumMembers!MouseButton) {
-            this.pressed[button] = window.getMouseButton(button);
+            this.before[button] = this.pressed[button];
+            this.pressed[button] = this.window.getMouseButton(button);
         }
     }
 
@@ -34,5 +45,13 @@ class Mouse {
 
     bool isPressed(MouseButton button) const {
         return this.pressed[button];
+    }
+
+    bool justPressed(MouseButton button) const {
+        return !this.before[button] && this.pressed[button];
+    }
+
+    bool justReleased(MouseButton button) const {
+        return this.before[button] && !this.pressed[button];
     }
 }

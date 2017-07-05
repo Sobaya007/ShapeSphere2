@@ -10,6 +10,9 @@ import sbylib.geometry.Vertex;
 import sbylib.geometry.Face;
 import sbylib.material.Material;
 import sbylib.utils.Functions;
+import sbylib.collision.geometry.CollisionPolygon;
+import sbylib.collision.CollisionEntry;
+import sbylib.mesh.Object3D;
 
 import std.range;
 import std.algorithm;
@@ -21,6 +24,8 @@ interface Geometry {
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
     IndexBuffer getIndexBuffer();
     void updateBuffer();
+    void createCollisionPolygons(Object3D obj);
+    CollisionEntry[] getCollisionPolygons();
 }
 
 alias GeometryP = GeometryTemp!([Attribute.Position]);
@@ -28,7 +33,8 @@ alias GeometryN = GeometryTemp!([Attribute.Position, Attribute.Normal]);
 alias GeometryT = GeometryTemp!([Attribute.Position, Attribute.UV]);
 alias GeometryNT = GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV]);
 
-class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry{
+class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
+    enum Attributes = A;
     alias VertexA = Vertex!(Attributes);
 
     VertexA[] vertices;
@@ -36,6 +42,7 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
     const uint indicesCount;
     private IndexBuffer ibo;
     private Tuple!(Attribute, VertexBuffer)[] buffers;
+    private CollisionEntry[] colPolygons;
 
     this(VertexA[] vertices) {
         this(vertices, iota(cast(uint)vertices.length).array);
@@ -101,5 +108,19 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
             }
             buffer.unmap();
         }
+    }
+
+    override void createCollisionPolygons(Object3D obj) {
+        foreach (i, face; this.faces) {
+            auto poly = new CollisionEntry(new CollisionPolygon(
+                    this.vertices[face.indexList[0]].position,
+                    this.vertices[face.indexList[1]].position,
+                    this.vertices[face.indexList[2]].position), obj);
+            this.colPolygons ~= poly;
+        }
+    }
+
+    override CollisionEntry[] getCollisionPolygons() {
+        return this.colPolygons;
     }
 }

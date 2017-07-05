@@ -19,11 +19,9 @@ class Letter {
         font.loadChar(c, FontLoadType.Render);
         this.info = font.characters[c];
         auto geom = Rect.create(height * this.info.width / this.info.height, height);
-        auto mat = new TextMaterial;
-        mat.texture = this.info.texture;
-        mat.color = vec4(0,0,0,1);
-
-        this.mesh = new LetterMesh(geom, mat);
+        this.mesh = new LetterMesh(geom);
+        this.mesh.mat.texture = this.info.texture;
+        this.mesh.mat.color = vec4(0,0,0,1);
     }
 
     LetterMesh getMesh() {

@@ -6,12 +6,15 @@ import std.typetuple;
 static import std.string;
 import sbylib.setting;
 import sbylib.math.Vector;
+import sbylib.math.Matrix;
 import sbylib.character.Label;
 import sbylib.wrapper.freetype.Font;
 import sbylib.wrapper.freetype.FontLoader;
 import sbylib.wrapper.freeimage.Image;
 import sbylib.wrapper.gl.Texture;
 import sbylib.wrapper.gl.Constants;
+import sbylib.camera.Camera;
+import sbylib.collision.geometry.CollisionRay;
 
 class Utils {
 
@@ -125,6 +128,26 @@ static:
     bool and(T)(bool delegate(T) func, T[] elements...) {
         foreach (e; elements) if (!func(e)) return false;
         return true;
+    }
+
+    vec3 projToView(vec3 projPos, Camera camera) {
+        auto projInv = mat4.invert(camera.projMatrix());
+        auto row3 = projInv.row[3];
+
+        auto projPos4 = vec4(projPos, 1);
+        auto cs = 1 / row3.dot(projPos4);
+        return (projInv * projPos4 * cs).xyz;
+    }
+
+    void getRay(vec2 screenPos, Camera camera, ref CollisionRay ray) {
+        auto viewStart = Utils.projToView(vec3(screenPos, 0), camera);
+        auto viewEnd = Utils.projToView(vec3(screenPos, 1), camera);
+
+        auto viewInv = camera.getObj().worldMatrix;
+        auto viewInv3 = viewInv.toMatrix3;
+
+        ray.start = (viewInv * vec4(viewStart, 1)).xyz;
+        ray.dir = viewInv3 * normalize(viewEnd - viewStart);
     }
 
     //deprecated void drawRect(float cx, float cy, float width, float height, vec4 color = white) {

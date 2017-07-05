@@ -10,10 +10,16 @@ import sbylib.core.RenderTarget;
 import sbylib.light.PointLight;
 import sbylib.material.glsl.UniformDemand;
 import sbylib.math.Vector;
+import sbylib.wrapper.gl.Attribute;
+import sbylib.geometry.Geometry;
+import sbylib.collision.geometry.CollisionRay;
+import sbylib.collision.CollisionEntry;
 import std.traits;
+import std.algorithm;
 
 class World {
     private Mesh[] meshes;
+    private CollisionEntry[] colMeshes;
     Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
     private Watcher!umat4 viewMatrix;
     private Watcher!umat4 projMatrix;
@@ -56,6 +62,18 @@ class World {
         }
     }
 
+    void addColMesh(T)(T[] meshes...)
+    if (isAssignable!(CollisionEntry, T)) {
+        this.colMeshes ~= meshes;
+    }
+
+    void addColMeshAsPolygon(T)(T[] meshes...)
+    if (isAssignable!(Mesh, T)) {
+        foreach (m; meshes) {
+            this.colMeshes ~= m.geom.getCollisionPolygons();
+        }
+    }
+
     void addPointLight(PointLight pointLight) {
         this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
     }
@@ -66,6 +84,20 @@ class World {
             m.render();
         }
         target.renderEnd();
+    }
+
+    CollisionEntry rayCastMeshes(CollisionRay ray) {
+        import std.stdio;
+        CollisionEntry result;
+        float minDist = 1145141919.0f;
+        foreach (c; this.colMeshes) {
+            auto colInfo = c.collide(ray);
+            if (!colInfo.collided) continue;
+            if (minDist < colInfo.colDist) continue;
+            minDist = colInfo.colDist;
+            result = c;
+        }
+        return result;
     }
 
     private void resolveUniformDemand(Mesh mesh, UniformDemand demand) {

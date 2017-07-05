@@ -31,7 +31,7 @@ class ElasticSphere {
 
     Pair[] pairList;
 
-    CollisionMesh[] floors;
+    CollisionEntry[] floors;
     Mesh mesh;
     GeometryN geom;
     Particle[] particleList;
@@ -43,8 +43,6 @@ class ElasticSphere {
 
     vec3 collisionNormal;
     ubool condition;
-    CollisionMesh colMesh;
-    CollisionCapsule capsule;
 
     this()  {
         this.radius = DEFAULT_RADIUS;
@@ -87,9 +85,6 @@ class ElasticSphere {
             this.deflen += length(pair.p0.p - pair.p1.p);
         }
         this.deflen /= this.pairList.length;
-
-        this.capsule = new CollisionCapsule(0.1, this.mesh.obj.pos, this.mesh.obj.pos);
-        this.colMesh = new CollisionMesh(this.capsule);
     }
 
     void move() {
@@ -181,10 +176,6 @@ class ElasticSphere {
             v.position = (this.mesh.obj.viewMatrix * vec4(p.p - v.normal * needle(p.isStinger), 1)).xyz;
         }
         this.geom.updateBuffer();
-
-        this.capsule.end = this.capsule.start;
-        this.capsule.start = this.mesh.obj.pos;
-        this.capsule.start.y = 0;
     }
 
     private float needle(bool isNeedle){
@@ -226,7 +217,7 @@ class ElasticSphere {
         bool isGround;
         bool isStinger;
         Particle[] next;
-        CollisionMesh colMesh;
+        CollisionEntry colMesh;
         CollisionCapsule capsule;
 
         this(vec3 p) {
@@ -236,7 +227,7 @@ class ElasticSphere {
             this.force = vec3(0,0,0);
             this.extForce = vec3(0,0,0);
             this.capsule = new CollisionCapsule(0.1, this.p, this.p);
-            this.colMesh = new CollisionMesh(this.capsule);
+            this.colMesh = new CollisionEntry(this.capsule);
         }
 
         void move() {
@@ -249,7 +240,7 @@ class ElasticSphere {
                 if (!f.collide(this.colMesh).collided) {
                     continue;
                 }
-                auto floor = f.geom.peek!CollisionPolygon;
+                auto floor = cast(CollisionPolygon)f.geom;
                 float depth = -(p + n * needle(isStinger) - floor.positions[0]).dot(floor.normal);
                 if (depth > 0) {
                     auto po = v - dot(v, floor.normal) * floor.normal;
@@ -265,8 +256,8 @@ class ElasticSphere {
 
         void end() {
             force = vec3(0,0,0); //用済み
-            this.capsule.end = this.capsule.start;
-            this.capsule.start = p + n * needle(isStinger);
+            this.capsule.setEnd(this.capsule.start);
+            this.capsule.setStart(p + n * needle(isStinger));
         }
     }
 

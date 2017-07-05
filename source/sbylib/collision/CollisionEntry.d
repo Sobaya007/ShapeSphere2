@@ -1,4 +1,4 @@
-module sbylib.collision.CollisionMesh;
+module sbylib.collision.CollisionEntry;
 
 import std.math;
 import std.variant;
@@ -8,44 +8,55 @@ import sbylib.mesh.Object3D;
 import sbylib.collision.CollisionInfo;
 import sbylib.collision.geometry.CollisionCapsule;
 import sbylib.collision.geometry.CollisionPolygon;
+import sbylib.collision.geometry.CollisionRay;
+import sbylib.collision.geometry.CollisionGeometry;
 
-alias CollisionGeometry = Algebraic!(CollisionCapsule, CollisionPolygon);
-
-class CollisionMesh {
-    Variant userData;
+class CollisionEntry {
+    Variant parent;
     CollisionGeometry geom;
+    Object3D obj;
 
-    this(Geom)(Geom geom) if (CollisionGeometry.allowed!Geom) {
+    this(CollisionGeometry geom, Object3D obj = new Object3D)  {
         this.geom = geom;
+        this.obj = obj;
+        this.geom.setParent(this);
     }
 
-    CollisionInfo collide(CollisionMesh mesh) {
+    CollisionInfo collide(CollisionEntry mesh) {
         CollisionInfo info;
-        if (this.geom.type == typeid(CollisionCapsule)) {
-            auto cap = *this.geom.peek!CollisionCapsule;
-            if (mesh.geom.type == typeid(CollisionCapsule)) {
-                auto cap2 = *mesh.geom.peek!CollisionCapsule;
+        if (auto cap = cast(CollisionCapsule)this.geom) {
+            if (auto cap2 = cast(CollisionCapsule)mesh.geom) {
                 info = collide(cap, cap2);
-            } else if (mesh.geom.type == typeid(CollisionPolygon)) {
-                auto pol = *mesh.geom.peek!CollisionPolygon;
+            } else if (auto pol = cast(CollisionPolygon)mesh.geom) {
                 info = collide(cap, pol);
+            } else if (auto ray = cast(CollisionRay)mesh.geom) {
+                info = collide(cap, ray);
             } else {
                 assert(false);
             }
-        } else if (this.geom.type == typeid(CollisionPolygon)) {
-            auto pol = *this.geom.peek!CollisionPolygon;
-            if (mesh.geom.type == typeid(CollisionCapsule)) {
-                auto cap = *mesh.geom.peek!CollisionCapsule;
+        } else if (auto pol = cast(CollisionPolygon)this.geom) {
+            if (auto cap = cast(CollisionCapsule)mesh.geom) {
                 info = collide(cap, pol);
-            } else if (mesh.geom.type == typeid(CollisionPolygon)) {
-                auto pol2 = *mesh.geom.peek!CollisionPolygon;
+            } else if (auto pol2 = cast(CollisionPolygon)mesh.geom) {
                 info = collide(pol, pol2);
+            } else if (auto ray = cast(CollisionRay)mesh.geom) {
+                info = collide(pol, ray);
             } else {
                 assert(false);
             }
-        } 
+        }
         info.mesh1 = this;
         info.mesh2 = mesh;
+        return info;
+    }
+
+    CollisionInfo collide(CollisionRay ray) {
+        CollisionInfo info;
+        if (auto cap = cast(CollisionCapsule)this.geom) {
+            info = collide(cap, ray);
+        } else if (auto pol = cast(CollisionPolygon)this.geom) {
+            info = collide(pol, ray);
+        }
         return info;
     }
 
@@ -64,6 +75,55 @@ class CollisionMesh {
     public static CollisionInfo collide(CollisionPolygon polygon1, CollisionPolygon polygon2) {
         CollisionInfo info;
         info.collided = polygonDetection(polygon1, polygon2);
+        return info;
+    }
+
+    public static CollisionInfo collide(CollisionCapsule capsule, CollisionRay ray) {
+        vec3 p;
+        float d;
+        CollisionInfo info;
+        if (rayCastSphere(ray.start, ray.dir, capsule.start, capsule.radius, p, d)
+             && dot(p - capsule.start, capsule.end - capsule.start) < 0) {
+            info.collided = true;
+            info.colPoint = p;
+            info.colDist = d;
+            return info;
+        } else if (rayCastPoll(ray.start, ray.dir, capsule.start, capsule.end - capsule.start, capsule.radius, p, d)
+             && dot(p - capsule.end, capsule.start - capsule.end) < 0) {
+            info.collided = true;
+            info.colPoint = p;
+            info.colDist = d;
+            return info;
+        } else if (rayCastPoll(ray.start, ray.dir, capsule.start, capsule.end - capsule.start, capsule.radius, p, d)
+             && dot(p - capsule.start, capsule.end - capsule.start) >= 0
+            && dot(p - capsule.end ,capsule.start - capsule.end) >= 0) {
+            info.collided = true;
+            info.colPoint = p;
+            info.colDist = d;
+            return info;
+        }
+        info.collided = false;
+        return info;
+    }
+
+    public static CollisionInfo collide(CollisionPolygon polygon, CollisionRay ray) {
+        CollisionInfo info;
+        auto t = dot(polygon.positions[0] - ray.start, polygon.normal) / dot(ray.dir, polygon.normal);
+        if (t < 0) {
+            info.collided = false;
+            return info;
+        }
+        auto p = ray.start + t * ray.dir;
+        auto s0 = dot(polygon.normal, cross(polygon.positions[1] - polygon.positions[0], p - polygon.positions[1]));
+        auto s1 = dot(polygon.normal, cross(polygon.positions[2] - polygon.positions[1], p - polygon.positions[2]));
+        auto s2 = dot(polygon.normal, cross(polygon.positions[0] - polygon.positions[2], p - polygon.positions[0]));
+        if (s0 > 0 && s1 > 0 && s2 > 0
+            || s0 < 0 && s1 < 0 && s2 < 0) {
+            info.collided = true;
+            info.colPoint = p;
+            return info;
+        }
+        info.collided = false;
         return info;
     }
 
@@ -234,4 +294,94 @@ class CollisionMesh {
         if (max1 < min0) return false;
         return true;
     }
+
+
+    private static float segRayDistance(vec3 s1, vec3 e1, vec3 s2, vec3 e2) {
+        vec3 v1 = normalize(e1 - s1);
+        vec3 v2 = normalize(e2 - s2);
+        float d1 = dot(s2 - s1, v1);
+        float d2 = dot(s2 - s1, v2);
+        float dv = dot(v1, v2);
+        float denom = 1 - dv * dv;
+        if (denom > 0) {
+            denom = 1 / denom;
+            float t1 = (d1 - dv * d2) * denom;
+            float t2 = (d1 * dv - d2) * denom;
+            if (0 <= t1 && t1 <= 1) {
+                if (0 <= t2 && t2 <= 1) {
+                    // line & line
+                    vec3 p1 = s1 + t1 * v1;
+                    vec3 p2 = s2 + t2 * v2;
+                    return length(p1 - p2);
+                } else {
+                    // line & point
+                    t2 = clamp(t2, 0, 1);
+                    vec3 p2 = s2 + t2 * v2;
+                    return segPointDistance(s1, v1, p2);
+                }
+            } else {
+                if (0 <= t2 && t2 <= 1) {
+                    // line & point
+                    t1 = clamp(t1, 0, 1);
+                    vec3 p1 = s1 + t1 * v1;
+                    return segPointDistance(s2, v2, p1);
+                } else {
+                    t1 = clamp(t1, 0, 1);
+                    t2 = clamp(t2, 0, 1);
+                    vec3 p1 = s1 + t1 * v1;
+                    vec3 p2 = s2 + t2 * v2;
+                    return length(p1 - p2);
+                }
+            }
+        }
+        // parallel
+        return length(s1 - s2);
+    }
+
+    private static bool rayCastSphere(vec3 s, vec3 v, vec3 p, float r, out vec3 colPoint, out float colDist) {
+        auto a = lengthSq(v);
+        auto b = 2 * dot(v, s - p);
+        auto c = lengthSq(s-p) - r * r;
+        auto D = b * b - 4 * a * c;
+        if (D < 0) return false;
+        D = sqrt(D);
+        if (-b + D < 0) return false;
+        if (-b - D > 0) {
+            auto t = (-b - D) / (2 * a);
+            colDist = t;
+            colPoint = s + t * v;
+            return true;
+        }
+        auto t = (-b + D) / (2 * a);
+        colDist = t;
+        colPoint = s + t * v;
+        return true;
+    }
+
+    private static bool rayCastPoll(vec3 l, vec3 v, vec3 p, vec3 s, float r, out vec3 colPoint, out float colDist) {
+        auto dvv = dot(v,v);
+        auto dss = dot(s,s);
+        auto dpp = dot(p,p);
+        auto dsv = dot(s,v);
+        auto dvp = dot(v,p);
+        auto dps = dot(p,s);
+        auto a = dvv - dsv * dsv / dss;
+        auto b = 2 * (dvp - dps * dsv / dss);
+        auto c = dpp - dps*dps/dss - r*r;
+        auto D = b * b - 4 * a * c;
+        if (D < 0) return false;
+        D = sqrt(D);
+        if (-b + D < 0) return false;
+        if (-b - D > 0) {
+            auto t = (-b - D) / (2 * a);
+            colDist = t;
+            colPoint = l + t * v;
+            return true;
+        }
+        auto t = (-b + D) / (2 * a);
+        colDist = t;
+        colPoint = l + t * v;
+        return true;
+    }
+
 }

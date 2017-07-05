@@ -64,8 +64,8 @@ void gameMain() {
         geom1.vertices[1].uv = vec2(0,1);
         geom1.vertices[2].uv = vec2(0,0);
         geom1.updateBuffer();
-        auto mesh0 = new CollisionEntry(polygons[0]);
-        auto mesh1 = new CollisionEntry(polygons[1]);
+        auto mesh0 = new CollisionMesh(polygons[0]);
+        auto mesh1 = new CollisionMesh(polygons[1]);
 
         player.esphere.floors ~= mesh0;
         player.esphere.floors ~= mesh1;
