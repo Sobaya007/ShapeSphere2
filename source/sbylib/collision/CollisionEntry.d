@@ -12,7 +12,7 @@ import sbylib.collision.geometry.CollisionRay;
 import sbylib.collision.geometry.CollisionGeometry;
 
 class CollisionEntry {
-    Variant parent;
+    void delegate(CollisionInfo) onRayCast;
     CollisionGeometry geom;
     Object3D obj;
 
@@ -56,6 +56,9 @@ class CollisionEntry {
             info = collide(cap, ray);
         } else if (auto pol = cast(CollisionPolygon)this.geom) {
             info = collide(pol, ray);
+        }
+        if (this.onRayCast !is null) {
+            this.onRayCast(info);
         }
         return info;
     }

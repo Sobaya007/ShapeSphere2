@@ -29,6 +29,10 @@ class CollisionCapsule : CollisionGeometry {
         this._end = (this.parent.obj.viewMatrix * vec4(end, 1)).xyz;
     }
 
+    GeometryNT createGeometry() {
+        return Capsule.create(this.radius, length(this.start - this.end));
+    }
+
     override void setParent(CollisionEntry parent) {
         this.parent = parent;
         this.start = new Watcher!vec3((ref vec3 p) {

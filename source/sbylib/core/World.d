@@ -87,7 +87,6 @@ class World {
     }
 
     CollisionEntry rayCastMeshes(CollisionRay ray) {
-        import std.stdio;
         CollisionEntry result;
         float minDist = 1145141919.0f;
         foreach (c; this.colMeshes) {

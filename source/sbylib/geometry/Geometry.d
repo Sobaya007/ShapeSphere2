@@ -120,7 +120,9 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
         }
     }
 
-    override CollisionEntry[] getCollisionPolygons() {
+    override CollisionEntry[] getCollisionPolygons() in {
+        assert(this.colPolygons.length > 0);
+    } body {
         return this.colPolygons;
     }
 }
