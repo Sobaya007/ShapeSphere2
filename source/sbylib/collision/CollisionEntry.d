@@ -91,7 +91,7 @@ class CollisionEntry {
             info.colPoint = p;
             info.colDist = d;
             return info;
-        } else if (rayCastPoll(ray.start, ray.dir, capsule.start, capsule.end - capsule.start, capsule.radius, p, d)
+        } else if (rayCastSphere(ray.start, ray.dir, capsule.end, capsule.radius, p, d)
              && dot(p - capsule.end, capsule.start - capsule.end) < 0) {
             info.collided = true;
             info.colPoint = p;
@@ -362,6 +362,7 @@ class CollisionEntry {
     }
 
     private static bool rayCastPoll(vec3 l, vec3 v, vec3 p, vec3 s, float r, out vec3 colPoint, out float colDist) {
+        p -= l;
         auto dvv = dot(v,v);
         auto dss = dot(s,s);
         auto dpp = dot(p,p);
@@ -369,7 +370,7 @@ class CollisionEntry {
         auto dvp = dot(v,p);
         auto dps = dot(p,s);
         auto a = dvv - dsv * dsv / dss;
-        auto b = 2 * (dvp - dps * dsv / dss);
+        auto b = -2 * (dvp - dps * dsv / dss);
         auto c = dpp - dps*dps/dss - r*r;
         auto D = b * b - 4 * a * c;
         if (D < 0) return false;
