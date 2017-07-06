@@ -63,14 +63,10 @@ class MaterialUtils {
             static if(__traits(hasMember, typeof(this), "constructor")) {
                 constructor();
             }
-            import std.stdio;
-            writeln("------------------------");
             foreach (uni; this.getUniforms) {
                 assert(uni, "Uniform variable must be initialized");
                 (u) { //謎回避
                     u.setName(replace(u.getName()));
-                    import std.stdio;
-                    writeln(u.getName());
                     mat.setUniform(() => u);
                 }(uni);
             }
@@ -134,13 +130,9 @@ class MaterialUtils {
             }
             this.a = new A.Keeper(mat, s => replace(MaterialName1 ~ pascal(s)));
             this.b = new B.Keeper(mat, s => replace(MaterialName2 ~ pascal(s)));
-            import std.stdio;
-            writeln("------------------------");
             foreach (uni; this.getUniforms()) {
                 (u) { //謎回避
                     u.setName(replace(u.getName()));
-                    import std.stdio;
-                    writeln(u.getName());
                     mat.setUniform(() => u);
                 }(uni);
             }
@@ -151,7 +143,7 @@ class MaterialUtils {
             enum hasMemberThis = Utils.hasMember!(typeof(this), mem);
             enum hasMemberA = Utils.hasMember!(typeof(this.a), mem);
             enum hasMemberB = Utils.hasMember!(typeof(this.b), mem);
-            static if (hasMemberThis && !hasMemberA && !hasMemberB) {
+            static if (hasMemberThis) {
                 return mixin("this." ~ mem);
             } else static if (!hasMemberThis && hasMemberA && !hasMemberB) {
                 return mixin("this.a." ~ mem);
@@ -181,9 +173,9 @@ class MaterialUtils {
         template hasMember(string mem) {
             import sbylib.utils.Functions;
             enum hasMemberThis = Utils.hasMember!(typeof(this), mem);
-            enum hasMemberA = typeof(this.a).hasMember!(mem);
-            enum hasMemberB = typeof(this.b).hasMember!(mem);
-            static if (hasMemberThis && !hasMemberA && !hasMemberB) {
+            enum hasMemberA = Utils.hasMember!(typeof(this.a), mem);
+            enum hasMemberB = Utils.hasMember!(typeof(this.b), mem);
+            static if (hasMemberThis) {
                 enum hasMember = true;
             } else static if (!hasMemberThis && hasMemberA && !hasMemberB) {
                 enum hasMember = true;

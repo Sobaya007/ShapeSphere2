@@ -3,10 +3,11 @@ module examples.material;
 import sbylib;
 import std.stdio;
 
-alias PlaneMesh = MeshTemp!(GeometryPlane,
-        CheckerMaterial!(
-            CheckerMaterial!(LambertMaterial, LambertMaterial),
-            CheckerMaterial!(NormalMaterial, UvMaterial)));
+alias Check = CheckerMaterial!(LambertMaterial, LambertMaterial);
+alias Check2 = CheckerMaterial!(Check, Check);
+alias Check4 = CheckerMaterial!(Check2, Check2);
+
+alias PlaneMesh = MeshTemp!(GeometryPlane,Check4);
 
 void mainMaterial() {
     auto core = Core();
@@ -29,11 +30,21 @@ void mainMaterial() {
     screen.clearColor = vec4(0.2);
     core.addProcess(render, "render");
     polyMesh.obj.lookTo(vec3(0,1,0), vec3(0,0,1));
-    polyMesh.mat.ambient11 = vec3(0.8, 0.5, 0.5);
-    polyMesh.mat.ambient12 = vec3(0.8, 0.8, 0.8);
     polyMesh.mat.size = 0.02;
-    polyMesh.mat.size1 = 0.015;
+    polyMesh.mat.size1 = 0.01;
     polyMesh.mat.size2 = 0.01;
+    polyMesh.mat.size11 = 0.005;
+    polyMesh.mat.size12 = 0.005;
+    polyMesh.mat.size21 = 0.005;
+    polyMesh.mat.size22 = 0.005;
+    polyMesh.mat.ambient111 = vec3(0.5, 0.2, 0.2);
+    polyMesh.mat.ambient112 = vec3(0.2, 0.5, 0.2);
+    polyMesh.mat.ambient121 = vec3(0.2, 0.2, 0.5);
+    polyMesh.mat.ambient122 = vec3(0.5, 0.5, 0.5);
+    polyMesh.mat.ambient211 = vec3(0.8, 0.5, 0.5);
+    polyMesh.mat.ambient212 = vec3(0.5, 0.8, 0.5);
+    polyMesh.mat.ambient221 = vec3(0.5, 0.5, 0.8);
+    polyMesh.mat.ambient222 = vec3(0.8, 0.8, 0.8);
 
     core.start();
 }
