@@ -58,7 +58,7 @@ class UniformTemp(Type) : Uniform {
         GlFunction.checkError();
     } body {
         int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
-        //if (uLoc == -1) writeln(name ~ " is not found or used."); 
+        if (uLoc == -1) assert(false, name ~ " is not found or used."); 
         return uLoc;
     }
 

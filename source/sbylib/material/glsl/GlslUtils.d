@@ -103,11 +103,15 @@ static:
 
     Ast mergeASTs(Ast[] asts) {
         // modify AST
+        string pascal(string s) {
+            if (s.length == 0) return "";
+            return capitalize(to!string(s[0])) ~ s[1..$];
+        }
         asts = asts.map!((ast) {
             if (ast.name == "main") return ast;
             ast.outParameterIntoMain();
             ast.getMainFunction().id = "";
-            ast.replaceID(str => ast.name ~ capitalize(str));
+            ast.replaceID(str => ast.name ~ pascal(str));
             return ast;
         }).array;
         auto vertex = asts.map!(ast => ast.getStatements!Sharp().filter!(sharp => sharp.type == "vertex")).join;

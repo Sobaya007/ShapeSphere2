@@ -98,11 +98,13 @@ class Ast {
 
     void replaceID(string delegate(string) replace) {
         import std.conv;
+        import std.stdio;
         string[] IDs = [
             this.getStatements!RequireAttribute.map!(a => a.variable.id).array,
             this.getStatements!VariableDeclare.map!(v => v.id).array,
             this.getStatements!BlockDeclare.map!(b => b.getIDs()).join(),
-            this.getStatements!FunctionDeclare.map!(f => f.getIDs()).join()].join();
+            this.getStatements!FunctionDeclare.map!(f => f.getIDs()).join()].join()
+        .filter!(id => id.length > 0).array;
         foreach (statement; this.statements.map!(to!Object)) {
             statement.castSwitch!(
                     (VariableDeclare v) => v.replaceID(replace),

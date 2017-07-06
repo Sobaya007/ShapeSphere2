@@ -43,6 +43,7 @@ class Material {
         uint textureUnit = 0;
         import std.stdio;
         foreach (getUniform; getUniforms) {
+            //writeln(getUniform());
             getUniform().apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
@@ -74,9 +75,10 @@ class MaterialTemp(UniformKeeper) : Material {
 
     this() {
         if (!demands) {
-            auto asts = UniformKeeper.generateASTs();
-            auto vertAST = asts[0];
-            auto fragAST = asts[1];
+            auto fragAST = UniformKeeper.generateFragmentAST();
+            auto vertAST = GlslUtils.generateVertexAST(fragAST);
+            import std.stdio;
+            //writeln(fragAST.getCode);
             demands = GlslUtils.requiredUniformDemands([vertAST, fragAST]);
             vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
             fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);

@@ -10,6 +10,7 @@ import player.Player;
 import plot.Main;
 import examples.text2d;
 import examples.mouse;
+import examples.material;
 
 extern(C) __gshared string[] rt_options = ["gcopt=profile:1"];
 
@@ -18,7 +19,8 @@ void main(string[] args) {
     final switch(runMode) {
     case RunMode.Game:
         //gameMain();
-        mainMouse();
+        //mainMouse();
+        mainMaterial();
         break;
     case RunMode.Plot:
         plotMain();
