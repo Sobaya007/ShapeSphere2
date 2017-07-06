@@ -3,7 +3,10 @@ module examples.material;
 import sbylib;
 import std.stdio;
 
-alias PlaneMesh = MeshTemp!(GeometryPlane, CheckerMaterial!(LambertMaterial, CheckerMaterial!(LambertMaterial, LambertMaterial)));
+alias PlaneMesh = MeshTemp!(GeometryPlane,
+        CheckerMaterial!(
+            CheckerMaterial!(LambertMaterial, LambertMaterial),
+            CheckerMaterial!(NormalMaterial, UvMaterial)));
 
 void mainMaterial() {
     auto core = Core();
@@ -26,12 +29,11 @@ void mainMaterial() {
     screen.clearColor = vec4(0.2);
     core.addProcess(render, "render");
     polyMesh.obj.lookTo(vec3(0,1,0), vec3(0,0,1));
-    polyMesh.mat.ambient1 = vec3(0.8, 0.5, 0.5);
-    polyMesh.mat.ambient21 = vec3(0.5, 0.5, 0.8);
-    polyMesh.mat.ambient22 = vec3(0.5, 0.8, 0.5);
-    polyMesh.mat.size = 0.0312;
-    polyMesh.mat.size2 = 0.02;
-    writeln(polyMesh.mat.ambient1);
+    polyMesh.mat.ambient11 = vec3(0.8, 0.5, 0.5);
+    polyMesh.mat.ambient12 = vec3(0.8, 0.8, 0.8);
+    polyMesh.mat.size = 0.02;
+    polyMesh.mat.size1 = 0.015;
+    polyMesh.mat.size2 = 0.01;
 
     core.start();
 }

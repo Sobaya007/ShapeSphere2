@@ -64,10 +64,13 @@ class MaterialUtils {
                 constructor();
             }
             import std.stdio;
+            writeln("------------------------");
             foreach (uni; this.getUniforms) {
                 assert(uni, "Uniform variable must be initialized");
                 (u) { //謎回避
                     u.setName(replace(u.getName()));
+                    import std.stdio;
+                    writeln(u.getName());
                     mat.setUniform(() => u);
                 }(uni);
             }
@@ -132,9 +135,12 @@ class MaterialUtils {
             this.a = new A.Keeper(mat, s => replace(MaterialName1 ~ pascal(s)));
             this.b = new B.Keeper(mat, s => replace(MaterialName2 ~ pascal(s)));
             import std.stdio;
+            writeln("------------------------");
             foreach (uni; this.getUniforms()) {
                 (u) { //謎回避
                     u.setName(replace(u.getName()));
+                    import std.stdio;
+                    writeln(u.getName());
                     mat.setUniform(() => u);
                 }(uni);
             }

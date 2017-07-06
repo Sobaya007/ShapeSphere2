@@ -10,7 +10,11 @@ class CheckerMaterialUniformMaterial(Material1, Material2) : UniformKeeper {
     enum MaterialName1 = "Material1";
     enum MaterialName2 = "Material2";
     mixin MaterialUtils.declareMix!(Material1, Material2);
-    ufloat size = new ufloat("size");
+    ufloat size;
+
+    void constructor() {
+        this.size = new ufloat("size");
+    }
 }
 
 alias CheckerMaterial(Material1, Material2) = MaterialTemp!(CheckerMaterialUniformMaterial!(Material1, Material2));
