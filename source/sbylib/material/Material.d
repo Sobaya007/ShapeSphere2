@@ -18,7 +18,6 @@ alias umat4w = Watcher!(umat4);
 class Material {
 
     const Program shader;
-    private Uniform delegate()[string] getUniforms;
     RenderConfig config;
 
     this(const Program shader) {
@@ -26,17 +25,7 @@ class Material {
         this.config = new RenderConfig();
     }
 
-    final void setUniform(Uniform delegate() getUniform) {
-        auto name = getUniform().getName();
-        this.getUniforms[name] = getUniform;
-    }
-
-    final void setUniform(T)(Watcher!(T) watcher) {
-        auto name = watcher.get().getName();
-        this.getUniforms[name] = () => watcher.get();
-    }
-
-    final void set() {
+    final void set(Uniform delegate()[string] getUniforms) {
         this.config.set();
         this.shader.use();
         uint uniformBlockPoint = 0;
@@ -48,13 +37,8 @@ class Material {
         }
     }
 
-//    ref auto opDispatch(string s)() in {
-//        assert(s in getUniforms);
-//    } body {
-//        return getUniform[s];
-//    }
-
     abstract UniformDemand[] getDemands();
+    abstract Uniform[] getUniforms();
 }
 
 class MaterialTemp(UniformKeeper) : Material {
@@ -95,5 +79,9 @@ class MaterialTemp(UniformKeeper) : Material {
 
     override UniformDemand[] getDemands() {
         return this.demands;
+    }
+
+    override Uniform[] getUniforms() {
+        return this.keeper.getUniforms();
     }
 }

@@ -1,14 +1,16 @@
 module sbylib.input.Mouse;
 
-import sbylib.math.Vector;
 import sbylib.math.Matrix;
-import sbylib.wrapper.glfw.Constants;
-import sbylib.wrapper.glfw.Window;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.camera.Camera;
 import sbylib.utils.Functions;
 
 import std.traits;
+public {
+    import sbylib.wrapper.glfw.Window;
+    import sbylib.math.Vector;
+    import sbylib.wrapper.glfw.Constants;
+}
 
 class Mouse {
 
@@ -53,5 +55,33 @@ class Mouse {
 
     bool justReleased(MouseButton button) const {
         return this.before[button] && !this.pressed[button];
+    }
+
+    bool justPressed() const {
+        foreach (button; EnumMembers!MouseButton) {
+            if (this.justPressed(button)) return true;
+        }
+        return false;
+    }
+
+    bool justReleased() const {
+        foreach (button; EnumMembers!MouseButton) {
+            if (this.justReleased(button)) return true;
+        }
+        return false;
+    }
+
+    MouseButton justPressedButton() const {
+        foreach (button; EnumMembers!MouseButton) {
+            if (this.justPressed(button)) return button;
+        }
+        assert(false);
+    }
+
+    MouseButton justReleasedButton() const {
+        foreach (button; EnumMembers!MouseButton) {
+            if (this.justReleased(button)) return button;
+        }
+        assert(false);
     }
 }

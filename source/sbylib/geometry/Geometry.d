@@ -24,8 +24,8 @@ interface Geometry {
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
     IndexBuffer getIndexBuffer();
     void updateBuffer();
-    void createCollisionPolygons(Object3D obj);
-    CollisionEntry[] getCollisionPolygons();
+    CollisionEntryGroup createCollisionPolygons(Object3D obj);
+    CollisionEntryGroup getCollisionPolygons();
 }
 
 alias GeometryP = GeometryTemp!([Attribute.Position]);
@@ -42,7 +42,7 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
     const uint indicesCount;
     private IndexBuffer ibo;
     private Tuple!(Attribute, VertexBuffer)[] buffers;
-    private CollisionEntry[] colPolygons;
+    private CollisionEntryGroup colPolygons;
 
     this(VertexA[] vertices) {
         this(vertices, iota(cast(uint)vertices.length).array);
@@ -110,18 +110,20 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
         }
     }
 
-    override void createCollisionPolygons(Object3D obj) {
+    override CollisionEntryGroup createCollisionPolygons(Object3D obj) {
+        this.colPolygons = new CollisionEntryGroup;
         foreach (i, face; this.faces) {
             auto poly = new CollisionEntry(new CollisionPolygon(
                     this.vertices[face.indexList[0]].position,
                     this.vertices[face.indexList[1]].position,
                     this.vertices[face.indexList[2]].position), obj);
-            this.colPolygons ~= poly;
+            this.colPolygons.add(poly);
         }
+        return this.colPolygons;
     }
 
-    override CollisionEntry[] getCollisionPolygons() in {
-        assert(this.colPolygons.length > 0);
+    override CollisionEntryGroup getCollisionPolygons() in {
+        assert(this.colPolygons !is null);
     } body {
         return this.colPolygons;
     }

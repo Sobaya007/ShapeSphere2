@@ -138,10 +138,10 @@ static:
         glViewport(x,y,w,h);
     }
 
-    void checkError() {
+    void checkError(string ext = "") {
         debug {
             auto errorCode = glGetError().to!GlErrorType;
-            assert(errorCode == GlErrorType.NoError, errorCode.to!string);
+            assert(errorCode == GlErrorType.NoError, errorCode.to!string ~ "\n" ~ ext);
         }
     }
 

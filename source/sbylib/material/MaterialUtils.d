@@ -63,12 +63,9 @@ class MaterialUtils {
             static if(__traits(hasMember, typeof(this), "constructor")) {
                 constructor();
             }
-            foreach (uni; this.getUniforms) {
-                assert(uni, "Uniform variable must be initialized");
-                (u) { //謎回避
-                    u.setName(replace(u.getName()));
-                    mat.setUniform(() => u);
-                }(uni);
+            foreach (u; this.getUniforms) {
+                assert(u, "Uniform variable must be initialized");
+                u.setName(replace(u.getName()));
             }
         }
 
@@ -130,11 +127,8 @@ class MaterialUtils {
             }
             this.a = new A.Keeper(mat, s => replace(MaterialName1 ~ pascal(s)));
             this.b = new B.Keeper(mat, s => replace(MaterialName2 ~ pascal(s)));
-            foreach (uni; this.getUniforms()) {
-                (u) { //謎回避
-                    u.setName(replace(u.getName()));
-                    mat.setUniform(() => u);
-                }(uni);
+            foreach (u; this.getUniforms()) {
+                u.setName(replace(u.getName()));
             }
         }
 

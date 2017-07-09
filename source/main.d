@@ -11,6 +11,7 @@ import plot.Main;
 import examples.text2d;
 import examples.mouse;
 import examples.material;
+import examples.gui;
 
 extern(C) __gshared string[] rt_options = ["gcopt=profile:1"];
 
@@ -20,7 +21,9 @@ void main(string[] args) {
     case RunMode.Game:
         //gameMain();
         //mainMouse();
-        mainMaterial();
+        //mainText2d();
+        mainGUI();
+        //mainMaterial();
         break;
     case RunMode.Plot:
         plotMain();
@@ -32,12 +35,12 @@ void gameMain() {
     auto core = Core();
     auto screen = core.getWindow().getRenderTarget();
 
-    auto world3d = new World;
+    auto world3d = new Bahamut;
     world3d.camera = new PerspectiveCamera(1, 120, 0.1, 100);
     world3d.camera.getObj().pos = vec3(3, 2, 9);
     world3d.camera.getObj().lookAt(vec3(0,2,0));
 
-    auto world2d = new World;
+    auto world2d = new Bahamut;
     world2d.camera = new OrthoCamera(2,2,-1,1);
 
     core.addProcess((proc) {
@@ -71,12 +74,12 @@ void gameMain() {
 
         player.esphere.floors ~= mesh0;
         player.esphere.floors ~= mesh1;
-        world3d.addMesh(new Mesh(geom0, mat, mesh0.obj));
-        world3d.addMesh(new Mesh(geom1, mat, mesh1.obj));
+        world3d.add(new Mesh(geom0, mat, mesh0.obj));
+        world3d.add(new Mesh(geom1, mat, mesh1.obj));
     };
     makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
     makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);
-    world3d.addMesh(player.esphere.mesh);
+    world3d.add(player.esphere.mesh);
     PointLight pointLight;
     pointLight.pos = vec3(0,2,0);
     pointLight.diffuse = vec3(1);

@@ -9,6 +9,7 @@ import sbylib.wrapper.gl.Functions;
 import derelict.opengl;
 import std.algorithm;
 import std.typecons;
+import std.format;
 
 class VertexArray {
 
@@ -25,11 +26,11 @@ class VertexArray {
     ~this() out {
         GlFunction.checkError();
     } body {
-        glDeleteVertexArrays(1, &id);
+        glDeleteVertexArrays(1, &this.id);
     }
 
     void bind() const out {
-        GlFunction.checkError();
+        GlFunction.checkError(format!"%d"(this.id));
     } body {
         glBindVertexArray(id);
     }

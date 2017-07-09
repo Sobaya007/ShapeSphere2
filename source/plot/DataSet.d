@@ -53,7 +53,7 @@ class DataSet {
             Label label = new Label(font);
             label.setSize(0.05);
             label.renderText(key.to!dstring);
-            label.obj.pos = vec3(0.9, baseY, 0);
+            label.mesh.obj.pos = vec3(0.9, baseY, 0);
             label.setColor(vec4(color, 1));
             labels[key] = label;
 

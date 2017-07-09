@@ -15,7 +15,7 @@ void plotMain() {
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getRenderTarget();
-    auto world = new World();
+    auto world = new Bahamut();
 
     auto camera = new OrthoCamera(1, 1, -1, 1);
     camera.getObj().pos = vec3(+0.5, +0.5, 0);
@@ -24,10 +24,10 @@ void plotMain() {
     auto dataset = new DataSet(TIME_LOG_PATH);
 
     foreach (key, value; dataset.lineMesh) {
-        world.addMesh(value);
+        world.add(value);
     }
     foreach (key, value; dataset.labels) {
-        world.addMesh(value.letters.map!(l => l.getMesh()).array);
+        world.add(value.mesh);
     }
 
     auto render = delegate (Process proc) {

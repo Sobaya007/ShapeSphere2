@@ -33,6 +33,7 @@ BALOON_COEF	./source/player/ElasticSphere.d	29;"	v	line:29	class:ElasticSphere	a
 BGR	./source/sbylib/wrapper/gl/Constants.d	80;"	e	line:80	enum:ImageFormat
 BGRA	./source/sbylib/wrapper/gl/Constants.d	82;"	e	line:82	enum:ImageFormat
 Back	./source/sbylib/wrapper/gl/Constants.d	214;"	e	line:214	enum:FaceMode
+Bahamut	./source/sbylib/core/Bahamut.d	19;"	c	line:19	access:public
 BaseLevel	./source/sbylib/wrapper/gl/Constants.d	243;"	e	line:243	enum:TextureParamName
 BasicControl	./source/sbylib/contorol/BasicControl.d	17;"	c	line:17	access:public
 Bitmap	./source/sbylib/wrapper/freeimage/Constants.d	7;"	e	line:7	enum:ImageType
@@ -56,13 +57,16 @@ Button2	./source/sbylib/wrapper/glfw/Constants.d	7;"	e	line:7	enum:MouseButton
 Button3	./source/sbylib/wrapper/glfw/Constants.d	8;"	e	line:8	enum:MouseButton
 ButtonState	./source/sbylib/wrapper/glfw/Constants.d	57;"	g	line:57	access:public
 Byte	./source/sbylib/wrapper/gl/Constants.d	170;"	e	line:170	enum:GLType
-Camera	./source/sbylib/camera/Camera.d	9;"	i	line:9	access:public
+Camera	./source/sbylib/camera/Camera.d	11;"	i	line:11	access:public
 CameraChaseControl	./source/sbylib/contorol/CameraChaseControl.d	8;"	c	line:8	access:public
 Capability	./source/sbylib/wrapper/gl/Constants.d	182;"	g	line:182	access:public
 Capsule	./source/sbylib/geometry/geometry3d/Capsule.d	13;"	c	line:13	access:public
 Center	./source/sbylib/character/Label.d	16;"	e	line:16	enum:OriginX
 Center	./source/sbylib/character/Label.d	17;"	e	line:17	enum:OriginY
-CheckerMaterial	./source/sbylib/material/checker/CheckerMaterial.d	16;"	a	line:16	access:public
+Check	./source/examples/material.d	6;"	a	line:6	access:public
+Check2	./source/examples/material.d	7;"	a	line:7	access:public
+Check4	./source/examples/material.d	8;"	a	line:8	access:public
+CheckerMaterial	./source/sbylib/material/checker/CheckerMaterial.d	20;"	a	line:20	access:public
 CheckerMaterialUniformMaterial	./source/sbylib/material/checker/CheckerMaterial.d	9;"	c	line:9	access:public
 Circle	./source/plot/circle/Circle.d	6;"	c	line:6	access:public
 CircleMaterial	./source/plot/circle/CircleMaterial.d	17;"	a	line:17	access:public
@@ -72,9 +76,11 @@ ClampToEdge	./source/sbylib/wrapper/gl/Constants.d	273;"	e	line:273	enum:Texture
 ClearMode	./source/sbylib/wrapper/gl/Constants.d	5;"	g	line:5	access:public
 ClipDistance	./source/sbylib/wrapper/gl/Constants.d	184;"	e	line:184	enum:Capability
 CollisionCapsule	./source/sbylib/collision/geometry/CollisionCapsule.d	11;"	c	line:11	access:public
-CollisionEntry	./source/sbylib/collision/CollisionEntry.d	14;"	c	line:14	access:public
+CollisionEntry	./source/sbylib/collision/CollisionEntry.d	13;"	c	line:13	access:public
+CollisionEntryGroup	./source/sbylib/collision/CollisionEntry.d	404;"	c	line:404	access:public
 CollisionGeometry	./source/sbylib/collision/geometry/CollisionGeometry.d	5;"	i	line:5	access:public
 CollisionInfo	./source/sbylib/collision/CollisionInfo.d	6;"	s	line:6	access:public
+CollisionInfoRay	./source/sbylib/collision/CollisionInfo.d	11;"	s	line:11	access:public
 CollisionPolygon	./source/sbylib/collision/geometry/CollisionPolygon.d	13;"	c	line:13	access:public
 CollisionRay	./source/sbylib/collision/geometry/CollisionRay.d	9;"	c	line:9	access:public
 Color	./source/sbylib/wrapper/freetype/Constants.d	25;"	e	line:25	enum:FontLoadType
@@ -83,6 +89,8 @@ Color0	./source/sbylib/wrapper/gl/Constants.d	157;"	e	line:157	enum:FrameBufferA
 Color1	./source/sbylib/wrapper/gl/Constants.d	158;"	e	line:158	enum:FrameBufferAttachType
 Color2	./source/sbylib/wrapper/gl/Constants.d	159;"	e	line:159	enum:FrameBufferAttachType
 ColorLogicOp	./source/sbylib/wrapper/gl/Constants.d	185;"	e	line:185	enum:Capability
+ColorMaterial	./source/sbylib/material/color/ColorMaterial.d	20;"	a	line:20	access:public
+ColorMaterialUniformKeeper	./source/sbylib/material/color/ColorMaterial.d	9;"	c	line:9	access:public
 Comment	./source/sbylib/material/glsl/Comment.d	8;"	c	line:8	access:public
 CompareFunc	./source/sbylib/wrapper/gl/Constants.d	244;"	e	line:244	enum:TextureParamName
 CompareMode	./source/sbylib/wrapper/gl/Constants.d	245;"	e	line:245	enum:TextureParamName
@@ -153,7 +161,7 @@ Escape	./source/sbylib/wrapper/glfw/Constants.d	54;"	e	line:54	enum:KeyButton
 Event	./source/sbylib/event/Event.d	3;"	c	line:3	access:public
 FORCE_COEF	./source/player/ElasticSphere.d	28;"	v	line:28	class:ElasticSphere	access:public
 FRAG_ROOT	./source/sbylib/material/MaterialUtils.d	39;"	v	line:39	template:declare	access:public
-FRAG_ROOT	./source/sbylib/material/MaterialUtils.d	90;"	v	line:90	template:declareMix	access:public
+FRAG_ROOT	./source/sbylib/material/MaterialUtils.d	87;"	v	line:87	template:declareMix	access:public
 FREEIMAGE_DLL_PATH	./source/sbylib/setting.d	12;"	v	line:12	access:public
 FREETYPE_DLL_PATH	./source/sbylib/setting.d	8;"	v	line:8	access:public
 FRICTION	./source/player/ElasticSphere.d	22;"	v	line:22	class:ElasticSphere	access:public
@@ -194,6 +202,7 @@ GeometryBox	./source/sbylib/geometry/geometry3d/Box.d	13;"	a	line:13	access:publ
 GeometryCapsule	./source/sbylib/geometry/geometry3d/Capsule.d	11;"	a	line:11	access:public
 GeometryInputType	./source/sbylib/wrapper/gl/Constants.d	117;"	e	line:117	enum:ProgramParamName
 GeometryLine	./source/sbylib/geometry/geometry3d/Line.d	12;"	a	line:12	access:public
+GeometryLineGroup	./source/sbylib/geometry/geometry3d/LineGroup.d	13;"	a	line:13	class:LineGroup	access:public
 GeometryN	./source/sbylib/geometry/Geometry.d	32;"	a	line:32	access:public
 GeometryNT	./source/sbylib/geometry/Geometry.d	34;"	a	line:34	access:public
 GeometryOutputType	./source/sbylib/wrapper/gl/Constants.d	118;"	e	line:118	enum:ProgramParamName
@@ -211,7 +220,11 @@ GlFunction	./source/sbylib/wrapper/gl/Functions.d	7;"	c	line:7	access:public
 GlslUtils	./source/sbylib/material/glsl/GlslUtils.d	43;"	c	line:43	access:public
 Greater	./source/sbylib/wrapper/gl/Constants.d	49;"	e	line:49	enum:TestFunc
 GreaterEqual	./source/sbylib/wrapper/gl/Constants.d	51;"	e	line:51	enum:TestFunc
+GuiControl	./source/sbylib/contorol/GuiControl.d	20;"	c	line:20	access:public
 HalfFloat	./source/sbylib/wrapper/gl/Constants.d	176;"	e	line:176	enum:GLType
+ICollidable	./source/sbylib/collision/ICollidable.d	10;"	i	line:10	access:public
+IControllable	./source/sbylib/contorol/IControllable.d	9;"	i	line:9	access:public
+IMesh	./source/sbylib/mesh/IMesh.d	10;"	i	line:10	access:public
 ITERATION_COUNT	./source/player/ElasticSphere.d	24;"	v	line:24	class:ElasticSphere	access:public
 IWatcher	./source/sbylib/utils/Watcher.d	59;"	i	line:59	access:public
 IgnoreGlobalAdvanceWidth	./source/sbylib/wrapper/freetype/Constants.d	20;"	e	line:20	enum:FontLoadType
@@ -237,7 +250,7 @@ Invert	./source/sbylib/wrapper/gl/Constants.d	60;"	e	line:60	enum:StencilWrite
 Iterator	./source/sbylib/utils/LinkList.d	87;"	s	line:87	struct:LinkList	access:public
 JoyStick	./source/sbylib/input/JoyStick.d	8;"	c	line:8	access:public
 Keep	./source/sbylib/wrapper/gl/Constants.d	58;"	e	line:58	enum:StencilWrite
-Keeper	./source/sbylib/material/Material.d	69;"	a	line:69	class:MaterialTemp	access:public
+Keeper	./source/sbylib/material/Material.d	70;"	a	line:70	class:MaterialTemp	access:public
 Key0	./source/sbylib/wrapper/glfw/Constants.d	38;"	e	line:38	enum:KeyButton
 Key1	./source/sbylib/wrapper/glfw/Constants.d	39;"	e	line:39	enum:KeyButton
 Key2	./source/sbylib/wrapper/glfw/Constants.d	40;"	e	line:40	enum:KeyButton
@@ -288,16 +301,22 @@ Letter	./source/sbylib/character/Letter.d	11;"	c	line:11	access:public
 LetterInfo	./source/sbylib/wrapper/freetype/Character.d	10;"	c	line:10	access:public
 LetterInfo	./source/sbylib/wrapper/freetype/LetterInfo.d	10;"	c	line:10	access:public
 LetterMesh	./source/sbylib/character/Letter.d	13;"	a	line:13	class:Letter	access:public
+Leviathan	./source/sbylib/core/Leviathan.d	8;"	c	line:8	access:public
 Light	./source/sbylib/material/glsl/UniformDemand.d	13;"	e	line:13	enum:UniformDemand
 LimitedArray	./source/sbylib/utils/LimitedArray.d	3;"	c	line:3	access:public
 Line	./source/sbylib/geometry/geometry3d/Line.d	14;"	c	line:14	access:public
 Line	./source/sbylib/wrapper/gl/Constants.d	16;"	e	line:16	enum:Prim
 Line	./source/sbylib/wrapper/gl/Constants.d	220;"	e	line:220	enum:PolygonMode
+LineGroup	./source/sbylib/geometry/geometry3d/LineGroup.d	11;"	c	line:11	access:public
+LineLoop	./source/sbylib/geometry/geometry3d/LineGroup.d	27;"	a	line:27	access:public
 LineLoop	./source/sbylib/wrapper/gl/Constants.d	17;"	e	line:17	enum:Prim
+LineMesh	./source/sbylib/gui/timeline/Timeline.d	9;"	a	line:9	class:Timeline	access:public
 LineSmooth	./source/sbylib/wrapper/gl/Constants.d	192;"	e	line:192	enum:Capability
+LineStrip	./source/sbylib/geometry/geometry3d/LineGroup.d	26;"	a	line:26	access:public
 LineStrip	./source/sbylib/wrapper/gl/Constants.d	18;"	e	line:18	enum:Prim
 Linear	./source/sbylib/wrapper/gl/Constants.d	268;"	e	line:268	enum:TextureFilter
 LinearDesign	./source/sbylib/wrapper/freetype/Constants.d	24;"	e	line:24	enum:FontLoadType
+Lines	./source/sbylib/geometry/geometry3d/LineGroup.d	25;"	a	line:25	access:public
 LinkList	./source/sbylib/utils/LinkList.d	3;"	s	line:3	access:public
 LinkStatus	./source/sbylib/wrapper/gl/Constants.d	103;"	e	line:103	enum:ProgramParamName
 Local	./source/sbylib/material/glsl/Space.d	7;"	e	line:7	enum:Space
@@ -309,14 +328,15 @@ MaterialName1	./source/sbylib/material/checker/CheckerMaterial.d	10;"	v	line:10	
 MaterialName1	./source/sbylib/material/condition/ConditionalMaterial.d	10;"	v	line:10	class:ConditionalMaterialUniformMaterial	access:public
 MaterialName2	./source/sbylib/material/checker/CheckerMaterial.d	11;"	v	line:11	class:CheckerMaterialUniformMaterial	access:public
 MaterialName2	./source/sbylib/material/condition/ConditionalMaterial.d	11;"	v	line:11	class:ConditionalMaterialUniformMaterial	access:public
-MaterialTemp	./source/sbylib/material/Material.d	59;"	c	line:59	access:public
+MaterialTemp	./source/sbylib/material/Material.d	60;"	c	line:60	access:public
 MaterialUtils	./source/sbylib/material/MaterialUtils.d	11;"	c	line:11	access:public
 Matrix	./source/sbylib/math/Matrix.d	26;"	s	line:26	access:public
 Max	./source/sbylib/wrapper/gl/Constants.d	26;"	e	line:26	enum:BlendEquation
 MaxLevel	./source/sbylib/wrapper/gl/Constants.d	251;"	e	line:251	enum:TextureParamName
 MaxLod	./source/sbylib/wrapper/gl/Constants.d	250;"	e	line:250	enum:TextureParamName
-Mesh	./source/sbylib/mesh/Mesh.d	10;"	c	line:10	access:public
-MeshTemp	./source/sbylib/mesh/Mesh.d	37;"	c	line:37	access:public
+Mesh	./source/sbylib/mesh/Mesh.d	12;"	c	line:12	access:public
+MeshGroup	./source/sbylib/mesh/Mesh.d	70;"	c	line:70	access:public
+MeshTemp	./source/sbylib/mesh/Mesh.d	58;"	c	line:58	access:public
 Min	./source/sbylib/wrapper/gl/Constants.d	25;"	e	line:25	enum:BlendEquation
 MinFilter	./source/sbylib/wrapper/gl/Constants.d	247;"	e	line:247	enum:TextureParamName
 MinLod	./source/sbylib/wrapper/gl/Constants.d	249;"	e	line:249	enum:TextureParamName
@@ -324,9 +344,12 @@ MirroredRepeat	./source/sbylib/wrapper/gl/Constants.d	275;"	e	line:275	enum:Text
 Mode	./source/sbylib/contorol/BasicControl.d	19;"	g	line:19	class:BasicControl	access:public
 Mono	./source/sbylib/wrapper/freetype/Constants.d	6;"	e	line:6	enum:FontType
 Monochrome	./source/sbylib/wrapper/freetype/Constants.d	23;"	e	line:23	enum:FontLoadType
-Mouse	./source/sbylib/input/Mouse.d	13;"	c	line:13	access:public
+Mouse	./source/sbylib/input/Mouse.d	15;"	c	line:15	access:public
+Mouse2D	./source/sbylib/input/Mouse2D.d	9;"	c	line:9	access:public
+Mouse3D	./source/sbylib/input/Mouse3D.d	8;"	c	line:8	access:public
 MouseButton	./source/sbylib/wrapper/glfw/Constants.d	5;"	g	line:5	access:public
 MultiSample	./source/sbylib/wrapper/gl/Constants.d	193;"	e	line:193	enum:Capability
+N	./source/sbylib/gui/timeline/Timeline.d	11;"	v	line:11	class:Timeline	access:public
 Nearest	./source/sbylib/wrapper/gl/Constants.d	267;"	e	line:267	enum:TextureFilter
 Never	./source/sbylib/wrapper/gl/Constants.d	47;"	e	line:47	enum:TestFunc
 NoBitmap	./source/sbylib/wrapper/freetype/Constants.d	15;"	e	line:15	enum:FontLoadType
@@ -348,6 +371,7 @@ NullJoyStick	./source/sbylib/input/JoyStick.d	43;"	c	line:43	access:public
 NumLimited	./source/sbylib/math/NumLimited.d	5;"	s	line:5	access:public
 OMEGA	./source/player/ElasticSphere.d	19;"	v	line:19	class:ElasticSphere	access:public
 Object3D	./source/sbylib/mesh/Object3D.d	9;"	c	line:9	access:public
+Object3DS	./source/sbylib/mesh/Object3DS.d	10;"	c	line:10	access:public
 ObjectPool	./source/sbylib/utils/ObjectPool.d	3;"	c	line:3	access:public
 One	./source/sbylib/wrapper/gl/Constants.d	31;"	e	line:31	enum:BlendFactor
 OneMinusConstantColor	./source/sbylib/wrapper/gl/Constants.d	41;"	e	line:41	enum:BlendFactor
@@ -357,7 +381,7 @@ OneMinusSrcAlpha	./source/sbylib/wrapper/gl/Constants.d	36;"	e	line:36	enum:Blen
 OneMinusSrcColor	./source/sbylib/wrapper/gl/Constants.d	38;"	e	line:38	enum:BlendFactor
 OriginX	./source/sbylib/character/Label.d	16;"	g	line:16	class:Label	access:public
 OriginY	./source/sbylib/character/Label.d	17;"	g	line:17	class:Label	access:public
-OrthoCamera	./source/sbylib/camera/OrthoCamera.d	15;"	c	line:15	access:public
+OrthoCamera	./source/sbylib/camera/OrthoCamera.d	17;"	c	line:17	access:public
 Other	./source/sbylib/math/Vector.d	189;"	a	line:189	template:Assignable	access:public
 Other	./source/sbylib/math/Vector.d	192;"	a	line:192	template:Assignable	access:public
 Other	./source/sbylib/math/Vector.d	200;"	a	line:200	template:dot	access:public
@@ -379,7 +403,7 @@ PixelAlignType	./source/sbylib/wrapper/gl/Constants.d	286;"	g	line:286	access:pu
 PixelPack	./source/sbylib/wrapper/gl/Constants.d	129;"	e	line:129	enum:BufferType
 PixelUnpack	./source/sbylib/wrapper/gl/Constants.d	130;"	e	line:130	enum:BufferType
 Plane	./source/sbylib/geometry/geometry3d/Plane.d	11;"	c	line:11	access:public
-PlaneMesh	./source/examples/material.d	6;"	a	line:6	access:public
+PlaneMesh	./source/examples/material.d	10;"	a	line:10	access:public
 PlaneMesh	./source/examples/mouse.d	6;"	a	line:6	access:public
 Player	./source/player/Player.d	8;"	c	line:8	access:public
 PlayerMaterial	./source/player/PlayerMaterial.d	10;"	a	line:10	access:public
@@ -427,26 +451,27 @@ RGB	./source/sbylib/wrapper/gl/Constants.d	79;"	e	line:79	enum:ImageFormat
 RGBA	./source/sbylib/wrapper/gl/Constants.d	71;"	e	line:71	enum:ImageInternalFormat
 RGBA	./source/sbylib/wrapper/gl/Constants.d	81;"	e	line:81	enum:ImageFormat
 ROOT_PATH	./source/sbylib/setting.d	3;"	v	line:3	access:public
-Range	./source/sbylib/utils/Functions.d	359;"	T	line:359	class:Utils	access:public	signature:(int stop)
-Range	./source/sbylib/utils/Functions.d	361;"	a	line:361	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	363;"	a	line:363	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	367;"	T	line:367	class:Utils	access:public	signature:(int start, int stop)
-Range	./source/sbylib/utils/Functions.d	369;"	a	line:369	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	371;"	a	line:371	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	375;"	T	line:375	class:Utils	access:public	signature:(int start, int stop, int step)
-Range	./source/sbylib/utils/Functions.d	380;"	a	line:380	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	382;"	a	line:382	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	385;"	a	line:385	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	387;"	a	line:387	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	391;"	T	line:391	class:Utils	access:public	signature:(T, T[] array)
-Range	./source/sbylib/utils/Functions.d	393;"	a	line:393	template:Range	access:public
-Range	./source/sbylib/utils/Functions.d	395;"	a	line:395	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	360;"	T	line:360	class:Utils	access:public	signature:(int stop)
+Range	./source/sbylib/utils/Functions.d	362;"	a	line:362	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	364;"	a	line:364	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	368;"	T	line:368	class:Utils	access:public	signature:(int start, int stop)
+Range	./source/sbylib/utils/Functions.d	370;"	a	line:370	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	372;"	a	line:372	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	376;"	T	line:376	class:Utils	access:public	signature:(int start, int stop, int step)
+Range	./source/sbylib/utils/Functions.d	381;"	a	line:381	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	383;"	a	line:383	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	386;"	a	line:386	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	388;"	a	line:388	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	392;"	T	line:392	class:Utils	access:public	signature:(T, T[] array)
+Range	./source/sbylib/utils/Functions.d	394;"	a	line:394	template:Range	access:public
+Range	./source/sbylib/utils/Functions.d	396;"	a	line:396	template:Range	access:public
 RasterizerDiscard	./source/sbylib/wrapper/gl/Constants.d	200;"	e	line:200	enum:Capability
 Rational	./source/sbylib/math/Rational.d	7;"	s	line:7	access:public
 Read	./source/sbylib/wrapper/gl/Constants.d	145;"	e	line:145	enum:BufferAccess
 Read	./source/sbylib/wrapper/gl/Constants.d	151;"	e	line:151	enum:FrameBufferBindType
 Rect	./source/sbylib/geometry/geometry2d/Rect.d	14;"	c	line:14	access:public
 Rect	./source/sbylib/wrapper/gl/Constants.d	228;"	e	line:228	enum:TextureTarget
+RectMesh	./source/sbylib/gui/timeline/Timeline.d	8;"	a	line:8	class:Timeline	access:public
 Release	./source/sbylib/wrapper/glfw/Constants.d	59;"	e	line:59	enum:ButtonState
 Render	./source/sbylib/wrapper/freetype/Constants.d	14;"	e	line:14	enum:FontLoadType
 RenderBuffer	./source/sbylib/wrapper/gl/RenderBuffer.d	7;"	c	line:7	access:public
@@ -475,7 +500,7 @@ Right	./source/sbylib/wrapper/glfw/Constants.d	49;"	e	line:49	enum:KeyButton
 RightX	./source/sbylib/input/JoyStick.d	17;"	e	line:17	enum:Axis
 RightY	./source/sbylib/input/JoyStick.d	17;"	e	line:17	enum:Axis
 Rotate	./source/sbylib/contorol/BasicControl.d	19;"	e	line:19	enum:Mode
-RowInfo	./source/sbylib/character/Label.d	71;"	s	line:71	class:Label	access:public
+RowInfo	./source/sbylib/character/Label.d	72;"	s	line:72	class:Label	access:public
 RunMode	./source/sbylib/setting.d	15;"	g	line:15	access:public
 SDL2_DLL_PATH	./source/sbylib/setting.d	9;"	v	line:9	access:public
 SIDE_PUSH_FORCE	./source/player/Player.d	12;"	v	line:12	class:Player	access:public
@@ -534,6 +559,7 @@ TextureParamName	./source/sbylib/wrapper/gl/Constants.d	241;"	g	line:241	access:
 TextureTarget	./source/sbylib/wrapper/gl/Constants.d	225;"	g	line:225	access:public
 TextureWrap	./source/sbylib/wrapper/gl/Constants.d	271;"	g	line:271	access:public
 TimeLogger	./source/sbylib/utils/Logger.d	10;"	c	line:10	access:public
+Timeline	./source/sbylib/gui/timeline/Timeline.d	7;"	c	line:7	access:public
 Token	./source/sbylib/material/glsl/Token.d	5;"	c	line:5	access:public
 Top	./source/sbylib/character/Label.d	17;"	e	line:17	enum:OriginY
 TransformFeedback	./source/sbylib/wrapper/gl/Constants.d	134;"	e	line:134	enum:BufferType
@@ -584,7 +610,6 @@ View	./source/sbylib/material/glsl/UniformDemand.d	11;"	e	line:11	enum:UniformDe
 Watch	./source/sbylib/utils/Watcher.d	7;"	c	line:7	access:public
 Watcher	./source/sbylib/utils/Watcher.d	63;"	c	line:63	access:public
 Window	./source/sbylib/wrapper/glfw/Window.d	15;"	c	line:15	access:public
-World	./source/sbylib/core/World.d	20;"	c	line:20	access:public
 World	./source/sbylib/material/glsl/Space.d	8;"	e	line:8	enum:Space
 World	./source/sbylib/material/glsl/UniformDemand.d	10;"	e	line:10	enum:UniformDemand
 WrapR	./source/sbylib/wrapper/gl/Constants.d	258;"	e	line:258	enum:TextureParamName
@@ -602,18 +627,22 @@ _length	./source/sbylib/utils/LinkList.d	19;"	v	line:19	struct:LinkList	access:p
 _length	./source/sbylib/utils/ObjectPool.d	7;"	v	line:7	class:ObjectPool	access:private
 _length	./source/sbylib/utils/Stack.d	16;"	v	line:16	struct:Stack	access:private
 _positions	./source/sbylib/collision/geometry/CollisionPolygon.d	14;"	v	line:14	class:CollisionPolygon	access:private
-_projMatrix	./source/sbylib/camera/OrthoCamera.d	24;"	v	line:24	class:OrthoCamera	access:private
+_projMatrix	./source/sbylib/camera/OrthoCamera.d	26;"	v	line:26	class:OrthoCamera	access:private
 _projMatrix	./source/sbylib/camera/PerspectiveCamera.d	23;"	v	line:23	class:PerspectiveCamera	access:private
 _start	./source/sbylib/collision/geometry/CollisionCapsule.d	13;"	v	line:13	class:CollisionCapsule	access:private
-a	./source/sbylib/material/MaterialUtils.d	91;"	v	line:91	template:declareMix	access:private
+a	./source/sbylib/material/MaterialUtils.d	88;"	v	line:88	template:declareMix	access:private
 aVel	./source/player/ElasticSphere.d	41;"	v	line:41	class:ElasticSphere	access:public
+add	./source/sbylib/collision/CollisionEntry.d	414;"	f	line:414	class:CollisionEntryGroup	access:public	signature:(ICollidable col)
 add	./source/sbylib/constant/ConstantManager.d	110;"	f	line:110	class:ConstantManager	access:public	signature:(string name, T value)
+add	./source/sbylib/contorol/GuiControl.d	56;"	f	line:56	class:GuiControl	access:public	signature:(IControllable con)
+add	./source/sbylib/core/Bahamut.d	51;"	f	line:51	class:Bahamut	access:public	signature:(T[] rs...)
+add	./source/sbylib/core/Leviathan.d	15;"	f	line:15	class:Leviathan	access:public	signature:(T[] meshes...)
+add	./source/sbylib/gui/timeline/Timeline.d	36;"	f	line:36	class:Timeline	access:public	signature:(float val)
+add	./source/sbylib/mesh/Mesh.d	78;"	f	line:78	class:MeshGroup	access:public	signature:(IMesh r)
 add	./source/sbylib/utils/LimitedArray.d	10;"	f	line:10	class:LimitedArray	access:public	signature:(T elem)
-addColMesh	./source/sbylib/core/World.d	65;"	f	line:65	class:World	access:public	signature:(T[] meshes...)
-addColMeshAsPolygon	./source/sbylib/core/World.d	70;"	f	line:70	class:World	access:public	signature:(T[] meshes...)
+addAsPolygon	./source/sbylib/core/Leviathan.d	22;"	f	line:22	class:Leviathan	access:public	signature:(T[] meshes...)
 addMat4	./source/sbylib/math/Matrix.d	662;"	f	line:662	access:private	signature:(string code)
-addMesh	./source/sbylib/core/World.d	53;"	f	line:53	class:World	access:public	signature:(T[] meshes...)
-addPointLight	./source/sbylib/core/World.d	77;"	f	line:77	class:World	access:public	signature:(PointLight pointLight)
+addPointLight	./source/sbylib/core/Bahamut.d	61;"	f	line:61	class:Bahamut	access:public	signature:(PointLight pointLight)
 addProcess	./source/sbylib/core/Core.d	100;"	f	line:100	class:Core	access:public	signature:()
 addProcess	./source/sbylib/core/Core.d	94;"	f	line:94	class:Core	access:public	signature:(const void delegate(Process) func, string name)
 addWatch	./source/sbylib/utils/Watcher.d	80;"	f	line:80	class:Watcher	access:public	signature:(Watch!S watch)
@@ -650,12 +679,12 @@ axisAngle	./source/sbylib/math/Matrix.d	215;"	f	line:215	struct:Matrix	access:pu
 axisAngle	./source/sbylib/math/Matrix.d	268;"	f	line:268	struct:Matrix	access:public	signature:(Vector!(T, 3) v, T angle)
 axisAngle	./source/sbylib/math/Quaternion.d	188;"	f	line:188	struct:Quaternion	access:public	signature:(Vector!(T, 3) axis, T angle)
 axisAngle	./source/sbylib/math/Quaternion.d	198;"	f	line:198	struct:Quaternion	access:public	signature:(Vector!(T, 3) a)
-b	./source/sbylib/material/MaterialUtils.d	92;"	v	line:92	template:declareMix	access:private
+b	./source/sbylib/material/MaterialUtils.d	89;"	v	line:89	template:declareMix	access:private
 back	./source/sbylib/utils/LimitedArray.d	62;"	f	line:62	class:LimitedArray	access:public	signature:()
 baseX	./source/sbylib/math/Quaternion.d	38;"	f	line:38	struct:Quaternion	access:public	signature:()
 baseY	./source/sbylib/math/Quaternion.d	44;"	f	line:44	struct:Quaternion	access:public	signature:()
 baseZ	./source/sbylib/math/Quaternion.d	50;"	f	line:50	struct:Quaternion	access:public	signature:()
-before	./source/sbylib/input/Mouse.d	17;"	v	line:17	class:Mouse	access:private
+before	./source/sbylib/input/Mouse.d	19;"	v	line:19	class:Mouse	access:private
 bind	./source/sbylib/wrapper/gl/BufferObject.d	33;"	f	line:33	class:BufferObject	access:public	signature:()
 bind	./source/sbylib/wrapper/gl/BufferObject.d	9;"	f	line:9	interface:BufferObject	access:public	signature:()
 bind	./source/sbylib/wrapper/gl/FrameBuffer.d	25;"	f	line:25	class:FrameBuffer	access:public	signature:(FrameBufferBindType type)
@@ -673,16 +702,24 @@ c	./source/player/ElasticSphere.d	20;"	v	line:20	class:ElasticSphere	access:publ
 c	./source/sbylib/contorol/CameraChaseControl.d	13;"	v	line:13	class:CameraChaseControl	access:private
 c	./source/sbylib/utils/FpsCounter.d	13;"	v	line:13	class:FpsCounter	access:public
 calcArea	./source/player/ElasticSphere.d	199;"	f	line:199	class:ElasticSphere	access:private	signature:()
+calcCollide	./source/sbylib/core/Leviathan.d	29;"	f	line:29	class:Leviathan	access:public	signature:(CollisionEntry colEntry)
+calcCollideRay	./source/sbylib/core/Leviathan.d	40;"	f	line:40	class:Leviathan	access:public	signature:(CollisionRay ray)
 calcVolume	./source/player/ElasticSphere.d	187;"	f	line:187	class:ElasticSphere	access:private	signature:()
 camera	./source/player/Player.d	16;"	v	line:16	class:Player	access:private
+camera	./source/sbylib/contorol/BasicControl.d	25;"	v	line:25	class:BasicControl	access:private
 camera	./source/sbylib/contorol/CameraChaseControl.d	10;"	v	line:10	class:CameraChaseControl	access:private
-camera	./source/sbylib/core/World.d	23;"	v	line:23	class:World	access:public
+camera	./source/sbylib/contorol/GuiControl.d	26;"	v	line:26	class:GuiControl	access:private
+camera	./source/sbylib/core/Bahamut.d	21;"	v	line:21	class:Bahamut	access:public
+camera	./source/sbylib/input/Mouse2D.d	11;"	v	line:11	class:Mouse2D	access:private
+camera	./source/sbylib/input/Mouse3D.d	10;"	v	line:10	class:Mouse3D	access:private
 capsule	./source/player/ElasticSphere.d	221;"	v	line:221	class:Particle	access:public
 captureScreen	./source/sbylib/wrapper/gl/Functions.d	41;"	f	line:41	class:GlFunction	access:public	signature:(Texture tex, int left, int bottom, int width, int height)
 characters	./source/sbylib/wrapper/freetype/Font.d	16;"	v	line:16	class:Font	access:public
 checkError	./source/sbylib/wrapper/gl/Functions.d	141;"	f	line:141	class:GlFunction	access:public	signature:()
-clamp	./source/sbylib/collision/CollisionEntry.d	133;"	a	line:133	class:CollisionEntry	access:public
+clamp	./source/sbylib/collision/CollisionEntry.d	144;"	a	line:144	class:CollisionEntry	access:public
+clear	./source/sbylib/collision/CollisionEntry.d	419;"	f	line:419	class:CollisionEntryGroup	access:public	signature:()
 clear	./source/sbylib/core/RenderTarget.d	88;"	f	line:88	class:RenderTarget	access:public	signature:(ClearMode[] clearMode...)
+clear	./source/sbylib/mesh/Mesh.d	83;"	f	line:83	class:MeshGroup	access:public	signature:()
 clear	./source/sbylib/utils/LimitedArray.d	17;"	f	line:17	class:LimitedArray	access:public	signature:()
 clear	./source/sbylib/utils/LinkList.d	82;"	f	line:82	struct:LinkList	access:public	signature:()
 clear	./source/sbylib/utils/ObjectPool.d	29;"	f	line:29	class:ObjectPool	access:public	signature:()
@@ -692,25 +729,35 @@ clearColor	./source/sbylib/core/RenderTarget.d	20;"	v	line:20	class:RenderTarget
 clearColor	./source/sbylib/wrapper/gl/Functions.d	29;"	f	line:29	class:GlFunction	access:public	signature:(vec4 color)
 clearStencil	./source/sbylib/core/RenderTarget.d	21;"	v	line:21	class:RenderTarget	access:public
 clearStencil	./source/sbylib/wrapper/gl/Functions.d	35;"	f	line:35	class:GlFunction	access:public	signature:(int stencil)
-colDist	./source/sbylib/collision/CollisionInfo.d	11;"	v	line:11	struct:CollisionInfo	access:public
+cockatrice	./source/sbylib/contorol/BasicControl.d	23;"	v	line:23	class:BasicControl	access:private
+colDist	./source/sbylib/collision/CollisionInfo.d	15;"	v	line:15	struct:CollisionInfoRay	access:public
 colEntry	./source/sbylib/contorol/BasicControl.d	22;"	v	line:22	class:BasicControl	access:private
+colEntry	./source/sbylib/contorol/GuiControl.d	23;"	v	line:23	class:GuiControl	access:private
 colMesh	./source/player/ElasticSphere.d	220;"	v	line:220	class:Particle	access:public
-colMeshes	./source/sbylib/core/World.d	22;"	v	line:22	class:World	access:private
-colPoint	./source/sbylib/collision/CollisionInfo.d	10;"	v	line:10	struct:CollisionInfo	access:public
+colPoint	./source/sbylib/collision/CollisionInfo.d	14;"	v	line:14	struct:CollisionInfoRay	access:public
 colPolygons	./source/sbylib/geometry/Geometry.d	45;"	v	line:45	class:GeometryTemp	access:private
-collide	./source/sbylib/collision/CollisionEntry.d	112;"	f	line:112	class:CollisionEntry	access:public	signature:(CollisionPolygon polygon, CollisionRay ray)
-collide	./source/sbylib/collision/CollisionEntry.d	25;"	f	line:25	class:CollisionEntry	access:public	signature:(CollisionEntry mesh)
-collide	./source/sbylib/collision/CollisionEntry.d	53;"	f	line:53	class:CollisionEntry	access:public	signature:(CollisionRay ray)
-collide	./source/sbylib/collision/CollisionEntry.d	66;"	f	line:66	class:CollisionEntry	access:public	signature:(CollisionCapsule capsule1, CollisionCapsule capsule2)
-collide	./source/sbylib/collision/CollisionEntry.d	72;"	f	line:72	class:CollisionEntry	access:public	signature:(CollisionCapsule capsule, CollisionPolygon polygon)
-collide	./source/sbylib/collision/CollisionEntry.d	78;"	f	line:78	class:CollisionEntry	access:public	signature:(CollisionPolygon polygon1, CollisionPolygon polygon2)
-collide	./source/sbylib/collision/CollisionEntry.d	84;"	f	line:84	class:CollisionEntry	access:public	signature:(CollisionCapsule capsule, CollisionRay ray)
-collided	./source/sbylib/collision/CollisionInfo.d	9;"	v	line:9	struct:CollisionInfo	access:public
+collidable	./source/sbylib/collision/CollisionInfo.d	12;"	v	line:12	struct:CollisionInfoRay	access:public
+collidable	./source/sbylib/collision/CollisionInfo.d	7;"	v	line:7	struct:CollisionInfo	access:public
+collidables	./source/sbylib/collision/CollisionEntry.d	406;"	v	line:406	class:CollisionEntryGroup	access:private
+collide	./source/sbylib/collision/CollisionEntry.d	123;"	f	line:123	class:CollisionEntry	access:public	signature:(CollisionPolygon polygon, CollisionRay ray)
+collide	./source/sbylib/collision/CollisionEntry.d	24;"	f	line:24	class:CollisionEntry	access:public	signature:(CollisionEntry collidable)
+collide	./source/sbylib/collision/CollisionEntry.d	435;"	f	line:435	class:CollisionEntryGroup	access:public	signature:(CollisionEntry entry)
+collide	./source/sbylib/collision/CollisionEntry.d	445;"	f	line:445	class:CollisionEntryGroup	access:public	signature:(CollisionRay ray)
+collide	./source/sbylib/collision/CollisionEntry.d	46;"	f	line:46	class:CollisionEntry	access:public	signature:(CollisionRay ray)
+collide	./source/sbylib/collision/CollisionEntry.d	77;"	f	line:77	class:CollisionEntry	access:public	signature:(CollisionCapsule capsule1, CollisionCapsule capsule2)
+collide	./source/sbylib/collision/CollisionEntry.d	83;"	f	line:83	class:CollisionEntry	access:public	signature:(CollisionCapsule capsule, CollisionPolygon polygon)
+collide	./source/sbylib/collision/CollisionEntry.d	89;"	f	line:89	class:CollisionEntry	access:public	signature:(CollisionPolygon polygon1, CollisionPolygon polygon2)
+collide	./source/sbylib/collision/CollisionEntry.d	95;"	f	line:95	class:CollisionEntry	access:public	signature:(CollisionCapsule capsule, CollisionRay ray)
+collide	./source/sbylib/collision/ICollidable.d	12;"	f	line:12	interface:ICollidable	access:public	signature:(CollisionEntry)
+collide	./source/sbylib/collision/ICollidable.d	13;"	f	line:13	interface:ICollidable	access:public	signature:(CollisionRay)
+collided	./source/sbylib/collision/CollisionInfo.d	13;"	v	line:13	struct:CollisionInfoRay	access:public
+collided	./source/sbylib/collision/CollisionInfo.d	8;"	v	line:8	struct:CollisionInfo	access:public
 collision	./source/player/ElasticSphere.d	238;"	f	line:238	class:Particle	access:public	signature:()
 collision	./source/sbylib/core/Entity.d	3;"	f	line:3	interface:Entity	signature:()
 collisionNormal	./source/player/ElasticSphere.d	44;"	v	line:44	class:ElasticSphere	access:public
 color	./source/plot/circle/CircleMaterial.d	9;"	v	line:9	class:CircleMaterialUniformKeeper	access:public
 color	./source/sbylib/character/Label.d	21;"	v	line:21	class:Label	access:private
+color	./source/sbylib/material/color/ColorMaterial.d	13;"	v	line:13	class:ColorMaterialUniformKeeper	access:public
 color	./source/sbylib/material/text/TextMaterial.d	15;"	v	line:15	class:TextMaterialUniformKeeper	access:public
 column	./source/sbylib/material/glsl/Token.d	8;"	v	line:8	class:Token	access:public
 column	./source/sbylib/math/Matrix.d	156;"	f	line:156	struct:Matrix	access:public	signature:()
@@ -721,6 +768,8 @@ condition	./source/player/ElasticSphere.d	45;"	v	line:45	class:ElasticSphere	acc
 condition	./source/sbylib/material/condition/ConditionalMaterial.d	13;"	v	line:13	class:ConditionalMaterialUniformMaterial	access:public
 config	./source/sbylib/material/Material.d	22;"	v	line:22	class:Material	access:public
 constructor	./source/plot/circle/CircleMaterial.d	11;"	f	line:11	class:CircleMaterialUniformKeeper	access:public	signature:()
+constructor	./source/sbylib/material/checker/CheckerMaterial.d	15;"	f	line:15	class:CheckerMaterialUniformMaterial	access:public	signature:()
+constructor	./source/sbylib/material/color/ColorMaterial.d	15;"	f	line:15	class:ColorMaterialUniformKeeper	access:public	signature:()
 constructor	./source/sbylib/material/condition/ConditionalMaterial.d	14;"	f	line:14	class:ConditionalMaterialUniformMaterial	access:public	signature:()
 constructor	./source/sbylib/material/lambert/LambertMaterial.d	18;"	f	line:18	class:LambertMaterialUniformKeeper	access:public	signature:()
 constructor	./source/sbylib/material/text/TextMaterial.d	17;"	f	line:17	class:TextMaterialUniformKeeper	access:public	signature:()
@@ -729,6 +778,8 @@ consts	./source/sbylib/constant/ConstantManager.d	15;"	v	line:15	class:ConstantM
 contains	./source/sbylib/utils/Functions.d	38;"	f	line:38	class:Utils	access:public	signature:(T value, T[] array...)
 content	./source/sbylib/material/glsl/Comment.d	10;"	v	line:10	class:Comment	access:public
 content	./source/sbylib/material/glsl/FunctionDeclare.d	15;"	v	line:15	class:FunctionDeclare	access:public
+control	./source/sbylib/gui/timeline/Timeline.d	20;"	v	line:20	class:Timeline	access:private
+controllables	./source/sbylib/contorol/GuiControl.d	27;"	v	line:27	class:GuiControl	access:private
 conv	./source/sbylib/constant/ConstantManager.d	43;"	f	line:43	class:ConstantManager	access:private	signature:(string name, JSONValue value)
 convArray	./source/sbylib/constant/ConstantManager.d	61;"	f	line:61	class:ConstantManager	access:private	signature:(string name, JSONValue[] value)
 convArrayTyped	./source/sbylib/constant/ConstantManager.d	76;"	f	line:76	class:ConstantManager	access:private	signature:(string name, JSONValue[] value)
@@ -740,13 +791,14 @@ create	./source/sbylib/geometry/geometry2d/Rect.d	16;"	f	line:16	class:Rect	acce
 create	./source/sbylib/geometry/geometry3d/Box.d	19;"	f	line:19	class:Box	access:public	signature:(float width = 1, float height = 1, float depth = 1)
 create	./source/sbylib/geometry/geometry3d/Capsule.d	17;"	f	line:17	class:Capsule	access:public	signature:(float radius, float length, uint tCut = 20, uint pCut = 20)
 create	./source/sbylib/geometry/geometry3d/Line.d	16;"	f	line:16	class:Line	access:public	signature:(vec3 s, vec3 e)
+create	./source/sbylib/geometry/geometry3d/LineGroup.d	15;"	f	line:15	class:LineGroup	access:public	signature:(uint size)
 create	./source/sbylib/geometry/geometry3d/Plane.d	15;"	f	line:15	class:Plane	access:public	signature:(float width = 1, float height = 1)
 create	./source/sbylib/geometry/geometry3d/Poll.d	16;"	f	line:16	class:Poll	access:public	signature:(float radius, float length, uint cut = 20)
 create	./source/sbylib/geometry/geometry3d/Sphere.d	19;"	f	line:19	class:Sphere	access:public	signature:(float radius = 0.5, uint level = 0)
 create	./source/sbylib/geometry/geometry3d/SphereUV.d	19;"	f	line:19	class:SphereUV	access:public	signature:(float radius = 0.5, uint tCut = 20, uint pCut = 20)
 createCollisionPolygons	./source/sbylib/geometry/Geometry.d	113;"	f	line:113	class:GeometryTemp	access:public	signature:(Object3D obj)
 createCollisionPolygons	./source/sbylib/geometry/Geometry.d	27;"	f	line:27	interface:Geometry	access:public	signature:(Object3D obj)
-createCollisionPolygons	./source/sbylib/mesh/Mesh.d	32;"	f	line:32	class:Mesh	access:public	signature:()
+createCollisionPolygons	./source/sbylib/mesh/Mesh.d	53;"	f	line:53	class:Mesh	access:public	signature:()
 createGeometry	./source/sbylib/collision/geometry/CollisionCapsule.d	32;"	f	line:32	class:CollisionCapsule	access:public	signature:()
 createGeometry	./source/sbylib/collision/geometry/CollisionPolygon.d	23;"	f	line:23	class:CollisionPolygon	access:public	signature:()
 createProgramFromPath	./source/sbylib/material/MaterialUtils.d	22;"	f	line:22	class:MaterialUtils	access:public	signature:(string vertPath, string fragPath, string geomPath = null)
@@ -761,18 +813,19 @@ cyan	./source/sbylib/utils/Functions.d	33;"	f	line:33	class:Utils	access:public	
 datas	./source/plot/DataSet.d	14;"	v	line:14	class:DataSet	access:public
 deadFunctions	./source/sbylib/wrapper/freetype/FreeType.d	9;"	v	line:9	access:private
 declare	./source/sbylib/material/MaterialUtils.d	34;"	T	line:34	class:MaterialUtils	access:public	signature:(string file = __FILE__)
-declareMix	./source/sbylib/material/MaterialUtils.d	84;"	T	line:84	class:MaterialUtils	access:public	signature:(alias A, alias B, string file = __FILE__)
+declareMix	./source/sbylib/material/MaterialUtils.d	81;"	T	line:81	class:MaterialUtils	access:public	signature:(alias A, alias B, string file = __FILE__)
 defaultLength	./source/sbylib/contorol/CameraChaseControl.d	13;"	v	line:13	class:CameraChaseControl	access:private
 defineFunc	./source/sbylib/utils/Watcher.d	67;"	v	line:67	class:Watcher	access:private
 deflen	./source/player/ElasticSphere.d	39;"	v	line:39	class:ElasticSphere	access:public
-demands	./source/sbylib/material/Material.d	71;"	v	line:71	class:MaterialTemp	access:private
+demands	./source/sbylib/material/Material.d	72;"	v	line:72	class:MaterialTemp	access:private
 deno	./source/sbylib/math/Rational.d	10;"	v	line:10	struct:Rational	access:public
 depthFunc	./source/sbylib/material/RenderConfig.d	7;"	v	line:7	class:RenderConfig	access:public
 depthFunc	./source/sbylib/wrapper/gl/Functions.d	61;"	f	line:61	class:GlFunction	access:public	signature:(TestFunc func)
 determinant	./source/sbylib/math/Matrix.d	319;"	f	line:319	struct:Matrix	access:public	signature:(Matrix m)
 diagonalize	./source/sbylib/math/Matrix.d	455;"	f	line:455	struct:Matrix	access:public	signature:(Matrix m)
 diagonalizeForRealSym	./source/sbylib/math/Matrix.d	537;"	f	line:537	struct:Matrix	access:public	signature:(Matrix m)
-dif	./source/sbylib/input/Mouse.d	16;"	v	line:16	class:Mouse	access:private
+dif	./source/sbylib/input/Mouse.d	18;"	v	line:18	class:Mouse	access:private
+dif	./source/sbylib/input/Mouse2D.d	14;"	v	line:14	class:Mouse2D	access:private
 diffuse	./source/sbylib/light/PointLight.d	7;"	v	line:7	struct:PointLight	access:public
 diffuse	./source/sbylib/material/lambert/LambertMaterial.d	14;"	v	line:14	class:LambertMaterialUniformKeeper	access:public
 dim	./source/sbylib/wrapper/gl/Attribute.d	14;"	v	line:14	struct:Attribute	access:public
@@ -818,8 +871,9 @@ face	./source/sbylib/wrapper/freetype/Font.d	13;"	v	line:13	class:Font	access:pr
 faceMode	./source/sbylib/material/RenderConfig.d	9;"	v	line:9	class:RenderConfig	access:public
 faceSetting	./source/sbylib/wrapper/gl/Functions.d	68;"	f	line:68	class:GlFunction	access:public	signature:(PolygonMode polygon, FaceMode face = FaceMode.FrontBack)
 faces	./source/sbylib/geometry/Geometry.d	41;"	v	line:41	class:GeometryTemp	access:public
-farZ	./source/sbylib/camera/OrthoCamera.d	21;"	v	line:21	class:OrthoCamera	access:public
+farZ	./source/sbylib/camera/OrthoCamera.d	23;"	v	line:23	class:OrthoCamera	access:public
 farZ	./source/sbylib/camera/PerspectiveCamera.d	20;"	v	line:20	class:PerspectiveCamera	access:public
+firstFlag	./source/sbylib/gui/timeline/Timeline.d	18;"	v	line:18	class:Timeline	access:private
 flim	./source/sbylib/math/NumLimited.d	47;"	a	line:47	access:public
 floors	./source/player/ElasticSphere.d	34;"	v	line:34	class:ElasticSphere	access:public
 fogColor	./source/sbylib/material/lambert/LambertMaterial.d	15;"	v	line:15	class:LambertMaterialUniformKeeper	access:public
@@ -830,28 +884,30 @@ force	./source/player/ElasticSphere.d	215;"	v	line:215	class:Particle	access:pub
 force	./source/player/ElasticSphere.d	267;"	v	line:267	class:Pair	access:public
 fovy	./source/sbylib/camera/PerspectiveCamera.d	18;"	v	line:18	class:PerspectiveCamera	access:public
 fpsBalancer	./source/sbylib/core/Core.d	66;"	v	line:66	class:Core	access:private
-fragmentShader	./source/sbylib/material/Material.d	72;"	v	line:72	class:MaterialTemp	access:private
+fragmentShader	./source/sbylib/material/Material.d	73;"	v	line:73	class:MaterialTemp	access:private
 frame	./source/sbylib/core/Process.d	9;"	v	line:9	class:Process	access:private
 frameBuffer	./source/sbylib/core/RenderTarget.d	15;"	v	line:15	class:RenderTarget	access:private
 frameTime	./source/sbylib/utils/FpsBalancer.d	10;"	v	line:10	class:FpsBalancer	access:private
 fromString	./source/sbylib/math/Vector.d	173;"	f	line:173	struct:Vector	access:public	signature:(string str)
 front	./source/sbylib/utils/LimitedArray.d	40;"	f	line:40	class:LimitedArray	access:public	signature:()
 func	./source/sbylib/core/Process.d	7;"	v	line:7	class:Process	access:private
-gameMain	./source/main.d	31;"	f	line:31	signature:()
+gameMain	./source/main.d	32;"	f	line:32	signature:()
 gcd	./source/sbylib/math/Rational.d	95;"	f	line:95	struct:Rational	access:private	signature:(T a, T b)
 generateFragmentAST	./source/sbylib/material/MaterialUtils.d	41;"	f	line:41	template:declare	access:public	signature:()
-generateFragmentAST	./source/sbylib/material/MaterialUtils.d	94;"	f	line:94	template:declareMix	access:public	signature:()
+generateFragmentAST	./source/sbylib/material/MaterialUtils.d	91;"	f	line:91	template:declareMix	access:public	signature:()
 generateFragmentAST	./source/sbylib/material/glsl/GlslUtils.d	57;"	f	line:57	class:GlslUtils	access:public	signature:(Ast fragAst)
-generateProjectionMatrix	./source/sbylib/camera/OrthoCamera.d	49;"	f	line:49	class:OrthoCamera	access:private	signature:()
+generateProjectionMatrix	./source/sbylib/camera/OrthoCamera.d	51;"	f	line:51	class:OrthoCamera	access:private	signature:()
 generateProjectionMatrix	./source/sbylib/camera/PerspectiveCamera.d	48;"	f	line:48	class:PerspectiveCamera	access:private	signature:()
 generateTexture	./source/sbylib/utils/Functions.d	23;"	f	line:23	class:Utils	access:public	signature:(Image image)
 generateVertexAST	./source/sbylib/material/glsl/GlslUtils.d	67;"	f	line:67	class:GlslUtils	access:public	signature:(Ast fragmentAst)
-generateViewMatrix	./source/sbylib/mesh/Object3D.d	81;"	f	line:81	class:Object3D	access:private	signature:()
-generateWorldMatrix	./source/sbylib/mesh/Object3D.d	73;"	f	line:73	class:Object3D	access:private	signature:()
+generateViewMatrix	./source/sbylib/mesh/Object3D.d	81;"	f	line:81	class:Object3D	access:protected	signature:()
+generateViewMatrix	./source/sbylib/mesh/Object3DS.d	29;"	f	line:29	class:Object3DS	access:protected	signature:()
+generateWorldMatrix	./source/sbylib/mesh/Object3D.d	73;"	f	line:73	class:Object3D	access:protected	signature:()
+generateWorldMatrix	./source/sbylib/mesh/Object3DS.d	21;"	f	line:21	class:Object3DS	access:protected	signature:()
 geom	./source/player/ElasticSphere.d	36;"	v	line:36	class:ElasticSphere	access:public
-geom	./source/sbylib/collision/CollisionEntry.d	16;"	v	line:16	class:CollisionEntry	access:public
-geom	./source/sbylib/mesh/Mesh.d	12;"	v	line:12	class:Mesh	access:public
-geom	./source/sbylib/mesh/Mesh.d	39;"	v	line:39	class:MeshTemp	access:public
+geom	./source/sbylib/collision/CollisionEntry.d	15;"	v	line:15	class:CollisionEntry	access:public
+geom	./source/sbylib/mesh/Mesh.d	14;"	v	line:14	class:Mesh	access:public
+geom	./source/sbylib/mesh/Mesh.d	60;"	v	line:60	class:MeshTemp	access:public
 get	./source/sbylib/constant/Const.d	37;"	f	line:37	class:ConstTemp	access:public	signature:()
 get	./source/sbylib/constant/Const.d	46;"	a	line:46	class:ConstTemp	access:public
 get	./source/sbylib/constant/ConstantManager.d	116;"	f	line:116	class:ConstantManager	access:public	signature:(string name)
@@ -888,16 +944,19 @@ getCode	./source/sbylib/material/glsl/RequireUniform.d	32;"	f	line:32	class:Requ
 getCode	./source/sbylib/material/glsl/Sharp.d	36;"	f	line:36	class:Sharp	access:public	signature:()
 getCode	./source/sbylib/material/glsl/Statement.d	6;"	f	line:6	interface:Statement	access:public	signature:()
 getCode	./source/sbylib/material/glsl/VariableDeclare.d	41;"	f	line:41	class:VariableDeclare	access:public	signature:()
-getCollisionPolygons	./source/sbylib/geometry/Geometry.d	123;"	f	line:123	class:GeometryTemp	access:public	signature:()
+getCollidable	./source/sbylib/contorol/IControllable.d	10;"	f	line:10	interface:IControllable	access:public	signature:()
+getCollidable	./source/sbylib/gui/timeline/Timeline.d	66;"	f	line:66	class:Timeline	access:public	signature:()
+getCollisionPolygons	./source/sbylib/geometry/Geometry.d	125;"	f	line:125	class:GeometryTemp	access:public	signature:()
 getCollisionPolygons	./source/sbylib/geometry/Geometry.d	28;"	f	line:28	interface:Geometry	access:public	signature:()
-getColor	./source/examples/text2d.d	99;"	f	line:99	access:public	signature:(float angle)
+getColor	./source/examples/text2d.d	108;"	f	line:108	access:public	signature:(float angle)
 getColorTexture	./source/sbylib/core/RenderTarget.d	70;"	f	line:70	class:RenderTarget	access:public	signature:()
 getColumnCode	./source/sbylib/math/Matrix.d	848;"	f	line:848	access:private	signature:(uint U, uint V)
 getCopyCode	./source/sbylib/math/Matrix.d	837;"	f	line:837	access:private	signature:(string identifier, uint U, uint V)
-getDemands	./source/sbylib/material/Material.d	56;"	f	line:56	class:Material	access:public	signature:()
-getDemands	./source/sbylib/material/Material.d	95;"	f	line:95	class:MaterialTemp	access:public	signature:()
+getDemands	./source/sbylib/material/Material.d	57;"	f	line:57	class:Material	access:public	signature:()
+getDemands	./source/sbylib/material/Material.d	96;"	f	line:96	class:MaterialTemp	access:public	signature:()
 getDepthTexture	./source/sbylib/core/RenderTarget.d	74;"	f	line:74	class:RenderTarget	access:public	signature:()
-getDif	./source/sbylib/input/Mouse.d	42;"	f	line:42	class:Mouse	access:public	signature:()
+getDif	./source/sbylib/input/Mouse.d	44;"	f	line:44	class:Mouse	access:public	signature:()
+getDif	./source/sbylib/input/Mouse2D.d	38;"	f	line:38	class:Mouse2D	access:public	signature:()
 getFPS	./source/sbylib/utils/FpsCounter.d	27;"	f	line:27	class:FpsCounter	access:public	signature:()
 getFragmentIn	./source/sbylib/material/glsl/RequireAttribute.d	72;"	f	line:72	class:RequireAttribute	access:public	signature:()
 getFrame	./source/sbylib/core/Process.d	32;"	f	line:32	class:Process	access:public	signature:()
@@ -928,8 +987,10 @@ getLogLength	./source/sbylib/wrapper/gl/Shader.d	38;"	f	line:38	class:Shader	acc
 getLogString	./source/sbylib/wrapper/gl/Program.d	108;"	f	line:108	class:Program	access:private	signature:()
 getLogString	./source/sbylib/wrapper/gl/Shader.d	63;"	f	line:63	class:Shader	access:private	signature:(string sourceCode)
 getLookAtCode	./source/sbylib/math/Matrix.d	743;"	f	line:743	access:private	signature:()
-getMainFunction	./source/sbylib/material/glsl/Ast.d	132;"	f	line:132	class:Ast	access:public	signature:()
+getMainFunction	./source/sbylib/material/glsl/Ast.d	133;"	f	line:133	class:Ast	access:public	signature:()
 getMesh	./source/sbylib/character/Letter.d	27;"	f	line:27	class:Letter	access:public	signature:()
+getMouse	./source/sbylib/input/Mouse2D.d	42;"	f	line:42	class:Mouse2D	access:public	signature:()
+getMouse	./source/sbylib/input/Mouse2D.d	46;"	a	line:46	class:Mouse2D	access:public
 getMouseButton	./source/sbylib/wrapper/glfw/Window.d	91;"	f	line:91	class:Window	access:public	signature:(MouseButton button)
 getMousePos	./source/sbylib/wrapper/glfw/Window.d	95;"	f	line:95	class:Window	access:public	signature:()
 getName	./source/sbylib/wrapper/gl/Uniform.d	20;"	f	line:20	interface:Uniform	access:public	signature:()
@@ -937,9 +998,9 @@ getName	./source/sbylib/wrapper/gl/Uniform.d	33;"	f	line:33	class:UniformTemp	ac
 getName	./source/sbylib/wrapper/gl/UniformBuffer.d	21;"	f	line:21	class:UniformBuffer	access:public	signature:()
 getName	./source/sbylib/wrapper/gl/UniformTexture.d	22;"	f	line:22	class:UniformTexture	access:public	signature:()
 getNorthernIndices	./source/sbylib/geometry/geometry3d/SphereUV.d	62;"	f	line:62	class:SphereUV	access:public	signature:(uint tCut, uint pCut)
-getObj	./source/sbylib/camera/Camera.d	10;"	f	line:10	interface:Camera	access:public	signature:()
-getObj	./source/sbylib/camera/Camera.d	12;"	a	line:12	interface:Camera	access:public
-getObj	./source/sbylib/camera/OrthoCamera.d	41;"	f	line:41	class:OrthoCamera	access:public	signature:()
+getObj	./source/sbylib/camera/Camera.d	12;"	f	line:12	interface:Camera	access:public	signature:()
+getObj	./source/sbylib/camera/Camera.d	14;"	a	line:14	interface:Camera	access:public
+getObj	./source/sbylib/camera/OrthoCamera.d	43;"	f	line:43	class:OrthoCamera	access:public	signature:()
 getObj	./source/sbylib/camera/PerspectiveCamera.d	40;"	f	line:40	class:PerspectiveCamera	access:public	signature:()
 getOpAssignMMCode	./source/sbylib/math/Matrix.d	733;"	f	line:733	access:private	signature:(string op, uint U, uint V)
 getOpAssignMSCode	./source/sbylib/math/Matrix.d	713;"	f	line:713	access:private	signature:(string op, uint U, uint V)
@@ -948,13 +1009,16 @@ getOpBinaryMSCode	./source/sbylib/math/Matrix.d	703;"	f	line:703	access:private	
 getOrthoCode	./source/sbylib/math/Matrix.d	793;"	f	line:793	access:private	signature:()
 getPerspectiveCode	./source/sbylib/math/Matrix.d	815;"	f	line:815	access:private	signature:()
 getPollIndices	./source/sbylib/geometry/geometry3d/Capsule.d	46;"	f	line:46	class:Capsule	access:private	signature:(uint tCut, uint pCut)
-getPos	./source/sbylib/input/Mouse.d	38;"	f	line:38	class:Mouse	access:public	signature:()
+getPos	./source/sbylib/input/Mouse.d	40;"	f	line:40	class:Mouse	access:public	signature:()
+getPos	./source/sbylib/input/Mouse2D.d	34;"	f	line:34	class:Mouse2D	access:public	signature:()
+getRay	./source/sbylib/input/Mouse2D.d	29;"	f	line:29	class:Mouse2D	access:public	signature:()
+getRay	./source/sbylib/input/Mouse3D.d	25;"	f	line:25	class:Mouse3D	access:public	signature:()
 getRay	./source/sbylib/utils/Functions.d	142;"	f	line:142	class:Utils	access:public	signature:(vec2 screenPos, Camera camera, ref CollisionRay ray)
 getRenderTarget	./source/sbylib/wrapper/glfw/Window.d	69;"	f	line:69	class:Window	access:public	signature:()
 getRequireAttribute	./source/sbylib/material/glsl/Sharp.d	49;"	f	line:49	class:Sharp	access:public	signature:()
 getRotAxisCode	./source/sbylib/math/Matrix.d	686;"	f	line:686	access:private	signature:(uint U)
 getRowCode	./source/sbylib/math/Matrix.d	858;"	f	line:858	access:private	signature:(uint U, uint V)
-getRows	./source/sbylib/character/Label.d	94;"	f	line:94	class:Label	access:private	signature:(Letter[] buffer, Letter[] rest, RowInfo[] rows, float w)
+getRows	./source/sbylib/character/Label.d	95;"	f	line:95	class:Label	access:private	signature:(Letter[] buffer, Letter[] rest, RowInfo[] rows, float w)
 getScale	./source/sbylib/math/Matrix.d	260;"	f	line:260	struct:Matrix	access:public	signature:()
 getScale	./source/sbylib/math/Matrix.d	309;"	f	line:309	struct:Matrix	access:public	signature:()
 getScaleCode	./source/sbylib/math/Matrix.d	671;"	f	line:671	access:private	signature:(uint U)
@@ -975,16 +1039,20 @@ getTypeEnum	./source/sbylib/wrapper/gl/Functions.d	17;"	v	line:17	template:getTy
 getTypeEnum	./source/sbylib/wrapper/gl/Functions.d	18;"	v	line:18	template:getTypeEnum	access:public
 getTypeEnum	./source/sbylib/wrapper/gl/Functions.d	19;"	v	line:19	template:getTypeEnum	access:public
 getUnaryCode	./source/sbylib/math/Vector.d	351;"	f	line:351	access:private	signature:(string op, int S)
+getUniform	./source/sbylib/core/Bahamut.d	73;"	f	line:73	class:Bahamut	access:public	signature:(UniformDemand demand)
 getUniformDemandDeclare	./source/sbylib/material/glsl/UniformDemand.d	29;"	f	line:29	access:public	signature:(UniformDemand u)
 getUniformDemandName	./source/sbylib/material/glsl/UniformDemand.d	16;"	f	line:16	access:public	signature:(UniformDemand u)
 getUniformDemands	./source/sbylib/material/glsl/Space.d	28;"	f	line:28	access:public	signature:(Space s)
 getUniforms	./source/sbylib/material/Material.d	21;"	v	line:21	class:Material	access:private
-getUniforms	./source/sbylib/material/MaterialUtils.d	109;"	f	line:109	template:declareMix	access:public	signature:()
+getUniforms	./source/sbylib/material/MaterialUtils.d	106;"	f	line:106	template:declareMix	access:public	signature:()
 getUniforms	./source/sbylib/material/MaterialUtils.d	47;"	f	line:47	template:declare	access:public	signature:()
 getUniforms	./source/sbylib/material/UniformKeeper.d	8;"	f	line:8	class:UniformKeeper	access:public	signature:()
+getUserData	./source/sbylib/collision/CollisionEntry.d	431;"	f	line:431	class:CollisionEntryGroup	access:public	signature:()
+getUserData	./source/sbylib/collision/CollisionEntry.d	65;"	f	line:65	class:CollisionEntry	access:public	signature:()
+getUserData	./source/sbylib/collision/ICollidable.d	16;"	f	line:16	interface:ICollidable	access:public	signature:()
 getValue	./source/sbylib/math/Rational.d	20;"	f	line:20	struct:Rational	access:public	signature:()
 getVertexBodyCode	./source/sbylib/material/glsl/RequireAttribute.d	57;"	f	line:57	class:RequireAttribute	access:public	signature:()
-getVertexDeclare	./source/sbylib/material/glsl/Ast.d	125;"	f	line:125	class:Ast	access:public	signature:()
+getVertexDeclare	./source/sbylib/material/glsl/Ast.d	126;"	f	line:126	class:Ast	access:public	signature:()
 getVertexIn	./source/sbylib/material/glsl/RequireAttribute.d	49;"	f	line:49	class:RequireAttribute	access:public	signature:()
 getVertexOut	./source/sbylib/material/glsl/RequireAttribute.d	53;"	f	line:53	class:RequireAttribute	access:public	signature:()
 getVertexSpace	./source/sbylib/material/glsl/Sharp.d	43;"	f	line:43	class:Sharp	access:public	signature:()
@@ -1011,19 +1079,30 @@ green	./source/sbylib/utils/Functions.d	29;"	f	line:29	class:Utils	access:public
 has	./source/sbylib/material/glsl/AttributeList.d	31;"	f	line:31	class:AttributeList	access:public	signature:(Attribute attr)
 hasAttribute	./source/sbylib/wrapper/gl/Program.d	55;"	f	line:55	class:Program	access:public	signature:(string name)
 hasColorOutput	./source/sbylib/material/glsl/Ast.d	94;"	f	line:94	class:Ast	access:public	signature:()
-hasMember	./source/sbylib/material/MaterialUtils.d	219;"	T	line:219	template:declareMix	access:public	signature:(string mem)
-hasMember	./source/sbylib/material/MaterialUtils.d	76;"	T	line:76	template:declare	access:public	signature:(string s)
-hasMember	./source/sbylib/material/MaterialUtils.d	80;"	v	line:80	template:hasMember	access:public
-hasMember	./source/sbylib/utils/Functions.d	411;"	T	line:411	class:Utils	access:public	signature:(T, string name)
-hasMember	./source/sbylib/utils/Functions.d	412;"	a	line:412	template:hasMember	access:public
+hasMember	./source/sbylib/material/MaterialUtils.d	173;"	T	line:173	template:declareMix	access:public	signature:(string mem)
+hasMember	./source/sbylib/material/MaterialUtils.d	179;"	v	line:179	template:hasMember	access:public
+hasMember	./source/sbylib/material/MaterialUtils.d	181;"	v	line:181	template:hasMember	access:public
+hasMember	./source/sbylib/material/MaterialUtils.d	183;"	v	line:183	template:hasMember	access:public
+hasMember	./source/sbylib/material/MaterialUtils.d	190;"	v	line:190	template:hasMember	access:public
+hasMember	./source/sbylib/material/MaterialUtils.d	195;"	v	line:195	template:hasMember	access:public
+hasMember	./source/sbylib/material/MaterialUtils.d	197;"	v	line:197	template:hasMember	access:public
+hasMember	./source/sbylib/material/MaterialUtils.d	199;"	v	line:199	template:hasMember	access:public
+hasMember	./source/sbylib/material/MaterialUtils.d	75;"	T	line:75	template:declare	access:public	signature:(string s)
+hasMember	./source/sbylib/material/MaterialUtils.d	77;"	v	line:77	template:hasMember	access:public
+hasMember	./source/sbylib/utils/Functions.d	410;"	T	line:410	class:Utils	access:public	signature:(T, string name)
+hasMember	./source/sbylib/utils/Functions.d	411;"	v	line:411	template:hasMember	access:public
+hasMemberA	./source/sbylib/material/MaterialUtils.d	176;"	v	line:176	template:hasMember	access:public
+hasMemberB	./source/sbylib/material/MaterialUtils.d	177;"	v	line:177	template:hasMember	access:public
+hasMemberThis	./source/sbylib/material/MaterialUtils.d	175;"	v	line:175	template:hasMember	access:public
 hasNaN	./source/sbylib/math/Vector.d	161;"	f	line:161	struct:Vector	access:public	signature:()
 hasNext	./source/sbylib/utils/LinkList.d	100;"	f	line:100	struct:Iterator	access:public	signature:()
 hasVersion	./source/sbylib/material/glsl/Ast.d	89;"	f	line:89	class:Ast	access:public	signature:()
-height	./source/sbylib/camera/OrthoCamera.d	19;"	v	line:19	class:OrthoCamera	access:public
+height	./source/sbylib/camera/OrthoCamera.d	21;"	v	line:21	class:OrthoCamera	access:public
 height	./source/sbylib/core/RenderTarget.d	18;"	v	line:18	class:RenderTarget	access:public
 height	./source/sbylib/wrapper/freetype/Character.d	12;"	v	line:12	class:LetterInfo	access:public
 height	./source/sbylib/wrapper/freetype/LetterInfo.d	12;"	v	line:12	class:LetterInfo	access:public
 height	./source/sbylib/wrapper/glfw/Window.d	18;"	v	line:18	class:Window	access:private
+hit	./source/sbylib/material/MaterialUtils.d	193;"	v	line:193	template:hasMember	access:public
 ibo	./source/sbylib/geometry/Geometry.d	43;"	v	line:43	class:GeometryTemp	access:private
 id	./source/sbylib/material/glsl/Argument.d	12;"	v	line:12	class:Argument	access:public
 id	./source/sbylib/material/glsl/BlockDeclare.d	16;"	v	line:16	class:BlockDeclare	access:public
@@ -1039,10 +1118,10 @@ id	./source/sbylib/wrapper/gl/Texture.d	14;"	v	line:14	class:Texture	access:priv
 id	./source/sbylib/wrapper/gl/Texture.d	82;"	a	line:82	class:Texture	access:public
 id	./source/sbylib/wrapper/gl/VertexArray.d	15;"	v	line:15	class:VertexArray	access:public
 identity	./source/sbylib/math/Matrix.d	196;"	f	line:196	struct:Matrix	access:public	signature:()
-include	./source/sbylib/utils/Functions.d	399;"	T	line:399	class:Utils	access:public	signature:(T, T[] members, T name)
-include	./source/sbylib/utils/Functions.d	403;"	v	line:403	template:include	access:public
-include	./source/sbylib/utils/Functions.d	405;"	v	line:405	template:include	access:public
-include	./source/sbylib/utils/Functions.d	407;"	v	line:407	template:include	access:public
+include	./source/sbylib/utils/Functions.d	400;"	T	line:400	class:Utils	access:public	signature:(T, T[] members, T name)
+include	./source/sbylib/utils/Functions.d	402;"	v	line:402	template:include	access:public
+include	./source/sbylib/utils/Functions.d	404;"	v	line:404	template:include	access:public
+include	./source/sbylib/utils/Functions.d	406;"	v	line:406	template:include	access:public
 indent	./source/sbylib/material/glsl/Function.d	57;"	f	line:57	access:public	signature:(bool[] isEnd)
 indexList	./source/sbylib/geometry/Face.d	9;"	v	line:9	class:Face	access:public
 indicesCount	./source/sbylib/geometry/Geometry.d	42;"	v	line:42	class:GeometryTemp	access:public
@@ -1065,33 +1144,39 @@ isConvertible	./source/sbylib/material/glsl/Function.d	15;"	f	line:15	access:pub
 isConvertible	./source/sbylib/material/glsl/Function.d	9;"	f	line:9	access:public	signature:(Token[] tokens)
 isEmpty	./source/sbylib/utils/Stack.d	104;"	f	line:104	struct:Stack	access:public	signature:()
 isGround	./source/player/ElasticSphere.d	217;"	v	line:217	class:Particle	access:public
-isPressed	./source/sbylib/input/Mouse.d	46;"	f	line:46	class:Mouse	access:public	signature:(MouseButton button)
+isPressed	./source/sbylib/input/Mouse.d	48;"	f	line:48	class:Mouse	access:public	signature:(MouseButton button)
 isPressed	./source/sbylib/wrapper/glfw/Window.d	101;"	f	line:101	class:Window	access:public	signature:(int state)
 isStinger	./source/player/ElasticSphere.d	218;"	v	line:218	class:Particle	access:public
 iterator	./source/sbylib/utils/LinkList.d	109;"	f	line:109	struct:LinkList	access:public	signature:()
-justPressed	./source/sbylib/input/Mouse.d	50;"	f	line:50	class:Mouse	access:public	signature:(MouseButton button)
-justReleased	./source/sbylib/input/Mouse.d	54;"	f	line:54	class:Mouse	access:public	signature:(MouseButton button)
+justPressed	./source/sbylib/input/Mouse.d	52;"	f	line:52	class:Mouse	access:public	signature:(MouseButton button)
+justPressed	./source/sbylib/input/Mouse.d	60;"	f	line:60	class:Mouse	access:public	signature:()
+justPressedButton	./source/sbylib/input/Mouse.d	74;"	f	line:74	class:Mouse	access:public	signature:()
+justReleased	./source/sbylib/input/Mouse.d	56;"	f	line:56	class:Mouse	access:public	signature:(MouseButton button)
+justReleased	./source/sbylib/input/Mouse.d	67;"	f	line:67	class:Mouse	access:public	signature:()
+justReleasedButton	./source/sbylib/input/Mouse.d	81;"	f	line:81	class:Mouse	access:public	signature:()
 k	./source/player/ElasticSphere.d	21;"	v	line:21	class:ElasticSphere	access:public
 k	./source/sbylib/contorol/CameraChaseControl.d	13;"	v	line:13	class:CameraChaseControl	access:private
-keeper	./source/sbylib/material/Material.d	73;"	v	line:73	class:MaterialTemp	access:public
+keeper	./source/sbylib/material/Material.d	74;"	v	line:74	class:MaterialTemp	access:public
 kill	./source/sbylib/core/Process.d	27;"	f	line:27	class:Process	access:public	signature:()
 lVel	./source/player/ElasticSphere.d	41;"	v	line:41	class:ElasticSphere	access:public
 labels	./source/plot/DataSet.d	16;"	v	line:16	class:DataSet	access:public
 last	./source/sbylib/utils/LinkList.d	17;"	v	line:17	struct:LinkList	access:private
 last	./source/sbylib/utils/Stack.d	14;"	v	line:14	struct:Stack	access:private
+lastWritten	./source/sbylib/gui/timeline/Timeline.d	17;"	v	line:17	class:Timeline	access:private
 length	./source/sbylib/math/Quaternion.d	226;"	f	line:226	access:public	signature:(Quaternion!T q)
 length	./source/sbylib/math/Vector.d	289;"	f	line:289	access:public	signature:(Vector!(T, S) v)
 length	./source/sbylib/utils/LimitedArray.d	21;"	f	line:21	class:LimitedArray	access:public	signature:()
 length	./source/sbylib/utils/LinkList.d	23;"	f	line:23	struct:LinkList	access:public	signature:()
 length	./source/sbylib/utils/Stack.d	139;"	f	line:139	struct:Stack	access:public	signature:()
 lengthSq	./source/sbylib/math/Vector.d	301;"	f	line:301	access:public	signature:(Vector!(T, S) v)
-letters	./source/sbylib/character/Label.d	20;"	v	line:20	class:Label	access:public
-letters	./source/sbylib/character/Label.d	72;"	v	line:72	struct:RowInfo	access:public
+letters	./source/sbylib/character/Label.d	20;"	v	line:20	class:Label	access:private
+letters	./source/sbylib/character/Label.d	73;"	v	line:73	struct:RowInfo	access:public
 library	./source/sbylib/wrapper/freetype/FreeType.d	23;"	v	line:23	class:FreeType	access:public
 lights	./source/sbylib/light/PointLight.d	13;"	v	line:13	struct:PointLightBlock	access:public
+line	./source/sbylib/gui/timeline/Timeline.d	14;"	v	line:14	class:Timeline	access:private
 line	./source/sbylib/material/glsl/Token.d	7;"	v	line:7	class:Token	access:public
 lineMesh	./source/plot/DataSet.d	15;"	v	line:15	class:DataSet	access:public
-lineUp	./source/sbylib/character/Label.d	76;"	f	line:76	class:Label	access:private	signature:()
+lineUp	./source/sbylib/character/Label.d	77;"	f	line:77	class:Label	access:private	signature:()
 lineWidth	./source/sbylib/wrapper/gl/Functions.d	148;"	f	line:148	class:GlFunction	access:public	signature:(float width)
 linkProgram	./source/sbylib/wrapper/gl/Program.d	76;"	f	line:76	class:Program	access:private	signature:()
 load	./source/sbylib/wrapper/freeimage/ImageLoader.d	8;"	f	line:8	class:ImageLoader	access:public	signature:(string path)
@@ -1106,12 +1191,12 @@ lower	./source/sbylib/math/NumLimited.d	11;"	v	line:11	struct:NumLimited	access:
 lowerY	./source/player/ElasticSphere.d	40;"	v	line:40	class:ElasticSphere	access:public
 main	./source/main.d	17;"	f	line:17	signature:(string[] args)
 mainLoop	./source/sbylib/core/Core.d	105;"	f	line:105	class:Core	access:private	signature:()
-mainMaterial	./source/examples/material.d	8;"	f	line:8	access:public	signature:()
+mainMaterial	./source/examples/material.d	12;"	f	line:12	access:public	signature:()
 mainMouse	./source/examples/mouse.d	8;"	f	line:8	access:public	signature:()
 mainText2d	./source/examples/text2d.d	7;"	f	line:7	access:public	signature:()
 map	./source/sbylib/wrapper/gl/BufferObject.d	69;"	f	line:69	class:BufferObject	access:public	signature:(BufferAccess access)
-mat	./source/sbylib/mesh/Mesh.d	13;"	v	line:13	class:Mesh	access:public
-mat	./source/sbylib/mesh/Mesh.d	40;"	v	line:40	class:MeshTemp	access:public
+mat	./source/sbylib/mesh/Mesh.d	15;"	v	line:15	class:Mesh	access:public
+mat	./source/sbylib/mesh/Mesh.d	61;"	v	line:61	class:MeshTemp	access:public
 mat2	./source/sbylib/math/Matrix.d	19;"	a	line:19	access:public
 mat2d	./source/sbylib/math/Matrix.d	20;"	a	line:20	access:public
 mat3	./source/sbylib/math/Matrix.d	21;"	a	line:21	access:public
@@ -1120,19 +1205,23 @@ mat4	./source/sbylib/math/Matrix.d	23;"	a	line:23	access:public
 mat4d	./source/sbylib/math/Matrix.d	24;"	a	line:24	access:public
 maxVector	./source/sbylib/math/Vector.d	235;"	T	line:235	access:public	signature:(T, S, uint U)
 maxVector	./source/sbylib/math/Vector.d	238;"	f	line:238	template:maxVector	access:public	signature:(Vector!(T, U) v, Vector!(S, U) v2)
+mem2	./source/sbylib/material/MaterialUtils.d	192;"	v	line:192	template:hasMember	access:public
 mergeASTs	./source/sbylib/material/glsl/GlslUtils.d	104;"	f	line:104	class:GlslUtils	access:public	signature:(Ast[] asts)
 mesh	./source/player/ElasticSphere.d	35;"	v	line:35	class:ElasticSphere	access:public
 mesh	./source/plot/circle/Circle.d	7;"	v	line:7	class:Circle	access:public
+mesh	./source/sbylib/character/Label.d	19;"	v	line:19	class:Label	access:public
 mesh	./source/sbylib/character/Letter.d	15;"	v	line:15	class:Letter	access:private
-mesh1	./source/sbylib/collision/CollisionInfo.d	8;"	v	line:8	struct:CollisionInfo	access:public
-mesh2	./source/sbylib/collision/CollisionInfo.d	8;"	v	line:8	struct:CollisionInfo	access:public
-meshes	./source/sbylib/core/World.d	21;"	v	line:21	class:World	access:private
+mesh	./source/sbylib/gui/timeline/Timeline.d	13;"	v	line:13	class:Timeline	access:public
+meshes	./source/sbylib/core/Bahamut.d	20;"	v	line:20	class:Bahamut	access:private
 minVector	./source/sbylib/math/Vector.d	220;"	T	line:220	access:public	signature:(T, S, uint U)
 minVector	./source/sbylib/math/Vector.d	223;"	f	line:223	template:minVector	access:public	signature:(Vector!(T, U) v, Vector!(S, U) v2)
 missingSymFunc	./source/sbylib/wrapper/freetype/FreeType.d	16;"	f	line:16	access:private	signature:(string symName)
-mode	./source/sbylib/contorol/BasicControl.d	25;"	v	line:25	class:BasicControl	access:private
+mode	./source/sbylib/contorol/BasicControl.d	26;"	v	line:26	class:BasicControl	access:private
 mostDispersionBasis	./source/sbylib/utils/Functions.d	78;"	f	line:78	class:Utils	access:public	signature:(Vector!(T, 3)[] vertices...)
 mouse	./source/sbylib/contorol/BasicControl.d	21;"	v	line:21	class:BasicControl	access:private
+mouse	./source/sbylib/contorol/GuiControl.d	22;"	v	line:22	class:GuiControl	access:private
+mouse	./source/sbylib/input/Mouse2D.d	10;"	v	line:10	class:Mouse2D	access:private
+mouse	./source/sbylib/input/Mouse3D.d	9;"	v	line:9	class:Mouse3D	access:private
 move	./source/player/ElasticSphere.d	233;"	f	line:233	class:Particle	access:public	signature:()
 move	./source/player/ElasticSphere.d	90;"	f	line:90	class:ElasticSphere	access:public	signature:()
 multMMCode	./source/sbylib/math/Matrix.d	594;"	f	line:594	access:private	signature:(uint U, uint V, uint P, uint Q)
@@ -1148,7 +1237,7 @@ name	./source/sbylib/wrapper/gl/Attribute.d	15;"	v	line:15	struct:Attribute	acce
 name	./source/sbylib/wrapper/gl/Uniform.d	26;"	v	line:26	class:UniformTemp	access:public
 name	./source/sbylib/wrapper/gl/UniformBuffer.d	14;"	v	line:14	class:UniformBuffer	access:public
 name	./source/sbylib/wrapper/gl/UniformTexture.d	15;"	v	line:15	class:UniformTexture	access:private
-nearZ	./source/sbylib/camera/OrthoCamera.d	20;"	v	line:20	class:OrthoCamera	access:public
+nearZ	./source/sbylib/camera/OrthoCamera.d	22;"	v	line:22	class:OrthoCamera	access:public
 nearZ	./source/sbylib/camera/PerspectiveCamera.d	19;"	v	line:19	class:PerspectiveCamera	access:public
 needle	./source/player/ElasticSphere.d	181;"	f	line:181	class:ElasticSphere	access:private	signature:(bool isNeedle)
 needleCount	./source/player/ElasticSphere.d	42;"	v	line:42	class:ElasticSphere	access:public
@@ -1157,7 +1246,7 @@ next	./source/player/ElasticSphere.d	219;"	v	line:219	class:Particle	access:publ
 next	./source/sbylib/utils/LinkList.d	7;"	v	line:7	class:Node	access:public
 next	./source/sbylib/utils/LinkList.d	94;"	f	line:94	struct:Iterator	access:public	signature:()
 next	./source/sbylib/utils/Stack.d	9;"	v	line:9	class:Node	access:public
-none	./source/sbylib/contorol/BasicControl.d	50;"	f	line:50	class:BasicControl	access:private	signature:()
+none	./source/sbylib/contorol/BasicControl.d	52;"	f	line:52	class:BasicControl	access:private	signature:()
 normal	./source/sbylib/collision/geometry/CollisionPolygon.d	16;"	v	line:16	class:CollisionPolygon	access:public
 normalize	./source/sbylib/math/Quaternion.d	238;"	f	line:238	access:public	signature:(Quaternion!T q)
 normalize	./source/sbylib/math/Vector.d	313;"	f	line:313	access:public	signature:(Vector!(T, S) v)
@@ -1166,16 +1255,22 @@ northern	./source/sbylib/geometry/geometry3d/Capsule.d	28;"	f	line:28	class:Caps
 northern	./source/sbylib/geometry/geometry3d/SphereUV.d	26;"	f	line:26	class:SphereUV	access:public	signature:(float radius, uint tCut, uint pCut)
 num	./source/sbylib/light/PointLight.d	12;"	v	line:12	struct:PointLightBlock	access:public
 nume	./source/sbylib/math/Rational.d	9;"	v	line:9	struct:Rational	access:public
-obj	./source/sbylib/camera/OrthoCamera.d	23;"	v	line:23	class:OrthoCamera	access:public
+obj	./source/sbylib/camera/OrthoCamera.d	25;"	v	line:25	class:OrthoCamera	access:public
 obj	./source/sbylib/camera/PerspectiveCamera.d	22;"	v	line:22	class:PerspectiveCamera	access:public
-obj	./source/sbylib/character/Label.d	19;"	v	line:19	class:Label	access:public
-obj	./source/sbylib/collision/CollisionEntry.d	17;"	v	line:17	class:CollisionEntry	access:public
-obj	./source/sbylib/mesh/Mesh.d	11;"	v	line:11	class:Mesh	access:public
-offsetX	./source/sbylib/character/Label.d	104;"	f	line:104	class:Label	access:private	signature:(float fullWidth, float width)
-offsetY	./source/sbylib/character/Label.d	115;"	f	line:115	class:Label	access:private	signature:(float height)
+obj	./source/sbylib/collision/CollisionEntry.d	16;"	v	line:16	class:CollisionEntry	access:public
+obj	./source/sbylib/collision/CollisionEntry.d	407;"	v	line:407	class:CollisionEntryGroup	access:public
+obj	./source/sbylib/gui/timeline/Timeline.d	19;"	v	line:19	class:Timeline	access:private
+obj	./source/sbylib/mesh/Mesh.d	13;"	v	line:13	class:Mesh	access:public
+obj	./source/sbylib/mesh/Mesh.d	72;"	v	line:72	class:MeshGroup	access:public
+offsetX	./source/sbylib/character/Label.d	105;"	f	line:105	class:Label	access:private	signature:(float fullWidth, float width)
+offsetY	./source/sbylib/character/Label.d	116;"	f	line:116	class:Label	access:private	signature:(float height)
 onChange	./source/sbylib/utils/Watcher.d	100;"	f	line:100	class:Watcher	access:public	signature:()
 onChange	./source/sbylib/utils/Watcher.d	60;"	f	line:60	interface:IWatcher	access:public	signature:()
-onRayCast	./source/sbylib/collision/CollisionEntry.d	15;"	v	line:15	class:CollisionEntry	access:public
+onMousePressed	./source/sbylib/contorol/IControllable.d	11;"	f	line:11	interface:IControllable	access:public	signature:(MouseButton button)
+onMousePressed	./source/sbylib/gui/timeline/Timeline.d	70;"	f	line:70	class:Timeline	access:public	signature:(MouseButton button)
+onMouseReleased	./source/sbylib/contorol/IControllable.d	12;"	f	line:12	interface:IControllable	access:public	signature:(MouseButton button)
+onMouseReleased	./source/sbylib/gui/timeline/Timeline.d	75;"	f	line:75	class:Timeline	access:public	signature:(MouseButton button)
+opApply	./source/sbylib/collision/CollisionEntry.d	457;"	f	line:457	class:CollisionEntryGroup	access:public	signature:(int delegate(ref ICollidable) dg)
 opApply	./source/sbylib/utils/LimitedArray.d	29;"	f	line:29	class:LimitedArray	access:public	signature:(int delegate(ref T) dg)
 opApply	./source/sbylib/utils/LinkList.d	69;"	f	line:69	struct:LinkList	access:public	signature:(int delegate(ref T) dg)
 opApply	./source/sbylib/utils/Stack.d	86;"	f	line:86	struct:Stack	access:public	signature:(int delegate(ref T) dg)
@@ -1197,10 +1292,10 @@ opBinary	./source/sbylib/math/Vector.d	55;"	f	line:55	struct:Vector	access:publi
 opBinary	./source/sbylib/math/Vector.d	65;"	f	line:65	struct:Vector	access:public	signature:(T t)
 opBinaryRight	./source/sbylib/math/Matrix.d	84;"	f	line:84	struct:Matrix	access:public	signature:(const Matrix!(S, P, Q) m)
 opBinaryRight	./source/sbylib/math/Vector.d	71;"	f	line:71	struct:Vector	access:public	signature:(T t)
-opCall	./source/sbylib/utils/Functions.d	352;"	f	line:352	template:singleton	access:public	signature:(T t)
+opCall	./source/sbylib/utils/Functions.d	353;"	f	line:353	template:singleton	access:public	signature:(T t)
 opCmp	./source/sbylib/math/Rational.d	69;"	f	line:69	struct:Rational	access:public	signature:(const Rational!U rhs)
-opDispatch	./source/sbylib/material/Material.d	91;"	f	line:91	class:MaterialTemp	access:public	signature:()
-opDispatch	./source/sbylib/material/MaterialUtils.d	187;"	f	line:187	template:declareMix	access:public	signature:()
+opDispatch	./source/sbylib/material/Material.d	92;"	f	line:92	class:MaterialTemp	access:public	signature:()
+opDispatch	./source/sbylib/material/MaterialUtils.d	141;"	f	line:141	template:declareMix	access:public	signature:()
 opDispatch	./source/sbylib/math/Vector.d	111;"	f	line:111	struct:Vector	access:public	signature:(Args args)
 opDispatch	./source/sbylib/utils/Watcher.d	29;"	f	line:29	class:Watch	access:public	signature:(Args args)
 opEquals	./source/sbylib/math/Rational.d	65;"	f	line:65	struct:Rational	access:public	signature:(const Rational!U rhs)
@@ -1232,7 +1327,7 @@ originY	./source/sbylib/character/Label.d	24;"	v	line:24	class:Label	access:priv
 original	./source/sbylib/geometry/geometry3d/Sphere.d	32;"	f	line:32	class:Sphere	access:private	signature:()
 originalIndex	./source/sbylib/geometry/geometry3d/Sphere.d	52;"	f	line:52	class:Sphere	access:private	signature:()
 ortho	./source/sbylib/math/Matrix.d	293;"	f	line:293	struct:Matrix	access:public	signature:(T width, T height, T nearZ, T farZ)
-outParameterIntoMain	./source/sbylib/material/glsl/Ast.d	117;"	f	line:117	class:Ast	access:public	signature:()
+outParameterIntoMain	./source/sbylib/material/glsl/Ast.d	118;"	f	line:118	class:Ast	access:public	signature:()
 p	./source/player/ElasticSphere.d	212;"	v	line:212	class:Particle	access:public
 p0	./source/player/ElasticSphere.d	265;"	v	line:265	class:Pair	access:public
 p1	./source/player/ElasticSphere.d	265;"	v	line:265	class:Pair	access:public
@@ -1247,29 +1342,32 @@ pass	./source/sbylib/material/RenderConfig.d	13;"	v	line:13	class:RenderConfig	a
 periods	./source/sbylib/utils/FpsCounter.d	9;"	v	line:9	class:FpsCounter	access:public
 perspective	./source/sbylib/math/Matrix.d	299;"	f	line:299	struct:Matrix	access:public	signature:(T aspectWperH, T fovy, T nearZ, T farZ)
 plotMain	./source/plot/Main.d	14;"	f	line:14	access:public	signature:()
-pointLightBlock	./source/sbylib/core/World.d	27;"	v	line:27	class:World	access:private
-pointLightBlockBuffer	./source/sbylib/core/World.d	26;"	v	line:26	class:World	access:private
+pointLightBlock	./source/sbylib/core/Bahamut.d	25;"	v	line:25	class:Bahamut	access:private
+pointLightBlockBuffer	./source/sbylib/core/Bahamut.d	24;"	v	line:24	class:Bahamut	access:private
 pollEvents	./source/sbylib/wrapper/glfw/Window.d	110;"	f	line:110	class:Window	access:public	signature:()
-polySegDistance	./source/sbylib/collision/CollisionEntry.d	186;"	f	line:186	class:CollisionEntry	access:private	signature:(vec3 s, vec3 e, vec3 p0, vec3 p1, vec3 p2, vec3 n)
-polygonDetection	./source/sbylib/collision/CollisionEntry.d	230;"	f	line:230	class:CollisionEntry	access:private	signature:(CollisionPolygon poly1, CollisionPolygon poly2)
+polySegDistance	./source/sbylib/collision/CollisionEntry.d	197;"	f	line:197	class:CollisionEntry	access:private	signature:(vec3 s, vec3 e, vec3 p0, vec3 p1, vec3 p2, vec3 n)
+polygonDetection	./source/sbylib/collision/CollisionEntry.d	241;"	f	line:241	class:CollisionEntry	access:private	signature:(CollisionPolygon poly1, CollisionPolygon poly2)
 polygonMode	./source/sbylib/material/RenderConfig.d	8;"	v	line:8	class:RenderConfig	access:public
 pop	./source/sbylib/utils/LinkList.d	56;"	f	line:56	struct:LinkList	access:public	signature:()
 pop	./source/sbylib/utils/Stack.d	49;"	f	line:49	struct:Stack	access:public	signature:()
 popBack	./source/sbylib/utils/LimitedArray.d	66;"	f	line:66	class:LimitedArray	access:public	signature:()
 popFront	./source/sbylib/utils/LimitedArray.d	44;"	f	line:44	class:LimitedArray	access:public	signature:()
-pos	./source/sbylib/input/Mouse.d	15;"	v	line:15	class:Mouse	access:private
+pos	./source/sbylib/input/Mouse.d	17;"	v	line:17	class:Mouse	access:private
+pos	./source/sbylib/input/Mouse2D.d	13;"	v	line:13	class:Mouse2D	access:private
+pos	./source/sbylib/input/Mouse3D.d	12;"	v	line:12	class:Mouse3D	access:public
 pos	./source/sbylib/light/PointLight.d	6;"	v	line:6	struct:PointLight	access:public
+pos	./source/sbylib/material/MaterialUtils.d	188;"	v	line:188	template:hasMember	access:public
 pos	./source/sbylib/mesh/Object3D.d	10;"	v	line:10	class:Object3D	access:public
 positions	./source/sbylib/collision/geometry/CollisionPolygon.d	15;"	v	line:15	class:CollisionPolygon	access:public
-pressed	./source/sbylib/input/Mouse.d	18;"	v	line:18	class:Mouse	access:private
+pressed	./source/sbylib/input/Mouse.d	20;"	v	line:20	class:Mouse	access:private
 prev	./source/sbylib/utils/LinkList.d	7;"	v	line:7	class:Node	access:public
 prev	./source/sbylib/utils/Stack.d	9;"	v	line:9	class:Node	access:public
 print	./source/sbylib/utils/Functions.d	339;"	f	line:339	class:Utils	access:public	signature:(Args args)
 processes	./source/sbylib/core/Core.d	67;"	v	line:67	class:Core	access:private
-projMatrix	./source/sbylib/camera/Camera.d	11;"	f	line:11	interface:Camera	access:public	signature:()
-projMatrix	./source/sbylib/camera/OrthoCamera.d	45;"	f	line:45	class:OrthoCamera	access:public	signature:()
+projMatrix	./source/sbylib/camera/Camera.d	13;"	f	line:13	interface:Camera	access:public	signature:()
+projMatrix	./source/sbylib/camera/OrthoCamera.d	47;"	f	line:47	class:OrthoCamera	access:public	signature:()
 projMatrix	./source/sbylib/camera/PerspectiveCamera.d	44;"	f	line:44	class:PerspectiveCamera	access:public	signature:()
-projMatrix	./source/sbylib/core/World.d	25;"	v	line:25	class:World	access:private
+projMatrix	./source/sbylib/core/Bahamut.d	23;"	v	line:23	class:Bahamut	access:private
 projToView	./source/sbylib/utils/Functions.d	133;"	f	line:133	class:Utils	access:public	signature:(vec3 projPos, Camera camera)
 purple	./source/sbylib/utils/Functions.d	32;"	f	line:32	class:Utils	access:public	signature:()
 push	./source/sbylib/utils/LinkList.d	27;"	f	line:27	struct:LinkList	access:public	signature:(T elem)
@@ -1279,10 +1377,13 @@ quat	./source/sbylib/math/Quaternion.d	256;"	a	line:256	access:public
 radius	./source/player/ElasticSphere.d	38;"	v	line:38	class:ElasticSphere	access:public
 radius	./source/sbylib/collision/geometry/CollisionCapsule.d	12;"	v	line:12	class:CollisionCapsule	access:public
 ray	./source/sbylib/contorol/BasicControl.d	24;"	v	line:24	class:BasicControl	access:private
+ray	./source/sbylib/contorol/GuiControl.d	25;"	v	line:25	class:GuiControl	access:private
+ray	./source/sbylib/input/Mouse2D.d	12;"	v	line:12	class:Mouse2D	access:private
+ray	./source/sbylib/input/Mouse3D.d	11;"	v	line:11	class:Mouse3D	access:private
 rayCast	./source/sbylib/core/Entity.d	4;"	f	line:4	interface:Entity	signature:()
-rayCastMeshes	./source/sbylib/core/World.d	89;"	f	line:89	class:World	access:public	signature:(CollisionRay ray)
-rayCastPoll	./source/sbylib/collision/CollisionEntry.d	364;"	f	line:364	class:CollisionEntry	access:private	signature:(vec3 l, vec3 v, vec3 p, vec3 s, float r, out vec3 colPoint, out float colDist)
-rayCastSphere	./source/sbylib/collision/CollisionEntry.d	344;"	f	line:344	class:CollisionEntry	access:private	signature:(vec3 s, vec3 v, vec3 p, float r, out vec3 colPoint, out float colDist)
+rayCastPoll	./source/sbylib/collision/CollisionEntry.d	375;"	f	line:375	class:CollisionEntry	access:private	signature:(vec3 l, vec3 v, vec3 p, vec3 s, float r, out vec3 colPoint, out float colDist)
+rayCastSphere	./source/sbylib/collision/CollisionEntry.d	355;"	f	line:355	class:CollisionEntry	access:private	signature:(vec3 s, vec3 v, vec3 p, float r, out vec3 colPoint, out float colDist)
+rect	./source/sbylib/gui/timeline/Timeline.d	15;"	v	line:15	class:Timeline	access:private
 red	./source/sbylib/utils/Functions.d	28;"	f	line:28	class:Utils	access:public	signature:()
 reduceV	./source/sbylib/math/Vector.d	341;"	f	line:341	access:public	signature:(Vector!(T, S)[] v...)
 reload	./source/sbylib/constant/ConstantManager.d	33;"	f	line:33	class:ConstantManager	access:public	signature:()
@@ -1292,15 +1393,18 @@ remove	./source/sbylib/utils/Stack.d	62;"	f	line:62	struct:Stack	access:public	s
 removeBack	./source/sbylib/utils/Stack.d	143;"	a	line:143	struct:Stack	access:public
 removeWatch	./source/sbylib/utils/Watcher.d	88;"	f	line:88	class:Watcher	access:public	signature:(Watch!S watch)
 removeWatch	./source/sbylib/utils/Watcher.d	92;"	f	line:92	class:Watcher	access:public	signature:(Watcher!S watcher)
+render	./source/sbylib/core/Bahamut.d	65;"	f	line:65	class:Bahamut	access:public	signature:(RenderTarget target)
 render	./source/sbylib/core/Entity.d	2;"	f	line:2	interface:Entity	signature:()
-render	./source/sbylib/core/World.d	81;"	f	line:81	class:World	access:public	signature:(RenderTarget target)
 render	./source/sbylib/geometry/Geometry.d	23;"	f	line:23	interface:Geometry	access:public	signature:(VertexArray vao)
 render	./source/sbylib/geometry/Geometry.d	91;"	f	line:91	class:GeometryTemp	access:public	signature:(VertexArray vao)
-render	./source/sbylib/mesh/Mesh.d	24;"	f	line:24	class:Mesh	access:public	signature:()
+render	./source/sbylib/mesh/IMesh.d	11;"	f	line:11	interface:IMesh	access:public	signature:()
+render	./source/sbylib/mesh/Mesh.d	26;"	f	line:26	class:Mesh	access:public	signature:()
+render	./source/sbylib/mesh/Mesh.d	87;"	f	line:87	class:MeshGroup	access:public	signature:()
 renderBegin	./source/sbylib/core/RenderTarget.d	78;"	f	line:78	class:RenderTarget	access:public	signature:()
 renderEnd	./source/sbylib/core/RenderTarget.d	83;"	f	line:83	class:RenderTarget	access:public	signature:()
 renderTarget	./source/sbylib/wrapper/glfw/Window.d	20;"	v	line:20	class:Window	access:private
 renderText	./source/sbylib/character/Label.d	60;"	f	line:60	class:Label	access:public	signature:(dstring text)
+renderables	./source/sbylib/mesh/Mesh.d	71;"	v	line:71	class:MeshGroup	access:private
 replaceID	./source/sbylib/material/glsl/ArgumentList.d	35;"	f	line:35	class:ArgumentList	access:public	signature:(string delegate(string) replace)
 replaceID	./source/sbylib/material/glsl/Ast.d	99;"	f	line:99	class:Ast	access:public	signature:(string delegate(string) replace)
 replaceID	./source/sbylib/material/glsl/BlockDeclare.d	56;"	f	line:56	class:BlockDeclare	access:public	signature:(string delegate(string) replace)
@@ -1308,12 +1412,15 @@ replaceID	./source/sbylib/material/glsl/FunctionDeclare.d	70;"	f	line:70	class:F
 replaceID	./source/sbylib/material/glsl/RequireAttribute.d	76;"	f	line:76	class:RequireAttribute	access:public	signature:(string delegate(string) replace)
 replaceID	./source/sbylib/material/glsl/VariableDeclare.d	56;"	f	line:56	class:VariableDeclare	access:public	signature:(string delegate(string) replace)
 requiredUniformDemands	./source/sbylib/material/glsl/GlslUtils.d	46;"	f	line:46	class:GlslUtils	access:public	signature:(Ast[] asts)
-resolveUniformDemand	./source/sbylib/core/World.d	102;"	f	line:102	class:World	access:private	signature:(Mesh mesh, UniformDemand demand)
+resolveEnvironment	./source/sbylib/mesh/IMesh.d	12;"	f	line:12	interface:IMesh	access:public	signature:(Bahamut)
+resolveEnvironment	./source/sbylib/mesh/Mesh.d	34;"	f	line:34	class:Mesh	access:public	signature:(Bahamut world)
+resolveEnvironment	./source/sbylib/mesh/Mesh.d	93;"	f	line:93	class:MeshGroup	access:public	signature:(Bahamut world)
 returnType	./source/sbylib/material/glsl/FunctionDeclare.d	12;"	v	line:12	class:FunctionDeclare	access:public
+root	./source/sbylib/core/Leviathan.d	9;"	v	line:9	class:Leviathan	access:private
 rot	./source/sbylib/mesh/Object3D.d	11;"	v	line:11	class:Object3D	access:public
 rotFromTo	./source/sbylib/math/Matrix.d	275;"	f	line:275	struct:Matrix	access:public	signature:(Vector!(T, 3) from, Vector!(T, 3) to)
 rotFromTo	./source/sbylib/math/Quaternion.d	204;"	f	line:204	struct:Quaternion	access:public	signature:(Vector!(T, 3) from, Vector!(T, 3) to)
-rotate	./source/sbylib/contorol/BasicControl.d	75;"	f	line:75	class:BasicControl	access:private	signature:()
+rotate	./source/sbylib/contorol/BasicControl.d	76;"	f	line:76	class:BasicControl	access:private	signature:()
 rotate	./source/sbylib/math/Quaternion.d	243;"	f	line:243	access:public	signature:(vec3 vec, vec3 axis, float angle)
 rotate	./source/sbylib/math/Quaternion.d	248;"	f	line:248	access:public	signature:(vec3 vec, vec3 center, vec3 axis, float angle)
 rotate	./source/sbylib/math/Quaternion.d	252;"	f	line:252	access:public	signature:(vec3 vec, const quat q)
@@ -1323,9 +1430,17 @@ runMode	./source/sbylib/setting.d	16;"	v	line:16	access:public
 safeNormalize	./source/sbylib/math/Vector.d	329;"	f	line:329	access:public	signature:(Vector!(T, S) v)
 save	./source/sbylib/utils/LimitedArray.d	55;"	f	line:55	class:LimitedArray	access:public	signature:()
 scale	./source/sbylib/math/Matrix.d	208;"	f	line:208	struct:Matrix	access:public	signature:(Vector!(T, S) vec)
-segDistance	./source/sbylib/collision/CollisionEntry.d	138;"	f	line:138	class:CollisionEntry	access:private	signature:(vec3 s1, vec3 e1, vec3 s2, vec3 e2)
-segPointDistance	./source/sbylib/collision/CollisionEntry.d	180;"	f	line:180	class:CollisionEntry	access:private	signature:(vec3 s, vec3 v, vec3 p)
-segRayDistance	./source/sbylib/collision/CollisionEntry.d	302;"	f	line:302	class:CollisionEntry	access:private	signature:(vec3 s1, vec3 e1, vec3 s2, vec3 e2)
+scale	./source/sbylib/mesh/Object3DS.d	12;"	v	line:12	class:Object3DS	access:public
+search	./source/sbylib/collision/CollisionEntry.d	466;"	f	line:466	class:CollisionEntryGroup	access:public	signature:(bool delegate(CollisionEntry) pred)
+search	./source/sbylib/collision/CollisionEntry.d	69;"	f	line:69	class:CollisionEntry	access:public	signature:(bool delegate(CollisionEntry) pred)
+search	./source/sbylib/collision/ICollidable.d	17;"	f	line:17	interface:ICollidable	access:public	signature:(bool delegate(CollisionEntry))
+searchMin	./source/sbylib/collision/CollisionEntry.d	474;"	f	line:474	class:CollisionEntryGroup	access:public	signature:(float delegate(CollisionEntry) pred)
+searchMin	./source/sbylib/collision/CollisionEntry.d	73;"	f	line:73	class:CollisionEntry	access:public	signature:(float delegate(CollisionEntry) pred)
+searchMin	./source/sbylib/collision/ICollidable.d	18;"	f	line:18	interface:ICollidable	access:public	signature:(float delegate(CollisionEntry))
+secondFlag	./source/sbylib/gui/timeline/Timeline.d	18;"	v	line:18	class:Timeline	access:private
+segDistance	./source/sbylib/collision/CollisionEntry.d	149;"	f	line:149	class:CollisionEntry	access:private	signature:(vec3 s1, vec3 e1, vec3 s2, vec3 e2)
+segPointDistance	./source/sbylib/collision/CollisionEntry.d	191;"	f	line:191	class:CollisionEntry	access:private	signature:(vec3 s, vec3 v, vec3 p)
+segRayDistance	./source/sbylib/collision/CollisionEntry.d	313;"	f	line:313	class:CollisionEntry	access:private	signature:(vec3 s1, vec3 e1, vec3 s2, vec3 e2)
 sendData	./source/sbylib/wrapper/gl/BufferObject.d	47;"	f	line:47	class:BufferObject	access:public	signature:(T data, BufferUsage freq = BufferUsage.Static)
 sendData	./source/sbylib/wrapper/gl/BufferObject.d	54;"	f	line:54	class:BufferObject	access:public	signature:(T[] data, BufferUsage freq = BufferUsage.Static)
 sendSubData	./source/sbylib/wrapper/gl/BufferObject.d	62;"	f	line:62	class:BufferObject	access:public	signature:(T[] data)
@@ -1342,9 +1457,15 @@ setName	./source/sbylib/wrapper/gl/UniformBuffer.d	25;"	f	line:25	class:UniformB
 setName	./source/sbylib/wrapper/gl/UniformTexture.d	26;"	f	line:26	class:UniformTexture	access:public	signature:(string name)
 setOrigin	./source/sbylib/character/Label.d	54;"	f	line:54	class:Label	access:public	signature:(OriginX x, OriginY y)
 setParameter	./source/sbylib/wrapper/gl/Texture.d	57;"	f	line:57	class:Texture	access:private	signature:(TextureParamName pname, T value)
+setParent	./source/sbylib/collision/CollisionEntry.d	423;"	f	line:423	class:CollisionEntryGroup	access:public	signature:(Object3D parent)
+setParent	./source/sbylib/collision/CollisionEntry.d	57;"	f	line:57	class:CollisionEntry	access:public	signature:(Object3D parent)
+setParent	./source/sbylib/collision/ICollidable.d	14;"	f	line:14	interface:ICollidable	access:public	signature:(Object3D)
 setParent	./source/sbylib/collision/geometry/CollisionCapsule.d	36;"	f	line:36	class:CollisionCapsule	access:public	signature:(CollisionEntry parent)
 setParent	./source/sbylib/collision/geometry/CollisionGeometry.d	6;"	f	line:6	interface:CollisionGeometry	access:public	signature:(CollisionEntry)
 setParent	./source/sbylib/collision/geometry/CollisionPolygon.d	33;"	f	line:33	class:CollisionPolygon	access:public	signature:(CollisionEntry parent)
+setParent	./source/sbylib/mesh/IMesh.d	13;"	f	line:13	interface:IMesh	access:public	signature:(Object3D)
+setParent	./source/sbylib/mesh/Mesh.d	49;"	f	line:49	class:Mesh	access:public	signature:(Object3D parent)
+setParent	./source/sbylib/mesh/Mesh.d	99;"	f	line:99	class:MeshGroup	access:public	signature:(Object3D parent)
 setParent	./source/sbylib/mesh/Object3D.d	59;"	f	line:59	class:Object3D	access:public	signature:(Object3D obj)
 setPixelPackAlign	./source/sbylib/wrapper/gl/Functions.d	117;"	f	line:117	class:GlFunction	access:public	signature:(int alignment)
 setPixelUnpackAlign	./source/sbylib/wrapper/gl/Functions.d	126;"	f	line:126	class:GlFunction	access:public	signature:(int alignment)
@@ -1354,6 +1475,9 @@ setStart	./source/sbylib/collision/geometry/CollisionCapsule.d	24;"	f	line:24	cl
 setTitle	./source/sbylib/wrapper/glfw/Window.d	64;"	f	line:64	class:Window	access:public	signature:(string title)
 setUniform	./source/sbylib/material/Material.d	29;"	f	line:29	class:Material	access:public	signature:(Uniform delegate() getUniform)
 setUniform	./source/sbylib/material/Material.d	34;"	f	line:34	class:Material	access:public	signature:(Watcher!(T) watcher)
+setUserData	./source/sbylib/collision/CollisionEntry.d	427;"	f	line:427	class:CollisionEntryGroup	access:public	signature:(void* userData)
+setUserData	./source/sbylib/collision/CollisionEntry.d	61;"	f	line:61	class:CollisionEntry	access:public	signature:(void* userData)
+setUserData	./source/sbylib/collision/ICollidable.d	15;"	f	line:15	interface:ICollidable	access:public	signature:(void*)
 setValue	./source/sbylib/constant/Const.d	29;"	f	line:29	class:ConstTemp	access:public	signature:(Const target)
 setValue	./source/sbylib/constant/Const.d	9;"	f	line:9	interface:Const	access:public	signature:(Const)
 setViewport	./source/sbylib/wrapper/gl/Functions.d	135;"	f	line:135	class:GlFunction	access:public	signature:(uint x, uint y, uint w, uint h)
@@ -1366,7 +1490,7 @@ sgn	./source/sbylib/math/Rational.d	91;"	f	line:91	struct:Rational	access:privat
 shader	./source/sbylib/material/Material.d	20;"	v	line:20	class:Material	access:public
 shouldClose	./source/sbylib/wrapper/glfw/Window.d	50;"	f	line:50	class:Window	access:public	signature:()
 simplify	./source/sbylib/math/Rational.d	78;"	f	line:78	struct:Rational	access:private	signature:()
-singleton	./source/sbylib/utils/Functions.d	351;"	T	line:351	class:Utils	access:public	signature:(T...)
+singleton	./source/sbylib/utils/Functions.d	352;"	T	line:352	class:Utils	access:public	signature:(T...)
 size	./source/sbylib/character/Label.d	26;"	v	line:26	class:Label	access:private
 size	./source/sbylib/material/checker/CheckerMaterial.d	13;"	v	line:13	class:CheckerMaterialUniformMaterial	access:public
 size	./source/sbylib/wrapper/freetype/Font.d	15;"	v	line:15	class:Font	access:public
@@ -1416,21 +1540,24 @@ this	./source/player/Player.d	19;"	f	line:19	class:Player	signature:(Window wind
 this	./source/plot/Data.d	15;"	f	line:15	class:Data	signature:(SysTime systime, string srcPath, string name, long time)	access:public
 this	./source/plot/DataSet.d	18;"	f	line:18	class:DataSet	signature:(string path)	access:public
 this	./source/plot/circle/Circle.d	9;"	f	line:9	class:Circle	signature:(float radius, vec3 color)	access:public
-this	./source/sbylib/camera/OrthoCamera.d	26;"	f	line:26	class:OrthoCamera	signature:(float width, float height, float nearZ, float farZ)	access:public
+this	./source/sbylib/camera/OrthoCamera.d	28;"	f	line:28	class:OrthoCamera	signature:(float width, float height, float nearZ, float farZ)	access:public
 this	./source/sbylib/camera/PerspectiveCamera.d	25;"	f	line:25	class:PerspectiveCamera	signature:(float aspect, float fovy, float nearZ, float farZ)	access:public
 this	./source/sbylib/character/Label.d	28;"	f	line:28	class:Label	signature:(Font font)	access:public
 this	./source/sbylib/character/Letter.d	18;"	f	line:18	class:Letter	signature:(Font font, dchar c, float height)	access:public
-this	./source/sbylib/collision/CollisionEntry.d	19;"	f	line:19	class:CollisionEntry	signature:(CollisionGeometry geom, Object3D obj = new Object3D)	access:public
+this	./source/sbylib/collision/CollisionEntry.d	18;"	f	line:18	class:CollisionEntry	signature:(CollisionGeometry geom, Object3D obj = new Object3D)	access:public
+this	./source/sbylib/collision/CollisionEntry.d	410;"	f	line:410	class:CollisionEntryGroup	signature:(Object3D obj = new Object3D)	access:public
 this	./source/sbylib/collision/geometry/CollisionCapsule.d	18;"	f	line:18	class:CollisionCapsule	signature:(float radius, vec3 start, vec3 end)	access:public
 this	./source/sbylib/collision/geometry/CollisionPolygon.d	19;"	f	line:19	class:CollisionPolygon	signature:(vec3[3] positions...)	access:public
 this	./source/sbylib/constant/Const.d	16;"	f	line:16	class:ConstTemp	signature:(string name, T value)	access:public
-this	./source/sbylib/contorol/BasicControl.d	28;"	f	line:28	class:BasicControl	signature:(Mouse mouse, World world)	access:public
+this	./source/sbylib/contorol/BasicControl.d	29;"	f	line:29	class:BasicControl	signature:(Mouse mouse, Leviathan cockatrice, Camera camera)	access:public
 this	./source/sbylib/contorol/CameraChaseControl.d	15;"	f	line:15	class:CameraChaseControl	signature:(Camera camera, Object3D target)	access:public
+this	./source/sbylib/contorol/GuiControl.d	29;"	f	line:29	class:GuiControl	signature:(Window window, OrthoCamera camera, Leviathan world)	access:public
+this	./source/sbylib/core/Bahamut.d	27;"	f	line:27	class:Bahamut	signature:()	access:public
 this	./source/sbylib/core/Core.d	71;"	f	line:71	class:Core	signature:()	access:private
+this	./source/sbylib/core/Leviathan.d	11;"	f	line:11	class:Leviathan	signature:()	access:public
 this	./source/sbylib/core/Process.d	13;"	f	line:13	class:Process	signature:(const void delegate(Process) func, string name)	access:public
 this	./source/sbylib/core/RenderTarget.d	23;"	f	line:23	class:RenderTarget	signature:(uint width, uint height)	access:public
 this	./source/sbylib/core/RenderTarget.d	33;"	f	line:33	class:RenderTarget	signature:(Window window)	access:public
-this	./source/sbylib/core/World.d	29;"	f	line:29	class:World	signature:()	access:public
 this	./source/sbylib/geometry/Face.d	11;"	f	line:11	class:Face	signature:(uint[] indexList)	access:public
 this	./source/sbylib/geometry/Geometry.d	47;"	f	line:47	class:GeometryTemp	signature:(VertexA[] vertices)	access:public
 this	./source/sbylib/geometry/Geometry.d	51;"	f	line:51	class:GeometryTemp	signature:(VertexA[] vertices, uint[] indices)	access:public
@@ -1441,14 +1568,17 @@ this	./source/sbylib/geometry/geometry3d/Plane.d	13;"	f	line:13	class:Plane	sign
 this	./source/sbylib/geometry/geometry3d/Poll.d	14;"	f	line:14	class:Poll	signature:()	access:private
 this	./source/sbylib/geometry/geometry3d/Sphere.d	17;"	f	line:17	class:Sphere	signature:()	access:private
 this	./source/sbylib/geometry/geometry3d/SphereUV.d	17;"	f	line:17	class:SphereUV	signature:()	access:private
+this	./source/sbylib/gui/timeline/Timeline.d	22;"	f	line:22	class:Timeline	signature:()	access:public
 this	./source/sbylib/input/JoyStick.d	20;"	f	line:20	class:JoyStick	signature:(int index)	access:private
 this	./source/sbylib/input/JoyStick.d	45;"	f	line:45	class:NullJoyStick	signature:()	access:public
-this	./source/sbylib/input/Mouse.d	21;"	f	line:21	class:Mouse	signature:(Window window)	access:public
+this	./source/sbylib/input/Mouse.d	23;"	f	line:23	class:Mouse	signature:(Window window)	access:public
+this	./source/sbylib/input/Mouse2D.d	16;"	f	line:16	class:Mouse2D	signature:(Window window, OrthoCamera camera)	access:public
+this	./source/sbylib/input/Mouse3D.d	14;"	f	line:14	class:Mouse3D	signature:(Window window, Camera camera)	access:public
 this	./source/sbylib/material/Material.d	24;"	f	line:24	class:Material	signature:(const Program shader)	access:public
-this	./source/sbylib/material/Material.d	75;"	f	line:75	class:MaterialTemp	signature:()	access:public
+this	./source/sbylib/material/Material.d	76;"	f	line:76	class:MaterialTemp	signature:()	access:public
+this	./source/sbylib/material/MaterialUtils.d	117;"	f	line:117	template:declareMix	signature:(Material mat)	access:public
+this	./source/sbylib/material/MaterialUtils.d	121;"	f	line:121	template:declareMix	signature:(Material mat, string delegate(string) replace)	access:public
 this	./source/sbylib/material/MaterialUtils.d	13;"	f	line:13	class:MaterialUtils	signature:()	access:private
-this	./source/sbylib/material/MaterialUtils.d	168;"	f	line:168	template:declareMix	signature:(Material mat)	access:public
-this	./source/sbylib/material/MaterialUtils.d	172;"	f	line:172	template:declareMix	signature:(Material mat, string delegate(string) replace)	access:public
 this	./source/sbylib/material/MaterialUtils.d	58;"	f	line:58	template:declare	signature:(Material mat)	access:public
 this	./source/sbylib/material/MaterialUtils.d	62;"	f	line:62	template:declare	signature:(Material mat, string delegate(string) replace)	access:public
 this	./source/sbylib/material/RenderConfig.d	17;"	f	line:17	class:RenderConfig	signature:()	access:public
@@ -1485,9 +1615,11 @@ this	./source/sbylib/math/Rational.d	12;"	f	line:12	struct:Rational	signature:(T
 this	./source/sbylib/math/Vector.d	29;"	f	line:29	struct:Vector	signature:(T e)	access:public
 this	./source/sbylib/math/Vector.d	33;"	f	line:33	struct:Vector	signature:(T[] elements...)	access:public
 this	./source/sbylib/math/Vector.d	37;"	f	line:37	struct:Vector	signature:(Args args)	access:public
-this	./source/sbylib/mesh/Mesh.d	16;"	f	line:16	class:Mesh	signature:(Geometry geom, Material mat, Object3D obj = new Object3D)	access:public
-this	./source/sbylib/mesh/Mesh.d	42;"	f	line:42	class:MeshTemp	signature:(G geom, Object3D obj = new Object3D)	access:public
+this	./source/sbylib/mesh/Mesh.d	18;"	f	line:18	class:Mesh	signature:(Geometry geom, Material mat, Object3D obj = new Object3D)	access:public
+this	./source/sbylib/mesh/Mesh.d	63;"	f	line:63	class:MeshTemp	signature:(G geom, Object3D obj = new Object3D)	access:public
+this	./source/sbylib/mesh/Mesh.d	74;"	f	line:74	class:MeshGroup	signature:()	access:public
 this	./source/sbylib/mesh/Object3D.d	18;"	f	line:18	class:Object3D	signature:()	access:public
+this	./source/sbylib/mesh/Object3DS.d	14;"	f	line:14	class:Object3DS	signature:()	access:public
 this	./source/sbylib/utils/FpsBalancer.d	12;"	f	line:12	class:FpsBalancer	signature:(float fps)	access:public
 this	./source/sbylib/utils/FpsCounter.d	15;"	f	line:15	class:FpsCounter	signature:()	access:public
 this	./source/sbylib/utils/LinkList.d	8;"	f	line:8	class:Node	signature:(T elem)	access:public
@@ -1518,6 +1650,7 @@ this	./source/sbylib/wrapper/gl/VertexArray.d	17;"	f	line:17	class:VertexArray	s
 this	./source/sbylib/wrapper/glfw/GLFW.d	9;"	f	line:9	class:GLFW	signature:()	access:private
 this	./source/sbylib/wrapper/glfw/Window.d	23;"	f	line:23	class:Window	signature:(string title, int width, int height)	access:public
 time	./source/plot/Data.d	13;"	v	line:13	class:Data	access:public
+time	./source/sbylib/gui/timeline/Timeline.d	16;"	v	line:16	class:Timeline	access:private
 timeLogger	./source/sbylib/utils/Logger.d	8;"	v	line:8	access:private
 title	./source/sbylib/wrapper/glfw/Window.d	19;"	v	line:19	class:Window	access:private
 to	./source/sbylib/geometry/Vertex.d	31;"	f	line:31	class:Vertex	access:public	signature:()
@@ -1543,7 +1676,8 @@ tokenize	./source/sbylib/material/glsl/Token.d	24;"	f	line:24	access:public	sign
 tokenize	./source/sbylib/material/glsl/Token.d	29;"	f	line:29	access:public	signature:(string code, Token buffer, Token[] tokens, uint line, uint column, bool commentFlag)
 tokenizeComment	./source/sbylib/material/glsl/Token.d	78;"	f	line:78	access:public	signature:(string code, Token[] tokens, uint line, int column)
 total	./source/sbylib/utils/FpsCounter.d	11;"	v	line:11	class:FpsCounter	access:public
-translate	./source/sbylib/contorol/BasicControl.d	65;"	f	line:65	class:BasicControl	access:private	signature:()
+translate	./source/sbylib/contorol/BasicControl.d	66;"	f	line:66	class:BasicControl	access:private	signature:()
+translate	./source/sbylib/gui/timeline/Timeline.d	62;"	f	line:62	class:Timeline	access:public	signature:(Mouse2D mouse)
 translate	./source/sbylib/math/Matrix.d	202;"	f	line:202	struct:Matrix	access:public	signature:(Vector!(T, S) vec)
 transpose	./source/sbylib/math/Matrix.d	168;"	f	line:168	struct:Matrix	access:public	signature:(Matrix m)
 type	./source/sbylib/event/Event.d	4;"	v	line:4	class:Event	access:public
@@ -1566,15 +1700,22 @@ unbind	./source/sbylib/wrapper/gl/VertexArray.d	37;"	f	line:37	class:VertexArray
 uni	./source/sbylib/material/glsl/RequireUniform.d	13;"	v	line:13	class:RequireUniform	access:public
 unmap	./source/sbylib/wrapper/gl/BufferObject.d	77;"	f	line:77	class:BufferObject	access:public	signature:()
 update	./source/sbylib/constant/ConstantManager.d	25;"	f	line:25	class:ConstantManager	access:public	signature:()
-update	./source/sbylib/contorol/BasicControl.d	35;"	f	line:35	class:BasicControl	access:public	signature:()
+update	./source/sbylib/contorol/BasicControl.d	37;"	f	line:37	class:BasicControl	access:public	signature:()
+update	./source/sbylib/contorol/GuiControl.d	36;"	f	line:36	class:GuiControl	access:public	signature:(Process proc)
+update	./source/sbylib/contorol/IControllable.d	13;"	f	line:13	interface:IControllable	access:public	signature:(Mouse2D)
+update	./source/sbylib/gui/timeline/Timeline.d	56;"	f	line:56	class:Timeline	access:public	signature:(Mouse2D mouse)
 update	./source/sbylib/input/JoyStick.d	29;"	f	line:29	class:JoyStick	access:protected	signature:()
-update	./source/sbylib/input/Mouse.d	28;"	f	line:28	class:Mouse	access:public	signature:()
+update	./source/sbylib/input/Mouse.d	30;"	f	line:30	class:Mouse	access:public	signature:()
+update	./source/sbylib/input/Mouse2D.d	22;"	f	line:22	class:Mouse2D	access:public	signature:()
+update	./source/sbylib/input/Mouse3D.d	20;"	f	line:20	class:Mouse3D	access:public	signature:()
 update	./source/sbylib/utils/FpsCounter.d	19;"	f	line:19	class:FpsCounter	access:public	signature:()
 updateBuffer	./source/sbylib/geometry/Geometry.d	102;"	f	line:102	class:GeometryTemp	access:public	signature:()
 updateBuffer	./source/sbylib/geometry/Geometry.d	26;"	f	line:26	interface:Geometry	access:public	signature:()
 upper	./source/sbylib/math/NumLimited.d	11;"	v	line:11	struct:NumLimited	access:public
 upperY	./source/player/ElasticSphere.d	40;"	v	line:40	class:ElasticSphere	access:public
 use	./source/sbylib/wrapper/gl/Program.d	35;"	f	line:35	class:Program	access:public	signature:()
+userData	./source/sbylib/collision/CollisionEntry.d	14;"	v	line:14	class:CollisionEntry	access:private
+userData	./source/sbylib/collision/CollisionEntry.d	408;"	v	line:408	class:CollisionEntryGroup	access:private
 utexture	./source/sbylib/wrapper/gl/UniformTexture.d	11;"	a	line:11	access:public
 uvec2	./source/sbylib/wrapper/gl/Uniform.d	14;"	a	line:14	access:public
 uvec3	./source/sbylib/wrapper/gl/Uniform.d	15;"	a	line:15	access:public
@@ -1588,7 +1729,7 @@ value	./source/sbylib/wrapper/gl/Uniform.d	27;"	v	line:27	class:UniformTemp	acce
 value	./source/sbylib/wrapper/gl/Uniform.d	74;"	a	line:74	class:UniformTemp	access:public
 value	./source/sbylib/wrapper/gl/UniformTexture.d	16;"	v	line:16	class:UniformTexture	access:public
 value	./source/sbylib/wrapper/gl/UniformTexture.d	49;"	a	line:49	class:UniformTexture	access:public
-vao	./source/sbylib/mesh/Mesh.d	14;"	v	line:14	class:Mesh	access:private
+vao	./source/sbylib/mesh/Mesh.d	16;"	v	line:16	class:Mesh	access:private
 variable	./source/sbylib/material/glsl/RequireAttribute.d	19;"	v	line:19	class:RequireAttribute	access:public
 variables	./source/sbylib/material/glsl/BlockDeclare.d	17;"	v	line:17	class:BlockDeclare	access:public
 vec2	./source/sbylib/math/Vector.d	13;"	a	line:13	access:public
@@ -1598,9 +1739,9 @@ vec3i	./source/sbylib/math/Vector.d	17;"	a	line:17	access:public
 vec4	./source/sbylib/math/Vector.d	15;"	a	line:15	access:public
 vec4i	./source/sbylib/math/Vector.d	18;"	a	line:18	access:public
 vel	./source/sbylib/contorol/CameraChaseControl.d	12;"	v	line:12	class:CameraChaseControl	access:private
-vertexShader	./source/sbylib/material/Material.d	72;"	v	line:72	class:MaterialTemp	access:private
+vertexShader	./source/sbylib/material/Material.d	73;"	v	line:73	class:MaterialTemp	access:private
 vertices	./source/sbylib/geometry/Geometry.d	40;"	v	line:40	class:GeometryTemp	access:public
-viewMatrix	./source/sbylib/core/World.d	24;"	v	line:24	class:World	access:private
+viewMatrix	./source/sbylib/core/Bahamut.d	22;"	v	line:22	class:Bahamut	access:private
 viewMatrix	./source/sbylib/mesh/Object3D.d	16;"	v	line:16	class:Object3D	access:public
 viewportHeight	./source/sbylib/core/RenderTarget.d	19;"	v	line:19	class:RenderTarget	access:public
 viewportWidth	./source/sbylib/core/RenderTarget.d	19;"	v	line:19	class:RenderTarget	access:public
@@ -1610,23 +1751,23 @@ w	./source/sbylib/math/Quaternion.d	24;"	v	line:24	struct:Quaternion	access:publ
 watchers	./source/sbylib/utils/Watcher.d	68;"	v	line:68	class:Watcher	access:private
 watchers	./source/sbylib/utils/Watcher.d	9;"	v	line:9	class:Watch	access:private
 white	./source/sbylib/utils/Functions.d	35;"	f	line:35	class:Utils	access:public	signature:()
-width	./source/sbylib/camera/OrthoCamera.d	18;"	v	line:18	class:OrthoCamera	access:public
-width	./source/sbylib/character/Label.d	73;"	v	line:73	struct:RowInfo	access:public
+width	./source/sbylib/camera/OrthoCamera.d	20;"	v	line:20	class:OrthoCamera	access:public
+width	./source/sbylib/character/Label.d	74;"	v	line:74	struct:RowInfo	access:public
 width	./source/sbylib/core/RenderTarget.d	18;"	v	line:18	class:RenderTarget	access:public
 width	./source/sbylib/wrapper/freetype/Character.d	12;"	v	line:12	class:LetterInfo	access:public
 width	./source/sbylib/wrapper/freetype/LetterInfo.d	12;"	v	line:12	class:LetterInfo	access:public
 width	./source/sbylib/wrapper/glfw/Window.d	18;"	v	line:18	class:Window	access:private
 window	./source/player/Player.d	15;"	v	line:15	class:Player	access:private
 window	./source/sbylib/core/Core.d	65;"	v	line:65	class:Core	access:private
-window	./source/sbylib/input/Mouse.d	19;"	v	line:19	class:Mouse	access:private
+window	./source/sbylib/input/Mouse.d	21;"	v	line:21	class:Mouse	access:private
 window	./source/sbylib/wrapper/glfw/Window.d	17;"	v	line:17	class:Window	access:private
-world	./source/sbylib/contorol/BasicControl.d	23;"	v	line:23	class:BasicControl	access:private
+world	./source/sbylib/contorol/GuiControl.d	24;"	v	line:24	class:GuiControl	access:private
 worldMatrix	./source/sbylib/mesh/Object3D.d	15;"	v	line:15	class:Object3D	access:public
 wrapWidth	./source/sbylib/character/Label.d	25;"	v	line:25	class:Label	access:private
 x	./source/sbylib/math/Quaternion.d	24;"	v	line:24	struct:Quaternion	access:public
 y	./source/sbylib/math/Quaternion.d	24;"	v	line:24	struct:Quaternion	access:public
 yellow	./source/sbylib/utils/Functions.d	31;"	f	line:31	class:Utils	access:public	signature:()
-z	./source/sbylib/contorol/BasicControl.d	26;"	v	line:26	class:BasicControl	access:private
+z	./source/sbylib/contorol/BasicControl.d	27;"	v	line:27	class:BasicControl	access:private
 z	./source/sbylib/math/Quaternion.d	24;"	v	line:24	struct:Quaternion	access:public
 ~this	./source/sbylib/core/Core.d	77;"	f	line:77	class:Core
 ~this	./source/sbylib/input/JoyStick.d	25;"	f	line:25	class:JoyStick

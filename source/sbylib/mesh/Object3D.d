@@ -70,7 +70,7 @@ class Object3D {
         this.parent = obj;
     }
 
-    private mat4 generateWorldMatrix() {
+    protected mat4 generateWorldMatrix() {
         return mat4([
                 rot[0,0], rot[0,1], rot[0,2], pos.x,
                 rot[1,0], rot[1,1], rot[1,2], pos.y,
@@ -78,7 +78,7 @@ class Object3D {
                 0,0,0, 1]);
     }
 
-    private mat4 generateViewMatrix() {
+    protected mat4 generateViewMatrix() {
         auto column = rot.column;
         return mat4([
                 rot[0,0], rot[1,0], rot[2,0], -dot(column[0], pos),

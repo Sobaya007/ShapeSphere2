@@ -1,6 +1,7 @@
-module sbylib.core.World;
+module sbylib.core.Bahamut;
 
 import sbylib.mesh.Mesh;
+import sbylib.mesh.IMesh;
 import sbylib.camera.Camera;
 import sbylib.utils.Watcher;
 import sbylib.wrapper.gl.Constants;
@@ -12,14 +13,11 @@ import sbylib.material.glsl.UniformDemand;
 import sbylib.math.Vector;
 import sbylib.wrapper.gl.Attribute;
 import sbylib.geometry.Geometry;
-import sbylib.collision.geometry.CollisionRay;
-import sbylib.collision.CollisionEntry;
 import std.traits;
 import std.algorithm;
 
-class World {
-    private Mesh[] meshes;
-    private CollisionEntry[] colMeshes;
+class Bahamut {
+    private IMesh[] meshes;
     Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
     private Watcher!umat4 viewMatrix;
     private Watcher!umat4 projMatrix;
@@ -50,27 +48,13 @@ class World {
         this.pointLightBlockBuffer.addWatch(this.pointLightBlock);
     }
 
-    void addMesh(T)(T[] meshes...) 
-    if (isAssignable!(Mesh, T)) in {
+    void add(T)(T[] rs...) 
+    if (isAssignable!(IMesh, T)) in {
         assert(this.camera.get());
     } body{
-        this.meshes ~= meshes;
-        foreach (mesh; meshes) {
-            foreach (demand; mesh.mat.getDemands()) {
-                this.resolveUniformDemand(mesh, demand);
-            }
-        }
-    }
-
-    void addColMesh(T)(T[] meshes...)
-    if (isAssignable!(CollisionEntry, T)) {
-        this.colMeshes ~= meshes;
-    }
-
-    void addColMeshAsPolygon(T)(T[] meshes...)
-    if (isAssignable!(Mesh, T)) {
-        foreach (m; meshes) {
-            this.colMeshes ~= m.geom.getCollisionPolygons();
+        foreach (r; rs) {
+            this.meshes ~= r;
+            r.resolveEnvironment(this);
         }
     }
 
@@ -80,39 +64,22 @@ class World {
 
     void render(RenderTarget target) {
         target.renderBegin();
-        foreach(Mesh m; meshes) {
-            m.render();
+        foreach (r; this.meshes) {
+            r.render();
         }
         target.renderEnd();
     }
 
-    CollisionEntry rayCastMeshes(CollisionRay ray) {
-        CollisionEntry result;
-        float minDist = 1145141919.0f;
-        foreach (c; this.colMeshes) {
-            auto colInfo = c.collide(ray);
-            if (!colInfo.collided) continue;
-            if (minDist < colInfo.colDist) continue;
-            minDist = colInfo.colDist;
-            result = c;
-        }
-        return result;
-    }
-
-    private void resolveUniformDemand(Mesh mesh, UniformDemand demand) {
-        final switch (demand) {
-        case UniformDemand.World:
-            mesh.mat.setUniform(mesh.obj.worldMatrix);
-            break;
+    Uniform delegate() getUniform(UniformDemand demand) {
+        switch (demand) {
         case UniformDemand.View:
-            mesh.mat.setUniform(this.viewMatrix);
-            break;
+            return () => this.viewMatrix;
         case UniformDemand.Proj:
-            mesh.mat.setUniform(this.projMatrix);
-            break;
+            return () => this.projMatrix;
         case UniformDemand.Light:
-            mesh.mat.setUniform(this.pointLightBlockBuffer);
-            break;
+            return () => this.pointLightBlockBuffer;
+        default:
+            assert(false);
         }
     }
 }

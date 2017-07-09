@@ -15,6 +15,12 @@ class Letter {
     private LetterMesh mesh;
     private LetterInfo info;
 
+    this(Letter letter) {
+        this.info = letter.info;
+        this.mesh = new LetterMesh(letter.mesh.geom, letter.mesh.mat);
+        this.mesh.mat.texture = this.info.texture;
+    }
+
     this(Font font, dchar c, float height) {
         font.loadChar(c, FontLoadType.Render);
         this.info = font.characters[c];

@@ -1,11 +1,13 @@
 module sbylib.camera.OrthoCamera;
 
-import sbylib.camera.Camera;
-import sbylib.wrapper.gl.Uniform;
-import sbylib.mesh.Object3D;
-import sbylib.utils.Watcher;
-import sbylib.math.Matrix;
-import sbylib.math.Vector;
+public {
+    import sbylib.camera.Camera;
+    import sbylib.wrapper.gl.Uniform;
+    import sbylib.mesh.Object3D;
+    import sbylib.utils.Watcher;
+    import sbylib.math.Matrix;
+    import sbylib.math.Vector;
+}
 
 /*
    平行投影モデルを採用したカメラです。

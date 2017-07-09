@@ -42,8 +42,13 @@ class UniformTexture : Uniform {
         GlFunction.checkError();
     } body {
         int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
-        assert(uLoc != -1, name ~ " is not found or used.");
+        //assert(uLoc != -1, name ~ " is not found or used.");
         return uLoc;
+    }
+
+    override string toString() const {
+        import std.format;
+        return format!"Uniform[%s]: Texture"(this.name);
     }
 
     alias value this;

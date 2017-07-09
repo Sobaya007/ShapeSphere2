@@ -16,14 +16,15 @@ class Label {
     enum OriginX {Center, Left, Right}
     enum OriginY {Center, Top, Bottom}
 
-    Object3D obj;
-    Letter[] letters;
+    MeshGroup mesh;
+    private Letter[] letters;
     private vec4 color;
     private Font font;
     private OriginX originX;
     private OriginY originY;
     private float wrapWidth;
     private float size; //1 letter height
+    private Letter[dchar] cache;
 
     this(Font font) {
         this.font = font;
@@ -31,7 +32,7 @@ class Label {
         this.originY = OriginY.Center;
         this.wrapWidth = 1145141919.810;
         this.color = vec4(0,0,0,1);
-        this.obj = new Object3D;
+        this.mesh = new MeshGroup;
     }
 
     void setColor(vec4 color) {
@@ -58,10 +59,17 @@ class Label {
     }
 
     void renderText(dstring text) {
+        this.mesh.clear();
         this.letters = [];
         foreach (c; text) {
-            Letter l = new Letter(this.font, c, this.size);
-            l.getMesh().obj.setParent(this.obj);
+            Letter l;
+            if (c in cache) {
+                l = new Letter(cache[c]);
+            } else {
+                l = new Letter(this.font, c, this.size);
+                cache[c] = l;
+            }
+            this.mesh.add(l.getMesh());
             l.getMesh().mat.color = this.color;
             this.letters ~= l;
         }
@@ -75,12 +83,14 @@ class Label {
 
     private void lineUp() {
         auto rows = getRows(null, this.letters, null, 0);
+        import std.stdio;
         auto allHeight = rows.length * this.size;
         auto y = this.offsetY(allHeight);
         alias h = this.size;
         foreach (row; rows) {
             if (row.letters.length == 0) continue;
             float x = this.offsetX(row.width, h * row.letters[0].getInfo().width / row.letters[0].getInfo().height);
+            int count = 0;
             foreach (l; row.letters) {
                 auto w = h * l.getInfo().width / l.getInfo().height;
                 x += w/2;
