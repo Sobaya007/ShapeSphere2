@@ -12,16 +12,16 @@ import std.conv,
        std.concurrency,
        std.container : DList;
 
-// XLexer: string -> XToken[]
-class XLexer : XConverter!(string, XToken[]) {
+// XLexer: string -> DList!XToken
+class XLexer : XConverter!(string, DList!XToken) {
 
-    override XToken[] run(string src) {
+    override DList!XToken run(string src) {
         return tokenize(src);
     }
 
 private:
 
-    XToken[] tokenize(string src) {
+    DList!XToken tokenize(string src) {
         DList!XToken tokens;
 
         auto lookaheader = getLookaheader(src);
@@ -54,7 +54,7 @@ private:
             }
         }
 
-        return tokens[].array;
+        return tokens;
     }
 
     Generator!char getLookaheader(string src) {
@@ -80,7 +80,7 @@ unittest {
         "\"sobaya.homo\"\n" ~
         "}\n";
 
-    XToken[] tokens = lexer.run(src);
+    XToken[] tokens = lexer.run(src)[].array;
     assert(tokens.length == 8);
     assert(cast(XTokenLabel)tokens[0]      && tokens[0].lexeme == "po");
     assert(cast(XTokenLeftParen)tokens[1]  && tokens[1].lexeme == "{");
