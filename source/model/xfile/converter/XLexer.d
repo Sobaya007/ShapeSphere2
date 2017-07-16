@@ -15,28 +15,17 @@ import std.conv,
 // XLexer: string -> XToken[]
 class XLexer : XConverter!(string, XToken[]) {
 
-    private DList!XToken tokens;
-
-    override void run(string src) {
-        tokenize(src);
-    }
-
-    override XToken[] get() {
-        return tokens[].array;
-    }
-
-    override void clear() {
-        tokens.clear;
-    }
-
-    override bool empty() {
-        return tokens.empty;
+    override XToken[] run(string src) {
+        return tokenize(src);
     }
 
 private:
 
-    void tokenize(string src) {
+    XToken[] tokenize(string src) {
+        DList!XToken tokens;
+
         auto lookaheader = getLookaheader(src);
+
         string str = "";
         void insert() {
             if (!str.empty) {
@@ -44,6 +33,7 @@ private:
                 str = "";
             }
         }
+
         foreach(c; lookaheader) {
             if (c.isWhite) {
                 insert();
@@ -63,6 +53,8 @@ private:
                 str ~= c;
             }
         }
+
+        return tokens[].array;
     }
 
     Generator!char getLookaheader(string src) {
@@ -80,7 +72,6 @@ private:
 
 unittest {
     XLexer lexer = new XLexer;
-    assert(lexer.empty);
 
     string src =
         "header\n" ~
@@ -89,10 +80,7 @@ unittest {
         "\"sobaya.homo\"\n" ~
         "}\n";
 
-    lexer.run(src);
-    assert(!lexer.empty);
-
-    XToken[] tokens = lexer.get();
+    XToken[] tokens = lexer.run(src);
     assert(tokens.length == 8);
     assert(cast(XTokenLabel)tokens[0]      && tokens[0].lexeme == "po");
     assert(cast(XTokenLeftParen)tokens[1]  && tokens[1].lexeme == "{");
@@ -102,7 +90,4 @@ unittest {
     assert(cast(XTokenSemicolon)tokens[5]  && tokens[5].lexeme == ";");
     assert(cast(XTokenLabel)tokens[6] && tokens[6].lexeme == "\"sobaya.homo\"");
     assert(cast(XTokenRightParen)tokens[7] && tokens[7].lexeme == "}");
-
-    lexer.clear();
-    assert(lexer.empty);
 }
