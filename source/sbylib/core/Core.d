@@ -76,8 +76,8 @@ class Core {
 
     ~this() {
         //後始末
-        //GLFW.terminate();
-        AL.terminate();
+        GLFW.terminate();
+        //AL.terminate();
     }
 
     void start() {

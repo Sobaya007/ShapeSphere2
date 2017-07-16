@@ -31,6 +31,7 @@ class CollisionPolygon : CollisionGeometry {
     }
 
     override void setOwner(Entity owner) {
+        assert(owner !is null);
         this.owner = owner;
         foreach (i; 0..3) {
             (j) {

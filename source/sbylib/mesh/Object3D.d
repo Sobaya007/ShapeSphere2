@@ -5,6 +5,7 @@ import sbylib.math.Vector;
 import sbylib.math.Quaternion;
 import sbylib.utils.Watcher;
 import sbylib.wrapper.gl.Uniform;
+import sbylib.core.Entity;
 
 class Object3D {
     Watch!vec3 pos;
@@ -12,11 +13,13 @@ class Object3D {
     Watch!vec3 scale;
     private Watcher!mat4 parentWorldMatrix;
     private Watcher!mat4 parentViewMatrix;
-    private Object3D parent;
+    private Entity owner;
+    private Entity parent;
     Watcher!umat4 worldMatrix;
     Watcher!umat4 viewMatrix;
 
-    this() {
+    this(Entity owner) {
+        this.owner = owner;
         this.pos = new Watch!vec3();
         this.pos = vec3(0);
 
@@ -62,18 +65,18 @@ class Object3D {
         this.rot = mat3(side, up, v);
     }
 
-    void setParent(Object3D obj) {
+    void onSetParent(Entity parent) {
         this.parentWorldMatrix.setDefineFunc((ref mat4 mat) {
-            mat = obj.worldMatrix.get().value;
+            mat = parent.obj.worldMatrix.get().value;
         });
-        if (parent) this.parentWorldMatrix.removeWatch(parent.worldMatrix);
-        this.parentWorldMatrix.addWatch(obj.worldMatrix);
+        if (this.parent) this.parentWorldMatrix.removeWatch(this.parent.obj.worldMatrix);
+        this.parentWorldMatrix.addWatch(parent.obj.worldMatrix);
         this.parentViewMatrix.setDefineFunc((ref mat4 mat) {
-            mat = obj.viewMatrix.get().value;
+            mat = parent.obj.viewMatrix.get().value;
         });
-        if (parent) this.parentViewMatrix.removeWatch(parent.viewMatrix);
-        this.parentViewMatrix.addWatch(obj.viewMatrix);
-        this.parent = obj;
+        if (this.parent) this.parentViewMatrix.removeWatch(this.parent.obj.viewMatrix);
+        this.parentViewMatrix.addWatch(parent.obj.viewMatrix);
+        this.parent = parent;
     }
 
     protected mat4 generateWorldMatrix() {

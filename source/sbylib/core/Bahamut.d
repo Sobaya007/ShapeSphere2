@@ -63,9 +63,7 @@ class Bahamut {
     void render(RenderTarget target) {
         target.renderBegin();
         foreach (r; this.entities) {
-            if (auto mesh = r.getMesh()) {
-                mesh.render();
-            }
+            r.render();
         }
         target.renderEnd();
     }
@@ -83,29 +81,20 @@ class Bahamut {
         }
     }
 
-    CollisionInfo[] calcCollide(CollisionEntry colEntry) {
+    CollisionInfo[] calcCollide(Entity colEntry) {
         static CollisionInfo[] result;
         result.length = 0;
         foreach (entity; this.entities) {
-            if (auto c = entity.getCollisionEntry()) {
-                auto colInfo = c.collide(colEntry);
-                if (!colInfo.collided) continue;
-                result ~= colInfo;
-            }
+            result ~= entity.collide(colEntry);
         }
         return result;
     }
 
-    CollisionInfoRay calcCollideRay(CollisionRay ray) {
-        CollisionInfoRay result;
-        result.colDist = 1145141919.324;
+    CollisionInfoRay[] calcCollideRay(CollisionRay ray) {
+        static CollisionInfoRay[] result;
+        result.length = 0;
         foreach (entity; this.entities) {
-            if (auto c = entity.getCollisionEntry()) {
-                auto colInfo = c.collide(ray);
-                if (!colInfo.collided) continue;
-                if (result.colDist < colInfo.colDist) continue;
-                result = colInfo;
-            }
+            result ~= entity.collide(ray);
         }
         return result;
     }

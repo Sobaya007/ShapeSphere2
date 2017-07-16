@@ -17,18 +17,15 @@ class Mesh {
     Geometry geom;
     Material mat;
     private VertexArray vao;
-    private Uniform delegate()[string] getUniforms;
+    Uniform delegate()[string] getUniforms;
     private Entity owner;
 
-    this(Geometry geom, Material mat) {
+    this(Geometry geom, Material mat, Entity owner) {
         this.geom = geom;
         this.mat = mat;
+        this.owner = owner;
         this.vao = new VertexArray;
         this.vao.setup(mat.shader, geom.getBuffers(), geom.getIndexBuffer());
-    }
-
-    void setOwner(Entity owner) {
-        this.owner = owner;
     }
 
     void render() in {
@@ -63,6 +60,10 @@ class Mesh {
         auto name = getUniform().getName();
         this.getUniforms[name] = getUniform;
     }
+
+    Entity getOwner() {
+        return this.owner;
+    }
 }
 
 class MeshTemp(G, M) : Mesh {
@@ -70,12 +71,12 @@ class MeshTemp(G, M) : Mesh {
     G geom;
     M mat;
 
-    this(G geom) {
-        this(geom, new M);
+    this(G geom, Entity owner) {
+        this(geom, new M, owner);
     }
 
-    this(G geom, M mat) {
-        super(geom, mat);
+    this(G geom, M mat, Entity owner) {
+        super(geom, mat, owner);
         this.geom = geom;
         this.mat = mat;
     }

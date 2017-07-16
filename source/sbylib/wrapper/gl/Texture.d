@@ -11,7 +11,7 @@ import sbylib.setting;
 
 class Texture {
 
-    private immutable uint id;
+    immutable uint id;
     private immutable TextureTarget target;
 
     this(Type)(TextureTarget target, uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, ImageFormat format, Type* data) in {

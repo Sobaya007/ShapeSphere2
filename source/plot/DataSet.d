@@ -48,9 +48,7 @@ class DataSet {
             auto geom = new GeometryTemp!([Attribute.Position], Prim.LineStrip)(vertices);
             auto mat = new LambertMaterial();
             mat.ambient = color;
-            auto mesh = new Mesh(geom, mat);
-            auto entity = new Entity;
-            entity.setMesh(mesh);
+            auto entity = new Entity(geom, mat);
             lineMesh[key] = entity;
             Label label = new Label(font);
             label.setSize(0.05);

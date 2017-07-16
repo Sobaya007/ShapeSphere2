@@ -37,10 +37,12 @@ class GuiControl {
         this.mouse.update();
         if (this.mouse.justPressed()) {
             Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
-            auto colInfo = this.world.calcCollideRay(this.ray);
-            if (!colInfo.collided) return;
+            auto colInfos = this.world.calcCollideRay(this.ray);
+            if (colInfos.length == 0) return;
             import std.algorithm;
-            if (auto con = cast(IControllable)colInfo.colEntry.getOwner().userData) {
+            auto colInfo = colInfos.minElement!(a => a.colDist);
+            if (!colInfo.collided) return;
+            if (auto con = cast(IControllable)colInfo.colEntry.getOwner().getRootParent().getUserData) {
                 this.colEntry[this.mouse.justPressedButton()] = con;
                 con.onMousePressed(this.mouse.justPressedButton());
             }

@@ -30,7 +30,7 @@ class ElasticSphere {
 
     Pair[] pairList;
 
-    CollisionEntry[] floors;
+    Entity[] floors;
     Entity entity;
     GeometryN geom;
     Particle[] particleList;
@@ -78,8 +78,7 @@ class ElasticSphere {
         auto mat = new ConditionalMaterial!(PlayerMaterial, LambertMaterial);
         mat.ambient = vec3(1);
         this.condition = mat.condition;
-        this.entity = new Entity;
-        this.entity.setMesh(new Mesh(geom, mat));
+        this.entity = new Entity(geom, mat);
         this.deflen = 0;
         foreach (pair; this.pairList) {
             this.deflen += length(pair.p0.p - pair.p1.p);
@@ -217,6 +216,7 @@ class ElasticSphere {
         bool isGround;
         bool isStinger;
         Particle[] next;
+        Entity entity;
         CollisionEntry colMesh;
         CollisionCapsule capsule;
 
@@ -226,8 +226,7 @@ class ElasticSphere {
             this.v = vec3(0,0,0);
             this.force = vec3(0,0,0);
             this.extForce = vec3(0,0,0);
-            this.capsule = new CollisionCapsule(0.1, this.p, this.p);
-            this.colMesh = new CollisionEntry(this.capsule);
+            this.entity = new Entity(new CollisionCapsule(0.1, this.p, this.p));
         }
 
         void move() {
@@ -237,10 +236,10 @@ class ElasticSphere {
 
         void collision() {
             foreach (f; floors) {
-                if (!f.collide(this.colMesh).collided) {
+                if (!f.collide(this.colMesh).any!(a => a.collided)) {
                     continue;
                 }
-                auto floor = cast(CollisionPolygon)f.getGeometry();
+                auto floor = cast(CollisionPolygon)f.getCollisionEntry().getGeometry();
                 float depth = -(p + n * needle(isStinger) - floor.positions[0]).dot(floor.normal);
                 if (depth > 0) {
                     auto po = v - dot(v, floor.normal) * floor.normal;

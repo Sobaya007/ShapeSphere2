@@ -51,9 +51,11 @@ class BasicControl {
 
     private void none() {
         Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
-        auto colInfo = this.world.calcCollideRay(this.ray);
-        if (!colInfo.collided) return;
+        auto colInfos = this.world.calcCollideRay(this.ray);
+        if (colInfos.length == 0) return;
         import std.algorithm;
+        auto colInfo = minElement!(a => a.colDist)(colInfos);
+        if (!colInfo.collided) return;
         if (this.mouse.justPressed(MouseButton.Button1)) {
             this.mode = Mode.Translate;
             this.z = -(colInfo.colPoint - this.camera.getObj().pos).dot(this.camera.getObj().worldMatrix.column[2].xyz);

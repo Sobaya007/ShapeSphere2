@@ -6,6 +6,7 @@ import sbylib.mesh.Object3D;
 import sbylib.utils.Watcher;
 import sbylib.math.Matrix;
 import sbylib.math.Vector;
+import sbylib.core.Entity;
 
 /*
    視錐台モデルを採用したカメラです。
@@ -19,7 +20,7 @@ public:
     Watch!float nearZ;
     Watch!float farZ;
 
-    Object3D obj;
+    Entity entity;
     private Watcher!umat4 _projMatrix;
 
     this(float aspect, float fovy, float nearZ, float farZ) {
@@ -27,7 +28,7 @@ public:
         this.fovy = new Watch!float(fovy);
         this.nearZ = new Watch!float(nearZ);
         this.farZ = new Watch!float(farZ);
-        this.obj = new Object3D();
+        this.entity = new Entity();
         this._projMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = this.generateProjectionMatrix();
         }, new umat4("projMatrix"));
@@ -38,7 +39,7 @@ public:
     }
 
     override inout(Object3D) getObj() inout {
-        return this.obj;
+        return this.entity.obj;
     }
 
     override @property Watcher!umat4 projMatrix() {

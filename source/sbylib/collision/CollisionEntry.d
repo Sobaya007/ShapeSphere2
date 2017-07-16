@@ -15,12 +15,8 @@ class CollisionEntry {
     private CollisionGeometry geom;
     private Entity owner;
 
-    this(CollisionGeometry geom)  {
+    this(CollisionGeometry geom, Entity owner)  {
         this.geom = geom;
-        this.owner = owner;
-    }
-
-    void setOwner(Entity owner) {
         this.owner = owner;
         this.geom.setOwner(this.owner);
     }
@@ -391,5 +387,17 @@ class CollisionEntry {
         colDist = t;
         colPoint = l + t * v;
         return true;
+    }
+}
+
+class CollisionEntryTemp(Geom) : CollisionEntry {
+    private Geom geom;
+    this(Geom geom, Entity owner) {
+        this.geom = geom;
+        super(geom, owner);
+    }
+
+    override Geom getGeometry() {
+        return this.geom;
     }
 }

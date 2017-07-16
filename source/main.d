@@ -69,19 +69,13 @@ void gameMain() {
         geom1.vertices[1].uv = vec2(0,1);
         geom1.vertices[2].uv = vec2(0,0);
         geom1.updateBuffer();
-        auto mesh0 = new CollisionEntry(polygons[0]);
-        auto mesh1 = new CollisionEntry(polygons[1]);
 
-        player.esphere.floors ~= mesh0;
-        player.esphere.floors ~= mesh1;
-        Entity e0 = new Entity;
-        Entity e1 = new Entity;
-        e0.setMesh(new Mesh(geom0, mat));
-        e0.setCollisionEntry(mesh0);
-        e1.setMesh(new Mesh(geom1, mat));
-        e1.setCollisionEntry(mesh1);
+        Entity e0 = new Entity(geom0, mat, polygons[0]);
+        Entity e1 = new Entity(geom1, mat, polygons[1]);
         world3d.add(e0);
         world3d.add(e1);
+        player.esphere.floors ~= e0;
+        player.esphere.floors ~= e1;
     };
     makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
     makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);

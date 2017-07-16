@@ -32,7 +32,6 @@ class Timeline : IControllable {
         this.rect = new RectEntity(Rect.create(1,1));
         this.rect.getMesh().mat.color = vec4(0.4);
         this.rect.createCollisionPolygon();
-        this.rect.userData = cast(void*)cast(IControllable)this;
         this.minLabel = new Label(font);
         this.minLabel.obj.pos = vec3(-0.5, -0.5, -0.1);
         this.minLabel.setColor(vec4(1));
@@ -48,6 +47,7 @@ class Timeline : IControllable {
         this.root.addChild(this.rect);
         this.root.addChild(this.minLabel);
         this.root.addChild(this.maxLabel);
+        this.root.setUserData(cast(void*)cast(IControllable)this);
     }
 
     void add(float val) {
@@ -93,6 +93,7 @@ class Timeline : IControllable {
     }
 
     void translate(Mouse2D mouse) {
+        mouse.getDif();
         this.root.obj.pos += vec3(mouse.getDif(), 0);
     }
 

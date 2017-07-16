@@ -48,7 +48,11 @@ class UniformTexture : Uniform {
 
     override string toString() const {
         import std.format;
-        return format!"Uniform[%s]: Texture"(this.name);
+        if (this.value) {
+            return format!"Uniform[%s]: Texture(%d)"(this.name, value.id);
+        } else {
+            return format!"Uniform[%s]: Texture"(this.name);
+        }
     }
 
     alias value this;

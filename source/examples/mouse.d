@@ -3,7 +3,8 @@ module examples.mouse;
 import sbylib;
 import std.stdio;
 
-alias PlaneMesh = MeshTemp!(GeometryPlane, ConditionalMaterial!(LambertMaterial, LambertMaterial));
+alias PlaneEntity = EntityTemp!(GeometryPlane, ConditionalMaterial!(LambertMaterial, LambertMaterial));
+alias CapsuleEntity = EntityTemp!(GeometryNT, ConditionalMaterial!(LambertMaterial, LambertMaterial));
 
 void mainMouse() {
     auto core = Core();
@@ -12,19 +13,12 @@ void mainMouse() {
     auto world = new Bahamut;
     auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
     auto mouse = new Mouse(window);
-    auto polyGeom = Plane.create();
-    auto polyMesh = new PlaneMesh(polyGeom);
-    auto polyEntity = new Entity;
-    polyEntity.setMesh(polyMesh);
+    auto polyEntity = new PlaneEntity(Plane.create());
     polyEntity.createCollisionPolygon();
 
     auto colCapGeom = new CollisionCapsule(0.2, vec3(0,-1,0), vec3(0,1,0));
-    auto colCap = new CollisionEntry(colCapGeom);
     auto capGeom = colCapGeom.createGeometry();
-    auto capMesh = new MeshTemp!(GeometryNT, ConditionalMaterial!(LambertMaterial, LambertMaterial))(capGeom);
-    auto capEntity = new Entity;
-    capEntity.setMesh(capMesh);
-    capEntity.setCollisionEntry(colCap);
+    auto capEntity = new CapsuleEntity(capGeom, colCapGeom);
     auto control = new BasicControl(mouse, world, camera);
 
     auto render = delegate (Process proc) {
@@ -43,10 +37,10 @@ void mainMouse() {
     screen.clearColor = vec4(0.2);
     core.addProcess(render, "render");
     core.addProcess(mouseUpdate, "mouse");
-    polyMesh.mat.ambient1 = vec3(0.2, 0, 0);
-    polyMesh.mat.ambient2 = vec3(0.5);
-    capMesh.mat.ambient1 = vec3(0, 0, 0.2);
-    capMesh.mat.ambient2 = vec3(0.5);
+    polyEntity.mat.ambient1 = vec3(0.2, 0, 0);
+    polyEntity.mat.ambient2 = vec3(0.5);
+    capEntity.mat.ambient1 = vec3(0, 0, 0.2);
+    capEntity.mat.ambient2 = vec3(0.5);
     //foreach (entry; polyMesh.geom.getCollisionPolygons) {
     //    entry.setOnCollide((CollisionInfo info) {
     //        polyMesh.mat.condition = info.collided;

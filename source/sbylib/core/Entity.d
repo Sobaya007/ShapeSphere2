@@ -12,37 +12,27 @@ class Entity {
     private Bahamut world;
     private Entity parent;
     private Entity[] children;
-    Object3D obj;
-    void* userData;
+    private Object3D _obj;
+    private void* userData;
 
     this(){
-        this.obj = new Object3D();
+        this._obj = new Object3D(this);
     }
 
-    this(Mesh mesh) {
-        this.setMesh(mesh);
+    this(Geometry geom, Material mat) {
         this();
+        this.setMesh(new Mesh(geom, mat, this));
     }
 
-    this(CollisionEntry colEntry) {
-        this.setCollisionEntry(colEntry);
+    this(CollisionGeometry colGeom) {
         this();
+        this.colEntry = new CollisionEntry(colGeom, this);
     }
 
-    this(Mesh mesh, CollisionEntry colEntry) {
-        this.setMesh(mesh);
-        this.setCollisionEntry(colEntry);
+    this(Geometry geom, Material mat, CollisionGeometry colGeom) {
         this();
-    }
-
-    void setMesh(Mesh mesh) {
-        this.mesh = mesh;
-        if (this.world is null) return;
-        this.mesh.onSetWorld(this.world);
-    }
-
-    void setCollisionEntry(CollisionEntry colEntry) {
-        this.colEntry = colEntry;
+        this.setMesh(new Mesh(geom, mat, this));
+        this.colEntry = new CollisionEntry(colGeom, this);
     }
 
     CollisionEntry getCollisionEntry() {
@@ -53,10 +43,28 @@ class Entity {
         return this.mesh;
     }
 
-    void setWorld(Bahamut world) {
+    inout(Object3D) obj() @property inout {
+        return this._obj;
+    }
+
+    void setWorld(Bahamut world) in {
+        assert(world);
+    } body {
         this.world = world;
-        if (this.mesh is null) return;
         this.onSetWorld(world);
+        foreach (child; this.children) {
+            child.setWorld(world);
+        }
+    }
+
+    void* getUserData() {
+        return this.userData;
+    }
+
+    void setUserData(void* userData) in {
+        assert(this.parent is null);
+    } body {
+        this.userData = userData;
     }
 
     void clearChildren() {
@@ -68,54 +76,148 @@ class Entity {
 
     void addChild(Entity entity) {
         this.children ~= entity;
-        entity.parent = this;
+        entity.setParent(this);
         if (this.world is null) return;
-        entity.onSetWorld(world);
+        entity.setWorld(world);
     }
 
     void createCollisionPolygon() in {
-        assert(this.mesh !is null);
+        assert(this.getMesh() !is null);
     } body {
-        foreach (polygon; this.mesh.geom.createCollisionPolygons()) {
-            auto entity = new Entity;
-            entity.setCollisionEntry(polygon);
+        foreach (polygon; this.getMesh().geom.createCollisionPolygons()) {
+            auto entity = new Entity(polygon);
             this.addChild(entity);
         }
     }
 
-    private void onSetWorld(Bahamut world) {
-        this.mesh.onSetWorld(world);
+    void render() in {
+        assert(this.world);
+    } body {
+        if (this.mesh) {
+            this.mesh.render();
+        }
+        foreach (child; this.children) {
+            child.render();
+        }
     }
+
+    CollisionInfo[] collide(Entity entity) {
+        CollisionInfo[] result;
+        result ~= entity.collide(this.getCollisionEntry());
+        foreach (child; this.children) {
+            result ~=  child.collide(colEntry);
+        }
+        return result;
+    }
+
+    CollisionInfo[] collide(CollisionEntry colEntry) {
+        if (colEntry is null) return null;
+        CollisionInfo[] result;
+        if (this.getCollisionEntry()) {
+            result ~= this.getCollisionEntry().collide(colEntry);
+        }
+        foreach (child; this.children) {
+            result ~=  child.collide(colEntry);
+        }
+        return result;
+    }
+
+    CollisionInfoRay[] collide(CollisionRay ray) {
+        CollisionInfoRay[] result;
+        if (this.getCollisionEntry()) {
+            result ~= this.getCollisionEntry.collide(ray);
+        }
+        foreach (child; this.children) {
+            result ~=  child.collide(ray);
+        }
+        return result;
+    }
+
+    Entity getParent() {
+        return this.parent;
+    }
+
+    Entity getRootParent() {
+        if (this.parent is null) return this;
+        return this.parent.getRootParent();
+    }
+
+    uint getChildNum() {
+        uint res = 0;
+        if (this.parent !is null) res++;
+        foreach (child; this.children) {
+            res += child.getChildNum();
+        }
+        return res;
+    }
+
+    private void onSetWorld(Bahamut world) {
+        if (this.mesh) {
+            this.mesh.onSetWorld(world);
+        }
+    }
+
+    private void setParent(Entity entity) in {
+        assert(this.userData is null);
+    } body {
+        this.parent = entity;
+        this._obj.onSetParent(entity);
+    }
+
+    private void setMesh(Mesh mesh) in {
+        assert(mesh.getOwner() == this);
+    } body {
+        this.mesh = mesh;
+        if (this.world is null) return;
+        this.mesh.onSetWorld(this.world);
+    }
+
+    private void setCollisionEntry(CollisionEntry colEntry) in {
+        assert(colEntry.getOwner() == this);
+    } body {
+        this.colEntry = colEntry;
+    }
+
 }
 
 class EntityTemp(Geom, Mat) : Entity {
     alias M = MeshTemp!(Geom, Mat);
     private M mesh;
 
-    this(M mesh) {
-        this.mesh = mesh;
-        this.setMesh(mesh);
-    }
-
     this(Geom g) {
-        this.mesh = new M(g);
-        this.setMesh(this.mesh);
+        super();
+        this.mesh = new M(g, this);
+        super.setMesh(this.mesh);
     }
 
     this(Geom g, Mat m) {
-        this.mesh = new M(g, m);
-        this.setMesh(this.mesh);
+        super();
+        this.mesh = new M(g, m, this);
+        super.setMesh(this.mesh);
+    }
+
+    this(Geom g, CollisionGeometry colGeom) {
+        super(colGeom);
+        this.mesh = new M(g, this);
+        super.setMesh(this.mesh);
+    }
+
+    this(Geom g, Mat m, CollisionGeometry colGeom) {
+        super(colGeom);
+        this.mesh = new M(g, m, this);
+        super.setMesh(this.mesh);
     }
 
     override M getMesh() {
         return this.mesh;
     }
 
-    override void setMesh(Mesh mesh) {
-        assert(mesh is null || cast(M)mesh !is null);
-        this.mesh = cast(M)mesh;
-        super.setMesh(mesh);
-    }
+//    override void setMesh(Geometry geom, Material mat) {
+//        assert(cast(Geom)geom);
+//        assert(cast(Mat)mat);
+//        this.mesh = new M(cast(Geom)geom, cast(Mat)mat, this);
+//        super.setMesh(mesh);
+//    }
 
     alias getMesh this;
 }
