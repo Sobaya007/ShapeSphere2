@@ -15,8 +15,9 @@ void mainMaterial() {
     auto screen = window.getRenderTarget();
     auto world = new Bahamut;
     auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
-    auto polyGeom = Plane.create(10,10);
-    auto polyMesh = new PlaneMesh(polyGeom);
+    auto polyMesh = new PlaneMesh(Plane.create(10,10));
+    auto polyEntity = new Entity();
+    polyEntity.setMesh(polyMesh);
 
     auto render = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
@@ -26,10 +27,10 @@ void mainMaterial() {
     camera.getObj().pos = vec3(1,2,4);
     camera.getObj().lookAt(vec3(0));
     world.camera = camera;
-    world.add(polyMesh);
+    world.add(polyEntity);
     screen.clearColor = vec4(0.2);
     core.addProcess(render, "render");
-    polyMesh.obj.lookTo(vec3(0,1,0), vec3(0,0,1));
+    polyEntity.obj.lookTo(vec3(0,1,0), vec3(0,0,1));
     polyMesh.mat.size = 0.02;
     polyMesh.mat.size1 = 0.01;
     polyMesh.mat.size2 = 0.01;

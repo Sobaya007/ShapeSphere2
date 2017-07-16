@@ -10,16 +10,22 @@ void mainMouse() {
     auto window = core.getWindow();
     auto screen = window.getRenderTarget();
     auto world = new Bahamut;
-    auto colSpace = new Leviathan;
     auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
     auto mouse = new Mouse(window);
     auto polyGeom = Plane.create();
     auto polyMesh = new PlaneMesh(polyGeom);
+    auto polyEntity = new Entity;
+    polyEntity.setMesh(polyMesh);
+    polyEntity.createCollisionPolygon();
+
     auto colCapGeom = new CollisionCapsule(0.2, vec3(0,-1,0), vec3(0,1,0));
     auto colCap = new CollisionEntry(colCapGeom);
     auto capGeom = colCapGeom.createGeometry();
-    auto capMesh = new MeshTemp!(GeometryNT, ConditionalMaterial!(LambertMaterial, LambertMaterial))(capGeom, colCap.obj);
-    auto control = new BasicControl(mouse, colSpace, camera);
+    auto capMesh = new MeshTemp!(GeometryNT, ConditionalMaterial!(LambertMaterial, LambertMaterial))(capGeom);
+    auto capEntity = new Entity;
+    capEntity.setMesh(capMesh);
+    capEntity.setCollisionEntry(colCap);
+    auto control = new BasicControl(mouse, world, camera);
 
     auto render = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
@@ -32,10 +38,8 @@ void mainMouse() {
     camera.getObj().pos.z = 4;
     camera.getObj().lookAt(vec3(0));
     world.camera = camera;
-    world.add(polyMesh);
-    world.add(capMesh);
-    colSpace.addAsPolygon(polyMesh);
-    colSpace.add(colCap);
+    world.add(polyEntity);
+    world.add(capEntity);
     screen.clearColor = vec4(0.2);
     core.addProcess(render, "render");
     core.addProcess(mouseUpdate, "mouse");

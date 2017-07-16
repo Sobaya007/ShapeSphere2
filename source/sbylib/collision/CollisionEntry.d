@@ -4,24 +4,36 @@ import std.variant;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 public {
-    import sbylib.collision.ICollidable;
     import sbylib.collision.geometry.CollisionCapsule;
     import sbylib.collision.geometry.CollisionPolygon;
+    import sbylib.collision.geometry.CollisionRay;
     import sbylib.collision.geometry.CollisionGeometry;
+    import sbylib.collision.CollisionInfo;
 }
 
-class CollisionEntry : ICollidable {
-    private void* userData;
-    CollisionGeometry geom;
-    Object3D obj;
+class CollisionEntry {
+    private CollisionGeometry geom;
+    private Entity owner;
 
-    this(CollisionGeometry geom, Object3D obj = new Object3D)  {
+    this(CollisionGeometry geom)  {
         this.geom = geom;
-        this.obj = obj;
-        this.geom.setParent(this);
+        this.owner = owner;
     }
 
-    override CollisionInfo collide(CollisionEntry collidable) {
+    void setOwner(Entity owner) {
+        this.owner = owner;
+        this.geom.setOwner(this.owner);
+    }
+
+    CollisionGeometry getGeometry() {
+        return this.geom;
+    }
+
+    Entity getOwner() {
+        return this.owner;
+    }
+
+    CollisionInfo collide(CollisionEntry collidable) {
         CollisionInfo info;
         if (auto cap = cast(CollisionCapsule)this.geom) {
             if (auto cap2 = cast(CollisionCapsule)collidable.geom) {
@@ -40,38 +52,19 @@ class CollisionEntry : ICollidable {
                 assert(false);
             }
         }
-        info.collidable = this;
+        info.colEntry = this;
         return info;
     }
-    override CollisionInfoRay collide(CollisionRay ray) {
+
+    CollisionInfoRay collide(CollisionRay ray) {
         CollisionInfoRay info;
         if (auto cap = cast(CollisionCapsule)this.geom) {
             info = collide(cap, ray);
         } else if (auto pol = cast(CollisionPolygon)this.geom) {
             info = collide(pol, ray);
         }
-        info.collidable = this;
+        info.colEntry = this;
         return info;
-    }
-
-    override void setParent(Object3D parent) {
-        this.obj.setParent(parent);
-    }
-
-    override void setUserData(void* userData) {
-        this.userData = userData;
-    }
-
-    override void* getUserData() {
-        return this.userData;
-    }
-
-    override CollisionEntry[] search(bool delegate(CollisionEntry) pred) {
-        return pred(this) ? [this] : null;
-    }
-
-    override CollisionEntry searchMin(float delegate(CollisionEntry) pred) {
-        return this;
     }
 
     public static CollisionInfo collide(CollisionCapsule capsule1, CollisionCapsule capsule2) {
@@ -398,94 +391,5 @@ class CollisionEntry : ICollidable {
         colDist = t;
         colPoint = l + t * v;
         return true;
-    }
-
-}
-
-class CollisionEntryGroup : ICollidable {
-
-    private ICollidable[] collidables;
-    Object3D obj;
-    private void* userData;
-
-    this(Object3D obj = new Object3D) {
-        this.obj = obj;
-    }
-
-    void add(ICollidable col) {
-        this.collidables ~= col;
-        col.setParent(this.obj);
-    }
-
-    void clear() {
-        this.collidables.length = 0;
-    }
-
-    override void setParent(Object3D parent) {
-        this.obj.setParent(parent);
-    }
-
-    override void setUserData(void* userData) {
-        this.userData = userData;
-    }
-
-    override void* getUserData() {
-        return this.userData;
-    }
-
-    override CollisionInfo collide(CollisionEntry entry) {
-        foreach (col; this.collidables) {
-            auto info = col.collide(entry);
-            if (info.collided) return info;
-        }
-        CollisionInfo info;
-        info.collided = false;
-        return info;
-    }
-
-    override CollisionInfoRay collide(CollisionRay ray) {
-        CollisionInfoRay res;
-        res.collided = false;
-        res.colDist = 1145149311919.810;
-        import std.stdio;
-        foreach (col; this.collidables) {
-            auto info = col.collide(ray);
-            if (info.collided && info.colDist < res.colDist) {
-                res = info;
-                res.collidable = this;
-            }
-        }
-        return res;
-    }
-
-    int opApply(int delegate(ref ICollidable) dg) {
-        int result = 0;
-        foreach (col; this.collidables) {
-            result = dg(col);
-            if (result) break;
-        }
-        return result;
-    }
-
-    override CollisionEntry[] search(bool delegate(CollisionEntry) pred) {
-        CollisionEntry[] result;
-        foreach (col; this.collidables) {
-            result ~= col.search(pred);
-        }
-        return result;
-    }
-
-    override CollisionEntry searchMin(float delegate(CollisionEntry) pred) {
-        CollisionEntry result;
-        float po = 114514893810.1919;
-        foreach (col; this.collidables) {
-            auto a = col.searchMin(pred);
-            auto pe = pred(a);
-            if (pe < po) {
-                po = pe;
-                result = a;
-            }
-        }
-        return result;
     }
 }

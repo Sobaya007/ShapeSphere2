@@ -12,7 +12,7 @@ import sbylib;
 class DataSet {
 
     Data[][string] datas;
-    Mesh[string] lineMesh;
+    Entity[string] lineMesh;
     Label[string] labels;
 
     this (string path) {
@@ -49,11 +49,13 @@ class DataSet {
             auto mat = new LambertMaterial();
             mat.ambient = color;
             auto mesh = new Mesh(geom, mat);
-            lineMesh[key] = mesh;
+            auto entity = new Entity;
+            entity.setMesh(mesh);
+            lineMesh[key] = entity;
             Label label = new Label(font);
             label.setSize(0.05);
             label.renderText(key.to!dstring);
-            label.mesh.obj.pos = vec3(0.9, baseY, 0);
+            label.entity.obj.pos = vec3(0.9, baseY, 0);
             label.setColor(vec4(color, 1));
             labels[key] = label;
 

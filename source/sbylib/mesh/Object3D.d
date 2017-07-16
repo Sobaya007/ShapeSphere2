@@ -9,6 +9,7 @@ import sbylib.wrapper.gl.Uniform;
 class Object3D {
     Watch!vec3 pos;
     Watch!mat3 rot;
+    Watch!vec3 scale;
     private Watcher!mat4 parentWorldMatrix;
     private Watcher!mat4 parentViewMatrix;
     private Object3D parent;
@@ -21,6 +22,9 @@ class Object3D {
 
         this.rot = new Watch!mat3();
         this.rot = mat3.identity();
+
+        this.scale = new Watch!vec3();
+        this.scale = vec3(1);
 
         this.worldMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = parentWorldMatrix * generateWorldMatrix();
@@ -40,9 +44,11 @@ class Object3D {
 
         this.worldMatrix.addWatch(this.pos);
         this.worldMatrix.addWatch(this.rot);
+        this.worldMatrix.addWatch(this.scale);
         this.worldMatrix.addWatch(this.parentWorldMatrix);
         this.viewMatrix.addWatch(this.pos);
         this.viewMatrix.addWatch(this.rot);
+        this.viewMatrix.addWatch(this.scale);
         this.viewMatrix.addWatch(this.parentViewMatrix);
     }
 
@@ -72,18 +78,18 @@ class Object3D {
 
     protected mat4 generateWorldMatrix() {
         return mat4([
-                rot[0,0], rot[0,1], rot[0,2], pos.x,
-                rot[1,0], rot[1,1], rot[1,2], pos.y,
-                rot[2,0], rot[2,1], rot[2,2], pos.z,
+                scale.x * rot[0,0], scale.y * rot[0,1], scale.z * rot[0,2], pos.x,
+                scale.x * rot[1,0], scale.y * rot[1,1], scale.z * rot[1,2], pos.y,
+                scale.x * rot[2,0], scale.y * rot[2,1], scale.z * rot[2,2], pos.z,
                 0,0,0, 1]);
     }
 
     protected mat4 generateViewMatrix() {
         auto column = rot.column;
         return mat4([
-                rot[0,0], rot[1,0], rot[2,0], -dot(column[0], pos),
-                rot[0,1], rot[1,1], rot[2,1], -dot(column[1], pos),
-                rot[0,2], rot[1,2], rot[2,2], -dot(column[2], pos),
+                rot[0,0] / scale.x, rot[1,0] / scale.x, rot[2,0] / scale.x, -dot(column[0], pos) / scale.x,
+                rot[0,1] / scale.y, rot[1,1] / scale.y, rot[2,1] / scale.y, -dot(column[1], pos) / scale.y,
+                rot[0,2] / scale.z, rot[1,2] / scale.z, rot[2,2] / scale.z, -dot(column[2], pos) / scale.z,
                 0,0,0, 1]);
     }
 }

@@ -13,7 +13,13 @@ class CollisionCapsule : CollisionGeometry {
     private vec3 _start, _end;
     Watcher!vec3 start;
     Watcher!vec3 end;
-    private CollisionEntry parent;
+    private Entity owner;
+
+    invariant {
+        if (this.owner !is null) {
+            //assert(this.owner.obj.scale == vec3(1));
+        }
+    }
 
     this(float radius, vec3 start, vec3 end) {
         this.radius = radius;
@@ -22,26 +28,26 @@ class CollisionCapsule : CollisionGeometry {
     }
 
     void setStart(vec3 start) {
-        this._start = (this.parent.obj.viewMatrix * vec4(start, 1)).xyz;
+        this._start = (this.owner.obj.viewMatrix * vec4(start, 1)).xyz;
     }
 
     void setEnd(vec3 end) {
-        this._end = (this.parent.obj.viewMatrix * vec4(end, 1)).xyz;
+        this._end = (this.owner.obj.viewMatrix * vec4(end, 1)).xyz;
     }
 
     GeometryNT createGeometry() {
         return Capsule.create(this.radius, length(this.start - this.end));
     }
 
-    override void setParent(CollisionEntry parent) {
-        this.parent = parent;
+    override void setOwner(Entity owner) {
+        this.owner = owner;
         this.start = new Watcher!vec3((ref vec3 p) {
-            p = (this.parent.obj.worldMatrix * vec4(_start, 1)).xyz;
+            p = (this.owner.obj.worldMatrix * vec4(_start, 1)).xyz;
         });
         this.end = new Watcher!vec3((ref vec3 p) {
-            p = (this.parent.obj.worldMatrix * vec4(_end, 1)).xyz;
+            p = (this.owner.obj.worldMatrix * vec4(_end, 1)).xyz;
         });
-        this.start.addWatch(this.parent.obj.worldMatrix);
-        this.end.addWatch(this.parent.obj.worldMatrix);
+        this.start.addWatch(this.owner.obj.worldMatrix);
+        this.end.addWatch(this.owner.obj.worldMatrix);
     }
 }

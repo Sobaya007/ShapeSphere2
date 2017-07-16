@@ -6,14 +6,14 @@ import std.math;
 import std.format;
 
 class Timeline : IControllable {
-    alias RectMesh = MeshTemp!(GeometryRect, ColorMaterial, Object3DS);
-    alias LinesMesh = MeshTemp!(Lines.GeometryLineGroup, ColorMaterial, Object3DS);
+    alias RectEntity = EntityTemp!(GeometryRect, ColorMaterial);
+    alias LinesEntity = EntityTemp!(Lines.GeometryLineGroup, ColorMaterial);
 
     enum N = 300;
 
-    MeshGroup mesh;
-    private LinesMesh line;
-    private RectMesh rect;
+    private Entity root;
+    private LinesEntity line;
+    private RectEntity rect;
     private float time;
     private int lastWritten;
     private bool firstFlag, secondFlag;
@@ -23,39 +23,41 @@ class Timeline : IControllable {
     private Label minLabel;
 
     this(Font font) {
-        this.line = new LinesMesh(Lines.create(N*2));
-        this.line.mat.color = vec4(1,0,0,1);
-        this.rect = new RectMesh(Rect.create(1,1));
-        this.rect.mat.color = vec4(0.4);
         this.time = -0.5;
         this.lastWritten = 1;
-        this.rect.createCollisionPolygons();
-        this.rect.geom.getCollisionPolygons().setUserData(cast(void*)cast(IControllable)this);
+
+        this.line = new LinesEntity(Lines.create(N*2));
+        line.getMesh().mat.color = vec4(1,0,0,1);
+
+        this.rect = new RectEntity(Rect.create(1,1));
+        this.rect.getMesh().mat.color = vec4(0.4);
+        this.rect.createCollisionPolygon();
+        this.rect.userData = cast(void*)cast(IControllable)this;
         this.minLabel = new Label(font);
-        this.minLabel.mesh.obj.pos = vec3(-0.5, -0.5, -0.1);
+        this.minLabel.obj.pos = vec3(-0.5, -0.5, -0.1);
         this.minLabel.setColor(vec4(1));
         this.minLabel.setOrigin(Label.OriginX.Left, Label.OriginY.Bottom);
         this.minLabel.setSize(0.05);
         this.maxLabel = new Label(font);
-        this.maxLabel.mesh.obj.pos = vec3(-0.5, +0.5, -0.1);
+        this.maxLabel.obj.pos = vec3(-0.5, +0.5, -0.1);
         this.maxLabel.setColor(vec4(1));
         this.maxLabel.setOrigin(Label.OriginX.Left, Label.OriginY.Top);
         this.maxLabel.setSize(0.05);
-        this.mesh = new MeshGroup;
-        this.mesh.add(this.line);
-        this.mesh.add(this.rect);
-        this.mesh.add(this.minLabel.mesh);
-        this.mesh.add(this.maxLabel.mesh);
+        this.root = new Entity;
+        this.root.addChild(this.line);
+        this.root.addChild(this.rect);
+        this.root.addChild(this.minLabel);
+        this.root.addChild(this.maxLabel);
     }
 
     void add(float val) {
         auto v = vec3(-time, val, 0);
         if (!this.firstFlag) {
             this.firstFlag = true;
-            this.line.geom.vertices[0].position = v;
+            this.line.getMesh().geom.vertices[0].position = v;
         } else if (!this.secondFlag) {
             this.secondFlag = true;
-            this.line.geom.vertices[1].position = v;
+            this.line.getMesh().geom.vertices[1].position = v;
         } else {
             auto n1 = (lastWritten + 1) % (N * 2);
             auto n2 = (lastWritten + 2) % (N * 2);
@@ -91,11 +93,11 @@ class Timeline : IControllable {
     }
 
     void translate(Mouse2D mouse) {
-        this.mesh.obj.pos += vec3(mouse.getDif(), 0);
+        this.root.obj.pos += vec3(mouse.getDif(), 0);
     }
 
-    override ICollidable getCollidable() {
-        return this.rect.geom.getCollisionPolygons();
+    override Entity getEntity() {
+        return this.root;
     }
 
     override void onMousePressed(MouseButton button) {

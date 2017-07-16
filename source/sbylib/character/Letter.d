@@ -12,26 +12,28 @@ class Letter {
 
     alias LetterMesh = MeshTemp!(GeometryRect, TextMaterial);
 
-    private LetterMesh mesh;
+    private Entity entity;
     private LetterInfo info;
 
     this(Letter letter) {
         this.info = letter.info;
-        this.mesh = new LetterMesh(letter.mesh.geom, letter.mesh.mat);
-        this.mesh.mat.texture = this.info.texture;
+        this.entity = new Entity;
+        this.entity.setMesh(letter.entity.getMesh());
     }
 
     this(Font font, dchar c, float height) {
         font.loadChar(c, FontLoadType.Render);
         this.info = font.characters[c];
         auto geom = Rect.create(height * this.info.width / this.info.height, height);
-        this.mesh = new LetterMesh(geom);
-        this.mesh.mat.texture = this.info.texture;
-        this.mesh.mat.color = vec4(0,0,0,1);
+        auto mesh = new LetterMesh(geom);
+        mesh.mat.texture = this.info.texture;
+        mesh.mat.color = vec4(0,0,0,1);
+        this.entity = new Entity;
+        this.entity.setMesh(mesh);
     }
 
-    LetterMesh getMesh() {
-        return this.mesh;
+    Entity getEntity() {
+        return this.entity;
     }
 
     LetterInfo getInfo() {

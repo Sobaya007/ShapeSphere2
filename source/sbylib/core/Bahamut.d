@@ -1,7 +1,6 @@
 module sbylib.core.Bahamut;
 
 import sbylib.mesh.Mesh;
-import sbylib.mesh.IMesh;
 import sbylib.camera.Camera;
 import sbylib.utils.Watcher;
 import sbylib.wrapper.gl.Constants;
@@ -17,7 +16,7 @@ import std.traits;
 import std.algorithm;
 
 class Bahamut {
-    private IMesh[] meshes;
+    private Entity[] entities;
     Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
     private Watcher!umat4 viewMatrix;
     private Watcher!umat4 projMatrix;
@@ -49,12 +48,11 @@ class Bahamut {
     }
 
     void add(T)(T[] rs...) 
-    if (isAssignable!(IMesh, T)) in {
-        assert(this.camera.get());
+    if (isAssignable!(Entity, T)) in {
     } body{
         foreach (r; rs) {
-            this.meshes ~= r;
-            r.resolveEnvironment(this);
+            this.entities ~= r;
+            r.setWorld(this);
         }
     }
 
@@ -64,8 +62,10 @@ class Bahamut {
 
     void render(RenderTarget target) {
         target.renderBegin();
-        foreach (r; this.meshes) {
-            r.render();
+        foreach (r; this.entities) {
+            if (auto mesh = r.getMesh()) {
+                mesh.render();
+            }
         }
         target.renderEnd();
     }
@@ -81,5 +81,32 @@ class Bahamut {
         default:
             assert(false);
         }
+    }
+
+    CollisionInfo[] calcCollide(CollisionEntry colEntry) {
+        static CollisionInfo[] result;
+        result.length = 0;
+        foreach (entity; this.entities) {
+            if (auto c = entity.getCollisionEntry()) {
+                auto colInfo = c.collide(colEntry);
+                if (!colInfo.collided) continue;
+                result ~= colInfo;
+            }
+        }
+        return result;
+    }
+
+    CollisionInfoRay calcCollideRay(CollisionRay ray) {
+        CollisionInfoRay result;
+        result.colDist = 1145141919.324;
+        foreach (entity; this.entities) {
+            if (auto c = entity.getCollisionEntry()) {
+                auto colInfo = c.collide(ray);
+                if (!colInfo.collided) continue;
+                if (result.colDist < colInfo.colDist) continue;
+                result = colInfo;
+            }
+        }
+        return result;
     }
 }

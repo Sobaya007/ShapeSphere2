@@ -51,7 +51,6 @@ public:
         }
     }
 
-
     Vector opBinary(string op)(const Vector v) const //=============================Vectorに対する二項演算
 in {
         assert(S == v.elements.length);

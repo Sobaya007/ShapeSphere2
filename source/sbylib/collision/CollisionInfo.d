@@ -4,12 +4,12 @@ import sbylib.collision.CollisionEntry;
 import sbylib.math.Vector;
 
 struct CollisionInfo {
-    ICollidable collidable;
+    CollisionEntry colEntry;
     bool collided;
 }
 
 struct CollisionInfoRay {
-    ICollidable collidable;
+    CollisionEntry colEntry;
     bool collided;
     vec3 colPoint;
     float colDist;

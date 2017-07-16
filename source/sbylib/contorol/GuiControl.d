@@ -13,7 +13,7 @@ import sbylib.utils.Watcher;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
-import sbylib.core.Leviathan;
+import sbylib.core.Bahamut;
 import sbylib.core.Process;
 import sbylib.control.IControllable;
 
@@ -21,12 +21,12 @@ class GuiControl {
 
     private Mouse2D mouse;
     private IControllable[MouseButton] colEntry;
-    private Leviathan world;
+    private Bahamut world;
     private CollisionRay ray;
     private OrthoCamera camera;
     private IControllable[] controllables;
 
-    this(Window window, OrthoCamera camera, Leviathan world) {
+    this(Window window, OrthoCamera camera, Bahamut world) {
         this.ray = new CollisionRay();
         this.mouse = new Mouse2D(window, camera);
         this.world = world;
@@ -40,7 +40,7 @@ class GuiControl {
             auto colInfo = this.world.calcCollideRay(this.ray);
             if (!colInfo.collided) return;
             import std.algorithm;
-            if (auto con = cast(IControllable)colInfo.collidable.getUserData()) {
+            if (auto con = cast(IControllable)colInfo.colEntry.getOwner().userData) {
                 this.colEntry[this.mouse.justPressedButton()] = con;
                 con.onMousePressed(this.mouse.justPressedButton());
             }
@@ -59,6 +59,6 @@ class GuiControl {
 
     void add(IControllable con) {
         this.controllables ~= con;
-        this.world.add(con.getCollidable());
+        this.world.add(con.getEntity());
     }
 }

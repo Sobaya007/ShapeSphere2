@@ -27,7 +27,7 @@ void plotMain() {
         world.add(value);
     }
     foreach (key, value; dataset.labels) {
-        world.add(value.mesh);
+        world.add(value.entity);
     }
 
     auto render = delegate (Process proc) {

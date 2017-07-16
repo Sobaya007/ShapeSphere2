@@ -19,17 +19,17 @@ class BasicControl {
     enum Mode {None, Translate, Rotate}
 
     private Mouse mouse;
-    private CollisionEntry colEntry;
-    private Leviathan cockatrice;
+    private Entity entity;
+    private Bahamut world;
     private CollisionRay ray;
     private Camera camera;
     private Mode mode;
     private float z;
 
-    this(Mouse mouse, Leviathan cockatrice, Camera camera) {
+    this(Mouse mouse, Bahamut world, Camera camera) {
         this.ray = new CollisionRay();
         this.mouse = mouse;
-        this.cockatrice = cockatrice;
+        this.world = world;
         this.camera = camera;
         this.mode = Mode.None;
     }
@@ -51,7 +51,7 @@ class BasicControl {
 
     private void none() {
         Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
-        auto colInfo = this.cockatrice.calcCollideRay(this.ray);
+        auto colInfo = this.world.calcCollideRay(this.ray);
         if (!colInfo.collided) return;
         import std.algorithm;
         if (this.mouse.justPressed(MouseButton.Button1)) {
@@ -70,7 +70,7 @@ class BasicControl {
         }
         auto dif2 = mouse.getDif();
         dif2 *= vec2(this.z) / vec2(this.camera.projMatrix[0,0], this.camera.projMatrix[1,1]);
-        this.colEntry.obj.pos += this.camera.getObj().worldMatrix.toMatrix3() * vec3(dif2, 0);
+        this.entity.obj.pos += this.camera.getObj().worldMatrix.toMatrix3() * vec3(dif2, 0);
     }
 
     private void rotate() {
@@ -83,6 +83,6 @@ class BasicControl {
         auto axisV = cross(vec3(dif2.x, dif2.y, 0), vec3(0,0,1));
         auto axisW = (this.camera.getObj().worldMatrix.get() * vec4(axisV, 0)).xyz;
         auto rot = mat3.axisAngle(normalize(axisW), length(axisW));
-        this.colEntry.obj.rot = rot * this.colEntry.obj.rot;
+        this.entity.obj.rot = rot * this.entity.obj.rot;
     }
 }

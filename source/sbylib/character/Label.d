@@ -16,7 +16,7 @@ class Label {
     enum OriginX {Center, Left, Right}
     enum OriginY {Center, Top, Bottom}
 
-    MeshGroup mesh;
+    Entity entity;
     private Letter[] letters;
     private vec4 color;
     private Font font;
@@ -32,13 +32,14 @@ class Label {
         this.originY = OriginY.Center;
         this.wrapWidth = 1145141919.810;
         this.color = vec4(0,0,0,1);
-        this.mesh = new MeshGroup;
+        this.entity = new Entity;
     }
 
     void setColor(vec4 color) {
         this.color = color;
         foreach (l; this.letters) {
-            l.getMesh().mat.color = color;
+            auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
+            mat.color = color;
         }
     }
 
@@ -59,7 +60,7 @@ class Label {
     }
 
     void renderText(dstring text) {
-        this.mesh.clear();
+        this.entity.clearChildren();
         this.letters = [];
         foreach (c; text) {
             Letter l;
@@ -69,10 +70,10 @@ class Label {
                 l = new Letter(this.font, c, this.size);
                 cache[c] = l;
             }
-            this.mesh.add(l.getMesh());
-            l.getMesh().mat.color = this.color;
+            this.entity.addChild(l.getEntity());
             this.letters ~= l;
         }
+        this.setColor(this.color);
         this.lineUp();
     }
 
@@ -94,7 +95,7 @@ class Label {
             foreach (l; row.letters) {
                 auto w = h * l.getInfo().width / l.getInfo().height;
                 x += w/2;
-                l.getMesh().obj.pos = vec3(x, y, 0);
+                l.getEntity().obj.pos = vec3(x, y, 0);
                 x += w/2;
             }
             y -= h;
@@ -132,4 +133,6 @@ class Label {
             return height - this.size / 2;
         }
     }
+
+    alias entity this;
 }

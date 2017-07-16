@@ -14,7 +14,7 @@ class CollisionPolygon : CollisionGeometry {
     private vec3[3] _positions;
     Watcher!(vec3)[3] positions;
     Watcher!(vec3) normal;
-    private CollisionEntry parent;
+    private Entity owner;
 
     this(vec3[3] positions...) {
         this._positions = positions;
@@ -30,20 +30,20 @@ class CollisionPolygon : CollisionGeometry {
         return new GeometryNT(vertex, [0,1,2]);
     }
 
-    override void setParent(CollisionEntry parent) {
-        this.parent = parent;
+    override void setOwner(Entity owner) {
+        this.owner = owner;
         foreach (i; 0..3) {
             (j) {
                 this.positions[j] = new Watcher!vec3((ref vec3 p) {
-                    p = (this.parent.obj.worldMatrix * vec4(this._positions[j], 1)).xyz;
+                    p = (this.owner.obj.worldMatrix * vec4(this._positions[j], 1)).xyz;
                 }, this._positions[j]);
-                this.positions[j].addWatch(this.parent.obj.worldMatrix);
+                this.positions[j].addWatch(this.owner.obj.worldMatrix);
             }(i);
         }
         auto originNormal = normalize(cross(positions[2] - positions[1], positions[1] - positions[0]));
         this.normal = new Watcher!vec3((ref vec3 n) {
-           n = (this.parent.obj.worldMatrix * vec4(originNormal, 0)).xyz;
+           n = (this.owner.obj.worldMatrix * vec4(originNormal, 0)).xyz;
         }, originNormal);
-        this.normal.addWatch(this.parent.obj.worldMatrix);
+        this.normal.addWatch(this.owner.obj.worldMatrix);
     }
 }

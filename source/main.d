@@ -74,18 +74,24 @@ void gameMain() {
 
         player.esphere.floors ~= mesh0;
         player.esphere.floors ~= mesh1;
-        world3d.add(new Mesh(geom0, mat, mesh0.obj));
-        world3d.add(new Mesh(geom1, mat, mesh1.obj));
+        Entity e0 = new Entity;
+        Entity e1 = new Entity;
+        e0.setMesh(new Mesh(geom0, mat));
+        e0.setCollisionEntry(mesh0);
+        e1.setMesh(new Mesh(geom1, mat));
+        e1.setCollisionEntry(mesh1);
+        world3d.add(e0);
+        world3d.add(e1);
     };
     makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
     makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);
-    world3d.add(player.esphere.mesh);
+    world3d.add(player.esphere.entity);
     PointLight pointLight;
     pointLight.pos = vec3(0,2,0);
     pointLight.diffuse = vec3(1);
     world3d.addPointLight(pointLight);
 
-    CameraChaseControl control = new CameraChaseControl(world3d.camera, player.esphere.mesh.obj);
+    CameraChaseControl control = new CameraChaseControl(world3d.camera, player.esphere.entity.obj);
 
     auto fpsCounter = new FpsCounter!100();
     import std.format;
@@ -105,8 +111,8 @@ void gameMain() {
     core.addProcess((proc) {
         if (core.getKey(KeyButton.Escape)) core.end();
         if (core.getKey(KeyButton.KeyR)) ConstantManager.reload();
-        if (core.getKey(KeyButton.KeyW)) player.esphere.mesh.mat.config.polygonMode = PolygonMode.Line;
-        else player.esphere.mesh.mat.config.polygonMode = PolygonMode.Fill;
+        if (core.getKey(KeyButton.KeyW)) player.esphere.entity.getMesh().mat.config.polygonMode = PolygonMode.Line;
+        else player.esphere.entity.getMesh().mat.config.polygonMode = PolygonMode.Fill;
         player.esphere.condition = !core.getKey(KeyButton.Enter);
     }, "last");
 

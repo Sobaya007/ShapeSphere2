@@ -9,7 +9,6 @@ import std.stdio;
 
 class ElasticSphere {
 
-
     immutable {
         uint RECURSION_LEVEL = 2;
         float DEFAULT_RADIUS = 0.5;
@@ -32,7 +31,7 @@ class ElasticSphere {
     Pair[] pairList;
 
     CollisionEntry[] floors;
-    Mesh mesh;
+    Entity entity;
     GeometryN geom;
     Particle[] particleList;
     float radius;
@@ -79,7 +78,8 @@ class ElasticSphere {
         auto mat = new ConditionalMaterial!(PlayerMaterial, LambertMaterial);
         mat.ambient = vec3(1);
         this.condition = mat.condition;
-        this.mesh = new Mesh(geom, mat);
+        this.entity = new Entity;
+        this.entity.setMesh(new Mesh(geom, mat));
         this.deflen = 0;
         foreach (pair; this.pairList) {
             this.deflen += length(pair.p0.p - pair.p1.p);
@@ -104,7 +104,7 @@ class ElasticSphere {
 
         //移動量から強引に回転させる
         {
-            vec3 dif = g - this.mesh.obj.pos;
+            vec3 dif = g - this.entity.obj.pos;
             dif.y = 0;
             vec3 axis = vec3(0,1,0).cross(dif);
             float len = axis.length;
@@ -118,7 +118,7 @@ class ElasticSphere {
                 }
             }
         }
-        this.mesh.obj.pos = g;
+        this.entity.obj.pos = g;
 
         //拘束解消
         {
@@ -173,7 +173,7 @@ class ElasticSphere {
         foreach (i,v; this.geom.vertices) {
             auto p = this.particleList[i];
             v.normal = safeNormalize(v.normal);
-            v.position = (this.mesh.obj.viewMatrix * vec4(p.p - v.normal * needle(p.isStinger), 1)).xyz;
+            v.position = (this.entity.obj.viewMatrix * vec4(p.p - v.normal * needle(p.isStinger), 1)).xyz;
         }
         this.geom.updateBuffer();
     }
@@ -186,7 +186,7 @@ class ElasticSphere {
 
     private float calcVolume() {
         float volume = 0;
-        auto center = mesh.obj.pos;
+        auto center = this.entity.obj.pos;
         foreach (face; this.geom.faces) {
             auto a = particleList[face.indexList[0]].p - center;
             auto b = particleList[face.indexList[1]].p - center;
@@ -240,7 +240,7 @@ class ElasticSphere {
                 if (!f.collide(this.colMesh).collided) {
                     continue;
                 }
-                auto floor = cast(CollisionPolygon)f.geom;
+                auto floor = cast(CollisionPolygon)f.getGeometry();
                 float depth = -(p + n * needle(isStinger) - floor.positions[0]).dot(floor.normal);
                 if (depth > 0) {
                     auto po = v - dot(v, floor.normal) * floor.normal;
