@@ -8,6 +8,8 @@ import sbylib;
 import player.ElasticSphere;
 import player.Player;
 import plot.Main;
+import examples.example1;
+import examples.example2;
 import examples.text2d;
 import examples.mouse;
 import examples.material;
@@ -19,11 +21,13 @@ void main(string[] args) {
     getopt(args, "mode", &runMode);
     final switch(runMode) {
     case RunMode.Game:
-        //gameMain();
-        //mainMouse();
-        //mainText2d();
-        mainGUI();
+        //example1();
+        //example2();
         //mainMaterial();
+        //mainGUI();
+        //mainText2d();
+        //mainMouse();
+        gameMain();
         break;
     case RunMode.Plot:
         plotMain();

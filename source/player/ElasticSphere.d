@@ -217,7 +217,6 @@ class ElasticSphere {
         bool isStinger;
         Particle[] next;
         Entity entity;
-        CollisionEntry colMesh;
         CollisionCapsule capsule;
 
         this(vec3 p) {
@@ -226,7 +225,8 @@ class ElasticSphere {
             this.v = vec3(0,0,0);
             this.force = vec3(0,0,0);
             this.extForce = vec3(0,0,0);
-            this.entity = new Entity(new CollisionCapsule(0.1, this.p, this.p));
+            this.capsule = new CollisionCapsule(0.1, this.p, this.p);
+            this.entity = new Entity(this.capsule);
         }
 
         void move() {
@@ -236,7 +236,7 @@ class ElasticSphere {
 
         void collision() {
             foreach (f; floors) {
-                if (!f.collide(this.colMesh).any!(a => a.collided)) {
+                if (!f.collide(this.entity).any!(a => a.collided)) {
                     continue;
                 }
                 auto floor = cast(CollisionPolygon)f.getCollisionEntry().getGeometry();

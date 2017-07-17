@@ -13,6 +13,8 @@ import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
 import sbylib.core.Leviathan;
+import std.algorithm;
+import std.array;
 
 class BasicControl {
 
@@ -51,11 +53,11 @@ class BasicControl {
 
     private void none() {
         Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
-        auto colInfos = this.world.calcCollideRay(this.ray);
+        auto colInfos = this.world.calcCollideRay(this.ray).filter!(a => a.collided).array;
         if (colInfos.length == 0) return;
         import std.algorithm;
         auto colInfo = minElement!(a => a.colDist)(colInfos);
-        if (!colInfo.collided) return;
+        this.entity = colInfo.colEntry.getOwner().getRootParent();
         if (this.mouse.justPressed(MouseButton.Button1)) {
             this.mode = Mode.Translate;
             this.z = -(colInfo.colPoint - this.camera.getObj().pos).dot(this.camera.getObj().worldMatrix.column[2].xyz);

@@ -13,6 +13,7 @@ import sbylib.utils.Functions;
 import sbylib.collision.geometry.CollisionPolygon;
 import sbylib.collision.CollisionEntry;
 import sbylib.mesh.Object3D;
+import sbylib.math.Vector;
 
 import std.range;
 import std.algorithm;
@@ -41,6 +42,7 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
     const uint indicesCount;
     private IndexBuffer ibo;
     private Tuple!(Attribute, VertexBuffer)[] buffers;
+    float delegate(vec3, vec3) getRayIntersectParameter;
 
     this(VertexA[] vertices) {
         this(vertices, iota(cast(uint)vertices.length).array);
@@ -84,6 +86,21 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
             break;
         }
         this.faces = faces;
+        this.getRayIntersectParameter = (vec3 s, vec3 v) => minElement(this.faces.map!((face) {
+                auto n = cross(
+                this.vertices[face.indexList[2]].position - this.vertices[face.indexList[1]].position,
+                this.vertices[face.indexList[1]].position - this.vertices[face.indexList[0]].position);
+                if (dot(v,n) == 0) return 1145141919.810;
+                auto t = dot(this.vertices[face.indexList[0]].position - s, n) / dot(v, n);
+                if (t < 0) return 8939311919.810;
+                auto p = s + t * n;
+                auto signs = face.indexList.map!(i => 
+                    cross(this.vertices[(i+1)%3].position - this.vertices[i].position, this.vertices[i].position - p).dot(n)).array;
+                if (signs.all!(sign => sign >= 0) || signs.all!(sign => sign < 0)) {
+                    return t;
+                }
+                return 114514893810.1919;
+            }));
     }
 
     override void render(VertexArray vao) {

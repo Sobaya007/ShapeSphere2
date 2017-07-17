@@ -14,10 +14,10 @@ class Plane {
 
     public static GeometryPlane create(float width = 1, float height = 1) {
         VertexNT[] vertices;
-        vertices ~= new VertexNT(vec3(-width/2, -height/2, 0), vec3(0,0,1), vec2(0,0));
-        vertices ~= new VertexNT(vec3(+width/2, -height/2, 0), vec3(0,0,1), vec2(1,0));
-        vertices ~= new VertexNT(vec3(-width/2, +height/2, 0), vec3(0,0,1), vec2(0,1));
-        vertices ~= new VertexNT(vec3(+width/2, +height/2, 0), vec3(0,0,1), vec2(1,1));
-        return new GeometryPlane(vertices, [0,1,2,3]);
+        vertices ~= new VertexNT(vec3(-width/2, 0, -height/2), vec3(0,1,0), vec2(0,0));
+        vertices ~= new VertexNT(vec3(+width/2, 0, -height/2), vec3(0,1,0), vec2(1,0));
+        vertices ~= new VertexNT(vec3(-width/2, 0, +height/2), vec3(0,1,0), vec2(0,1));
+        vertices ~= new VertexNT(vec3(+width/2, 0, +height/2), vec3(0,1,0), vec2(1,1));
+        return new GeometryPlane(vertices, [0,1,2,1,2,3]);
     }
 }

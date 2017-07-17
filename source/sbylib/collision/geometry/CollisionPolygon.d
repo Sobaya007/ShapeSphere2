@@ -12,21 +12,21 @@ import sbylib.collision.geometry.CollisionGeometry;
 
 class CollisionPolygon : CollisionGeometry {
     private vec3[3] _positions;
+    private vec3 _normal;
     Watcher!(vec3)[3] positions;
     Watcher!(vec3) normal;
     private Entity owner;
 
     this(vec3[3] positions...) {
         this._positions = positions;
+        this._normal = normalize(cross(positions[2] - positions[1], positions[1] - positions[0]));
     }
 
-    GeometryNT createGeometry() in {
-        assert(this.normal);
-    } body {
+    GeometryNT createGeometry() {
         VertexNT[] vertex = new VertexNT[3];
-        vertex[0] = new VertexNT(this.positions[0], this.normal, vec2(0,0));
-        vertex[1] = new VertexNT(this.positions[1], this.normal, vec2(0.5,1));
-        vertex[2] = new VertexNT(this.positions[2], this.normal, vec2(1,0));
+        vertex[0] = new VertexNT(this._positions[0], this._normal, vec2(0,0));
+        vertex[1] = new VertexNT(this._positions[1], this._normal, vec2(0.5,1));
+        vertex[2] = new VertexNT(this._positions[2], this._normal, vec2(1,0));
         return new GeometryNT(vertex, [0,1,2]);
     }
 
@@ -41,10 +41,9 @@ class CollisionPolygon : CollisionGeometry {
                 this.positions[j].addWatch(this.owner.obj.worldMatrix);
             }(i);
         }
-        auto originNormal = normalize(cross(positions[2] - positions[1], positions[1] - positions[0]));
         this.normal = new Watcher!vec3((ref vec3 n) {
-           n = (this.owner.obj.worldMatrix * vec4(originNormal, 0)).xyz;
-        }, originNormal);
+           n = (this.owner.obj.worldMatrix * vec4(this._normal, 0)).xyz;
+        }, this._normal);
         this.normal.addWatch(this.owner.obj.worldMatrix);
     }
 }

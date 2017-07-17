@@ -79,6 +79,7 @@ class MaterialUtils {
 
         import std.string;
         import std.file;
+        import std.traits;
         import sbylib.material.glsl.Ast;
         import sbylib.material.glsl.GlslUtils;
         enum FRAG_ROOT = file.replace(".d", ".frag");
@@ -101,13 +102,14 @@ class MaterialUtils {
         }
 
         override Uniform[] getUniforms() {
-            import std.traits;
             Uniform[] result;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
                 static if (isAssignable!(Uniform, type)) {
                     result ~= mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
                 }
             }
+            result ~= this.a.getUniforms();
+            result ~= this.b.getUniforms();
             return result;
         }
 
@@ -127,8 +129,11 @@ class MaterialUtils {
             }
             this.a = new A.Keeper(mat, s => replace(MaterialName1 ~ pascal(s)));
             this.b = new B.Keeper(mat, s => replace(MaterialName2 ~ pascal(s)));
-            foreach (u; this.getUniforms()) {
-                u.setName(replace(u.getName()));
+            foreach (i, type; FieldTypeTuple!(typeof(this))) {
+                static if (isAssignable!(Uniform, type)) {
+                    auto u = mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
+                    u.setName(replace(u.getName()));
+                }
             }
         }
 

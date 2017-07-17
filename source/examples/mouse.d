@@ -2,6 +2,8 @@ module examples.mouse;
 
 import sbylib;
 import std.stdio;
+import std.algorithm;
+import std.array;
 
 alias PlaneEntity = EntityTemp!(GeometryPlane, ConditionalMaterial!(LambertMaterial, LambertMaterial));
 alias CapsuleEntity = EntityTemp!(GeometryNT, ConditionalMaterial!(LambertMaterial, LambertMaterial));
@@ -15,6 +17,7 @@ void mainMouse() {
     auto mouse = new Mouse(window);
     auto polyEntity = new PlaneEntity(Plane.create());
     polyEntity.createCollisionPolygon();
+    polyEntity.obj.rot = mat3.rotFromTo(vec3(0,1,0), vec3(0,0,1));
 
     auto colCapGeom = new CollisionCapsule(0.2, vec3(0,-1,0), vec3(0,1,0));
     auto capGeom = colCapGeom.createGeometry();
@@ -29,6 +32,15 @@ void mainMouse() {
     auto mouseUpdate = delegate(Process proc) {
         control.update();
     };
+    CollisionRay ray = new CollisionRay();
+    auto detect = delegate(Process proc) {
+        Utils.getRay(mouse.getPos(), camera, ray);
+        auto colInfos = world.calcCollideRay(ray).filter!(a => a.collided).array;
+        if (colInfos.length == 0) return;
+        auto colInfo = colInfos.minElement!(a => a.colDist);
+        polyEntity.mat.condition = colInfo.colEntry.getOwner().getRootParent() is polyEntity;
+        capEntity.mat.condition = colInfo.colEntry.getOwner().getRootParent() is capEntity;
+    };
     camera.getObj().pos.z = 4;
     camera.getObj().lookAt(vec3(0));
     world.camera = camera;
@@ -37,18 +49,11 @@ void mainMouse() {
     screen.clearColor = vec4(0.2);
     core.addProcess(render, "render");
     core.addProcess(mouseUpdate, "mouse");
+    core.addProcess(detect, "detect");
     polyEntity.mat.ambient1 = vec3(0.2, 0, 0);
     polyEntity.mat.ambient2 = vec3(0.5);
     capEntity.mat.ambient1 = vec3(0, 0, 0.2);
     capEntity.mat.ambient2 = vec3(0.5);
-    //foreach (entry; polyMesh.geom.getCollisionPolygons) {
-    //    entry.setOnCollide((CollisionInfo info) {
-    //        polyMesh.mat.condition = info.collided;
-    //    });
-    //}
-    //colCap.setOnCollide((CollisionInfo info) {
-    //    capMesh.mat.condition = info.collided;
-    //});
 
     core.start();
 }

@@ -28,7 +28,6 @@ void mainMaterial() {
     world.add(polyEntity);
     screen.clearColor = vec4(0.2);
     core.addProcess(render, "render");
-    polyEntity.obj.lookTo(vec3(0,1,0), vec3(0,0,1));
     polyEntity.mat.size = 0.02;
     polyEntity.mat.size1 = 0.01;
     polyEntity.mat.size2 = 0.01;

@@ -36,7 +36,7 @@ class CollisionCapsule : CollisionGeometry {
     }
 
     GeometryNT createGeometry() {
-        return Capsule.create(this.radius, length(this.start - this.end));
+        return Capsule.create(this.radius, length(this._start - this._end));
     }
 
     override void setOwner(Entity owner) {
