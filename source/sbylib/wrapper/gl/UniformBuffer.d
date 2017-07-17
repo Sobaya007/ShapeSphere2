@@ -27,7 +27,7 @@ class UniformBuffer(T) : BufferObject!(BufferType.Uniform, T), Uniform {
     }
 
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         auto loc = this.getLocation(program);
         glUniformBlockBinding(program.id, loc, uniformBlockPoint);
@@ -36,7 +36,7 @@ class UniformBuffer(T) : BufferObject!(BufferType.Uniform, T), Uniform {
     }
 
     private uint getLocation(const Program program) const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         int uLoc = glGetUniformBlockIndex(program.id, this.name.toStringz);
         assert(uLoc != -1, name ~ " is not found or used."); 

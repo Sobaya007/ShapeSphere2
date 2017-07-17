@@ -24,7 +24,7 @@ class Player {
     }
 
     void step() {
-        vec3 g = this.esphere.mesh.obj.pos;
+        vec3 g = this.esphere.entity.obj.pos;
         //キー入力で動かす
         foreach (p; this.esphere.particleList) {
             p.extForce = vec3(0,0,0);

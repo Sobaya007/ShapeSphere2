@@ -10,11 +10,13 @@ import std.algorithm;
 import std.array;
 import std.range;
 
+alias GeometrySphereUV = GeometryNT;
+
 class SphereUV {
 
     private this() {}
     
-    public static Geometry create(float radius = 0.5, uint tCut = 20, uint pCut = 20) {
+    public static GeometrySphereUV create(float radius = 0.5, uint tCut = 20, uint pCut = 20) {
         auto vertices = (northern(radius, tCut, pCut) ~ southern(radius, tCut, pCut));
         auto indices = getNorthernIndices(tCut, pCut) ~ getSouthernIndices(tCut, pCut);
         auto g = new GeometryNT(vertices, indices);

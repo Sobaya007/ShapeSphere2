@@ -1,3 +1,9 @@
 module sbylib.collision.geometry.CollisionGeometry;
 
-interface CollisionGeometry {}
+public {
+    import sbylib.core.Entity;
+}
+
+interface CollisionGeometry {
+    void setOwner(Entity);
+}

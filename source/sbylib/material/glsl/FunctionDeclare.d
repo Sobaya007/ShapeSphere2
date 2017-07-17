@@ -88,6 +88,6 @@ class FunctionDeclare : Statement {
     }
 
     string[] getIDs() {
-        return this.arguments.arguments.map!(arg => arg.id).array;
+        return id ~ this.arguments.arguments.map!(arg => arg.id).array;
     }
 }

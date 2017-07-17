@@ -10,11 +10,13 @@ import std.algorithm;
 import std.array;
 import std.range;
 
+alias GeometryBox = GeometryNT;
+
 class Box {
 
     private this()  {}
 
-    public static Geometry create(float width = 1, float height = 1, float depth = 1) {
+    public static GeometryBox create(float width = 1, float height = 1, float depth = 1) {
         VertexNT[] vertices;
         foreach (i; 0..6) {
             const s = i % 2 ? +1 : -1;

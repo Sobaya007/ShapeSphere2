@@ -6,11 +6,15 @@ import sbylib.material.UniformKeeper;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformTexture;
 
-class CheckerMaterialUniformMaterial(Material0, Material1) : UniformKeeper {
-    enum MaterialName1 = "Material0";
-    enum MaterialName2 = "Material1";
-    mixin MaterialUtils.declareMix!(Material0, Material1);
-    ufloat size = new ufloat("size");
+class CheckerMaterialUniformMaterial(Material1, Material2) : UniformKeeper {
+    enum MaterialName1 = "Material1";
+    enum MaterialName2 = "Material2";
+    mixin MaterialUtils.declareMix!(Material1, Material2);
+    ufloat size;
+
+    void constructor() {
+        this.size = new ufloat("size");
+    }
 }
 
-alias CheckerMaterial(Material0, Material1) = MaterialTemp!(CheckerMaterialUniformMaterial!(Material0, Material1));
+alias CheckerMaterial(Material1, Material2) = MaterialTemp!(CheckerMaterialUniformMaterial!(Material1, Material2));

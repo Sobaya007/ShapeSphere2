@@ -18,7 +18,6 @@ alias umat4w = Watcher!(umat4);
 class Material {
 
     const Program shader;
-    private Uniform delegate()[string] getUniforms;
     RenderConfig config;
 
     this(const Program shader) {
@@ -26,35 +25,20 @@ class Material {
         this.config = new RenderConfig();
     }
 
-    final void setUniform(Uniform delegate() getUniform) {
-        auto name = getUniform().getName();
-        this.getUniforms[name] = getUniform;
-    }
-
-    final void setUniform(T)(Watcher!(T) watcher) {
-        auto name = watcher.get().getName();
-        this.getUniforms[name] = () => watcher.get();
-    }
-
-    final void set() {
+    final void set(Uniform delegate()[string] getUniforms) {
         this.config.set();
         this.shader.use();
         uint uniformBlockPoint = 0;
         uint textureUnit = 0;
         import std.stdio;
-        //writeln(getUniforms["condition"]());
         foreach (getUniform; getUniforms) {
+            //writeln(getUniform());
             getUniform().apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
 
-//    ref auto opDispatch(string s)() in {
-//        assert(s in getUniforms);
-//    } body {
-//        return getUniform[s];
-//    }
-
     abstract UniformDemand[] getDemands();
+    abstract Uniform[] getUniforms();
 }
 
 class MaterialTemp(UniformKeeper) : Material {
@@ -75,9 +59,10 @@ class MaterialTemp(UniformKeeper) : Material {
 
     this() {
         if (!demands) {
-            auto asts = UniformKeeper.generateASTs();
-            auto vertAST = asts[0];
-            auto fragAST = asts[1];
+            auto fragAST = UniformKeeper.generateFragmentAST();
+            auto vertAST = GlslUtils.generateVertexAST(fragAST);
+            import std.stdio;
+            //writeln(fragAST.getCode);
             demands = GlslUtils.requiredUniformDemands([vertAST, fragAST]);
             vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
             fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);
@@ -94,5 +79,9 @@ class MaterialTemp(UniformKeeper) : Material {
 
     override UniformDemand[] getDemands() {
         return this.demands;
+    }
+
+    override Uniform[] getUniforms() {
+        return this.keeper.getUniforms();
     }
 }

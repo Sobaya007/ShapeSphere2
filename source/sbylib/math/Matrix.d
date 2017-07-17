@@ -219,6 +219,17 @@ public:
                 mixin(getRotAxisCode(U));
                 return result;
             }
+            static Matrix rotFromTo(Vector!(T,3) from, Vector!(T,3) to) {
+                auto v = cross(from, to);
+                auto s = v.length * (dot(from, to)<0 ? 1: -1);
+                if (s == 0) return identity();
+                auto rad = asin(v.length);
+                auto c = cos(rad);
+                v = normalize(v);
+                Matrix result;
+                mixin(getRotAxisCode(3));
+                return result;
+            }
 
             Quaternion!T toQuaternion() {
                 auto q0 = ( this[0,0] + this[1,1] + this[2,2] + 1.0f) / 4.0f;

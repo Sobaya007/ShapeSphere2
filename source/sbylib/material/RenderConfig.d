@@ -30,10 +30,10 @@ class RenderConfig {
     }
 
     void set() {
-        sbylib.wrapper.gl.Functions.depthFunc(this.depthFunc);
-        faceSetting(this.polygonMode, this.faceMode);
-        stencil(this.stencilFunc, this.stencilValue, this.stencilMask, this.sfail, this.dpfail, this.pass);
-        blendFunc(this.srcFactor, this.dstFactor);
-        sbylib.wrapper.gl.Functions.blendEquation(this.blendEquation);
+        GlFunction.depthFunc(this.depthFunc);
+        GlFunction.faceSetting(this.polygonMode, this.faceMode);
+        GlFunction.stencil(this.stencilFunc, this.stencilValue, this.stencilMask, this.sfail, this.dpfail, this.pass);
+        GlFunction.blendFunc(this.srcFactor, this.dstFactor);
+        GlFunction.blendEquation(this.blendEquation);
     }
 }

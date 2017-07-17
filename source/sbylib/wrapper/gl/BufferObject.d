@@ -15,46 +15,46 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     protected immutable uint id;
 
     this() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         uint id;
         glGenBuffers(1, &id);
         this.id = id;
-        checkGlError();
+        GlFunction.checkError();
     }
 
     ~this() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glDeleteVertexArrays(1, &this.id);
     }
 
 
     override void bind() const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glBindBuffer(Type, this.id);
     }
 
     override void unbind() const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glBindBuffer(Type, 0);
-        checkGlError();
+        GlFunction.checkError();
     }
 
     static if (is(T == struct)) {
         void sendData(T data, BufferUsage freq = BufferUsage.Static) {
             this.bind();
             glBufferData(Type, T.sizeof, &data, freq);
-            checkGlError();
+            GlFunction.checkError();
             this.unbind();
         }
     } else {
         void sendData(T[] data, BufferUsage freq = BufferUsage.Static) {
             this.bind();
             glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
-            checkGlError();
+            GlFunction.checkError();
             this.unbind();
         }
     }
@@ -62,14 +62,14 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     void sendSubData(T[] data) {
         this.bind();
         glBufferSubData(Type, 0, data.length * T.sizeof, cast(void*)data);
-        checkGlError();
+        GlFunction.checkError();
         this.unbind();
     }
 
     T* map(BufferAccess access) {
         this.bind();
         auto res = glMapBuffer(Type, access);
-        checkGlError();
+        GlFunction.checkError();
         this.unbind();
         return cast(T*)res;
     }
@@ -77,7 +77,7 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     void unmap() {
         this.bind();
         glUnmapBuffer(Type);
-        checkGlError();
+        GlFunction.checkError();
         this.unbind();
     }
 

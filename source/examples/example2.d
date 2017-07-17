@@ -1,11 +1,13 @@
-module sbylib.examples.example2;
+module examples.example2;
 
 import sbylib;
 
 void example2() {
-    auto core = new Core();
+    auto core = Core();
 
-    auto world = new World;
+    auto world = new Bahamut;
+
+    auto screen = core.getWindow().getRenderTarget();
 
     auto camera = new PerspectiveCamera(
             1,   /* Aspect Ratio   */
@@ -22,16 +24,16 @@ void example2() {
     planeMat.ambient2 = vec3(0.5);
     planeMat.size = 0.015; /* Checker Size (in UV) */
 
-    auto planeMesh = new Mesh(planeGeom, planeMat);
+    auto planeEntity = new Entity(planeGeom, planeMat);
 
     auto renderToScreen = delegate (Process proc) {
-        clear(ClearMode.Color, ClearMode.Depth);
+        screen.clear(ClearMode.Color, ClearMode.Depth);
         world.render(core.getWindow().getRenderTarget());
     };
 
     world.camera = camera;
-    world.addMesh(planeMesh);
-    core.addProcess(renderToScreen);
+    world.add(planeEntity);
+    core.addProcess(renderToScreen, "render");
 
     core.start();
 }

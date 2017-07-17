@@ -1,9 +1,16 @@
 module sbylib.collision.CollisionInfo;
 
-import sbylib.collision.CollisionMesh;
+import sbylib.collision.CollisionEntry;
+import sbylib.math.Vector;
 
 struct CollisionInfo {
-
-    CollisionMesh mesh1, mesh2;
+    CollisionEntry colEntry;
     bool collided;
+}
+
+struct CollisionInfoRay {
+    CollisionEntry colEntry;
+    bool collided;
+    vec3 colPoint;
+    float colDist;
 }

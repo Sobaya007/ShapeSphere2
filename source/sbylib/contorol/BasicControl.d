@@ -9,31 +9,84 @@ import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Quaternion;
 import sbylib.utils.Watcher;
+import sbylib.collision.CollisionEntry;
+import sbylib.collision.geometry.CollisionRay;
+import sbylib.utils.Functions;
+import sbylib.core.Leviathan;
+import std.algorithm;
+import std.array;
 
 class BasicControl {
 
-    private Mouse mouse;
-    private Object3D obj;
+    enum Mode {None, Translate, Rotate}
 
-    this(Object3D obj) {
-        this.mouse = new Mouse();
-        this.obj = obj;
+    private Mouse mouse;
+    private Entity entity;
+    private Bahamut world;
+    private CollisionRay ray;
+    private Camera camera;
+    private Mode mode;
+    private float z;
+
+    this(Mouse mouse, Bahamut world, Camera camera) {
+        this.ray = new CollisionRay();
+        this.mouse = mouse;
+        this.world = world;
+        this.camera = camera;
+        this.mode = Mode.None;
     }
 
-    void update(Window window, Watch!Camera camera) {
-        this.mouse.update(window);
+    void update() {
+        this.mouse.update();
+        final switch(this.mode) {
+        case Mode.None:
+            this.none();
+            break;
+        case Mode.Translate:
+            this.translate();
+            break;
+        case Mode.Rotate:
+            this.rotate();
+            break;
+        }
+    }
+
+    private void none() {
+        Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
+        auto colInfos = this.world.calcCollideRay(this.ray).filter!(a => a.collided).array;
+        if (colInfos.length == 0) return;
+        import std.algorithm;
+        auto colInfo = minElement!(a => a.colDist)(colInfos);
+        this.entity = colInfo.colEntry.getOwner().getRootParent();
+        if (this.mouse.justPressed(MouseButton.Button1)) {
+            this.mode = Mode.Translate;
+            this.z = -(colInfo.colPoint - this.camera.getObj().pos).dot(this.camera.getObj().worldMatrix.column[2].xyz);
+        }
+        if (this.mouse.justPressed(MouseButton.Button2)) {
+            this.mode = Mode.Rotate;
+        }
+    }
+
+    private void translate() {
+        if (this.mouse.justReleased(MouseButton.Button1)) {
+            this.mode = Mode.None;
+            return;
+        }
+        auto dif2 = mouse.getDif();
+        dif2 *= vec2(this.z) / vec2(this.camera.projMatrix[0,0], this.camera.projMatrix[1,1]);
+        this.entity.obj.pos += this.camera.getObj().worldMatrix.toMatrix3() * vec3(dif2, 0);
+    }
+
+    private void rotate() {
+        if (this.mouse.justReleased(MouseButton.Button2)) {
+            this.mode = Mode.None;
+            return;
+        }
         auto dif2 = this.mouse.getDif();
         if (dif2.length < 0.01) return;
-        if (this.mouse.isPressed(MouseButton.Button1)) {
-            // Translation
-            auto dif4 = vec4(dif2.x,-dif2.y, 0, 0);
-            auto dif3 = (camera.getObj().worldMatrix.get() * dif4).xyz;
-            obj.pos += dif3 * 0.005;
-        } else if (this.mouse.isPressed(MouseButton.Button2)) {
-            auto axisV = cross(vec3(dif2.x, -dif2.y, 0), vec3(0,0,1));
-            auto axisW = (camera.getObj().worldMatrix.get() * vec4(axisV, 0)).xyz;
-            auto rot = mat3.axisAngle(normalize(axisW), length(axisW) * 0.01);
-            obj.rot = rot * obj.rot;
-        }
+        auto axisV = cross(vec3(dif2.x, dif2.y, 0), vec3(0,0,1));
+        auto axisW = (this.camera.getObj().worldMatrix.get() * vec4(axisV, 0)).xyz;
+        auto rot = mat3.axisAngle(normalize(axisW), length(axisW));
+        this.entity.obj.rot = rot * this.entity.obj.rot;
     }
 }

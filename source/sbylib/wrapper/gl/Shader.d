@@ -10,7 +10,7 @@ class Shader {
     package immutable uint id;
 
     this(string sourceCode, ShaderType type) out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         this.id = glCreateShader(type);
         auto str = sourceCode.toStringz;
@@ -44,7 +44,7 @@ class Shader {
         }
 
         int getInfo(ShaderParamName name) out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             int res;
             glGetShaderiv(this.id, name, &res);
@@ -52,7 +52,7 @@ class Shader {
         }
 
         string getInfoLog() out {
-            checkGlError();
+            GlFunction.checkError();
         } body {
             auto logLength = getLogLength();
             char[] log = new char[logLength];

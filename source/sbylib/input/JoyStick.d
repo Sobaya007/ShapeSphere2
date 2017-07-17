@@ -8,10 +8,13 @@ import std.stdio, std.conv;
 class JoyStick {
 
     static void init() {
+        // なぜかSDL_Initするとグルグルがでちゃう
+        /*
         SDL_Init(SDL_INIT_GAMECONTROLLER);
         SDL_InitSubSystem(SDL_INIT_JOYSTICK);
         auto count = SDL_NumJoysticks();
         writeln("Joy Stick num = " ~ to!string(count));
+        */
     }
 
     enum Axis{LeftX = 0, LeftY = 1, RightX = 3, RightY = 2}

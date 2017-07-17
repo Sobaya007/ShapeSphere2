@@ -9,7 +9,6 @@ import std.stdio;
 
 class ElasticSphere {
 
-
     immutable {
         uint RECURSION_LEVEL = 2;
         float DEFAULT_RADIUS = 0.5;
@@ -29,13 +28,10 @@ class ElasticSphere {
         float BALOON_COEF = 20000;
     }
 
-    uint[][] pairIndex;
-    vec3[] dList;
-    vec3[] forceList;
-    vec3[] floorSinkList;
+    Pair[] pairList;
 
-    CollisionPolygon[] floors;
-    Mesh mesh;
+    Entity[] floors;
+    Entity entity;
     GeometryN geom;
     Particle[] particleList;
     float radius;
@@ -55,10 +51,11 @@ class ElasticSphere {
         }
         this.particleList.each!( p => p.p += vec3(0,20,0));
 
-        uint[] makePair(uint a, uint b) {
+        uint[2] makePair(uint a, uint b) {
             return a < b ? [a,b] : [b,a];
         }
         //隣を発見
+        uint[2][] pairIndex;
         foreach (face; geom.faces) {
             auto idx0 = face.indexList[0];
             auto idx1 = face.indexList[1];
@@ -71,24 +68,22 @@ class ElasticSphere {
         foreach (i; pairIndex) {
             this.particleList[i[0]].next ~= particleList[i[1]];
             this.particleList[i[1]].next ~= particleList[i[0]];
+            this.pairList ~= new Pair(this.particleList[i[0]], this.particleList[i[1]]);
         }
         foreach(p; this.particleList) {
             p.isStinger = p.next.all!(a => a.isStinger == false);
         }
 
         this.needleCount = flim(0,0,1);
-        this.dList = new vec3[pairIndex.length];
-        this.forceList = new vec3[pairIndex.length];
-        this.floorSinkList = new vec3[geom.vertices.length];
         auto mat = new ConditionalMaterial!(PlayerMaterial, LambertMaterial);
         mat.ambient = vec3(1);
         this.condition = mat.condition;
-        this.mesh = new Mesh(geom, mat);
+        this.entity = new Entity(geom, mat);
         this.deflen = 0;
-        foreach (pair; this.pairIndex) {
-            this.deflen += length(this.particleList[pair[0]].p - this.particleList[pair[1]].p);
+        foreach (pair; this.pairList) {
+            this.deflen += length(pair.p0.p - pair.p1.p);
         }
-        this.deflen /= this.pairIndex.length;
+        this.deflen /= this.pairList.length;
     }
 
     void move() {
@@ -108,7 +103,7 @@ class ElasticSphere {
 
         //移動量から強引に回転させる
         {
-            vec3 dif = g - this.mesh.obj.pos;
+            vec3 dif = g - this.entity.obj.pos;
             dif.y = 0;
             vec3 axis = vec3(0,1,0).cross(dif);
             float len = axis.length;
@@ -122,10 +117,24 @@ class ElasticSphere {
                 }
             }
         }
-        this.mesh.obj.pos = g;
+        this.entity.obj.pos = g;
 
+        //拘束解消
+        {
+            //隣との距離を計算
+            foreach (pair; this.pairList) {
+                pair.init();
+            }
+            foreach (k; 0..ITERATION_COUNT){
+                //隣との拘束
+                foreach (pair; this.pairList) {
+                    pair.solve();
+                }
+            }
+        }
         //†ちょっと†ふくらませる
         {
+            import std.stdio;
             float force = BALOON_COEF * area / (volume * particleList.length);
             foreach (ref particle; this.particleList) {
                 particle.force += particle.n * force;
@@ -135,40 +144,18 @@ class ElasticSphere {
         foreach (p; this.particleList) {
             p.force.y -= GRAVITY * MASS;
         }
-        //拘束解消
-        {
-            //隣との距離を計算
-            foreach (i; 0..pairIndex.length) {
-                vec3 d = particleList[pairIndex[i][1]].p - particleList[pairIndex[i][0]].p;	
-                auto len = d.length;
-                if (len > 0) d /= len;
-                len -= deflen;
-                d *= len;
-                dList[i] = d;
-                forceList[i] = (particleList[pairIndex[i][1]].force + particleList[pairIndex[i][0]].force) / 2; //適当です
-            }
-            //床とのめり込みを計算
-            foreach (i, p; particleList) {
-                floorSinkList[i] = vec3(0, -min(0, p.p.y), 0);
-            }
-            foreach (k; 0..ITERATION_COUNT){
-                //隣との拘束
-                foreach (i; 0..pairIndex.length) {
-                    auto id0 = pairIndex[i][0], id1 = pairIndex[i][1];
-                    vec3 v1 = particleList[id1].v - particleList[id0].v;
-                    vec3 v2 = v1 * VEL_COEF + dList[i] * POS_COEF;
-                    vec3 dv = (v2 - v1) * 0.5f;
-                    particleList[id0].v -= dv;
-                    particleList[id1].v += dv;
-                }
-            }
-        }
         foreach (ref particle; this.particleList) {
             particle.v += (particle.force + particle.extForce) * FORCE_COEF;
         }
 
         foreach (ref particle; this.particleList) {
             particle.move();
+        }
+        foreach (ref particle; this.particleList) {
+            particle.collision();
+        }
+        foreach (ref particle; this.particleList) {
+            particle.end();
         }
         foreach (i, ref p; this.particleList) {
             this.geom.vertices[i].normal = vec3(0);
@@ -185,29 +172,27 @@ class ElasticSphere {
         foreach (i,v; this.geom.vertices) {
             auto p = this.particleList[i];
             v.normal = safeNormalize(v.normal);
-            v.position = (this.mesh.obj.viewMatrix * vec4(p.p - v.normal * needle(p.isStinger), 1)).xyz;
+            v.position = (this.entity.obj.viewMatrix * vec4(p.p - v.normal * needle(p.isStinger), 1)).xyz;
         }
         this.geom.updateBuffer();
-        writeln("P = ", this.geom.vertices[0].position);
-        writeln("N = ", this.geom.vertices[0].normal);
     }
 
     private float needle(bool isNeedle){
         float t = needleCount;
-        float arrival = isNeedle ? 2 : 1;
+        float arrival = isNeedle ? 2 : 0.9;
         return -t + t * arrival;
     }
 
     private float calcVolume() {
         float volume = 0;
-        auto center = mesh.obj.pos;
+        auto center = this.entity.obj.pos;
         foreach (face; this.geom.faces) {
             auto a = particleList[face.indexList[0]].p - center;
             auto b = particleList[face.indexList[1]].p - center;
             auto c = particleList[face.indexList[2]].p - center;
             volume += mat3.determinant(mat3(a,b,c));
         }
-        return volume / 6;
+        return abs(volume) / 6;
     }
 
     private float calcArea() {
@@ -231,6 +216,8 @@ class ElasticSphere {
         bool isGround;
         bool isStinger;
         Particle[] next;
+        Entity entity;
+        CollisionCapsule capsule;
 
         this(vec3 p) {
             this.p = p;
@@ -238,25 +225,67 @@ class ElasticSphere {
             this.v = vec3(0,0,0);
             this.force = vec3(0,0,0);
             this.extForce = vec3(0,0,0);
+            this.capsule = new CollisionCapsule(0.1, this.p, this.p);
+            this.entity = new Entity(this.capsule);
         }
 
         void move() {
-
             p += v * TIME_STEP;
-
             isGround = false;
+        }
 
+        void collision() {
             foreach (f; floors) {
-                float depth = -(p + n * needle(isStinger) - f.positions[0]).dot(f.normal);
-                if (depth > 0 && dot(v, f.normal) < 0) {
-                    p += f.normal * depth;
-                    v *= -0.5;
-                    v.x *= 1 - FRICTION;
-                    v.z *= 1 - FRICTION;
+                if (!f.collide(this.entity).any!(a => a.collided)) {
+                    continue;
+                }
+                auto floor = cast(CollisionPolygon)f.getCollisionEntry().getGeometry();
+                float depth = -(p + n * needle(isStinger) - floor.positions[0]).dot(floor.normal);
+                if (depth > 0) {
+                    auto po = v - dot(v, floor.normal) * floor.normal;
+                    v -= po * FRICTION;
                     isGround = true;
+                    if (dot(v, floor.normal) < 0) {
+                        v -= floor.normal * dot(floor.normal, v) * 1;
+                    }
+                    p += floor.normal * depth;
                 }
             }
+        }
+
+        void end() {
             force = vec3(0,0,0); //用済み
+            this.capsule.setEnd(this.capsule.start);
+            this.capsule.setStart(p + n * needle(isStinger));
+        }
+    }
+
+    class Pair {
+        Particle p0, p1;
+        vec3 dist;
+        vec3 force;
+
+        this(Particle p0, Particle p1) {
+            this.p0 = p0;
+            this.p1 = p1;
+        }
+
+        void init() {
+            vec3 d = this.p1.p - this.p0.p;
+            auto len = d.length;
+            if (len > 0) d /= len;
+            len -= deflen;
+            d *= len;
+            this.dist = d;
+            this.force = (this.p1.force + this.p0.force) / 2; //適当です
+        }
+
+        void solve() {
+            vec3 v1 = this.p1.v - this.p0.v;
+            vec3 v2 = v1 * VEL_COEF + this.dist * POS_COEF;
+            vec3 dv = (v2 - v1) * 0.5f;
+            this.p0.v -= dv;
+            this.p1.v += dv;
         }
     }
 

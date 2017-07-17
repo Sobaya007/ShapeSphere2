@@ -9,13 +9,14 @@ import sbylib.wrapper.gl.Functions;
 import derelict.opengl;
 import std.algorithm;
 import std.typecons;
+import std.format;
 
 class VertexArray {
 
     immutable uint id;
 
     this() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         uint vao;
         glGenVertexArrays(1, &vao);
@@ -23,19 +24,19 @@ class VertexArray {
     }
 
     ~this() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
-        glDeleteVertexArrays(1, &id);
+        glDeleteVertexArrays(1, &this.id);
     }
 
     void bind() const out {
-        checkGlError();
+        GlFunction.checkError(format!"%d"(this.id));
     } body {
         glBindVertexArray(id);
     }
 
     void unbind() const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glBindVertexArray(0);
     }
@@ -55,7 +56,7 @@ class VertexArray {
     void drawArrays(Prim prim, uint offset, uint count) {
         this.bind();
         glDrawArrays(prim, offset, count);
-        checkGlError();
+        GlFunction.checkError();
         this.unbind();
     }
 
@@ -63,15 +64,15 @@ class VertexArray {
     if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
         this.bind();
         glDrawElements(prim, indices.length, getTypeEnum!(IndexType), indices.ptr);
-        checkGlError();
+        GlFunction.checkError();
         this.unbind();
     }
 
     void drawElements(IndexType)(Prim prim, uint count)
     if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
         this.bind();
-        glDrawElements(prim, count, getTypeEnum!(IndexType), null);
-        checkGlError();
+        glDrawElements(prim, count, GlFunction.getTypeEnum!(IndexType), null);
+        GlFunction.checkError();
         this.unbind();
     }
 }

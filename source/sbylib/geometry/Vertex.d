@@ -8,7 +8,7 @@ import sbylib.utils.Functions;
 import std.math, std.algorithm, std.array, std.range;
 import std.format;
 
-alias VertexV = Vertex!([Attribute.Position]);
+alias VertexP = Vertex!([Attribute.Position]);
 alias VertexN = Vertex!([Attribute.Position, Attribute.Normal]);
 alias VertexT = Vertex!([Attribute.Position, Attribute.UV]);
 alias VertexNT = Vertex!([Attribute.Position, Attribute.Normal, Attribute.UV]);
