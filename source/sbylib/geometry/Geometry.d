@@ -10,6 +10,9 @@ import sbylib.geometry.Vertex;
 import sbylib.geometry.Face;
 import sbylib.material.Material;
 import sbylib.utils.Functions;
+import sbylib.collision.geometry.CollisionPolygon;
+import sbylib.collision.CollisionEntry;
+import sbylib.mesh.Object3D;
 import sbylib.math.Vector;
 
 import std.range;
@@ -22,13 +25,16 @@ interface Geometry {
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
     IndexBuffer getIndexBuffer();
     void updateBuffer();
+    CollisionPolygon[] createCollisionPolygons();
 }
 
+alias GeometryP = GeometryTemp!([Attribute.Position]);
 alias GeometryN = GeometryTemp!([Attribute.Position, Attribute.Normal]);
 alias GeometryT = GeometryTemp!([Attribute.Position, Attribute.UV]);
 alias GeometryNT = GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV]);
 
-class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry{
+class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
+    enum Attributes = A;
     alias VertexA = Vertex!(Attributes);
 
     VertexA[] vertices;
@@ -37,6 +43,10 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
     private IndexBuffer ibo;
     private Tuple!(Attribute, VertexBuffer)[] buffers;
     float delegate(vec3, vec3) getRayIntersectParameter;
+
+    this(VertexA[] vertices) {
+        this(vertices, iota(cast(uint)vertices.length).array);
+    }
 
     this(VertexA[] vertices, uint[] indices) {
         this.vertices = vertices;
@@ -70,6 +80,8 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
             }
             break;
         case Prim.Line:
+        case Prim.LineStrip:
+        case Prim.LineLoop:
             faces = [];
             break;
         }
@@ -111,5 +123,17 @@ class GeometryTemp(Attribute[] Attributes, Prim Mode = Prim.Triangle) : Geometry
             }
             buffer.unmap();
         }
+    }
+
+    override CollisionPolygon[] createCollisionPolygons() {
+        CollisionPolygon[] colPolygons;
+        foreach (i, face; this.faces) {
+            auto poly = new CollisionPolygon(
+                    this.vertices[face.indexList[0]].position,
+                    this.vertices[face.indexList[1]].position,
+                    this.vertices[face.indexList[2]].position);
+            colPolygons ~= poly;
+        }
+        return colPolygons;
     }
 }

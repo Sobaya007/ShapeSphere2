@@ -10,7 +10,10 @@ class ConditionalMaterialUniformMaterial(TrueMaterial, FalseMaterial) : UniformK
     enum MaterialName1 = "TrueMaterial";
     enum MaterialName2 = "FalseMaterial";
     mixin MaterialUtils.declareMix!(TrueMaterial, FalseMaterial);
-    ubool condition = new ubool("condition");
+    ubool condition;
+    void constructor() {
+        this.condition = new ubool("condition");
+    }
 }
 
 alias ConditionalMaterial(TrueMaterial, FalseMaterial) = MaterialTemp!(ConditionalMaterialUniformMaterial!(TrueMaterial, FalseMaterial));

@@ -25,129 +25,124 @@ public:
 
     enum dimension = S;
     enum type = T.stringof;
-    @nogc {
 
-        this(T e) {
-            elements[] = e;
-        }
+    this(T e) {
+        elements[] = e;
+    }
 
-        this(T[] elements...) {
-            this.elements[] = elements[0..S];
-        }
+    this(T[] elements...) {
+        this.elements[] = elements[0..S];
+    }
 
-        this(Args...)(Args args) {
-            auto cnt = 0;
-            foreach (arg; args) {
-                static if (isArray!(typeof(arg))) {
-                    this.elements[cnt..cnt+arg.length] = arg;
-                    cnt += arg.length;
-                    //isInstanceOfでやろうとしたが、この時点ではVectorの型情報が正しく作られていないため参照できない。
-                } else static if (__traits(compiles, typeof(arg).dimension) && __traits(hasMember, typeof(arg), "opIndex")) {
-                    this.elements[cnt..cnt+arg.elements.length] = arg.elements;
-                    cnt += arg.elements.length;
-                } else static if (isAssignable!(T, typeof(arg))) {
-                    this.elements[cnt] = arg;
-                    cnt++;
-                } else {
-                    static assert(false, typeof(arg));
-                }
-            }
-        }
-
-
-        Vector opBinary(string op)(const Vector v) const //=============================Vectorに対する二項演算
-         in {
-            assert(S == v.elements.length);
-        }
-body {
-            Vector!(T, S) result;
-            mixin("result.elements[] = elements[]" ~ op ~ "v.elements[];");
-            return result;
-        }
-
-        Vector opBinary(string op)(T t) const { //================================スカラーに対する二項演算
-            Vector!(T, S) result;
-            mixin("result.elements[] = elements[]" ~ op ~ "t;");
-            return result;
-        }
-
-        Vector opBinaryRight(string op)(T t) {
-            Vector!(T, S) result;
-            mixin("result.elements[] = t" ~ op ~ "elements[];");
-            return result;
-        }
-
-        Vector opUnary(string op)() const { //====================================単項演算子
-            Vector!(T, S) result;
-            mixin(getUnaryCode(op, S));
-            return result;
-        }
-
-        void opOpAssign(string op)(Vector v) //=============================ベクトルに対する代入算術演算子
-         in {
-            assert(v.elements.length == S);
-        }
-body {
-            mixin("elements[] " ~ op ~"= v.elements[];");
-        }
-
-        void opOpAssign(string op)(T e) { //================================スカラーに対する代入算術演算子
-            mixin("elements[] " ~ op ~"= e;");
-        }
-
-        T opIndex(int idx) const { //=========================================添字演算子
-            return this.elements[idx];
-        }
-
-        T opIndexAssign(T value, size_t idx) {
-            return this.elements[idx] = value;
-        }
-
-        T opIndexOpAssign(string op)(T value, size_t idx) {
-            mixin("return this.elements[idx] " ~ op ~ "= value;");
-        }
-
-        auto array() inout { //===================================================配列化
-            return elements;
-        }
-
-        ref auto opDispatch(string s, Args...)(Args args)
-        if (s.all!(a => countUntil("xyzw", a) != -1)
-            || s.all!(a => countUntil("rgba", a) != -1)){
-            enum isXYZW = s.all!(a => countUntil("xyzw", a) != -1);
-            enum isRGBA = s.all!(a => countUntil("rgba", a) != -1);
-            enum propertyString = isXYZW ? "xyzw" : isRGBA ? "rgba" : "";
-            static assert(propertyString.length > 0);
-            static if(Args.length == 0) {
-                //getter
-                static if(s.length == 1) {
-                    enum xyzwPos = countUntil(propertyString, s);
-                    return elements[xyzwPos];
-                } else {
-                    enum index = s.map!(a => countUntil(propertyString, a)).array;
-                    Vector!(T, s.length) result;
-                    foreach (i,idx; index) {
-                        result[i] = elements[idx];
-                    }
-                    return result;
-                }
-            } else static if (Args.length == 1) {
-                //setter
-                alias val = args[0];
-                static if(s.length == 1) {
-                    enum xyzwPos = countUntil(propertyString, s);
-                    return this[xyzwPos] = val;
-                } else {
-                    static assert(s.length == val.array.length);
-                    enum index = s.map!(a => countUntil(propertyString, a)).array;
-                    foreach (i,idx; index) {
-                        this[idx] = val[i];
-                    }
-                    return val;
-                }
+    this(Args...)(Args args) {
+        auto cnt = 0;
+        foreach (arg; args) {
+            static if (isArray!(typeof(arg))) {
+                this.elements[cnt..cnt+arg.length] = arg;
+                cnt += arg.length;
+            } else static if (isAssignable!(T, typeof(arg))) {
+                this.elements[cnt] = arg;
+                cnt++;
+                //isInstanceOfでやろうとしたが、この時点ではVectorの型情報が正しく作られていないため参照できない。
             } else {
-                static assert(false);
+                this.elements[cnt..cnt+arg.elements.length] = arg.elements;
+                cnt += arg.elements.length;
             }
+        }
+    }
+
+    Vector opBinary(string op)(const Vector v) const //=============================Vectorに対する二項演算
+in {
+        assert(S == v.elements.length);
+    }
+body {
+        Vector!(T, S) result;
+        mixin("result.elements[] = elements[]" ~ op ~ "v.elements[];");
+        return result;
+    }
+
+    Vector opBinary(string op)(T t) const { //================================スカラーに対する二項演算
+        Vector!(T, S) result;
+        mixin("result.elements[] = elements[]" ~ op ~ "t;");
+        return result;
+    }
+
+    Vector opBinaryRight(string op)(T t) {
+        Vector!(T, S) result;
+        mixin("result.elements[] = t" ~ op ~ "elements[];");
+        return result;
+    }
+
+    Vector opUnary(string op)() const { //====================================単項演算子
+        Vector!(T, S) result;
+        mixin(getUnaryCode(op, S));
+        return result;
+    }
+
+    void opOpAssign(string op)(Vector v) //=============================ベクトルに対する代入算術演算子
+in {
+        assert(v.elements.length == S);
+    }
+body {
+        mixin("elements[] " ~ op ~"= v.elements[];");
+    }
+
+    void opOpAssign(string op)(T e) { //================================スカラーに対する代入算術演算子
+        mixin("elements[] " ~ op ~"= e;");
+    }
+
+    T opIndex(int idx) const { //=========================================添字演算子
+        return this.elements[idx];
+    }
+
+    T opIndexAssign(T value, size_t idx) {
+        return this.elements[idx] = value;
+    }
+
+    T opIndexOpAssign(string op)(T value, size_t idx) {
+        mixin("return this.elements[idx] " ~ op ~ "= value;");
+    }
+
+    auto array() inout { //===================================================配列化
+        return elements;
+    }
+
+    ref auto opDispatch(string s, Args...)(Args args)
+    if (s.all!(a => countUntil("xyzw", a) != -1)
+                 || s.all!(a => countUntil("rgba", a) != -1)){
+        enum isXYZW = s.all!(a => countUntil("xyzw", a) != -1);
+        enum isRGBA = s.all!(a => countUntil("rgba", a) != -1);
+        enum propertyString = isXYZW ? "xyzw" : isRGBA ? "rgba" : "";
+        static assert(propertyString.length > 0);
+        static if(Args.length == 0) {
+            //getter
+            static if(s.length == 1) {
+                enum xyzwPos = countUntil(propertyString, s);
+                return elements[xyzwPos];
+            } else {
+                enum index = s.map!(a => countUntil(propertyString, a)).array;
+                Vector!(T, s.length) result;
+                foreach (i,idx; index) {
+                    result[i] = elements[idx];
+                }
+                return result;
+            }
+        } else static if (Args.length == 1) {
+            //setter
+            alias val = args[0];
+            static if(s.length == 1) {
+                enum xyzwPos = countUntil(propertyString, s);
+                return this[xyzwPos] = val;
+            } else {
+                static assert(s.length == val.array.length);
+                enum index = s.map!(a => countUntil(propertyString, a)).array;
+                foreach (i,idx; index) {
+                    this[idx] = val[i];
+                }
+                return val;
+            }
+        } else {
+            static assert(false);
         }
     }
 
@@ -214,8 +209,8 @@ template dot(T, S, uint U) {
             foreach (i; 0..U) {
                 code ~= format!"+v.elements[%d] * v2.elements[%d]"(i,i);
             }
-            code ~= ";";
-            return code;
+                code ~= ";";
+                return code;
         }());
         return result;
     }
@@ -283,7 +278,7 @@ template cross(T, S, uint U) if (U == 3) {
             foreach (i; 0..U) {
                 code ~= format!"result[%d] = v[%d] * v2[%d] - v[%d] * v2[%d];"(i,(i+1)%3,(i+2)%3,(i+2)%3,(i+1)%3);
             }
-            return code;
+                return code;
         }());
         return result;
     }
@@ -296,8 +291,8 @@ T length(T, int S)(Vector!(T, S) v) {
         foreach (i; 0..S) {
             code ~= format!"+v[%d] * v[%d]"(i,i);
         }
-        code ~= ");";
-        return code;
+            code ~= ");";
+            return code;
     }());
     return result;
 }
@@ -308,8 +303,8 @@ T lengthSq(T, int S)(Vector!(T, S) v) {
         foreach (i; 0..S) {
             code ~= format!"+v[%d] * v[%d]"(i,i);
         }
-        code ~= ";";
-        return code;
+            code ~= ";";
+            return code;
     }());
     return result;
 }
@@ -320,12 +315,12 @@ Vector!(T, S) normalize(T, int S)(Vector!(T, S) v) {
         foreach (i; 0..S) {
             code ~= format!"+v[%d] * v[%d]"(i,i);
         }
-        code ~= ");";
-        code ~= "Vector!(T, S) result;";
-        foreach (i; 0..S) {
-            code ~= format!"result[%d] = v[%d] / length;"(i,i);
-       }
-            return code;
+            code ~= ");";
+            code ~= "Vector!(T, S) result;";
+            foreach (i; 0..S) {
+                code ~= format!"result[%d] = v[%d] / length;"(i,i);
+            }
+                return code;
     }());
     return result;
 }

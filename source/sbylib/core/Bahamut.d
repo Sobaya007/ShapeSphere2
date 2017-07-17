@@ -1,4 +1,4 @@
-module sbylib.core.World;
+module sbylib.core.Bahamut;
 
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
@@ -10,9 +10,13 @@ import sbylib.core.RenderTarget;
 import sbylib.light.PointLight;
 import sbylib.material.glsl.UniformDemand;
 import sbylib.math.Vector;
+import sbylib.wrapper.gl.Attribute;
+import sbylib.geometry.Geometry;
+import std.traits;
+import std.algorithm;
 
-class World {
-    private Mesh[] meshes;
+class Bahamut {
+    private Entity[] entities;
     Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
     private Watcher!umat4 viewMatrix;
     private Watcher!umat4 projMatrix;
@@ -43,14 +47,12 @@ class World {
         this.pointLightBlockBuffer.addWatch(this.pointLightBlock);
     }
 
-    void addMesh(Mesh[] meshes...) in {
-        assert(this.camera.get());
+    void add(T)(T[] rs...) 
+    if (isAssignable!(Entity, T)) in {
     } body{
-        this.meshes ~= meshes;
-        foreach (mesh; meshes) {
-            foreach (demand; mesh.mat.getDemands()) {
-                this.resolveUniformDemand(mesh, demand);
-            }
+        foreach (r; rs) {
+            this.entities ~= r;
+            r.setWorld(this);
         }
     }
 
@@ -60,26 +62,40 @@ class World {
 
     void render(RenderTarget target) {
         target.renderBegin();
-        foreach(Mesh m; meshes) {
-            m.render();
+        foreach (r; this.entities) {
+            r.render();
         }
         target.renderEnd();
     }
 
-    private void resolveUniformDemand(Mesh mesh, UniformDemand demand) {
-        final switch (demand) {
-        case UniformDemand.World:
-            mesh.mat.setUniform(mesh.obj.worldMatrix);
-            break;
+    Uniform delegate() getUniform(UniformDemand demand) {
+        switch (demand) {
         case UniformDemand.View:
-            mesh.mat.setUniform(this.viewMatrix);
-            break;
+            return () => this.viewMatrix;
         case UniformDemand.Proj:
-            mesh.mat.setUniform(this.projMatrix);
-            break;
+            return () => this.projMatrix;
         case UniformDemand.Light:
-            mesh.mat.setUniform(this.pointLightBlockBuffer);
-            break;
+            return () => this.pointLightBlockBuffer;
+        default:
+            assert(false);
         }
+    }
+
+    CollisionInfo[] calcCollide(Entity colEntry) {
+        static CollisionInfo[] result;
+        result.length = 0;
+        foreach (entity; this.entities) {
+            result ~= entity.collide(colEntry);
+        }
+        return result;
+    }
+
+    CollisionInfoRay[] calcCollideRay(CollisionRay ray) {
+        static CollisionInfoRay[] result;
+        result.length = 0;
+        foreach (entity; this.entities) {
+            result ~= entity.collide(ray);
+        }
+        return result;
     }
 }

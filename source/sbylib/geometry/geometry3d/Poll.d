@@ -7,11 +7,13 @@ import sbylib.math.Vector;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.Vertex;
 
+alias GeometryPoll = GeometryN;
+
 class Poll {
 
     private this() {}
 
-    public static Geometry create(float radius, float length, uint cut = 20) {
+    public static GeometryPoll create(float radius, float length, uint cut = 20) {
 
         VertexN[] vertices;
         vertices ~= 

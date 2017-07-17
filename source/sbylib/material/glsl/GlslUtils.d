@@ -103,11 +103,15 @@ static:
 
     Ast mergeASTs(Ast[] asts) {
         // modify AST
+        string pascal(string s) {
+            if (s.length == 0) return "";
+            return capitalize(to!string(s[0])) ~ s[1..$];
+        }
         asts = asts.map!((ast) {
             if (ast.name == "main") return ast;
             ast.outParameterIntoMain();
             ast.getMainFunction().id = "";
-            ast.replaceID(str => ast.name ~ capitalize(str));
+            ast.replaceID(str => ast.name ~ pascal(str));
             return ast;
         }).array;
         auto vertex = asts.map!(ast => ast.getStatements!Sharp().filter!(sharp => sharp.type == "vertex")).join;
@@ -135,10 +139,10 @@ unittest {
     import std.stdio, std.file;
     auto file1 = readText("./source/sbylib/material/lambert/LambertMaterial.frag");
     auto file2 = readText("./source/sbylib/material/normal/NormalMaterial.frag");
-    auto frag1 = GlslUtils.generateFragmentAST(file1);
-    auto frag2 = GlslUtils.generateFragmentAST(file2);
+    auto frag1 = GlslUtils.generateFragmentAST(new Ast(file1));
+    auto frag2 = GlslUtils.generateFragmentAST(new Ast(file2));
     frag1.name = "A";
     frag2.name = "B";
-    auto merged = GlslUtils.mergeAst([frag1, frag2]);
+    auto merged = GlslUtils.mergeASTs([frag1, frag2]);
     writeln(merged.getCode());
 }

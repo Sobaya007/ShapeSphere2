@@ -9,7 +9,7 @@ class RenderBuffer {
     private immutable uint id;
 
     this() out {
-       checkGlError(); 
+       GlFunction.checkError(); 
     } body {
         uint id;
         glGenRenderbuffers(1, &id);
@@ -17,25 +17,25 @@ class RenderBuffer {
     }
 
     ~this() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glDeleteRenderbuffers(1, &id);
     }
 
     void bind() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glBindRenderbuffer(RenderBufferBindType.Both, id);
     }
 
     void unBind() out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glBindRenderbuffer(RenderBufferBindType.Both, 0);
     }
 
     void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         glFramebufferRenderbuffer(bindType, attachType, RenderBufferBindType.Both, this.id);
     }

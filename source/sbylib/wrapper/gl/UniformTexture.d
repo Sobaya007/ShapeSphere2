@@ -31,19 +31,28 @@ class UniformTexture : Uniform {
         auto loc = this.getLocation(program);
 
         glActiveTexture(GL_TEXTURE0 + textureUnit);
-        checkGlError();
+        GlFunction.checkError();
         this.value.bind();
         glUniform1i(loc, textureUnit);
-        checkGlError();
+        GlFunction.checkError();
         textureUnit++;
     }
 
     private uint getLocation(const Program program) const out {
-        checkGlError();
+        GlFunction.checkError();
     } body {
         int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
-        assert(uLoc != -1, name ~ " is not found or used.");
+        //assert(uLoc != -1, name ~ " is not found or used.");
         return uLoc;
+    }
+
+    override string toString() const {
+        import std.format;
+        if (this.value) {
+            return format!"Uniform[%s]: Texture(%d)"(this.name, value.id);
+        } else {
+            return format!"Uniform[%s]: Texture"(this.name);
+        }
     }
 
     alias value this;

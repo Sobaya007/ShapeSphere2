@@ -13,7 +13,7 @@ alias GeometryRect = GeometryTemp!([Attribute.Position, Attribute.UV], Prim.Tria
 
 class Rect {
 
-    public static Geometry create(float width=0.5, float height = 0.5) {
+    public static GeometryRect create(float width=0.5, float height = 0.5) {
         const positions = [
         vec3(-width/2, -height/2, 0),
         vec3(+width/2, -height/2, 0),
@@ -27,7 +27,7 @@ class Rect {
         vec2(0,1)
         ];
         auto indices = iota(4u).array;
-        Vertex!([Attribute.Position, Attribute.UV])[] vertices;
+        VertexT[] vertices;
         foreach(tuple; zip(positions, uvs)) {
             auto v = new VertexT(tuple.expand);
             vertices ~= v;

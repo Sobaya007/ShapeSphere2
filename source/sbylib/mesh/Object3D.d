@@ -5,22 +5,29 @@ import sbylib.math.Vector;
 import sbylib.math.Quaternion;
 import sbylib.utils.Watcher;
 import sbylib.wrapper.gl.Uniform;
+import sbylib.core.Entity;
 
 class Object3D {
     Watch!vec3 pos;
     Watch!mat3 rot;
+    Watch!vec3 scale;
     private Watcher!mat4 parentWorldMatrix;
     private Watcher!mat4 parentViewMatrix;
-    private Object3D parent;
+    private Entity owner;
+    private Entity parent;
     Watcher!umat4 worldMatrix;
     Watcher!umat4 viewMatrix;
 
-    this() {
+    this(Entity owner) {
+        this.owner = owner;
         this.pos = new Watch!vec3();
         this.pos = vec3(0);
 
         this.rot = new Watch!mat3();
         this.rot = mat3.identity();
+
+        this.scale = new Watch!vec3();
+        this.scale = vec3(1);
 
         this.worldMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = parentWorldMatrix * generateWorldMatrix();
@@ -40,9 +47,11 @@ class Object3D {
 
         this.worldMatrix.addWatch(this.pos);
         this.worldMatrix.addWatch(this.rot);
+        this.worldMatrix.addWatch(this.scale);
         this.worldMatrix.addWatch(this.parentWorldMatrix);
         this.viewMatrix.addWatch(this.pos);
         this.viewMatrix.addWatch(this.rot);
+        this.viewMatrix.addWatch(this.scale);
         this.viewMatrix.addWatch(this.parentViewMatrix);
     }
 
@@ -56,34 +65,34 @@ class Object3D {
         this.rot = mat3(side, up, v);
     }
 
-    void setParent(Object3D obj) {
+    void onSetParent(Entity parent) {
         this.parentWorldMatrix.setDefineFunc((ref mat4 mat) {
-            mat = obj.worldMatrix.get().value;
+            mat = parent.obj.worldMatrix.get().value;
         });
-        if (parent) this.parentWorldMatrix.removeWatch(parent.worldMatrix);
-        this.parentWorldMatrix.addWatch(obj.worldMatrix);
+        if (this.parent) this.parentWorldMatrix.removeWatch(this.parent.obj.worldMatrix);
+        this.parentWorldMatrix.addWatch(parent.obj.worldMatrix);
         this.parentViewMatrix.setDefineFunc((ref mat4 mat) {
-            mat = obj.viewMatrix.get().value;
+            mat = parent.obj.viewMatrix.get().value;
         });
-        if (parent) this.parentViewMatrix.removeWatch(parent.viewMatrix);
-        this.parentViewMatrix.addWatch(obj.viewMatrix);
-        this.parent = obj;
+        if (this.parent) this.parentViewMatrix.removeWatch(this.parent.obj.viewMatrix);
+        this.parentViewMatrix.addWatch(parent.obj.viewMatrix);
+        this.parent = parent;
     }
 
-    private mat4 generateWorldMatrix() {
+    protected mat4 generateWorldMatrix() {
         return mat4([
-                rot[0,0], rot[0,1], rot[0,2], pos.x,
-                rot[1,0], rot[1,1], rot[1,2], pos.y,
-                rot[2,0], rot[2,1], rot[2,2], pos.z,
+                scale.x * rot[0,0], scale.y * rot[0,1], scale.z * rot[0,2], pos.x,
+                scale.x * rot[1,0], scale.y * rot[1,1], scale.z * rot[1,2], pos.y,
+                scale.x * rot[2,0], scale.y * rot[2,1], scale.z * rot[2,2], pos.z,
                 0,0,0, 1]);
     }
 
-    private mat4 generateViewMatrix() {
+    protected mat4 generateViewMatrix() {
         auto column = rot.column;
         return mat4([
-                rot[0,0], rot[1,0], rot[2,0], -dot(column[0], pos),
-                rot[0,1], rot[1,1], rot[2,1], -dot(column[1], pos),
-                rot[0,2], rot[1,2], rot[2,2], -dot(column[2], pos),
+                rot[0,0] / scale.x, rot[1,0] / scale.x, rot[2,0] / scale.x, -dot(column[0], pos) / scale.x,
+                rot[0,1] / scale.y, rot[1,1] / scale.y, rot[2,1] / scale.y, -dot(column[1], pos) / scale.y,
+                rot[0,2] / scale.z, rot[1,2] / scale.z, rot[2,2] / scale.z, -dot(column[2], pos) / scale.z,
                 0,0,0, 1]);
     }
 }

@@ -19,6 +19,7 @@ import sbylib.material.glsl.RequireShader;
 import std.traits;
 import std.algorithm;
 import std.range;
+import std.conv;
 
 class Ast {
     string name;
@@ -50,7 +51,7 @@ class Ast {
                 } else if (tokens[1].str == "Shader") {
                     statements ~= new RequireShader(tokens);
                 } else {
-                    assert(false);
+                    assert(false, to!string(tokens));
                 }
             } else if (tokens[0].str == "//") {
                 statements ~= new Comment(tokens);
@@ -63,7 +64,7 @@ class Ast {
                 } else if (tokens[2].str == "=" || tokens[2].str == ";") {
                     statements ~= new VariableDeclare(tokens);
                 } else {
-                    assert(false);
+                    assert(false, to!string(tokens));
                 }
             }
         }
@@ -97,11 +98,13 @@ class Ast {
 
     void replaceID(string delegate(string) replace) {
         import std.conv;
+        import std.stdio;
         string[] IDs = [
             this.getStatements!RequireAttribute.map!(a => a.variable.id).array,
             this.getStatements!VariableDeclare.map!(v => v.id).array,
             this.getStatements!BlockDeclare.map!(b => b.getIDs()).join(),
-            this.getStatements!FunctionDeclare.map!(f => f.getIDs()).join()].join();
+            this.getStatements!FunctionDeclare.map!(f => f.getIDs()).join()].join()
+        .filter!(id => id.length > 0).array;
         foreach (statement; this.statements.map!(to!Object)) {
             statement.castSwitch!(
                     (VariableDeclare v) => v.replaceID(replace),
