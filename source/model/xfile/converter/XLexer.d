@@ -88,6 +88,6 @@ unittest {
     assert(cast(XTokenComma)tokens[3]      && tokens[3].lexeme == ",");
     assert(cast(XTokenLabel)tokens[4]      && tokens[4].lexeme == "1");
     assert(cast(XTokenSemicolon)tokens[5]  && tokens[5].lexeme == ";");
-    assert(cast(XTokenLabel)tokens[6] && tokens[6].lexeme == "\"sobaya.homo\"");
+    assert(cast(XTokenLabel)tokens[6]      && tokens[6].lexeme == "\"sobaya.homo\"");
     assert(cast(XTokenRightParen)tokens[7] && tokens[7].lexeme == "}");
 }
