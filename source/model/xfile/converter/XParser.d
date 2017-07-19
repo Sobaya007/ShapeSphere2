@@ -187,7 +187,7 @@ private:
         meshNormals.indices = new uint[3][](faceNum);
         foreach(i; 0..faceNum) {
             assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
-            assert(tokens.front.lexeme == "3", "三角ポリゴンになってなさそう(´・ω・`)");
+            assert(tokens.front.lexeme == "3", makeErrorMessage(tokens) ~ "\n" ~ "三角ポリゴンになってなさそう(´・ω・`)");
             tokens.removeFront;
             assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
             tokens.removeFront;
