@@ -30,15 +30,15 @@ private:
     XFrame parseFrame(DList!XToken tokens) {
         XFrame frame;
 
-        assert(validate!XTokenLabel(tokens));
-        assert(tokens.front.lexeme == "Frame");
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+        assert(tokens.front.lexeme == "Frame", makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         frame.name = tokens.front.lexeme;
         tokens.removeFront;
 
-        assert(validate!XTokenLeftParen(tokens));
+        assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         while(true) {
@@ -57,10 +57,10 @@ private:
                         frame.meshes ~= parseMesh(tokens);
                         break;
                     default:
-                        assert(false);
+                        assert(false, makeErrorMessage(tokens));
                 }
             } else {
-                assert(false);
+                assert(false, makeErrorMessage(tokens));
             }
         }
 
@@ -70,19 +70,19 @@ private:
     XFrameTransformMatrix parseFrameTransformMatrix(DList!XToken tokens) {
         XFrameTransformMatrix frameTransformMatrix;
 
-        assert(validate!XTokenLabel(tokens));
-        assert(tokens.front.lexeme == "FrameTransformMatrix");
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+        assert(tokens.front.lexeme == "FrameTransformMatrix", makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLeftParen(tokens));
+        assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         frameTransformMatrix.matrix = mat4(parseArray!float(tokens, 4*4));
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenRightParen(tokens));
+        assert(validate!XTokenRightParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         return frameTransformMatrix;
@@ -91,43 +91,43 @@ private:
     XMesh parseMesh(DList!XToken tokens) {
         XMesh mesh;
 
-        assert(validate!XTokenLabel(tokens));
-        assert(tokens.front.lexeme == "Mesh");
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+        assert(tokens.front.lexeme == "Mesh", makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLeftParen(tokens));
+        assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         int vertexNum = tokens.front.lexeme.to!int;
         tokens.removeFront;
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         mesh.vertices = parseVecArray!(float, 3)(tokens, vertexNum);
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         int faceNum = tokens.front.lexeme.to!int;
         tokens.removeFront;
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         mesh.faces = new uint[3][](faceNum);
         foreach(i; 0..faceNum) {
-            assert(validate!XTokenLabel(tokens));
-            assert(tokens.front.lexeme == "3", "三角ポリゴンになってなさそう(´・ω・`)");
+            assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+            assert(tokens.front.lexeme == "3", makeErrorMessage(tokens) ~ "\n" ~ "三角ポリゴンになってなさそう(´・ω・`)");
             tokens.removeFront;
-            assert(validate!XTokenSemicolon(tokens));
+            assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
             tokens.removeFront;
 
             mesh.faces[i] = parseArray!uint(tokens, 3);
 
             if (i == faceNum-1) {
-                assert(validate!XTokenSemicolon(tokens));
+                assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
             } else {
-                assert(validate!XTokenComma(tokens));
+                assert(validate!XTokenComma(tokens), makeErrorMessage(tokens));
             }
             tokens.removeFront;
         }
@@ -148,10 +148,10 @@ private:
                         mesh.meshMaterialList = parseMeshMaterialList(tokens);
                         break;
                     default:
-                        assert(false);
+                        assert(false, makeErrorMessage(tokens));
                 }
             } else {
-                assert(false);
+                assert(false, makeErrorMessage(tokens));
             }
         }
 
@@ -161,48 +161,48 @@ private:
     XMeshNormals parseMeshNormals(DList!XToken tokens) {
         XMeshNormals meshNormals;
 
-        assert(validate!XTokenLabel(tokens));
-        assert(tokens.front.lexeme == "MeshNormals");
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+        assert(tokens.front.lexeme == "MeshNormals", makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLeftParen(tokens));
+        assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         int normalNum = tokens.front.lexeme.to!int;
         tokens.removeFront;
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         meshNormals.normals = parseVecArray!(float, 3)(tokens, normalNum);
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         int faceNum = tokens.front.lexeme.to!int;
         tokens.removeFront;
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         meshNormals.indices = new uint[3][](faceNum);
         foreach(i; 0..faceNum) {
-            assert(validate!XTokenLabel(tokens));
+            assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
             assert(tokens.front.lexeme == "3", "三角ポリゴンになってなさそう(´・ω・`)");
             tokens.removeFront;
-            assert(validate!XTokenSemicolon(tokens));
+            assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
             tokens.removeFront;
 
             meshNormals.indices[i] = parseArray!uint(tokens, 3);
 
             if (i == faceNum-1) {
-                assert(validate!XTokenSemicolon(tokens));
+                assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
             } else {
-                assert(validate!XTokenComma(tokens));
+                assert(validate!XTokenComma(tokens), makeErrorMessage(tokens));
             }
             tokens.removeFront;
         }
 
-        assert(validate!XTokenRightParen(tokens));
+        assert(validate!XTokenRightParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         return meshNormals;
@@ -211,20 +211,20 @@ private:
     XMeshTextureCoords parseMeshTextureCoords(DList!XToken tokens) {
         XMeshTextureCoords meshTextureCoords;
 
-        assert(validate!XTokenLabel(tokens));
-        assert(tokens.front.lexeme == "MeshTextureCoords");
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+        assert(tokens.front.lexeme == "MeshTextureCoords", makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         int uvNum = tokens.front.lexeme.to!int;
         tokens.removeFront;
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         meshTextureCoords.uvArray = parseVecArray!(float, 2)(tokens, uvNum);
 
-        assert(validate!XTokenRightParen(tokens));
+        assert(validate!XTokenRightParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         return meshTextureCoords;
@@ -233,25 +233,25 @@ private:
     XMeshMaterialList parseMeshMaterialList(DList!XToken tokens) {
         XMeshMaterialList meshMaterialList;
 
-        assert(validate!XTokenLabel(tokens));
-        assert(tokens.front.lexeme == "MeshMaterialList");
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+        assert(tokens.front.lexeme == "MeshMaterialList", makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLeftParen(tokens));
+        assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         int materialNum = tokens.front.lexeme.to!int;
         tokens.removeFront;
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         int indexNum = tokens.front.lexeme.to!int;
         tokens.removeFront;
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         meshMaterialList.indices = parseArray!uint(tokens, indexNum);
@@ -261,7 +261,7 @@ private:
             meshMaterialList.materials[i] = parseMaterial(tokens);
         }
 
-        assert(validate!XTokenRightParen(tokens));
+        assert(validate!XTokenRightParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         return meshMaterialList;
@@ -270,15 +270,15 @@ private:
     XMaterial parseMaterial(DList!XToken tokens) {
         XMaterial material;
 
-        assert(validate!XTokenLabel(tokens));
-        assert(tokens.front.lexeme == "Material");
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+        assert(tokens.front.lexeme == "Material", makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         material.name = tokens.front.lexeme;
         tokens.removeFront;
 
-        assert(validate!XTokenLeftParen(tokens));
+        assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         material.faceColor = parseVecArray!(float, 4)(tokens, 1).front;
@@ -291,7 +291,7 @@ private:
         }
 
 
-        assert(validate!XTokenRightParen(tokens));
+        assert(validate!XTokenRightParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         return material;
@@ -300,24 +300,24 @@ private:
     XTextureFilename parseTextureFilename(DList!XToken tokens) {
         XTextureFilename textureFileName;
 
-        assert(validate!XTokenLabel(tokens));
-        assert(tokens.front.lexeme == "TextureFilename");
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
+        assert(tokens.front.lexeme == "TextureFilename", makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLeftParen(tokens));
+        assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenLabel(tokens));
+        assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         string lexeme = tokens.front.lexeme;
-        assert(lexeme.length > 2);
-        assert(lexeme.front == '"');
-        assert(lexeme.back == '"');
+        assert(lexeme.length > 2, makeErrorMessage(tokens));
+        assert(lexeme.front == '"', makeErrorMessage(tokens));
+        assert(lexeme.back == '"', makeErrorMessage(tokens));
         textureFileName.name = lexeme[1..$-1];
 
-        assert(validate!XTokenSemicolon(tokens));
+        assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        assert(validate!XTokenRightParen(tokens));
+        assert(validate!XTokenRightParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
         return textureFileName;
@@ -329,9 +329,9 @@ private:
             result[i] = tokens.front.lexeme.to!T;
             tokens.removeFront;
             if (i == num-1) {
-                assert(validate!XTokenSemicolon(tokens));
+                assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
             } else {
-                assert(validate!XTokenComma(tokens));
+                assert(validate!XTokenComma(tokens), makeErrorMessage(tokens));
             }
             tokens.removeFront;
         }
@@ -345,14 +345,14 @@ private:
             foreach(j; 0..S) {
                 elements[j] = tokens.front.lexeme.to!T;
                 tokens.removeFront;
-                assert(validate!XTokenSemicolon(tokens));
+                assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
                 tokens.removeFront;
             }
             result[i] = Vector!(T, S)(elements);
             if (i == num-1) {
-                assert(validate!XTokenSemicolon(tokens));
+                assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
             } else {
-                assert(validate!XTokenComma(tokens));
+                assert(validate!XTokenComma(tokens), makeErrorMessage(tokens));
             }
             tokens.removeFront;
         }
@@ -362,6 +362,15 @@ private:
     // tokensの先頭がTにキャストできるか？
     bool validate(T)(DList!XToken tokens) {
         return !tokens.empty && cast(T)tokens.front;
+    }
+
+    string makeErrorMessage(DList!XToken tokens) {
+        import std.format;
+        if (tokens.empty) {
+            return "XFileParseError";
+        } else {
+            return "XFileParseError" ~ format("(line: %s, column: %s, lexeme: \"%s\")", tokens.front.line, tokens.front.column, tokens.front.lexeme);
+        }
     }
 
 }

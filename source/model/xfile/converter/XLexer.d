@@ -26,46 +26,56 @@ private:
 
         auto lookaheader = getLookaheader(src);
 
-        string str = "";
+        DList!Node label;
         void insert() {
-            if (!str.empty) {
-                tokens.insertBack(new XTokenLabel(str));
-                str = "";
+            if (!label.empty) {
+                int line      = label.front.line;
+                int column    = label.front.column;
+                string lexeme = label[].map!"a.character".to!string;
+                tokens.insertBack(new XTokenLabel(line, column, lexeme));
+                label.clear;
             }
         }
 
-        foreach(c; lookaheader) {
-            if (c.isWhite) {
+        foreach(node; lookaheader) {
+            if (node.character.isWhite) {
                 insert();
-            } else if (c == ',') {
+            } else if (node.character == ',') {
                 insert();
-                tokens.insertBack(new XTokenComma);
-            } else if (c == ';') {
+                tokens.insertBack(new XTokenComma(node.line, node.column));
+            } else if (node.character == ';') {
                 insert();
-                tokens.insertBack(new XTokenSemicolon);
-            } else if (c == '{') {
+                tokens.insertBack(new XTokenSemicolon(node.line, node.column));
+            } else if (node.character == '{') {
                 insert();
-                tokens.insertBack(new XTokenLeftParen);
-            } else if (c == '}') {
+                tokens.insertBack(new XTokenLeftParen(node.line, node.column));
+            } else if (node.character == '}') {
                 insert();
-                tokens.insertBack(new XTokenRightParen);
+                tokens.insertBack(new XTokenRightParen(node.line, node.column));
             } else {
-                str ~= c;
+                label.insertBack(node);
             }
         }
 
         return tokens;
     }
 
-    Generator!char getLookaheader(string src) {
-        return new Generator!char({
-            foreach(str; src.splitLines.dropOne) { // dropOneでヘッダ情報を落とす
-                foreach(c; str.until("//").to!(char[])) { // until("//")でコメントアウト部分を落とす
-                    c.yield;
+    Generator!Node getLookaheader(string src) {
+        return new Generator!Node({
+            foreach(int line, str; src.splitLines) {
+                if (line == 0) continue; // ヘッダ情報を落とす
+                foreach(int column, character; str.until("//").to!(char[])) { // until("//")でコメントアウト部分を落とす
+                    Node(line + 1, character + 1, character).yield;
                 }
-                ' '.yield; // 終端
+                Node(-1, -1, ' ').yield; // 終端
             }
         });
+    }
+
+    struct Node {
+        int line;
+        int column;
+        char character;
     }
 
 }

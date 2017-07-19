@@ -2,55 +2,63 @@ module model.xfile.XToken;
 
 import std.string;
 
-interface XToken {
-    string lexeme();
+abstract class XToken {
+    int line;
+    int column;
+    string lexeme;
 }
 
 class XTokenComma : XToken {
-    override string lexeme() {
-        return ",";
+    this(int line, int column) {
+        this.line = line;
+        this.column = column;
+        this.lexeme = ",";
     }
     override string toString() {
-        return format("XTokenComma(\"%s\")", lexeme());
+        return format("XTokenComma(\"%s\")", this.lexeme);
     }
 }
 
 class XTokenSemicolon : XToken {
-    override string lexeme() {
-        return ";";
+    this(int line, int column) {
+        this.line = line;
+        this.column = column;
+        this.lexeme = ";";
     }
     override string toString() {
-        return format("XTokenSemicolon(\"%s\")", lexeme());
+        return format("XTokenSemicolon(\"%s\")", this.lexeme);
     }
 }
 
 class XTokenLeftParen : XToken {
-    override string lexeme() {
-        return "{";
+    this(int line, int column) {
+        this.line = line;
+        this.column = column;
+        this.lexeme = "{";
     }
     override string toString() {
-        return format("XTokenLeftParen(\"%s\")", lexeme());
+        return format("XTokenLeftParen(\"%s\")", this.lexeme);
     }
 }
 
 class XTokenRightParen : XToken {
-    override string lexeme() {
-        return "}";
+    this(int line, int column) {
+        this.line = line;
+        this.column = column;
+        this.lexeme = "}";
     }
     override string toString() {
-        return format("XTokenRightParen(\"%s\")", lexeme());
+        return format("XTokenRightParen(\"%s\")", this.lexeme);
     }
 }
 
 class XTokenLabel : XToken {
-    private string _lexeme;
-    this(string _lexeme) {
-        this._lexeme = _lexeme;
-    }
-    override string lexeme() {
-        return _lexeme;
+    this(int line, int column, string lexeme) {
+        this.line = line;
+        this.column = column;
+        this.lexeme = lexeme;
     }
     override string toString() {
-        return format("XTokenLabel(\"%s\")", lexeme());
+        return format("XTokenLabel(\"%s\")", this.lexeme);
     }
 }
