@@ -1,6 +1,7 @@
 module model.xfile.node;
 
 public {
+    import model.xfile.node.XNode;
     import model.xfile.node.XFrame;
     import model.xfile.node.XFrameTransformMatrix;
     import model.xfile.node.XMaterial;
