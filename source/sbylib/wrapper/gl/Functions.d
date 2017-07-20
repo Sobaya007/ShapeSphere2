@@ -3,6 +3,7 @@ module sbylib.wrapper.gl.Functions;
 import sbylib.math, sbylib.wrapper.gl;
 import std.algorithm, std.conv;
 import derelict.opengl;
+import sbylib.wrapper.glfw;
 
 class GlFunction {
 
@@ -140,6 +141,7 @@ static:
 
     void checkError(string ext = "") {
         debug {
+            if (GLFW.hasTerminated) return;
             auto errorCode = glGetError().to!GlErrorType;
             assert(errorCode == GlErrorType.NoError, errorCode.to!string ~ "\n" ~ ext);
         }

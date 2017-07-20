@@ -54,7 +54,7 @@ class Core {
 
         DerelictSDL2.load(SDL2_DLL_PATH);
 
-        AL.init();
+        //AL.init();
         GL.init();
         GLFW.init();
         FreeType.init();
@@ -76,6 +76,8 @@ class Core {
 
     ~this() {
         //後始末
+        import std.stdio;
+        writeln("terminate");
         GLFW.terminate();
         //AL.terminate();
     }
