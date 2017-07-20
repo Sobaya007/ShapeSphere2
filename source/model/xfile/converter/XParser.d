@@ -374,20 +374,3 @@ private:
     }
 
 }
-
-unittest {
-    // import std.stdio, std.file, sbylib.setting;
-    //
-    //
-    // string src = readText(RESOURCE_ROOT ~ "model/bbbb.x");
-    //
-    // import model.xfile.converter.XLexer;
-    // XLexer lexer = new XLexer;
-    // XParser parser = new XParser;
-    //
-    // auto tokens = lexer.run(src);
-    //
-    // XFrame frame = parser.run(tokens);
-    //
-    // frame.writeln;
-}
