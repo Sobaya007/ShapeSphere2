@@ -13,8 +13,7 @@ class SDL {
 
     public static void init() {
         DerelictSDL2.load(SDL2_DLL_PATH);
-        SDL_Init(SDL_INIT_GAMECONTROLLER);
-        SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+        assert(SDL_Init(SDL_INIT_JOYSTICK) >= 0);
         SDL_JoystickEventState(SDL_ENABLE);
         auto count = SDL_NumJoysticks();
         writeln("Joy Stick num = " ~ to!string(count));
@@ -28,6 +27,8 @@ class SDL {
         foreach (f; onTerminate) {
             f();
         }
+        import core.thread;
+        Thread.sleep(dur!"msecs"(100)); //すぐにSDL止めると死ぬ
         SDL_Quit();
         _terminated = true;
     }
