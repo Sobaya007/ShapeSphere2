@@ -114,5 +114,10 @@ void gameMain() {
         player.esphere.condition = !core.getKey(KeyButton.Enter);
     }, "last");
 
+    auto joy = new JoyStick(0);
+    core.addProcess((proc) {
+        writeln(joy);
+    }, "test");
+
     core.start();
 }
