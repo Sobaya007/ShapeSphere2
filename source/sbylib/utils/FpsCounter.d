@@ -1,9 +1,7 @@
 module sbylib.utils.FpsCounter;
 
 import sbylib;
-import std.datetime;
-
-import std.datetime;
+import std.datetime.stopwatch;
 
 class FpsCounter(uint N) {
     long[N] periods;
@@ -18,7 +16,7 @@ class FpsCounter(uint N) {
 
     void update() {
         auto p = periods[c];
-        periods[c] = sw.peek().msecs();
+        periods[c] = sw.peek().total!"msecs";
         total += cast(int)(periods[c] - p);
         c = (c+1)%N;
         sw.reset();
