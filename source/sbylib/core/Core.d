@@ -99,8 +99,10 @@ class Core {
         return proc;
     }
 
-    Process addProcess(alias func)() {
-        return this.addProcess(func, "Po");
+    Process addProcess(const void delegate() func, string name) {
+        return this.addProcess((Process proc) {
+            func();
+        }, name);
     }
 
     //メインループ
