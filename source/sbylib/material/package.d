@@ -7,6 +7,7 @@ import sbylib.material.CheckerMaterial;
 import sbylib.material.ColorMaterial;
 import sbylib.material.ConditionalMaterial;
 import sbylib.material.LambertMaterial;
+import sbylib.material.PhongMaterial;
 import sbylib.material.NormalMaterial;
 import sbylib.material.TextMaterial;
 import sbylib.material.TextureMaterial;
