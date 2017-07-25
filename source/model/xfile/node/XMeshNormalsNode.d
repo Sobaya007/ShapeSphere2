@@ -1,9 +1,12 @@
-module model.xfile.node.XTextureFilename;
+module model.xfile.node.XMeshNormalsNode;
+
+import sbylib.math.Vector;
 
 import model.xfile.node;
 
-class XTextureFilename : XNode {
-    string name;
+class XMeshNormalsNode : XNode {
+    vec3[] normals;
+    uint[3][] indices; // indices.length == 「面の数」
 
     override string toString() {
         return toString(0);
@@ -15,9 +18,11 @@ class XTextureFilename : XNode {
         string tab2 = '\t'.repeat(depth + 1).array;
         string tab3 = '\t'.repeat(depth + 2).array;
 
-        return "XTextureFilename(\n%sname: %s\n%s)".format(
+        return "XMeshNormalsNode(\n%snormals: %s,\n%sindices: %s\n%s)".format(
             tab2,
-            this.name,
+            toStringArray(depth, this.normals),
+            tab2,
+            toStringArray(depth, this.indices),
             tab1
         );
     }

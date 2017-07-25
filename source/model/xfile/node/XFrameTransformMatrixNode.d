@@ -1,10 +1,10 @@
-module model.xfile.node.XFrameTransformMatrix;
+module model.xfile.node.XFrameTransformMatrixNode;
 
 import sbylib.math.Matrix;
 
 import model.xfile.node;
 
-class XFrameTransformMatrix : XNode {
+class XFrameTransformMatrixNode : XNode {
     mat4 matrix;
 
     override string toString() {
@@ -17,7 +17,7 @@ class XFrameTransformMatrix : XNode {
         string tab2 = '\t'.repeat(depth + 1).array;
         string tab3 = '\t'.repeat(depth + 2).array;
 
-        return "XFrameTransformMatrix(\n%smatrix: %s\n%s)".format(
+        return "XFrameTransformMatrixNode(\n%smatrix: %s\n%s)".format(
             tab2,
             "(%s\n%s)".format(
                 this.matrix.toString.splitLines.map!(str => "\n" ~ tab2 ~ str).dropOne.join,

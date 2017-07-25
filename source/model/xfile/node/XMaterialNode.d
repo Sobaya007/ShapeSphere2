@@ -1,16 +1,16 @@
-module model.xfile.node.XMaterial;
+module model.xfile.node.XMaterialNode;
 
 import sbylib.math.Vector;
 
 import model.xfile.node;
 
-class XMaterial : XNode {
+class XMaterialNode : XNode {
     string name;
     vec4 faceColor;
     float power;
     vec3 specularColor;
     vec3 emissiveColor;
-    XTextureFilename textureFileName;
+    XTextureFilenameNode textureFileName;
 
     override string toString() {
         return toString(0);
@@ -22,7 +22,7 @@ class XMaterial : XNode {
         string tab2 = '\t'.repeat(depth + 1).array;
         string tab3 = '\t'.repeat(depth + 2).array;
 
-        return "XMaterial(\n%sname: %s,\n%sfaceColor: %s,\n%spower: %s,\n%sspecularColor: %s,\n%semissiveColor: %s,\n%stextureFileName: %s\n%s)".format(
+        return "XMaterialNode(\n%sname: %s,\n%sfaceColor: %s,\n%spower: %s,\n%sspecularColor: %s,\n%semissiveColor: %s,\n%stextureFileName: %s\n%s)".format(
             tab2,
             this.name,
             tab2,

@@ -1,16 +1,16 @@
-module model.xfile.node.XMesh;
+module model.xfile.node.XMeshNode;
 
 import sbylib.math.Vector;
 
 import model.xfile.node;
 
-class XMesh : XNode {
+class XMeshNode : XNode {
     vec3[] vertices;
     uint[3][] faces; // 三角ポリゴンのみに対応
 
-    XMeshNormals meshNormals;
-    XMeshTextureCoords meshTextureCoords;
-    XMeshMaterialList meshMaterialList;
+    XMeshNormalsNode meshNormals;
+    XMeshTextureCoordsNode meshTextureCoords;
+    XMeshMaterialListNode meshMaterialList;
 
     override string toString() {
         return toString(0);
@@ -22,7 +22,7 @@ class XMesh : XNode {
         string tab2 = '\t'.repeat(depth + 1).array;
         string tab3 = '\t'.repeat(depth + 2).array;
 
-        return "XMesh(\n%svertices: %s,\n%sfaces: %s,\n%smeshNormals: %s,\n%smeshTextureCoords: %s,\n%smeshMaterialList: %s\n%s)".format(
+        return "XMeshNode(\n%svertices: %s,\n%sfaces: %s,\n%smeshNormals: %s,\n%smeshTextureCoords: %s,\n%smeshMaterialList: %s\n%s)".format(
             tab2,
             toStringArray(depth, this.vertices),
             tab2,

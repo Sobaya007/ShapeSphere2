@@ -1,4 +1,4 @@
-module model.xfile.XToken;
+module model.xfile.converter.XToken;
 
 import std.string;
 

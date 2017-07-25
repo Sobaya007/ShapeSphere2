@@ -1,7 +1,6 @@
 module model.xfile.converter.XLexer;
 
 import model.xfile.converter;
-import model.xfile.XToken;
 
 import std.conv,
        std.range,

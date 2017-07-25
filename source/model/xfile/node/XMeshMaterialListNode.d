@@ -1,9 +1,9 @@
-module model.xfile.node.XMeshMaterialList;
+module model.xfile.node.XMeshMaterialListNode;
 
 import model.xfile.node;
 
-class XMeshMaterialList : XNode {
-    XMaterial[] materials;
+class XMeshMaterialListNode : XNode {
+    XMaterialNode[] materials;
     uint[] indices; // indices.length == 「面の数」
 
     override string toString() {
@@ -16,7 +16,7 @@ class XMeshMaterialList : XNode {
         string tab2 = '\t'.repeat(depth + 1).array;
         string tab3 = '\t'.repeat(depth + 2).array;
 
-        return "XMeshMaterialList(\n%smaterials: %s,\n%sindices: %s\n%s)".format(
+        return "XMeshMaterialListNode(\n%smaterials: %s,\n%sindices: %s\n%s)".format(
             tab2,
             toStringArray(depth, this.materials),
             tab2,

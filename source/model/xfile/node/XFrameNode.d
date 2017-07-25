@@ -1,15 +1,15 @@
-module model.xfile.node.XFrame;
+module model.xfile.node.XFrameNode;
 
 import sbylib.math.Matrix;
 
 import model.xfile.node;
 
-class XFrame : XNode {
+class XFrameNode : XNode {
     string name;
-    XFrameTransformMatrix frameTransformMatrix;
+    XFrameTransformMatrixNode frameTransformMatrix;
 
-    XFrame[] frames; // children
-    XMesh[] meshes;
+    XFrameNode[] frames; // children
+    XMeshNode mesh;
 
     override string toString() {
         return toString(0);
@@ -21,7 +21,7 @@ class XFrame : XNode {
         string tab2 = '\t'.repeat(depth + 1).array;
         string tab3 = '\t'.repeat(depth + 2).array;
 
-        return "XFrame(\n%sname: %s,\n%sframeTransformMatrix: %s,\n%sframes: %s,\n%smeshes: %s\n%s)".format(
+        return "XFrameNode(\n%sname: %s,\n%sframeTransformMatrix: %s,\n%sframes: %s,\n%smesh: %s\n%s)".format(
             tab2,
             this.name,
             tab2,
@@ -29,7 +29,7 @@ class XFrame : XNode {
             tab2,
             toStringArray(depth, this.frames),
             tab2,
-            toStringArray(depth, this.meshes),
+            this.mesh.pipe!(a => (a is null ? "null" : a.toString(depth + 1))),
             tab1
         );
     }

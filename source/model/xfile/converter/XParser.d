@@ -3,8 +3,7 @@ module model.xfile.converter.XParser;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 
-import model.xfile.converter.XConverter;
-import model.xfile.XToken;
+import model.xfile.converter;
 import model.xfile.node;
 
 import std.conv,
@@ -12,23 +11,23 @@ import std.conv,
        std.algorithm,
        std.container : DList;
 
-// XParser: DList!XToken -> XFrame
+// XParser: DList!XToken -> XFrameNode
 
-class XParser : XConverter!(DList!XToken, XFrame) {
-    override XFrame run(DList!XToken src) {
+class XParser : XConverter!(DList!XToken, XFrameNode) {
+    override XFrameNode run(DList!XToken src) {
         return parse(src);
     }
 
 private:
 
-    XFrame parse(DList!XToken tokens) {
-        XFrame frame = parseFrame(tokens);
+    XFrameNode parse(DList!XToken tokens) {
+        XFrameNode frame = parseFrame(tokens);
         assert(tokens.empty);
         return frame;
     }
 
-    XFrame parseFrame(DList!XToken tokens) {
-        XFrame frame = new XFrame;
+    XFrameNode parseFrame(DList!XToken tokens) {
+        XFrameNode frame = new XFrameNode;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "Frame", makeErrorMessage(tokens));
@@ -54,7 +53,8 @@ private:
                         frame.frames ~= parseFrame(tokens);
                         break;
                     case "Mesh":
-                        frame.meshes ~= parseMesh(tokens);
+                        assert(frame.mesh is null, makeErrorMessage(tokens) ~ "\n" ~ "FrameにあるMeshは一個まで");
+                        frame.mesh = parseMesh(tokens);
                         break;
                     default:
                         assert(false, makeErrorMessage(tokens));
@@ -67,8 +67,8 @@ private:
         return frame;
     }
 
-    XFrameTransformMatrix parseFrameTransformMatrix(DList!XToken tokens) {
-        XFrameTransformMatrix frameTransformMatrix = new XFrameTransformMatrix;
+    XFrameTransformMatrixNode parseFrameTransformMatrix(DList!XToken tokens) {
+        XFrameTransformMatrixNode frameTransformMatrix = new XFrameTransformMatrixNode;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "FrameTransformMatrix", makeErrorMessage(tokens));
@@ -88,8 +88,8 @@ private:
         return frameTransformMatrix;
     }
 
-    XMesh parseMesh(DList!XToken tokens) {
-        XMesh mesh = new XMesh;
+    XMeshNode parseMesh(DList!XToken tokens) {
+        XMeshNode mesh = new XMeshNode;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "Mesh", makeErrorMessage(tokens));
@@ -158,8 +158,8 @@ private:
         return mesh;
     }
 
-    XMeshNormals parseMeshNormals(DList!XToken tokens) {
-        XMeshNormals meshNormals = new XMeshNormals;
+    XMeshNormalsNode parseMeshNormals(DList!XToken tokens) {
+        XMeshNormalsNode meshNormals = new XMeshNormalsNode;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "MeshNormals", makeErrorMessage(tokens));
@@ -208,8 +208,8 @@ private:
         return meshNormals;
     }
 
-    XMeshTextureCoords parseMeshTextureCoords(DList!XToken tokens) {
-        XMeshTextureCoords meshTextureCoords = new XMeshTextureCoords;
+    XMeshTextureCoordsNode parseMeshTextureCoords(DList!XToken tokens) {
+        XMeshTextureCoordsNode meshTextureCoords = new XMeshTextureCoordsNode;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "MeshTextureCoords", makeErrorMessage(tokens));
@@ -222,7 +222,7 @@ private:
         assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        meshTextureCoords.uvArray = parseVecArray!(float, 2)(tokens, uvNum);
+        meshTextureCoords.uvs = parseVecArray!(float, 2)(tokens, uvNum);
 
         assert(validate!XTokenRightParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
@@ -230,8 +230,8 @@ private:
         return meshTextureCoords;
     }
 
-    XMeshMaterialList parseMeshMaterialList(DList!XToken tokens) {
-        XMeshMaterialList meshMaterialList = new XMeshMaterialList;
+    XMeshMaterialListNode parseMeshMaterialList(DList!XToken tokens) {
+        XMeshMaterialListNode meshMaterialList = new XMeshMaterialListNode;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "MeshMaterialList", makeErrorMessage(tokens));
@@ -256,7 +256,7 @@ private:
 
         meshMaterialList.indices = parseArray!uint(tokens, indexNum);
 
-        meshMaterialList.materials = new XMaterial[materialNum];
+        meshMaterialList.materials = new XMaterialNode[materialNum];
         foreach(i; 0..materialNum) {
             meshMaterialList.materials[i] = parseMaterial(tokens);
         }
@@ -267,8 +267,8 @@ private:
         return meshMaterialList;
     }
 
-    XMaterial parseMaterial(DList!XToken tokens) {
-        XMaterial material = new XMaterial;
+    XMaterialNode parseMaterial(DList!XToken tokens) {
+        XMaterialNode material = new XMaterialNode;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "Material", makeErrorMessage(tokens));
@@ -297,8 +297,8 @@ private:
         return material;
     }
 
-    XTextureFilename parseTextureFilename(DList!XToken tokens) {
-        XTextureFilename textureFileName = new XTextureFilename;
+    XTextureFilenameNode parseTextureFilename(DList!XToken tokens) {
+        XTextureFilenameNode textureFileName = new XTextureFilenameNode;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "TextureFilename", makeErrorMessage(tokens));
