@@ -1,6 +1,6 @@
-module player.Player;
+module game.player.Player;
 
-import player.ElasticSphere;
+import game.player.ElasticSphere;
 import sbylib;
 import std.algorithm;
 import std.math;
@@ -12,13 +12,13 @@ class Player {
     enum SIDE_PUSH_FORCE = 10;
 
     ElasticSphere esphere;
-    private Window window;
+    private Key key;
     private Camera camera;
     flim pushCount;
 
-    this(Window window, Camera camera) {
+    this(Key key, Camera camera) {
         this.esphere = new ElasticSphere();
-        this.window = window;
+        this.key = key;
         this.camera = camera;
         this.pushCount = flim(0.0, 0.0, 1);
     }
@@ -29,7 +29,7 @@ class Player {
         foreach (p; this.esphere.particleList) {
             p.extForce = vec3(0,0,0);
         }
-        if (this.window.getKey(KeyButton.Space)) {
+        if (this.key[KeyButton.Space]) {
             this.pushCount += 0.1;
             foreach (p; this.esphere.particleList) {
                 //下向きの力
@@ -42,16 +42,16 @@ class Player {
         }
         {
             vec3 f = vec3(0,0,0);
-            if (this.window.getKey(KeyButton.Left)) {
+            if (this.key[KeyButton.Left]) {
                 f -= this.camera.getObj().rot.get().column[0].xyz;
             }
-            if (this.window.getKey(KeyButton.Right)) {
+            if (this.key[KeyButton.Right]) {
                 f += this.camera.getObj().rot.get().column[0].xyz;
             }
-            if (this.window.getKey(KeyButton.Up)) {
+            if (this.key[KeyButton.Up]) {
                 f -= this.camera.getObj().rot.get().column[2].xyz;
             }
-            if (this.window.getKey(KeyButton.Down)) {
+            if (this.key[KeyButton.Down]) {
                 f += this.camera.getObj().rot.get().column[2].xyz;
             }
             f.y = 0;
@@ -60,7 +60,7 @@ class Player {
                 p.force += f;
             }
         }
-        if (this.window.getKey(KeyButton.KeyX)) {
+        if (this.key[KeyButton.KeyX]) {
             this.esphere.needleCount += 0.1;
         } else {
             this.esphere.needleCount -= 0.3;

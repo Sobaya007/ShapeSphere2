@@ -33,8 +33,6 @@ class TimeLogger {
     }
 
     void directWrite(long time) {
-        if (runMode == RunMode.Game) {
-            timeLogger.tracef("%s%s: %d", this.name, this.ext, time);
-        }
+        timeLogger.tracef("%s%s: %d", this.name, this.ext, time);
     }
 }

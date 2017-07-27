@@ -1,4 +1,4 @@
-module sbylib.core.Bahamut;
+module sbylib.core.World;
 
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
@@ -15,7 +15,7 @@ import sbylib.geometry.Geometry;
 import std.traits;
 import std.algorithm;
 
-class Bahamut {
+class World {
     private Entity[] entities;
     Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
     private Watcher!umat4 viewMatrix;

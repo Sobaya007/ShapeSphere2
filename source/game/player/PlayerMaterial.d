@@ -1,4 +1,4 @@
-module player.PlayerMaterial;
+module game.player.PlayerMaterial;
 
 import sbylib;
 

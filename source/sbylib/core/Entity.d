@@ -9,7 +9,7 @@ public {
 class Entity {
     private Mesh mesh;
     private CollisionEntry colEntry;
-    private Bahamut world;
+    private World world;
     private Entity parent;
     private Entity[] children;
     private Object3D _obj;
@@ -47,7 +47,7 @@ class Entity {
         return this._obj;
     }
 
-    void setWorld(Bahamut world) in {
+    void setWorld(World world) in {
         assert(world);
     } body {
         this.world = world;
@@ -151,7 +151,7 @@ class Entity {
         return res;
     }
 
-    private void onSetWorld(Bahamut world) {
+    private void onSetWorld(World world) {
         if (this.mesh) {
             this.mesh.onSetWorld(world);
         }
