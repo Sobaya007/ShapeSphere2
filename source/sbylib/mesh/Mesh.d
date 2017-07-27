@@ -9,7 +9,7 @@ public {
     import sbylib.geometry.Geometry;
     import sbylib.material.Material;
     import sbylib.core.Entity;
-    import sbylib.core.Bahamut;
+    import sbylib.core.World;
     import sbylib.material.glsl.UniformDemand;
 }
 
@@ -36,7 +36,7 @@ class Mesh {
         this.geom.render(this.vao);
     }
 
-    void onSetWorld(Bahamut world) {
+    void onSetWorld(World world) {
         foreach (demand; this.mat.getDemands()) {
             final switch (demand) {
             case UniformDemand.World:

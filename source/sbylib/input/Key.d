@@ -8,11 +8,15 @@ public {
 class Key {
     private Window window;
 
-    this(Window window) {
+    package(sbylib) this(Window window) {
         this.window = window;
     }
 
     bool get(KeyButton key) {
         return this.window.getKey(key);
+    }
+
+    bool opIndex(KeyButton key) {
+        return this.get(key);
     }
 }

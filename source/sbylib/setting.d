@@ -11,6 +11,3 @@ enum AL_DLL_PATH = DLL_ROOT ~ "OpenAl32.dll";
 enum ALURE_DLL_PATH = DLL_ROOT ~ "ALURE32.dll";
 enum FREEIMAGE_DLL_PATH = DLL_ROOT ~ "FreeImage.dll";
 enum TIME_LOG_PATH =  ROOT_PATH ~ "time.log";
-
-enum RunMode {Game, Plot};
-static RunMode runMode = RunMode.Game;

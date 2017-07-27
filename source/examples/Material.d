@@ -1,4 +1,4 @@
-module examples.material;
+module examples.Material;
 
 import sbylib;
 import std.stdio;
@@ -9,11 +9,11 @@ alias Check4 = CheckerMaterial!(Check2, Check2);
 
 alias PlaneEntity = EntityTemp!(GeometryPlane, Check4);
 
-void mainMaterial() {
+void materialExample() {
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getRenderTarget();
-    auto world = new Bahamut;
+    auto world = new World;
     auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
     auto polyEntity = new PlaneEntity(Plane.create(10,10));
 

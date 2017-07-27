@@ -1,25 +1,23 @@
-module examples.example3;
+module examples.Basic;
 
 import sbylib;
 
-void example3() {
+void basicExample() {
     auto core = Core();
 
-    auto world = new Bahamut;
+    auto world = new World;
 
     auto window = core.getWindow();
 
     auto screen = window.getRenderTarget();
 
-    Camera camera = new PerspectiveCamera(
+    auto camera = new PerspectiveCamera(
             window.getWidth() / window.getHeight(), /* Aspect Ratio   */
             120, /* FOV (in angle) */
             0.1, /* Near Clip      */
             100, /* Far Clip       */);
-    camera.pos = vec3(3, 2, 9);
-    camera.lookAt(vec3(0,2,0));
-
-    auto control = new CameraControl(new Key(window), new Mouse(window), camera);
+    camera.getObj().pos = vec3(3, 2, 9);
+    camera.getObj().lookAt(vec3(0,2,0));
 
     auto planeGeom = Plane.create(100, 100); /* width, height */
 
@@ -46,7 +44,6 @@ void example3() {
     world.add(planeEntity);
     world.add(boxEntity);
     core.addProcess(renderToScreen, "render");
-    core.addProcess(&control.update, "update");
 
     core.start();
 }

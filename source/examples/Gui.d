@@ -1,13 +1,12 @@
-module examples.gui;
+module examples.Gui;
 
 import sbylib;
 
-void mainGUI() {
+void guiExample() {
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getRenderTarget();
-    auto world = new Bahamut;
-    auto leviathan = new Leviathan();
+    auto world = new World;
     auto camera = new OrthoCamera(2,2,-1,1);
     auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
     auto control = new GuiControl(window, camera, world);

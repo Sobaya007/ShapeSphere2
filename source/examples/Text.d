@@ -1,15 +1,14 @@
-module examples.text2d;
+module examples.Text;
 
 import sbylib;
 import std.algorithm, std.array;
 import std.math;
 
-void mainText2d() {
+void textExample() {
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getRenderTarget();
-    auto world = new Bahamut;
-    auto leviathan = new Leviathan();
+    auto world = new World;
     auto camera = new OrthoCamera(2,2,-1,1);
     auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
     auto label = new Label(font);
