@@ -21,11 +21,13 @@ import sbylib.utils.FpsBalancer;
 import sbylib.core.Process;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.sdl.SDL;
 import sbylib.math.Vector;
 static import std.file, std.path;
 import std.stdio, std.string;
 import std.algorithm;
 import std.array;
+import std.stdio;
 
 /*
    SbyLibを動かすための準備をするクラスです。
@@ -52,14 +54,13 @@ class Core {
 */
         // for DEBUG ここまで
 
-        DerelictSDL2.load(SDL2_DLL_PATH);
 
-        AL.init();
+        //AL.init();
         GL.init();
         GLFW.init();
         FreeType.init();
         FreeImage.init();
-        JoyStick.init();
+        SDL.init();
     }
 
     private Window window; //現在のウインドウ
@@ -78,6 +79,7 @@ class Core {
         //後始末
         GLFW.terminate();
         //AL.terminate();
+        SDL.terminate();
     }
 
     void start() {
@@ -97,8 +99,10 @@ class Core {
         return proc;
     }
 
-    Process addProcess(alias func)() {
-        return this.addProcess(func, "Po");
+    Process addProcess(const void delegate() func, string name) {
+        return this.addProcess((Process proc) {
+            func();
+        }, name);
     }
 
     //メインループ
@@ -107,6 +111,8 @@ class Core {
             this.processes = this.processes.filter!(proc => proc.step).array;
             this.window.swapBuffers();
             this.window.pollEvents();
+            SDL.update();
+            stdout.flush();
             return window.shouldClose() || endFlag;
         });
     }

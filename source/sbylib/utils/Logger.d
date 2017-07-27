@@ -1,7 +1,7 @@
 module sbylib.utils.Logger;
 
 import std.file;
-import std.datetime;
+import std.datetime.stopwatch;
 import std.experimental.logger;
 import sbylib.setting;
 
@@ -29,7 +29,7 @@ class TimeLogger {
 
     void stop() {
         sw.stop();
-        this.directWrite(this.sw.peek().msecs);
+        this.directWrite(this.sw.peek().total!"msecs");
     }
 
     void directWrite(long time) {

@@ -10,6 +10,7 @@ import player.Player;
 import plot.Main;
 import examples.example1;
 import examples.example2;
+import examples.example3;
 import examples.text2d;
 import examples.mouse;
 import examples.material;
@@ -23,11 +24,12 @@ void main(string[] args) {
     case RunMode.Game:
         //example1();
         //example2();
+        example3();
         //mainMaterial();
         //mainGUI();
         //mainText2d();
         //mainMouse();
-        gameMain();
+        //gameMain();
         break;
     case RunMode.Plot:
         plotMain();
@@ -113,6 +115,13 @@ void gameMain() {
         else player.esphere.entity.getMesh().mat.config.polygonMode = PolygonMode.Fill;
         player.esphere.condition = !core.getKey(KeyButton.Enter);
     }, "last");
+
+    if (JoyStick.canUse(0)) {
+        auto joy = new JoyStick(0);
+        core.addProcess((proc) {
+            writeln(joy);
+        }, "test");
+    }
 
     core.start();
 }

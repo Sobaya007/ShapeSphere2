@@ -2,58 +2,58 @@ module sbylib.input.JoyStick;
 
 import derelict.sdl2.sdl;
 
-import sbylib.input, sbylib.setting;
-import std.stdio, std.conv;
+import sbylib.input, sbylib.setting, sbylib.wrapper.sdl.SDL;
+import std.stdio, std.conv, std.format, std.range, std.algorithm, std.array;
 
 class JoyStick {
 
-    static void init() {
-        // なぜかSDL_Initするとグルグルがでちゃう
-        /*
-        SDL_Init(SDL_INIT_GAMECONTROLLER);
-        SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-        auto count = SDL_NumJoysticks();
-        writeln("Joy Stick num = " ~ to!string(count));
-        */
-    }
-
-    enum Axis{LeftX = 0, LeftY = 1, RightX = 3, RightY = 2}
     private SDL_Joystick *stick;
 
-    private this(int index) {
-        SDL_JoystickEventState(SDL_ENABLE);
-        stick = SDL_JoystickOpen(index);
+    static bool canUse(uint index) {
+        return index < SDL_NumJoysticks();
     }
 
-    ~this() {
-        //SDL_JoystickClose(stick);
+    this(uint index) in {
+        assert(canUse(index));
+    } body {
+        SDL_JoystickEventState(SDL_ENABLE);
+        this.stick = SDL_JoystickOpen(index);
+        SDL.addOnTerminate(&this.close);
+    }
+
+    private void close() {
+        SDL_JoystickClose(this.stick);
     }
 
     package void update() {
         SDL_JoystickUpdate();
     }
 
-    bool getButton(int buttonNum) {
-        return SDL_JoystickGetButton(stick, buttonNum) == 1;
+    string getName() {
+        return SDL_JoystickName(this.stick).to!string;
     }
 
-    float getAxis(Axis axis) {
-        auto result = SDL_JoystickGetAxis(stick, axis);
+    uint getButtonNum() {
+        return SDL_JoystickNumButtons(this.stick);
+    }
+
+    uint getAxisNum() {
+        return SDL_JoystickNumAxes(this.stick);
+    }
+
+    bool getButton(int buttonNum) {
+        return SDL_JoystickGetButton(this.stick, buttonNum) == 1;
+    }
+
+    float getAxis(uint axis) {
+        auto result = SDL_JoystickGetAxis(this.stick, axis);
         return result / 32768.0;
     }
-}
 
-class NullJoyStick : JoyStick {
-
-    this() {
-        super(0);
-    }
-
-    override bool getButton(int buttonNum) {
-        return false;
-    }
-
-    override float getAxis(Axis axis) {
-        return 0;
+    override string toString() {
+        return format!"Name = %s\nButton = %s\nAxis = %s"
+        (this.getName(),
+                iota(this.getButtonNum()).map!(i => this.getButton(i)).array,
+                iota(this.getAxisNum()).map!(i => this.getAxis(i)).array);
     }
 }

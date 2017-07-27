@@ -1,7 +1,7 @@
 module sbylib.utils.FpsBalancer;
 
 import sbylib;
-import std.datetime;
+import std.datetime.stopwatch;
 import std.stdio;
 import core.thread;
 
@@ -17,7 +17,7 @@ class FpsBalancer {
         sw.start();
         while (true) {
             if (func()) break;
-            auto period = sw.peek.msecs;
+            auto period = sw.peek.total!"msecs";
             if (this.frameTime > period) {
                 Thread.sleep(dur!("msecs")(this.frameTime - period));
             }

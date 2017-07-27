@@ -6,6 +6,8 @@ import std.stdio;
 
 class GLFW {
 
+    private static _terminated = false;
+
     private this(){}
 
     public static void init() {
@@ -16,6 +18,11 @@ class GLFW {
 
     public static void terminate() {
         glfwTerminate();
+        _terminated = true;
+    }
+
+    public static hasTerminated() {
+        return _terminated;
     }
 
     private extern(C) void errorCallBack(int error, const(char)* description) nothrow {
