@@ -26,6 +26,7 @@ void gameMain() {
     }, "render");
 
     auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
+
     Player player = new Player(core.getKey(), world3d.camera);
 
     auto makePolygon = (vec3[4] p) {

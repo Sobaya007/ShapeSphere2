@@ -110,6 +110,8 @@ class Core {
     //メインループ
     private void mainLoop() {
         this.fpsBalancer.loop({
+            this.key.update();
+            this.mouse.update();
             this.processes = this.processes.filter!(proc => proc.step).array;
             this.window.swapBuffers();
             this.window.pollEvents();

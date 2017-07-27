@@ -61,22 +61,22 @@ class CameraControl {
             this.mode = Mode.Rotate;
         }
         enum speed = 0.2;
-        if (this.key.get(KeyButton.KeyW)) {
+        if (this.key[KeyButton.KeyW]) {
             this.camera.pos += this.camera.rot.column[1] * speed;
         }
-        if (this.key.get(KeyButton.KeyS)) {
+        if (this.key[KeyButton.KeyS]) {
             this.camera.pos -= this.camera.rot.column[1] * speed;
         }
-        if (this.key.get(KeyButton.KeyA)) {
+        if (this.key[KeyButton.KeyA]) {
             this.camera.pos -= this.camera.rot.column[0] * speed;
         }
-        if (this.key.get(KeyButton.KeyD)) {
+        if (this.key[KeyButton.KeyD]) {
             this.camera.pos += this.camera.rot.column[0] * speed;
         }
-        if (this.key.get(KeyButton.KeyQ)) {
+        if (this.key[KeyButton.KeyQ]) {
             this.camera.pos -= this.camera.rot.column[2] * speed;
         }
-        if (this.key.get(KeyButton.KeyE)) {
+        if (this.key[KeyButton.KeyE]) {
             this.camera.pos += this.camera.rot.column[2] * speed;
         }
     }

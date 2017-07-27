@@ -27,7 +27,7 @@ class Mouse {
         }
     }
 
-    void update() {
+    package(sbylib) void update() {
         auto before = this.pos;
         this.pos = (this.window.getMousePos() / vec2(this.window.getWidth(), this.window.getHeight()) * 2 - 1) * vec2(1, -1);
         this.dif = pos - before;

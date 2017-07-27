@@ -37,7 +37,6 @@ void plotMain() {
 
     auto mouse = new Mouse(window);
     auto mouseMove = delegate (Process proc) {
-        mouse.update();
         if (mouse.isPressed(MouseButton.Button1)) {
             camera.width  -= mouse.getDif().x * 0.001;
             camera.height -= mouse.getDif().y * 0.001;
