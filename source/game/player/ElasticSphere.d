@@ -1,6 +1,6 @@
-module player.ElasticSphere;
+module game.player.ElasticSphere;
 
-import player.PlayerMaterial;
+import game.player.PlayerMaterial;
 import sbylib;
 import std.algorithm;
 import std.range;

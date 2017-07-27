@@ -53,25 +53,27 @@ class Core {
         rootPath = tmp.join(sep);
 */
         // for DEBUG ここまで
-
-
-        //AL.init();
-        GL.init();
-        GLFW.init();
-        FreeType.init();
-        FreeImage.init();
-        SDL.init();
     }
 
     private Window window; //現在のウインドウ
+    private Key key;
+    private Mouse mouse;
     private FpsBalancer fpsBalancer;
     private Process[] processes;
     private bool endFlag;
 
     //初期化関数
     private this() {
+        //AL.init();
+        GL.init();
+        GLFW.init();
+        FreeType.init();
+        FreeImage.init();
+        SDL.init();
         ConstantManager.init();
         this.window = new Window("Window Title", 800, 600);
+        this.key = new Key(this.window);
+        this.mouse = new Mouse(this.window);
         this.fpsBalancer = new FpsBalancer(60);
     }
 
@@ -121,5 +123,11 @@ class Core {
         return this.window;
     }
 
-    alias getWindow this;
+    Key getKey() {
+        return this.key;
+    }
+
+    Mouse getMouse() {
+        return this.mouse;
+    }
 }

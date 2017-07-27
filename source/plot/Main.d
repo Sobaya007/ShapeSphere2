@@ -15,7 +15,7 @@ void plotMain() {
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getRenderTarget();
-    auto world = new Bahamut();
+    auto world = new World();
 
     auto camera = new OrthoCamera(1, 1, -1, 1);
     camera.getObj().pos = vec3(+0.5, +0.5, 0);

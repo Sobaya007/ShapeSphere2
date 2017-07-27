@@ -1,4 +1,4 @@
-module examples.mouse;
+module examples.Mouse;
 
 import sbylib;
 import std.stdio;
@@ -8,11 +8,11 @@ import std.array;
 alias PlaneEntity = EntityTemp!(GeometryPlane, ConditionalMaterial!(LambertMaterial, LambertMaterial));
 alias CapsuleEntity = EntityTemp!(GeometryNT, ConditionalMaterial!(LambertMaterial, LambertMaterial));
 
-void mainMouse() {
+void mouseExample() {
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getRenderTarget();
-    auto world = new Bahamut;
+    auto world = new World;
     auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
     auto mouse = new Mouse(window);
     auto polyEntity = new PlaneEntity(Plane.create());

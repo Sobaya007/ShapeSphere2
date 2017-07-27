@@ -13,7 +13,6 @@ import sbylib.utils.Watcher;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
-import sbylib.core.Leviathan;
 import std.math;
 import std.algorithm;
 import std.array;

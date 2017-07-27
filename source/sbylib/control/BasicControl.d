@@ -12,7 +12,6 @@ import sbylib.utils.Watcher;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
-import sbylib.core.Leviathan;
 import std.algorithm;
 import std.array;
 
@@ -22,13 +21,13 @@ class BasicControl {
 
     private Mouse mouse;
     private Entity entity;
-    private Bahamut world;
+    private World world;
     private CollisionRay ray;
     private Camera camera;
     private Mode mode;
     private float z;
 
-    this(Mouse mouse, Bahamut world, Camera camera) {
+    this(Mouse mouse, World world, Camera camera) {
         this.ray = new CollisionRay();
         this.mouse = mouse;
         this.world = world;
