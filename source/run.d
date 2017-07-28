@@ -50,9 +50,14 @@ void run(RunMode mode, string[] args) {
 
 void showHelp() {
     writeln("=".repeat(13).join, "HELP", "=".repeat(13).join);
-    writeln("Usege: dub [--mode={mode}]");
+    writeln("Usege: dub [--mode={mode}] [--history={history}] [--replay={history}]");
     auto commands = [EnumMembers!(RunMode)].to!(string[]);
     commands[0] ~= " (Deafault)";
     writeln(format!"{mode} =\n\t%s"(commands.join(", \n\t")));
+    writeln(`
+"--history" and "--replay" can only be used in Game mode.;
+{history} = history file save path.(Default = "history/replayXX.history"
+{replay} = history file save path.
+if you use "--replay=latest", use latest history file in "history/replayXX.history"`);
     writeln("=".repeat(30).join);
 }
