@@ -10,6 +10,7 @@ uniform vec4 ambient;
 uniform vec3 diffuse;
 uniform vec3 specular;
 uniform float power;
+uniform sampler2D texture;
 
 void main() {
     fragColor = ambient;
@@ -21,4 +22,7 @@ void main() {
         fragColor.rgb += specular * pow(s, power);
         // fragColor.rgb += pointLights[i].specular * specular * pow(s, power);
     }
+
+    // texture
+    fragColor *= texture(texture, uv);
 }

@@ -1,4 +1,4 @@
-module sbylib.material.PhongMaterial;
+module sbylib.material.PhongTextureMaterial;
 
 import sbylib.material.Material;
 import sbylib.material.MaterialUtils;
@@ -7,7 +7,7 @@ import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformTexture;
 import sbylib.math.Vector;
 
-class PhongMaterialUniformKeeper : UniformKeeper {
+class PhongTextureMaterialUniformKeeper : UniformKeeper {
 
     mixin MaterialUtils.declare;
 
@@ -16,11 +16,14 @@ class PhongMaterialUniformKeeper : UniformKeeper {
     uvec4 ambient;
     ufloat power;
 
+    utexture texture;
+
     void constructor() {
         this.diffuse = new uvec3("diffuse");
         this.specular = new uvec3("specular");
         this.ambient = new uvec4("ambient");
         this.power = new ufloat("power");
+        this.texture = new utexture("texture");
         this.diffuse = vec3(0);
         this.specular = vec3(0);
         this.ambient = vec4(0);
@@ -28,4 +31,4 @@ class PhongMaterialUniformKeeper : UniformKeeper {
     }
 }
 
-alias PhongMaterial = MaterialTemp!PhongMaterialUniformKeeper;
+alias PhongTextureMaterial = MaterialTemp!PhongTextureMaterialUniformKeeper;
