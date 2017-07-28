@@ -8,6 +8,12 @@ class XLeviathan {
     XMaterial material;
     uint[] indices;
 
+    Entity buildEntity(VertexNT[] vertices) {
+        Geometry geometry = new GeometryNT(vertices, this.indices);
+        Material material = this.material.buildMaterial();
+        return new Entity(geometry, material);
+    }
+
     override string toString() {
         return toString(0);
     }

@@ -10,6 +10,20 @@ class XEntity {
     XGeometry geometry;
     XLeviathan[] leviathans;
 
+    Entity buildEntity() {
+        Entity entity = new Entity;
+        foreach(child; this.children) {
+            entity.addChild(child.buildEntity());
+        }
+        if (this.geometry !is null) {
+            VertexNT[] vertices = this.geometry.buildVertices();
+            foreach(leviathan; this.leviathans) {
+                entity.addChild(leviathan.buildEntity(vertices));
+            }
+        }
+        return entity;
+    }
+
     override string toString() {
         return toString(0);
     }

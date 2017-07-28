@@ -7,6 +7,19 @@ class XGeometry {
     vec3[] normals;
     vec2[] uvs;
 
+    VertexNT[] buildVertices() {
+        int num = this.positions.length;
+        VertexNT[] vertices = new VertexNT[num];
+        foreach(i; 0..num) {
+            vertices[i] = new VertexNT(
+                this.positions[i],
+                i < this.normals.length ? this.normals[i] : vec3(),
+                i < this.uvs.length     ? this.uvs[i]     : vec2()
+            );
+        }
+        return vertices;
+    }
+
     override string toString() {
         return toString(0);
     }

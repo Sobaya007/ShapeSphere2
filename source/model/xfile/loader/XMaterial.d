@@ -16,11 +16,31 @@ class XMaterial {
     }
 
     void setTectureFileName(string name) {
+        this._hasTexture = true;
         this._textureFileName = name;
     }
 
     string getTextureFileName() {
         return _textureFileName;
+    }
+
+    Material buildMaterial() {
+        if (hasTexture()) {
+            PhongTextureMaterial material = new PhongTextureMaterial;
+            material.diffuse = this.diffuse.xyz;
+            material.specular = this.specular;
+            material.ambient = vec4(this.ambient, 1.0);
+            material.power = this.power;
+            material.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ getTextureFileName));
+            return material;
+        } else {
+            PhongMaterial material = new PhongMaterial;
+            material.diffuse = this.diffuse.xyz;
+            material.specular = this.specular;
+            material.ambient = vec4(this.ambient, 1.0);
+            material.power = this.power;
+            return material;
+        }
     }
 
     override string toString() {

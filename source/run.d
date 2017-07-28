@@ -13,7 +13,8 @@ enum RunMode {
     Material,
     Mouse,
     Text,
-    Plot
+    Plot,
+    XFileLoad
 };
 
 void run(RunMode mode) {
@@ -44,6 +45,9 @@ void run(RunMode mode) {
         break;
     case RunMode.Plot:
         plotMain();
+        break;
+    case RunMode.XFileLoad:
+        xFileLoadExample();
         break;
     }
 }
