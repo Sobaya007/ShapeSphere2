@@ -38,8 +38,8 @@ void mouseExample() {
         auto colInfos = world.calcCollideRay(ray).filter!(a => a.collided).array;
         if (colInfos.length == 0) return;
         auto colInfo = colInfos.minElement!(a => a.colDist);
-        polyEntity.mat.condition = colInfo.colEntry.getOwner().getRootParent() is polyEntity;
-        capEntity.mat.condition = colInfo.colEntry.getOwner().getRootParent() is capEntity;
+        polyEntity.getMesh().mat.condition = colInfo.colEntry.getOwner().getRootParent() is polyEntity;
+        capEntity.getMesh().mat.condition = colInfo.colEntry.getOwner().getRootParent() is capEntity;
     };
     camera.getObj().pos.z = 4;
     camera.getObj().lookAt(vec3(0));
@@ -50,10 +50,10 @@ void mouseExample() {
     core.addProcess(render, "render");
     core.addProcess(mouseUpdate, "mouse");
     core.addProcess(detect, "detect");
-    polyEntity.mat.ambient1 = vec3(0.2, 0, 0);
-    polyEntity.mat.ambient2 = vec3(0.5);
-    capEntity.mat.ambient1 = vec3(0, 0, 0.2);
-    capEntity.mat.ambient2 = vec3(0.5);
+    polyEntity.getMesh().mat.ambient1 = vec3(0.2, 0, 0);
+    polyEntity.getMesh().mat.ambient2 = vec3(0.5);
+    capEntity.getMesh().mat.ambient1 = vec3(0, 0, 0.2);
+    capEntity.getMesh().mat.ambient2 = vec3(0.5);
 
     core.start();
 }

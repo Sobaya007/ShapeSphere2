@@ -2,32 +2,55 @@ module game.GameMain;
 
 import sbylib;
 import game.player;
-import std.stdio;
+import game.command;
+import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex;
 
-void gameMain() {
+void gameMain(string[] args) {
+    /* Core Settings */
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getRenderTarget();
-
+    auto world2d = new World;
     auto world3d = new World;
+    auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
+
+    /* Camera Settings */
     Camera camera = new PerspectiveCamera(1, 120, 0.1, 100);
     camera.pos = vec3(3, 2, 9);
     camera.lookAt(vec3(0,2,0));
     world3d.camera = camera;
-
-    auto world2d = new World;
     world2d.camera = new OrthoCamera(2,2,-1,1);
 
+    /* Player Settings */
+    Player player = new Player(core.getKey(), camera);
+    auto commandManager = getCommandManager(player.commandSpawners, args);
+    world3d.add(player.esphere.entity);
+    CameraChaseControl control = new CameraChaseControl(camera, player.esphere.entity.obj);
     core.addProcess((proc) {
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        world3d.render(screen);
-        screen.clear(ClearMode.Depth);
-        world2d.render(screen);
-    }, "render");
+        player.esphere.move();
+        player.step();
+        control.step();
+    }, "player update");
+    core.addProcess(&commandManager.update, "command update");
 
-    auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
-    Player player = new Player(core.getKey(), world3d.camera);
+    /* Label Settings */
+    if (commandManager.isPlaying()) {
+        auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
+        auto label = new Label(font);
+        label.setSize(0.1);
+        label.setOrigin(Label.OriginX.Right, Label.OriginY.Top);
+        label.pos = vec3(1,1,0);
+        label.setColor(vec4(1));
+        label.renderText("REPLAYING...");
+        world2d.add(label);
+        core.addProcess((proc) {
+            if (commandManager.isPlaying()) return;
+            label.renderText("STOPPED");
+            proc.kill();
+        }, "label update");
+    }
 
+    /* Polygon(Floor) Settings */
     auto makePolygon = (vec3[4] p) {
         auto polygons = [
         new CollisionPolygon([p[0], p[1], p[2]]),
@@ -54,37 +77,14 @@ void gameMain() {
     };
     makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
     makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);
-    world3d.add(player.esphere.entity);
+
+    /* Light Settings */
     PointLight pointLight;
     pointLight.pos = vec3(0,2,0);
     pointLight.diffuse = vec3(1);
     world3d.addPointLight(pointLight);
 
-    CameraChaseControl control = new CameraChaseControl(world3d.camera, player.esphere.entity.obj);
-
-    auto fpsCounter = new FpsCounter!100();
-    import std.format;
-
-    auto fpsLogger = new TimeLogger("FPS");
-
-    core.addProcess((proc) {
-        fpsCounter.update();
-        fpsLogger.directWrite(fpsCounter.getFPS());
-        core.getWindow().setTitle(format!"FPS[%d]"(fpsCounter.getFPS()));
-    }, "fps update");
-    core.addProcess((proc) {
-        player.esphere.move();
-        player.step();
-        control.step();
-    }, "player update");
-    core.addProcess((proc) {
-        if (core.getKey[KeyButton.Escape]) core.end();
-        if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
-        if (core.getKey[KeyButton.KeyW]) player.esphere.entity.getMesh().mat.config.polygonMode = PolygonMode.Line;
-        else player.esphere.entity.getMesh().mat.config.polygonMode = PolygonMode.Fill;
-        player.esphere.condition = !core.getKey[KeyButton.Enter];
-    }, "last");
-
+    /* Joy Stick Settings */
     if (JoyStick.canUse(0)) {
         auto joy = new JoyStick(0);
         core.addProcess((proc) {
@@ -92,5 +92,59 @@ void gameMain() {
         }, "test");
     }
 
+    /* Render */
+    core.addProcess((proc) {
+        screen.clear(ClearMode.Color, ClearMode.Depth);
+        world3d.render(screen);
+        screen.clear(ClearMode.Depth);
+        world2d.render(screen);
+    }, "render");
+
+    /* FPS Observe */
+    auto fpsCounter = new FpsCounter!100();
+    core.addProcess((proc) {
+        fpsCounter.update();
+        core.getWindow().setTitle(format!"FPS[%d]"(fpsCounter.getFPS()));
+    }, "fps update");
+
+    /* Key Input */
+    core.addProcess((proc) {
+        if (core.getKey[KeyButton.Escape]) {
+            commandManager.save();
+            core.end();
+        }
+        if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
+        if (core.getKey[KeyButton.KeyW]) player.esphere.entity.getMesh().mat.config.polygonMode = PolygonMode.Line;
+        else player.esphere.entity.getMesh().mat.config.polygonMode = PolygonMode.Fill;
+        player.esphere.condition = !core.getKey[KeyButton.Enter];
+    }, "po");
+
     core.start();
+}
+
+CommandManager getCommandManager(CommandSpawner[] commands, string[] args) {
+    string replayDataPath;
+    string historyDataPath;
+    getopt(args, "replay", &replayDataPath, "history", &historyDataPath);
+
+    if (!historyDataPath || replayDataPath == "latest") {
+        if (!exists("history")) {
+            mkdir("history");
+        }
+        auto r = regex("replay(0|([1-9][0-9]*)).history");
+        auto entries = dirEntries("history", SpanMode.shallow)
+        .filter!(a => a.name.baseName.matchAll(r));
+        auto names = entries.map!(a => a.name.baseName[6..$-8]).array;
+        auto max = names.length == 0 ? -1 : names.to!(int[]).maxElement;
+        std.stdio.writeln("max = ", max);
+        if (!historyDataPath) {
+            historyDataPath = format!"history/replay%d.history"(max+1);
+        }
+        if (replayDataPath == "latest") {
+            replayDataPath = format!"history/replay%d.history"(max);
+        }
+    }
+
+    if (replayDataPath) return new CommandManager(commands, replayDataPath, historyDataPath);
+    return new CommandManager(commands, historyDataPath);
 }

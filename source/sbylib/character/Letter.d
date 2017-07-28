@@ -26,8 +26,8 @@ class Letter {
         this.info = font.characters[c];
         auto geom = Rect.create(height * this.info.width / this.info.height, height);
         this.entity = new LetterEntity(geom);
-        this.entity.mat.texture = this.info.texture;
-        this.entity.mat.color = vec4(0,0,0,1);
+        this.entity.getMesh().mat.texture = this.info.texture;
+        this.entity.getMesh().mat.color = vec4(0,0,0,1);
     }
 
     LetterEntity getEntity() {
