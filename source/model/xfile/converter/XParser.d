@@ -215,6 +215,9 @@ private:
         assert(tokens.front.lexeme == "MeshTextureCoords", makeErrorMessage(tokens));
         tokens.removeFront;
 
+        assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
+        tokens.removeFront;
+
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         int uvNum = tokens.front.lexeme.to!int;
         tokens.removeFront;
@@ -313,6 +316,7 @@ private:
         assert(lexeme.front == '"', makeErrorMessage(tokens));
         assert(lexeme.back == '"', makeErrorMessage(tokens));
         textureFileName.name = lexeme[1..$-1];
+        tokens.removeFront;
 
         assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
