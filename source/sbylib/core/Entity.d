@@ -178,6 +178,7 @@ class Entity {
         this.colEntry = colEntry;
     }
 
+    alias obj this;
 }
 
 class EntityTemp(Geom, Mat) : Entity {
@@ -219,5 +220,5 @@ class EntityTemp(Geom, Mat) : Entity {
 //        super.setMesh(mesh);
 //    }
 
-    alias getMesh this;
+    alias obj this;
 }

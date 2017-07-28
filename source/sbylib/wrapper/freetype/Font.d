@@ -16,7 +16,7 @@ class Font {
     LetterInfo[dchar] characters;
     private FontType fontType;
 
-    this(FT_Face face, int size, FontType fontType) {
+    package(sbylib) this(FT_Face face, int size, FontType fontType) {
         this.face = face;
         this.size = size;
         assert(!FT_Set_Pixel_Sizes(this.face, 0, size), "Failed to set pixel size!");

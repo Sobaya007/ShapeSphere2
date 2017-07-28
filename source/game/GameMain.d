@@ -33,6 +33,23 @@ void gameMain(string[] args) {
     }, "player update");
     core.addProcess(&commandManager.update, "command update");
 
+    /* Label Settings */
+    if (commandManager.isPlaying()) {
+        auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
+        auto label = new Label(font);
+        label.setSize(0.1);
+        label.setOrigin(Label.OriginX.Right, Label.OriginY.Top);
+        label.pos = vec3(1,1,0);
+        label.setColor(vec4(1));
+        label.renderText("REPLAYING...");
+        world2d.add(label);
+        core.addProcess((proc) {
+            if (commandManager.isPlaying()) return;
+            label.renderText("STOPPED");
+            proc.kill();
+        }, "label update");
+    }
+
     /* Polygon(Floor) Settings */
     auto makePolygon = (vec3[4] p) {
         auto polygons = [
