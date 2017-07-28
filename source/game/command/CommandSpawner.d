@@ -15,4 +15,8 @@ class CommandSpawner {
     Command spawn() {
         return this.cond() ? this.command : null;
     }
+
+    Command getCommand() {
+        return this.command;
+    }
 }

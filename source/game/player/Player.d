@@ -17,7 +17,7 @@ class Player {
     private Camera camera;
     flim pushCount;
     private vec3 force;
-    private CommandList commandList;
+    CommandSpawner[] commandSpawners;
 
     this(Key key, Camera camera) {
         this.esphere = new ElasticSphere();
@@ -25,7 +25,7 @@ class Player {
         this.camera = camera;
         this.pushCount = flim(0.0, 0.0, 1);
         this.force = vec3(0);
-        this.commandList = new CommandList([
+        this.commandSpawners = [
             new CommandSpawner(() => key.isPressed(KeyButton.Space), new Command(&this.onDownPress)),
             new CommandSpawner(() => key.justReleased(KeyButton.Space), new Command(&this.onDownJustRelease)),
             new CommandSpawner(() => key.isPressed(KeyButton.KeyX), new Command(&this.onNeedlePress)),
@@ -33,20 +33,18 @@ class Player {
             new CommandSpawner(() => key.isPressed(KeyButton.Left), new Command(&this.onLeftPress)),
             new CommandSpawner(() => key.isPressed(KeyButton.Right), new Command(&this.onRightPress)),
             new CommandSpawner(() => key.isPressed(KeyButton.Up), new Command(&this.onForwardPress)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Down), new Command(&this.onBackPress))
-                ]);
+            new CommandSpawner(() => key.isPressed(KeyButton.Down), new Command(&this.onBackPress))];
     }
 
     void step() {
-        foreach (p; this.esphere.particleList) {
-            p.extForce = vec3(0,0,0);
-        }
-        this.force = vec3(0);
-        this.commandList.update();
         this.force.y = 0;
         if (this.force.length > 0) this.force = normalize(this.force) * SIDE_PUSH_FORCE;
         foreach (p; this.esphere.particleList) {
             p.force += this.force;
+        }
+        this.force = vec3(0);
+        foreach (p; this.esphere.particleList) {
+            p.extForce = vec3(0,0,0);
         }
     }
 

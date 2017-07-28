@@ -16,7 +16,7 @@ enum RunMode {
     Plot
 };
 
-void run(RunMode mode) {
+void run(RunMode mode, string[] args) {
     writeln("=".repeat(13).join ~ "RUN!" ~ "=".repeat(13).join);
     writeln([EnumMembers!(RunMode)].to!(string[]).map!(a => a == mode.to!string ? a ~ "(*)" : a).join(", \n"));
     writeln("=".repeat(30).join);
@@ -40,7 +40,7 @@ void run(RunMode mode) {
         textExample();
         break;
     case RunMode.Game:
-        gameMain();
+        gameMain(args);
         break;
     case RunMode.Plot:
         plotMain();
