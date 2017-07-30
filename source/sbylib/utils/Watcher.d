@@ -3,6 +3,7 @@ module sbylib.utils.Watcher;
 import std.functional;
 import std.algorithm;
 import sbylib;
+import std.stdio;
 
 class Watch(T) {
     private T value;
@@ -83,6 +84,7 @@ class Watcher(T) : IWatcher {
 
     void addWatch(S)(Watcher!S watcher) {
         watcher.watchers ~= this;
+        assert(Core().getKey[KeyButton.KeyA] == false);
     }
 
     void removeWatch(S)(Watch!S watch) {

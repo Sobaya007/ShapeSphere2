@@ -18,8 +18,8 @@ void gameMain(string[] args) {
     Camera camera = new PerspectiveCamera(1, 120, 0.1, 100);
     camera.pos = vec3(3, 2, 9);
     camera.lookAt(vec3(0,2,0));
-    world3d.camera = camera;
-    world2d.camera = new OrthoCamera(2,2,-1,1);
+    world3d.setCamera(camera);
+    world2d.setCamera(new OrthoCamera(2,2,-1,1));
 
     /* Player Settings */
     Player player = new Player(core.getKey(), camera);
