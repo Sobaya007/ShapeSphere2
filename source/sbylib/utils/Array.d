@@ -2,29 +2,42 @@ module sbylib.utils.Array;
 
 // source from here:https://wiki.dlang.org/Memory_Management
 import core.stdc.stdlib;
+import core.memory;
 import std.string;
 
 struct Array(T) {
-    private T* first;
+    private T* ptr;
     private size_t length;
     private size_t realLength;
+    private bool valid;
 
-    this(size_t length) {
+    this(size_t length) out {
+        assert(this.ptr);
+    } body {
         this.realLength = length;
-        this.first = cast(T*)malloc(length * T.sizeof);
         this.length = length;
+        auto size = this.realLength * T.sizeof;
+        this.ptr = cast(T*)malloc(size)[0..size].ptr;
+        this.valid = true;
+        GC.addRange(this.ptr, size);
     }
 
     void destroy() {
-        free(cast(void*)this.first);
+        GC.removeRange(cast(void*)this.ptr);
+        free(cast(void*)this.ptr);
+        this.valid = false;
     }
 
-    void opOpAssign(string op)(T value) if (op == "~") {
+    void opOpAssign(string op)(T value) if (op == "~") in {
+        assert(this.valid);
+    } body {
         this.incLength(1);
         this[this.length-1] = value;
     }
 
-    void opOpAssign(string op)(Array!T value) if (op == "~") {
+    void opOpAssign(string op)(Array!T value) if (op == "~") in {
+        assert(this.valid);
+    } body {
         auto oldLength = this.length;
         this.incLength(value.length);
         foreach (i; 0..value.length) {
@@ -32,8 +45,11 @@ struct Array(T) {
         }
     }
 
-    ref T opIndex(size_t idx) {
-        return this.first[idx];
+    ref T opIndex(size_t idx) in {
+        assert(0 <= idx && idx < this.length);
+        assert(valid);
+    } body {
+        return this.ptr[idx];
     }
 
     bool empty() {
@@ -41,17 +57,19 @@ struct Array(T) {
     }
 
     T front() {
-        return this.first[0];
+        return this.ptr[0];
     }
 
     T popFront() {
-        auto res = this.first[0];
-        this.first = &this.first[1];
+        auto res = this.ptr[0];
+        this.ptr = &this.ptr[1];
         this.length--;
         return res;
     }
 
-    int opApply(int delegate(ref T) dg) {
+    int opApply(int delegate(ref T) dg) in {
+        assert(this.valid);
+    } body {
         int result = 0;
         foreach (i; 0..this.length) {
             result = dg(this[i]);
@@ -61,20 +79,25 @@ struct Array(T) {
     }
 
     void filter(string po)() {
-        auto len = this.length;
-        this.length = 0;
-        foreach (i; 0..len) {
+        auto len = 0;
+        foreach (i; 0..this.length) {
             auto a = this[i];
             if (!mixin(po)) continue;
-            this[this.length++] = this[i];
+            this[len++] = this[i];
         }
+        this.length = len;
     }
 
-    private void incLength(size_t length) {
+    private void incLength(size_t length) out {
+        assert(this.ptr);
+    } body {
         this.length += length;
         if (this.length > this.realLength) {
             this.realLength = this.length + 10;
-            this.first = cast(T*)realloc(this.first, this.realLength * T.sizeof)[0..this.realLength];
+            auto size = this.realLength * T.sizeof;
+            GC.removeRange(this.ptr);
+            this.ptr = cast(T*)realloc(this.ptr, size)[0..size];
+            GC.addRange(this.ptr, size);
         }
     }
 }

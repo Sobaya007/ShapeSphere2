@@ -60,8 +60,7 @@ class Core {
     private Key key;
     private Mouse mouse;
     private FpsBalancer fpsBalancer;
-    private Process[] processes;
-    //private Array!Process processes;
+    private Array!Process processes;
     private bool endFlag;
 
     //初期化関数
@@ -77,7 +76,7 @@ class Core {
         this.key = new Key(this.window);
         this.mouse = new Mouse(this.window);
         this.fpsBalancer = new FpsBalancer(60);
-        //this.processes = Array!Process(0);
+        this.processes = Array!Process(0);
     }
 
     ~this() {
@@ -115,15 +114,14 @@ class Core {
         this.fpsBalancer.loop({
             this.key.update();
             this.mouse.update();
-            foreach (proc; this.processes) {
-                proc.step();
-            }
+            this.processes.filter!("a.step");
             this.window.swapBuffers();
             this.window.pollEvents();
             SDL.update();
             stdout.flush();
             return window.shouldClose() || endFlag;
         });
+        this.processes.destroy();
     }
 
     Window getWindow() {

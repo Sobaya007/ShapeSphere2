@@ -238,10 +238,11 @@ class ElasticSphere {
             foreach (f; floors) {
                 auto colInfos = Array!CollisionInfo(0);
                 f.collide(colInfos, this.entity);
-                if (colInfos.all!(a => !a.collided)) {
+                auto collided = colInfos.all!(a => !a.collided);
+                colInfos.destroy();
+                if (collided) {
                     continue;
                 }
-                colInfos.destroy();
                 auto floor = cast(CollisionPolygon)f.getCollisionEntry().getGeometry();
                 float depth = -(p + n * needle(isStinger) - floor.positions[0]).dot(floor.normal);
                 if (depth > 0) {
