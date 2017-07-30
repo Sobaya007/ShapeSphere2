@@ -15,7 +15,6 @@ import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
 import std.math;
 import std.algorithm;
-import std.array;
 
 class CameraControl {
 

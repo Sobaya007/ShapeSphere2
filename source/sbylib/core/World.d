@@ -12,12 +12,13 @@ import sbylib.material.glsl.UniformDemand;
 import sbylib.math.Vector;
 import sbylib.wrapper.gl.Attribute;
 import sbylib.geometry.Geometry;
+import sbylib.utils.Array;
 import std.traits;
 import std.algorithm;
 
 class World {
     private Entity[] entities;
-    Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
+    private Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
     private Watcher!umat4 viewMatrix;
     private Watcher!umat4 projMatrix;
     private Watcher!(UniformBuffer!PointLightBlock) pointLightBlockBuffer;
@@ -27,14 +28,10 @@ class World {
         this.camera = new Watch!Camera;
         this.viewMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = this.camera.getObj().viewMatrix;
-            this.viewMatrix.addWatch(this.camera.getObj().viewMatrix);
         }, new umat4("viewMatrix"));
-        this.viewMatrix.addWatch(this.camera);
         this.projMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = this.camera.projMatrix;
-            this.projMatrix.addWatch(this.camera.projMatrix);
         }, new umat4("projMatrix"));
-        this.projMatrix.addWatch(this.camera);
         this.pointLightBlock = new Watch!PointLightBlock;
         auto uni = new UniformBuffer!PointLightBlock("PointLightBlock");
         uni.sendData(this.pointLightBlock.get(), BufferUsage.Dynamic);
@@ -45,6 +42,16 @@ class World {
             uni.unmap();
         }, uni);
         this.pointLightBlockBuffer.addWatch(this.pointLightBlock);
+    }
+
+    void setCamera(Camera camera) {
+        if (this.camera.get()) {
+            this.viewMatrix.removeWatch(this.camera.getObj().viewMatrix);
+            this.projMatrix.removeWatch(this.camera.projMatrix);
+        }
+        this.camera = camera;
+        this.viewMatrix.addWatch(this.camera.getObj().viewMatrix);
+        this.projMatrix.addWatch(this.camera.projMatrix);
     }
 
     void add(T)(T[] rs...) 
@@ -81,13 +88,10 @@ class World {
         }
     }
 
-    CollisionInfo[] calcCollide(Entity colEntry) {
-        static CollisionInfo[] result;
-        result.length = 0;
+    void calcCollide(ref Array!CollisionInfo result, Entity colEntry) {
         foreach (entity; this.entities) {
-            result ~= entity.collide(colEntry);
+            entity.collide(result, colEntry);
         }
-        return result;
     }
 
     CollisionInfoRay[] calcCollideRay(CollisionRay ray) {

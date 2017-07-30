@@ -7,7 +7,6 @@ import std.math;
 import std.string;
 import std.stdio;
 import std.format;
-import std.array;
 import std.traits;
 
 alias Vector!(float, 2) vec2; //========================================適当にaliasしとく

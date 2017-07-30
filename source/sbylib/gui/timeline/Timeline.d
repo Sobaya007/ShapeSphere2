@@ -1,7 +1,7 @@
 module sbylib.gui.Timeline;
 
 import sbylib;
-import std.range, std.algorithm, std.array;
+import std.range, std.algorithm;
 import std.math;
 import std.format;
 

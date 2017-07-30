@@ -83,7 +83,7 @@ void textExample() {
         world.render(screen);
     };
 
-    world.camera = camera;
+    world.setCamera(camera);
     world.add(label.entity);
     world.add(label2.entity);
     world.add(label3.entity);
