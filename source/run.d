@@ -13,7 +13,6 @@ enum RunMode {
     Material,
     Mouse,
     Text,
-    NoGC,
     Plot
 };
 
@@ -42,9 +41,6 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Game:
         gameMain(args);
-        break;
-    case RunMode.NoGC:
-        noGcExample();
         break;
     case RunMode.Plot:
         plotMain();

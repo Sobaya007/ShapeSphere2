@@ -7,4 +7,3 @@ import examples.Gui;
 import examples.Material;
 import examples.Mouse;
 import examples.Text;
-import examples.NoGC;

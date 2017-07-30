@@ -11,11 +11,13 @@ struct Array(T) {
     private size_t realLength;
     private bool valid;
 
-    this(size_t length) out {
+    private enum invalidMessage = "This array is invalid.(before initialize or after destroy)";
+
+    this(size_t capacity) out {
         assert(this.ptr);
     } body {
-        this.realLength = length;
-        this.length = length;
+        this.realLength = capacity;
+        this.length = 0;
         auto size = this.realLength * T.sizeof;
         this.ptr = cast(T*)malloc(size)[0..size].ptr;
         this.valid = true;
@@ -29,14 +31,14 @@ struct Array(T) {
     }
 
     void opOpAssign(string op)(T value) if (op == "~") in {
-        assert(this.valid);
+        assert(this.valid, invalidMessage);
     } body {
         this.incLength(1);
         this[this.length-1] = value;
     }
 
     void opOpAssign(string op)(Array!T value) if (op == "~") in {
-        assert(this.valid);
+        assert(this.valid, invalidMessage);
     } body {
         auto oldLength = this.length;
         this.incLength(value.length);
@@ -46,8 +48,8 @@ struct Array(T) {
     }
 
     ref T opIndex(size_t idx) in {
-        assert(0 <= idx && idx < this.length);
-        assert(valid);
+        assert(0 <= idx && idx < this.length, "Out of Range");
+        assert(valid, invalidMessage);
     } body {
         return this.ptr[idx];
     }
@@ -68,7 +70,7 @@ struct Array(T) {
     }
 
     int opApply(int delegate(ref T) dg) in {
-        assert(this.valid);
+        assert(this.valid, invalidMessage);
     } body {
         int result = 0;
         foreach (i; 0..this.length) {
