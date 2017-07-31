@@ -37,7 +37,6 @@ class CameraControl {
     }
 
     void update() {
-        this.mouse.update();
         final switch(this.mode) {
         case Mode.None:
             this.none();
