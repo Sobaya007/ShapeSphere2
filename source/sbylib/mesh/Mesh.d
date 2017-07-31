@@ -51,7 +51,7 @@ class Mesh {
         }
         foreach (uni; this.mat.getUniforms()) {
             (u) {
-                this.setUniform(() => u);
+                this.setUniform(u);
             }(uni);
         }
     }

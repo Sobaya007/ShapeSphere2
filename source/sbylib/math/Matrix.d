@@ -36,17 +36,25 @@ public:
         foreach (ref el; this.element) el = e;
     }
 
-    this(T[] elements...) in {
-        assert(elements.length <= U*V);
-    } body {
+    this(T[U*V] elements...) {
         foreach(i, e; elements) {
             this[i/V,i%V] = e;
         }
     }
 
-    this(Vector!(T, U)[] vectors...) in {
-        assert(vectors.length == V);
-    } body {
+    this(T[U][V] vectors...) {
+        mixin({
+            string result;
+            foreach (i; 0..U) {
+                foreach (j; 0..V) {
+                    result ~= format!"this[%d,%d] = vectors[%d][%d];"(i,j,j,i);
+                }
+            }
+            return result;
+        }());
+    }
+
+    this(Vector!(T, U)[V] vectors...) {
         mixin({
             string result;
             foreach (i; 0..U) {
@@ -314,7 +322,7 @@ public:
             }
 
             Matrix!(T,3,3) toMatrix3() {
-                return Matrix!(T,3,3)(element[0..3]~element[4..7]~element[8..11]);
+                return Matrix!(T,3,3)(element[0..3],element[4..7],element[8..11]);
             }
 
             vec3 getScale() {

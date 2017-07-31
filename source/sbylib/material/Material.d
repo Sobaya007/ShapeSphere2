@@ -38,7 +38,7 @@ class Material {
     }
 
     abstract UniformDemand[] getDemands();
-    abstract Uniform[] getUniforms();
+    abstract Uniform delegate()[] getUniforms();
 }
 
 class MaterialTemp(UniformKeeper) : Material {
@@ -58,6 +58,10 @@ class MaterialTemp(UniformKeeper) : Material {
     UniformKeeper keeper;
 
     this() {
+        this((obj){});
+    }
+
+    this(void delegate(UniformKeeper) constructor) {
         if (!demands) {
             auto fragAST = UniformKeeper.generateFragmentAST();
             auto vertAST = GlslUtils.generateVertexAST(fragAST);
@@ -69,8 +73,7 @@ class MaterialTemp(UniformKeeper) : Material {
         }
         const program = new Program([vertexShader, fragmentShader]);
         super(program);
-
-        this.keeper = new UniformKeeper(this);
+        this.keeper = new UniformKeeper(constructor);
     }
 
     ref auto opDispatch(string s)() {
@@ -81,7 +84,7 @@ class MaterialTemp(UniformKeeper) : Material {
         return this.demands;
     }
 
-    override Uniform[] getUniforms() {
+    override Uniform delegate()[] getUniforms() {
         return this.keeper.getUniforms();
     }
 }

@@ -5,5 +5,5 @@ import sbylib.wrapper.gl.Uniform;
 
 abstract class UniformKeeper {
 
-    abstract Uniform[] getUniforms();
+    abstract Uniform delegate()[] getUniforms();
 }

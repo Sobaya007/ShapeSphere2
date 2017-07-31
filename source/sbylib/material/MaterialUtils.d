@@ -44,26 +44,36 @@ class MaterialUtils {
             return fragAST;
         }
 
-        override Uniform[] getUniforms() {
+        override Uniform delegate()[] getUniforms() {
             import std.traits;
-            Uniform[] result;
+            Uniform delegate()[] result;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
                 static if (isAssignable!(Uniform, type)) {
-                    result ~= mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
+                    result ~= () => mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
                 }
             }
             return result;
         }
 
-        this(Material mat) {
-            this(mat, s => s);
+        this() {
+            this((obj){}, s => s);
         }
 
-        this(Material mat, string delegate(string) replace) {
+        this(void delegate(this) constructor) {
+            this(constructor, s => s);
+        }
+
+        this(string delegate(string) replace) {
+            this((obj){}, replace);
+        }
+
+        this(void delegate(this) constructor, string delegate(string) replace) {
             static if(__traits(hasMember, typeof(this), "constructor")) {
-                constructor();
+                this.constructor();
             }
-            foreach (u; this.getUniforms) {
+            constructor(this);
+            foreach (ud; this.getUniforms) {
+                auto u = ud();
                 assert(u, "Uniform variable must be initialized");
                 u.setName(replace(u.getName()));
             }
@@ -101,11 +111,11 @@ class MaterialUtils {
             return fragAST;
         }
 
-        override Uniform[] getUniforms() {
-            Uniform[] result;
+        override Uniform delegate()[] getUniforms() {
+            Uniform delegate()[] result;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
                 static if (isAssignable!(Uniform, type)) {
-                    result ~= mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
+                    result ~= () => mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
                 }
             }
             result ~= this.a.getUniforms();
@@ -113,22 +123,31 @@ class MaterialUtils {
             return result;
         }
 
-        this(Material mat) {
-            this(mat, s => s);
+        this() {
+            this((obj){}, s => s);
         }
 
-        this(Material mat, string delegate(string) replace) {
+        this(void delegate(this) constructor) {
+            this(constructor, s => s);
+        }
+
+        this(string delegate(string) replace) {
+            this((obj){}, replace);
+        }
+
+        this(void delegate(this) constructor, string delegate(string) replace) {
             import std.meta;
             static if(staticIndexOf!("constructor",  __traits(allMembers, typeof(this))) != -1) {
                 mixin("this.constructor();");
             }
+            constructor(this);
 
             string pascal(string s) {
                 import std.conv;
                 return capitalize(to!string(s[0])) ~ s[1..$];
             }
-            this.a = new A.Keeper(mat, s => replace(MaterialName1 ~ pascal(s)));
-            this.b = new B.Keeper(mat, s => replace(MaterialName2 ~ pascal(s)));
+            this.a = new A.Keeper((string s) => replace(MaterialName1 ~ pascal(s)));
+            this.b = new B.Keeper((string s) => replace(MaterialName2 ~ pascal(s)));
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
                 static if (isAssignable!(Uniform, type)) {
                     auto u = mixin("this." ~ FieldNameTuple!(typeof(this))[i]);

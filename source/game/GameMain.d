@@ -50,6 +50,11 @@ void gameMain(string[] args) {
         }, "label update");
     }
 
+    /* Compass Settings */
+    auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));
+    world2d.add(compass);
+    compass.pos = vec3(0.75, -0.75, 0);
+
     /* Polygon(Floor) Settings */
     auto makePolygon = (vec3[4] p) {
         auto polygons = [

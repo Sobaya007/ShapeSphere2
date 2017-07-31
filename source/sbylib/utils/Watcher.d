@@ -84,7 +84,6 @@ class Watcher(T) : IWatcher {
 
     void addWatch(S)(Watcher!S watcher) {
         watcher.watchers ~= this;
-        assert(Core().getKey[KeyButton.KeyA] == false);
     }
 
     void removeWatch(S)(Watch!S watch) {
