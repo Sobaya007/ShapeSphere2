@@ -98,7 +98,7 @@ class ElasticSphere {
         //半径を求める
         this.radius = this.particleList.map!(a => (a.position - g).length).sum / this.particleList.length;
         //速度を求める
-        lVel = this.particleList.map!(a => a.v).sum / this.particleList.length;
+        lVel = this.particleList.map!(a => a.velocity).sum / this.particleList.length;
         aVel = vec3(0);
         this.lowerY = this.particleList.map!(p => p.position.y).reduce!min;
         this.upperY = this.particleList.map!(p => p.position.y).reduce!max;
@@ -147,7 +147,7 @@ class ElasticSphere {
             p.force.y -= GRAVITY * MASS;
         }
         foreach (ref particle; this.particleList) {
-            particle.v += (particle.force + particle.extForce) * FORCE_COEF;
+            particle.velocity += (particle.force + particle.extForce) * FORCE_COEF;
         }
 
         foreach (ref particle; this.particleList) {
@@ -203,7 +203,7 @@ class ElasticSphere {
     }
 
     private void move(Particle particle) {
-        particle.position += particle.v * Player.TIME_STEP;
+        particle.position += particle.velocity * Player.TIME_STEP;
         particle.isGround = false;
     }
 
@@ -219,11 +219,11 @@ class ElasticSphere {
             auto floor = cast(CollisionPolygon)f.getCollisionEntry().getGeometry();
             float depth = -(this.needlePosition(particle) - floor.positions[0]).dot(floor.normal);
             if (depth > 0) {
-                auto po = particle.v - dot(particle.v, floor.normal) * floor.normal;
-                particle.v -= po * FRICTION;
+                auto po = particle.velocity - dot(particle.velocity, floor.normal) * floor.normal;
+                particle.velocity -= po * FRICTION;
                 particle.isGround = true;
-                if (dot(particle.v, floor.normal) < 0) {
-                    particle.v -= floor.normal * dot(floor.normal, particle.v) * 1;
+                if (dot(particle.velocity, floor.normal) < 0) {
+                    particle.velocity -= floor.normal * dot(floor.normal, particle.velocity) * 1;
                 }
                 particle.position += floor.normal * depth;
             }
@@ -267,11 +267,11 @@ class ElasticSphere {
         }
 
         void solve() {
-            vec3 v1 = this.p1.v - this.p0.v;
+            vec3 v1 = this.p1.velocity - this.p0.velocity;
             vec3 v2 = v1 * VEL_COEF + this.dist * POS_COEF;
             vec3 dv = (v2 - v1) * 0.5f;
-            this.p0.v -= dv;
-            this.p1.v += dv;
+            this.p0.velocity -= dv;
+            this.p1.velocity += dv;
         }
     }
 
