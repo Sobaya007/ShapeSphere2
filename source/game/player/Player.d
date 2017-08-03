@@ -11,6 +11,7 @@ class Player {
     enum DOWN_PUSH_FORCE = 600;
     enum DOWN_PUSH_FORE_MIN = 800;
     enum SIDE_PUSH_FORCE = 10;
+    enum TIME_STEP = 0.02;
 
     ElasticSphere esphere;
     private Key key;

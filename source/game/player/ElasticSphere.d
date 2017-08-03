@@ -1,6 +1,8 @@
 module game.player.ElasticSphere;
 
 import game.player.PlayerMaterial;
+import game.player.Particle;
+import game.player.Player;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -10,15 +12,15 @@ import std.stdio;
 class ElasticSphere {
 
     immutable {
+        alias TIME_STEP = Player.TIME_STEP;
         uint RECURSION_LEVEL = 2;
         float DEFAULT_RADIUS = 0.5;
         float MASS = 0.05;
-        float TIME_STEP = 0.02;
+        float FRICTION = 0.3;
         float ZETA = 0.5;
         float OMEGA = 100;
         float c = 2 * ZETA * OMEGA * MASS;
         float k = MASS * OMEGA * OMEGA;
-        float FRICTION = 0.3;
         float GRAVITY = 100;
         uint ITERATION_COUNT = 20;
 
@@ -149,13 +151,13 @@ class ElasticSphere {
         }
 
         foreach (ref particle; this.particleList) {
-            particle.move();
+            move(particle);
         }
         foreach (ref particle; this.particleList) {
-            particle.collision();
+            collision(particle);
         }
         foreach (ref particle; this.particleList) {
-            particle.end();
+            end(particle);
         }
         foreach (i, ref p; this.particleList) {
             this.geom.vertices[i].normal = vec3(0);
@@ -172,15 +174,9 @@ class ElasticSphere {
         foreach (i,v; this.geom.vertices) {
             auto p = this.particleList[i];
             v.normal = safeNormalize(v.normal);
-            v.position = (this.entity.obj.viewMatrix * vec4(p.p - v.normal * needle(p.isStinger), 1)).xyz;
+            v.position = (this.entity.obj.viewMatrix * vec4(needlePosition(p), 1)).xyz;
         }
         this.geom.updateBuffer();
-    }
-
-    private float needle(bool isNeedle){
-        float t = needleCount;
-        float arrival = isNeedle ? 2 : 0.9;
-        return -t + t * arrival;
     }
 
     private float calcVolume() {
@@ -206,62 +202,48 @@ class ElasticSphere {
         return area / 2;
     }
 
+    private void move(Particle particle) {
+        particle.p += particle.v * Player.TIME_STEP;
+        particle.isGround = false;
+    }
 
-    class Particle {
-        vec3 p;
-        vec3 v;
-        vec3 n;
-        vec3 force;
-        vec3 extForce;
-        bool isGround;
-        bool isStinger;
-        Particle[] next;
-        Entity entity;
-        CollisionCapsule capsule;
-
-        this(vec3 p) {
-            this.p = p;
-            this.n = normalize(p);
-            this.v = vec3(0,0,0);
-            this.force = vec3(0,0,0);
-            this.extForce = vec3(0,0,0);
-            this.capsule = new CollisionCapsule(0.1, this.p, this.p);
-            this.entity = new Entity(this.capsule);
-        }
-
-        void move() {
-            p += v * TIME_STEP;
-            isGround = false;
-        }
-
-        void collision() {
-            foreach (f; floors) {
-                auto colInfos = Array!CollisionInfo(0);
-                f.collide(colInfos, this.entity);
-                auto collided = colInfos.all!(a => !a.collided);
-                colInfos.destroy();
-                if (collided) {
-                    continue;
+    private void collision(Particle particle) {
+        foreach (f; floors) {
+            auto colInfos = Array!CollisionInfo(0);
+            f.collide(colInfos, particle.entity);
+            auto collided = colInfos.all!(a => !a.collided);
+            colInfos.destroy();
+            if (collided) {
+                continue;
+            }
+            auto floor = cast(CollisionPolygon)f.getCollisionEntry().getGeometry();
+            float depth = -(this.needlePosition(particle) - floor.positions[0]).dot(floor.normal);
+            if (depth > 0) {
+                auto po = particle.v - dot(particle.v, floor.normal) * floor.normal;
+                particle.v -= po * FRICTION;
+                particle.isGround = true;
+                if (dot(particle.v, floor.normal) < 0) {
+                    particle.v -= floor.normal * dot(floor.normal, particle.v) * 1;
                 }
-                auto floor = cast(CollisionPolygon)f.getCollisionEntry().getGeometry();
-                float depth = -(p + n * needle(isStinger) - floor.positions[0]).dot(floor.normal);
-                if (depth > 0) {
-                    auto po = v - dot(v, floor.normal) * floor.normal;
-                    v -= po * FRICTION;
-                    isGround = true;
-                    if (dot(v, floor.normal) < 0) {
-                        v -= floor.normal * dot(floor.normal, v) * 1;
-                    }
-                    p += floor.normal * depth;
-                }
+                particle.p += floor.normal * depth;
             }
         }
+    }
 
-        void end() {
-            force = vec3(0,0,0); //用済み
-            this.capsule.setEnd(this.capsule.start);
-            this.capsule.setStart(p + n * needle(isStinger));
-        }
+    private void end(Particle particle) {
+        particle.force = vec3(0,0,0); //用済み
+        particle.capsule.setEnd(particle.capsule.start);
+        particle.capsule.setStart(this.needlePosition(particle));
+    }
+
+    private vec3 needlePosition(Particle particle) {
+        return particle.p + particle.n * needle(particle.isStinger);
+    }
+
+    private float needle(bool isNeedle){
+        alias t = this.needleCount;
+        float arrival = isNeedle ? 2 : 0.9;
+        return -t + t * arrival;
     }
 
     class Pair {
