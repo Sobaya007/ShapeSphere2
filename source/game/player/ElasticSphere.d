@@ -115,7 +115,7 @@ class ElasticSphere {
                 quat rot = quat.axisAngle(axis, angle);
                 foreach (p;particleList) {
                     p.position = rotate(p.position-g, rot) + g;
-                    p.n = rotate(p.n, rot);
+                    p.normal = rotate(p.normal, rot);
                 }
             }
         }
@@ -139,7 +139,7 @@ class ElasticSphere {
             import std.stdio;
             float force = BALOON_COEF * area / (volume * particleList.length);
             foreach (ref particle; this.particleList) {
-                particle.force += particle.n * force;
+                particle.force += particle.normal * force;
             }
         }
         //重力
@@ -237,7 +237,7 @@ class ElasticSphere {
     }
 
     private vec3 needlePosition(Particle particle) {
-        return particle.position + particle.n * needle(particle.isStinger);
+        return particle.position + particle.normal * needle(particle.isStinger);
     }
 
     private float needle(bool isNeedle){

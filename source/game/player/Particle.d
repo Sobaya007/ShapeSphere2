@@ -6,7 +6,7 @@ import std.algorithm;
 class Particle {
     vec3 position;
     vec3 velocity;
-    vec3 n;
+    vec3 normal;
     vec3 force;
     vec3 extForce;
     bool isGround;
@@ -17,7 +17,7 @@ class Particle {
 
     this(vec3 p) {
         this.position = p;
-        this.n = normalize(p);
+        this.normal = normalize(p);
         this.velocity = vec3(0,0,0);
         this.force = vec3(0,0,0);
         this.extForce = vec3(0,0,0);
