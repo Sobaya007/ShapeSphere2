@@ -51,7 +51,7 @@ class ElasticSphere {
         foreach (v; geom.vertices) {
             this.particleList ~= new Particle(v.position);
         }
-        this.particleList.each!( p => p.p += vec3(0,20,0));
+        this.particleList.each!( p => p.position += vec3(0,20,0));
 
         uint[2] makePair(uint a, uint b) {
             return a < b ? [a,b] : [b,a];
@@ -83,7 +83,7 @@ class ElasticSphere {
         this.entity = new Entity(geom, mat);
         this.deflen = 0;
         foreach (pair; this.pairList) {
-            this.deflen += length(pair.p0.p - pair.p1.p);
+            this.deflen += length(pair.p0.position - pair.p1.position);
         }
         this.deflen /= this.pairList.length;
     }
@@ -94,14 +94,14 @@ class ElasticSphere {
         //表面積の測定
         float area = this.calcArea();
         //重心を求める
-        vec3 g = this.particleList.map!(a => a.p).sum / this.particleList.length;
+        vec3 g = this.particleList.map!(a => a.position).sum / this.particleList.length;
         //半径を求める
-        this.radius = this.particleList.map!(a => (a.p - g).length).sum / this.particleList.length;
+        this.radius = this.particleList.map!(a => (a.position - g).length).sum / this.particleList.length;
         //速度を求める
         lVel = this.particleList.map!(a => a.v).sum / this.particleList.length;
         aVel = vec3(0);
-        this.lowerY = this.particleList.map!(p => p.p.y).reduce!min;
-        this.upperY = this.particleList.map!(p => p.p.y).reduce!max;
+        this.lowerY = this.particleList.map!(p => p.position.y).reduce!min;
+        this.upperY = this.particleList.map!(p => p.position.y).reduce!max;
 
         //移動量から強引に回転させる
         {
@@ -114,7 +114,7 @@ class ElasticSphere {
                 float angle = dif.length / this.radius;
                 quat rot = quat.axisAngle(axis, angle);
                 foreach (p;particleList) {
-                    p.p = rotate(p.p-g, rot) + g;
+                    p.position = rotate(p.position-g, rot) + g;
                     p.n = rotate(p.n, rot);
                 }
             }
@@ -183,9 +183,9 @@ class ElasticSphere {
         float volume = 0;
         auto center = this.entity.obj.pos;
         foreach (face; this.geom.faces) {
-            auto a = particleList[face.indexList[0]].p - center;
-            auto b = particleList[face.indexList[1]].p - center;
-            auto c = particleList[face.indexList[2]].p - center;
+            auto a = particleList[face.indexList[0]].position - center;
+            auto b = particleList[face.indexList[1]].position - center;
+            auto c = particleList[face.indexList[2]].position - center;
             volume += mat3.determinant(mat3(a,b,c));
         }
         return abs(volume) / 6;
@@ -194,16 +194,16 @@ class ElasticSphere {
     private float calcArea() {
         float area = 0;
         foreach (face; this.geom.faces) {
-            auto a = particleList[face.indexList[0]].p;
-            auto b = particleList[face.indexList[1]].p;
-            auto c = particleList[face.indexList[2]].p;
+            auto a = particleList[face.indexList[0]].position;
+            auto b = particleList[face.indexList[1]].position;
+            auto c = particleList[face.indexList[2]].position;
             area += length(cross(a - b, a - c));
         }
         return area / 2;
     }
 
     private void move(Particle particle) {
-        particle.p += particle.v * Player.TIME_STEP;
+        particle.position += particle.v * Player.TIME_STEP;
         particle.isGround = false;
     }
 
@@ -225,7 +225,7 @@ class ElasticSphere {
                 if (dot(particle.v, floor.normal) < 0) {
                     particle.v -= floor.normal * dot(floor.normal, particle.v) * 1;
                 }
-                particle.p += floor.normal * depth;
+                particle.position += floor.normal * depth;
             }
         }
     }
@@ -237,7 +237,7 @@ class ElasticSphere {
     }
 
     private vec3 needlePosition(Particle particle) {
-        return particle.p + particle.n * needle(particle.isStinger);
+        return particle.position + particle.n * needle(particle.isStinger);
     }
 
     private float needle(bool isNeedle){
@@ -257,7 +257,7 @@ class ElasticSphere {
         }
 
         void init() {
-            vec3 d = this.p1.p - this.p0.p;
+            vec3 d = this.p1.position - this.p0.position;
             auto len = d.length;
             if (len > 0) d /= len;
             len -= deflen;

@@ -54,8 +54,8 @@ class Player {
         vec3 g = this.esphere.entity.obj.pos;
         foreach (p; this.esphere.particleList) {
             //下向きの力
-            float len = length(p.p.xz - g.xz);
-            float powerMax = min(DOWN_PUSH_FORE_MIN, DOWN_PUSH_FORCE / pow(len + 0.6, 2.5)) * (p.p.y - this.esphere.lowerY) / (this.esphere.upperY - this.esphere.lowerY);
+            float len = length(p.position.xz - g.xz);
+            float powerMax = min(DOWN_PUSH_FORE_MIN, DOWN_PUSH_FORCE / pow(len + 0.6, 2.5)) * (p.position.y - this.esphere.lowerY) / (this.esphere.upperY - this.esphere.lowerY);
             p.extForce.y -= powerMax * this.pushCount;
         }
     }
