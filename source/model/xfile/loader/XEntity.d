@@ -10,6 +10,10 @@ class XEntity {
     XGeometry geometry;
     XLeviathan[] leviathans;
 
+    /*
+        XEntityをEntityに変換する。
+            テスト用の関数なので実際のゲームでは用いない
+    */
     Entity buildEntity() {
         Entity entity = new Entity;
         foreach(child; this.children) {

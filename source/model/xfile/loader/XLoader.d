@@ -7,7 +7,7 @@ import model.xfile.loader;
 
 import std.range, std.array, std.algorithm;
 
-import std.file, std.conv;
+import std.file, std.conv, std.format;
 
 /*
 Xファイルのモデルデータを読み込むよ。
@@ -28,24 +28,33 @@ private:
     XLexer lexer   = new XLexer;
     XParser parser = new XParser;
 
+    bool materialRequired;
+    bool normalRequired;
+    bool uvRequired;
+
 public:
 
     /*
-        path ... xファイルのパス
-        normalRequired ... trueなら、法線情報がないときにassertion
-        uvRequired ... trueなら、UV座標の情報がないときにassertion
+        path             ... xファイルのパス
+        materialRequired ... trueなら、マテリアル情報がないときにassertion
+        normalRequired   ... trueなら、法線情報がないときにassertion
+        uvRequired       ... trueなら、UV座標の情報がないときにassertion
     */
-    // Entity load(string path, bool normalRequired = true, bool uvRequired = true) {
-    XEntity load(string path) {
+    XEntity load(string path, bool materialRequired = true, bool normalRequired = true, bool uvRequired = true) {
+        this.materialRequired = materialRequired;
+        this.normalRequired   = normalRequired;
+        this.uvRequired       = uvRequired;
+
         string src = readText(RESOURCE_ROOT ~ path);
         XFrameNode root = this.parser.run(this.lexer.run(src));
         return makeEntity(root, mat4.identity);
     }
 
+private:
     XEntity makeEntity(XFrameNode parent, mat4 transformMat) {
         XEntity entity = new XEntity;
 
-        mat4 mat = transformMat * parent.frameTransformMatrix.matrix;
+        mat4 mat = transformMat * mat4.transpose(parent.frameTransformMatrix.matrix);
 
         if (parent.mesh !is null) {
             entity.children ~= makeEntity(parent.mesh, mat);
@@ -72,18 +81,39 @@ public:
             i => vertices[i]
         ).array;
 
-        assert(xMesh.meshNormals !is null);
-        vec3[] normals = xMesh.meshNormals.normals.map!(
-            n => transformMat * vec4(n, 0.0)
-        ).map!(
-            n => n.xyz
-        ).array;
-        uint[][] normalIndices = xMesh.meshNormals.indices.to!(uint[][]); // 3*面の数
+        if (this.normalRequired) {
+            assert(
+                xMesh.meshNormals !is null,
+                format(
+                    "(line: %s, column: %s, lexeme: \"%s\"): 法線情報がないよ",
+                    xMesh.headToken.line, xMesh.headToken.column, xMesh.headToken.lexeme
+                )
+            );
+        }
+        vec3[] normals;
+        uint[][] normalIndices;
+        if (xMesh.meshNormals !is null) {
+            normals = xMesh.meshNormals.normals.map!(
+                n => transformMat * vec4(n, 0.0)
+            ).map!(
+                n => n.xyz
+            ).array;
+            normalIndices = xMesh.meshNormals.indices.to!(uint[][]); // 3*面の数
+        }
 
         entity.geometry.normals = normalIndices.join.map!(
             i => normals[i]
         ).array;
 
+        if (this.uvRequired) {
+            assert(
+                xMesh.meshTextureCoords !is null,
+                format(
+                    "(line: %s, column: %s, lexeme: \"%s\"): UV情報がないよ",
+                    xMesh.headToken.line, xMesh.headToken.column, xMesh.headToken.lexeme
+                )
+            );
+        }
         if (xMesh.meshTextureCoords !is null) {
             vec2[] uvs = xMesh.meshTextureCoords.uvs;
             assert(uvs.length == vertices.length, "頂点の個数とUV情報の個数が合わないよ");
@@ -92,9 +122,21 @@ public:
             ).array;
         }
 
-        assert(xMesh.meshMaterialList !is null);
-        XMaterial[] materials = xMesh.meshMaterialList.materials.map!(m => makeMaterial(m)).array;
-        uint[] materialIndices = xMesh.meshMaterialList.indices;
+        if (this.materialRequired) {
+            assert(
+                xMesh.meshMaterialList !is null,
+                format(
+                    "(line: %s, column: %s, lexeme: \"%s\"): マテリアル情報がないよ",
+                    xMesh.headToken.line, xMesh.headToken.column, xMesh.headToken.lexeme
+                )
+            );
+        }
+        XMaterial[] materials;
+        uint[] materialIndices;
+        if (xMesh.meshMaterialList !is null) {
+            materials = xMesh.meshMaterialList.materials.map!(m => makeMaterial(m)).array;
+            materialIndices = xMesh.meshMaterialList.indices;
+        }
 
         entity.leviathans = new XLeviathan[materials.length];
         foreach(i; 0..materials.length) {
@@ -126,13 +168,4 @@ public:
     }
 
 
-}
-
-unittest {
-    import std.stdio, std.file, sbylib.setting;
-
-    XLoader loader = new XLoader;
-    XEntity entity = loader.load("model/po.x");
-
-    // entity.writeln;
 }

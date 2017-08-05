@@ -3,8 +3,10 @@ module model.xfile.node.XNode;
 import sbylib.math.Matrix;
 
 import model.xfile.node;
+import model.xfile.converter.XToken;
 
 abstract class XNode {
+    XToken headToken;
     string toString(int depth);
 
     string toStringArray(T)(int depth, T[] ary) {

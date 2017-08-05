@@ -28,6 +28,7 @@ private:
 
     XFrameNode parseFrame(DList!XToken tokens) {
         XFrameNode frame = new XFrameNode;
+        frame.headToken = tokens.front;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "Frame", makeErrorMessage(tokens));
@@ -69,6 +70,7 @@ private:
 
     XFrameTransformMatrixNode parseFrameTransformMatrix(DList!XToken tokens) {
         XFrameTransformMatrixNode frameTransformMatrix = new XFrameTransformMatrixNode;
+        frameTransformMatrix.headToken = tokens.front;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "FrameTransformMatrix", makeErrorMessage(tokens));
@@ -90,6 +92,7 @@ private:
 
     XMeshNode parseMesh(DList!XToken tokens) {
         XMeshNode mesh = new XMeshNode;
+        mesh.headToken = tokens.front;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "Mesh", makeErrorMessage(tokens));
@@ -160,6 +163,7 @@ private:
 
     XMeshNormalsNode parseMeshNormals(DList!XToken tokens) {
         XMeshNormalsNode meshNormals = new XMeshNormalsNode;
+        meshNormals.headToken = tokens.front;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "MeshNormals", makeErrorMessage(tokens));
@@ -210,6 +214,7 @@ private:
 
     XMeshTextureCoordsNode parseMeshTextureCoords(DList!XToken tokens) {
         XMeshTextureCoordsNode meshTextureCoords = new XMeshTextureCoordsNode;
+        meshTextureCoords.headToken = tokens.front;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "MeshTextureCoords", makeErrorMessage(tokens));
@@ -235,6 +240,7 @@ private:
 
     XMeshMaterialListNode parseMeshMaterialList(DList!XToken tokens) {
         XMeshMaterialListNode meshMaterialList = new XMeshMaterialListNode;
+        meshMaterialList.headToken = tokens.front;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "MeshMaterialList", makeErrorMessage(tokens));
@@ -272,6 +278,7 @@ private:
 
     XMaterialNode parseMaterial(DList!XToken tokens) {
         XMaterialNode material = new XMaterialNode;
+        material.headToken = tokens.front;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "Material", makeErrorMessage(tokens));
@@ -302,6 +309,7 @@ private:
 
     XTextureFilenameNode parseTextureFilename(DList!XToken tokens) {
         XTextureFilenameNode textureFileName = new XTextureFilenameNode;
+        textureFileName.headToken = tokens.front;
 
         assert(validate!XTokenLabel(tokens), makeErrorMessage(tokens));
         assert(tokens.front.lexeme == "TextureFilename", makeErrorMessage(tokens));
