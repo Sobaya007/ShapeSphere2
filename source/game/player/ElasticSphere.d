@@ -236,7 +236,11 @@ class ElasticSphere {
 
         void collision() {
             foreach (f; floors) {
-                if (!f.collide(this.entity).any!(a => a.collided)) {
+                auto colInfos = Array!CollisionInfo(0);
+                f.collide(colInfos, this.entity);
+                auto collided = colInfos.all!(a => !a.collided);
+                colInfos.destroy();
+                if (collided) {
                     continue;
                 }
                 auto floor = cast(CollisionPolygon)f.getCollisionEntry().getGeometry();

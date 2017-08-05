@@ -19,7 +19,7 @@ void plotMain() {
 
     auto camera = new OrthoCamera(1, 1, -1, 1);
     camera.getObj().pos = vec3(+0.5, +0.5, 0);
-    world.camera = camera;
+    world.setCamera(camera);
 
     auto dataset = new DataSet(TIME_LOG_PATH);
 
@@ -37,7 +37,6 @@ void plotMain() {
 
     auto mouse = new Mouse(window);
     auto mouseMove = delegate (Process proc) {
-        mouse.update();
         if (mouse.isPressed(MouseButton.Button1)) {
             camera.width  -= mouse.getDif().x * 0.001;
             camera.height -= mouse.getDif().y * 0.001;

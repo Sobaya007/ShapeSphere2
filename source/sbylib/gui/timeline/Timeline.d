@@ -1,7 +1,7 @@
 module sbylib.gui.Timeline;
 
 import sbylib;
-import std.range, std.algorithm, std.array;
+import std.range, std.algorithm;
 import std.math;
 import std.format;
 
@@ -61,9 +61,9 @@ class Timeline : IControllable {
         } else {
             auto n1 = (lastWritten + 1) % (N * 2);
             auto n2 = (lastWritten + 2) % (N * 2);
-            this.line.geom.vertices[n1].position = this.line.geom.vertices[lastWritten].position;
-            this.line.geom.vertices[n2].position = v;
-            this.line.geom.updateBuffer();
+            this.line.getMesh().geom.vertices[n1].position = this.line.getMesh().geom.vertices[lastWritten].position;
+            this.line.getMesh().geom.vertices[n2].position = v;
+            this.line.getMesh().geom.updateBuffer();
             this.line.obj.pos = vec3(time-0.5,0,0);
             this.lastWritten = (this.lastWritten + 2) % (N * 2);
         }

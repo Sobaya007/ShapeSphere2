@@ -1,10 +1,5 @@
 module sbylib.geometry.Face;
 
-import std.conv, std.algorithm, std.math, std.array;
-
-import sbylib.geometry;
-import sbylib.math;
-
 class Face {
     uint[] indexList;
 

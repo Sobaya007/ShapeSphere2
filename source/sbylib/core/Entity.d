@@ -4,6 +4,7 @@ public {
     import sbylib.collision.CollisionEntry;
     import sbylib.mesh.Mesh;
     import sbylib.mesh.Object3D;
+    import sbylib.utils.Array;
 }
 
 class Entity {
@@ -101,25 +102,21 @@ class Entity {
         }
     }
 
-    CollisionInfo[] collide(Entity entity) {
-        CollisionInfo[] result;
-        result ~= entity.collide(this.getCollisionEntry());
+    void collide(ref Array!CollisionInfo result, Entity entity) {
+        entity.collide(result, this.getCollisionEntry());
         foreach (child; this.children) {
-            result ~=  child.collide(colEntry);
+            child.collide(result, colEntry);
         }
-        return result;
     }
 
-    CollisionInfo[] collide(CollisionEntry colEntry) {
-        if (colEntry is null) return null;
-        CollisionInfo[] result;
+    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) {
+        if (colEntry is null) return;
         if (this.getCollisionEntry()) {
             result ~= this.getCollisionEntry().collide(colEntry);
         }
         foreach (child; this.children) {
-            result ~=  child.collide(colEntry);
+            child.collide(result, colEntry);
         }
-        return result;
     }
 
     CollisionInfoRay[] collide(CollisionRay ray) {
@@ -178,6 +175,7 @@ class Entity {
         this.colEntry = colEntry;
     }
 
+    alias obj this;
 }
 
 class EntityTemp(Geom, Mat) : Entity {
@@ -219,5 +217,5 @@ class EntityTemp(Geom, Mat) : Entity {
 //        super.setMesh(mesh);
 //    }
 
-    alias getMesh this;
+    alias obj this;
 }

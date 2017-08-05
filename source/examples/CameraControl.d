@@ -42,7 +42,7 @@ void cameraControlExample() {
         world.render(core.getWindow().getRenderTarget());
     };
 
-    world.camera = camera;
+    world.setCamera(camera);
     world.add(planeEntity);
     world.add(boxEntity);
     core.addProcess(renderToScreen, "render");

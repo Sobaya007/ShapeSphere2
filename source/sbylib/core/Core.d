@@ -18,6 +18,7 @@ import sbylib.wrapper.freeimage.FreeImage;
 import sbylib.wrapper.glfw.Window;
 import sbylib.wrapper.freetype.Font;
 import sbylib.utils.FpsBalancer;
+import sbylib.utils.Array;
 import sbylib.core.Process;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.Constants;
@@ -59,7 +60,7 @@ class Core {
     private Key key;
     private Mouse mouse;
     private FpsBalancer fpsBalancer;
-    private Process[] processes;
+    private Array!Process processes;
     private bool endFlag;
 
     //初期化関数
@@ -75,6 +76,7 @@ class Core {
         this.key = new Key(this.window);
         this.mouse = new Mouse(this.window);
         this.fpsBalancer = new FpsBalancer(60);
+        this.processes = Array!Process(0);
     }
 
     ~this() {
@@ -110,13 +112,16 @@ class Core {
     //メインループ
     private void mainLoop() {
         this.fpsBalancer.loop({
-            this.processes = this.processes.filter!(proc => proc.step).array;
+            this.key.update();
+            this.mouse.update();
+            this.processes.filter!("a.step");
             this.window.swapBuffers();
             this.window.pollEvents();
             SDL.update();
             stdout.flush();
             return window.shouldClose() || endFlag;
         });
+        this.processes.destroy();
     }
 
     Window getWindow() {

@@ -1,13 +1,16 @@
 {
 	"fileVersion": 1,
 	"versions": {
+		"automem": "0.0.9",
 		"derelict-al": "2.0.0-beta.1",
 		"derelict-alure": "2.0.0-beta.1",
 		"derelict-fi": "3.0.0-beta.1",
 		"derelict-ft": "2.0.0-beta.1",
-		"derelict-gl3": "2.0.0-beta.2",
+		"derelict-gl3": "2.0.0-beta.3",
 		"derelict-glfw3": "4.0.0-beta.1",
 		"derelict-sdl2": "3.0.0-beta.2",
-		"derelict-util": "3.0.0-beta.1"
+		"derelict-util": "3.0.0-beta.1",
+		"test_allocator": "0.0.5",
+		"unit-threaded": "0.7.28"
 	}
 }

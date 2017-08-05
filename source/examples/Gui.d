@@ -21,7 +21,7 @@ void guiExample() {
         timeline.add(fpsCounter.getFPS());
     };
     timeline.add(0);
-    world.camera = camera;
+    world.setCamera(camera);
     world.add(timeline.getEntity());
     timeline.add(0);
     control.add(timeline);

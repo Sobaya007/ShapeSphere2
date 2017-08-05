@@ -3,6 +3,7 @@ module sbylib.utils.Watcher;
 import std.functional;
 import std.algorithm;
 import sbylib;
+import std.stdio;
 
 class Watch(T) {
     private T value;
