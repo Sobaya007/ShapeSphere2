@@ -79,7 +79,7 @@ private:
         assert(validate!XTokenLeftParen(tokens), makeErrorMessage(tokens));
         tokens.removeFront;
 
-        frameTransformMatrix.matrix = mat4(parseArray!float(tokens, 4*4));
+        frameTransformMatrix.matrix = mat4(parseArray!float(tokens, 4*4).to!(float[4*4]));
 
         assert(validate!XTokenSemicolon(tokens), makeErrorMessage(tokens));
         tokens.removeFront;

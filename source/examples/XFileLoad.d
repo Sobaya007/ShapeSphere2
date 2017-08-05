@@ -65,7 +65,7 @@ void xFileLoadExample() {
         world.render(core.getWindow().getRenderTarget());
     };
 
-    world.camera = camera;
+    world.setCamera(camera);
     world.add(planeEntity);
     world.add(texCubeEntity);
     world.add(sphereEntity);
