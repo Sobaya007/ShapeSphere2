@@ -11,7 +11,7 @@ import std.stdio;
 
 class ElasticSphere {
 
-    immutable {
+    static immutable {
         alias TIME_STEP = Player.TIME_STEP;
         uint RECURSION_LEVEL = 2;
         float DEFAULT_RADIUS = 0.5;
@@ -30,96 +30,31 @@ class ElasticSphere {
         float BALOON_COEF = 20000;
     }
 
-    Pair[] pairList;
+    private ElasticPair[] pairList;
+    private Player parent;
 
-    Entity[] floors;
-    Entity entity;
-    GeometryN geom;
-    Particle[] particleList;
-    float radius;
-    float deflen;
-    float lowerY, upperY;
-    vec3 lVel, aVel;
+    private vec3 lVel;
     flim needleCount;
 
-    vec3 collisionNormal;
-    ubool condition;
-
-    this()  {
-        this.radius = DEFAULT_RADIUS;
-        this.geom = Sphere.create(this.radius, RECURSION_LEVEL);
-        foreach (v; geom.vertices) {
-            this.particleList ~= new Particle(v.position);
-        }
-        this.particleList.each!( p => p.position += vec3(0,20,0));
-
-        uint[2] makePair(uint a, uint b) {
-            return a < b ? [a,b] : [b,a];
-        }
-        //隣を発見
-        uint[2][] pairIndex;
-        foreach (face; geom.faces) {
-            auto idx0 = face.indexList[0];
-            auto idx1 = face.indexList[1];
-            auto idx2 = face.indexList[2];
-
-            if (pairIndex.canFind(makePair(idx0,idx1)) == false) pairIndex ~= makePair(idx0,idx1);
-            if (pairIndex.canFind(makePair(idx1,idx2)) == false) pairIndex ~= makePair(idx1,idx2);
-            if (pairIndex.canFind(makePair(idx2,idx0)) == false) pairIndex ~= makePair(idx2,idx0);
-        }
-        foreach (i; pairIndex) {
-            this.particleList[i[0]].next ~= particleList[i[1]];
-            this.particleList[i[1]].next ~= particleList[i[0]];
-            this.pairList ~= new Pair(this.particleList[i[0]], this.particleList[i[1]]);
-        }
-        foreach(p; this.particleList) {
-            p.isStinger = p.next.all!(a => a.isStinger == false);
-        }
-
+    this(Player parent)  {
+        this.parent = parent;
         this.needleCount = flim(0,0,1);
-        auto mat = new ConditionalMaterial!(PlayerMaterial, LambertMaterial);
-        mat.ambient = vec3(1);
-        this.condition = mat.condition;
-        this.entity = new Entity(geom, mat);
-        this.deflen = 0;
-        foreach (pair; this.pairList) {
-            this.deflen += length(pair.p0.position - pair.p1.position);
+        foreach (pair; parent.pairList) {
+            this.pairList ~= new ElasticPair(pair);
         }
-        this.deflen /= this.pairList.length;
     }
 
     void move() {
-        //体積の測定
-        float volume = this.calcVolume();
-        //表面積の測定
-        float area = this.calcArea();
-        //重心を求める
-        vec3 g = this.particleList.map!(a => a.position).sum / this.particleList.length;
-        //半径を求める
-        this.radius = this.particleList.map!(a => (a.position - g).length).sum / this.particleList.length;
-        //速度を求める
-        lVel = this.particleList.map!(a => a.velocity).sum / this.particleList.length;
-        aVel = vec3(0);
-        this.lowerY = this.particleList.map!(p => p.position.y).reduce!min;
-        this.upperY = this.particleList.map!(p => p.position.y).reduce!max;
+        this.step();
+        this.updateGeometry();
+    }
 
-        //移動量から強引に回転させる
-        {
-            vec3 dif = g - this.entity.obj.pos;
-            dif.y = 0;
-            vec3 axis = vec3(0,1,0).cross(dif);
-            float len = axis.length;
-            if (len > 0) {
-                axis /= len;
-                float angle = dif.length / this.radius;
-                quat rot = quat.axisAngle(axis, angle);
-                foreach (p;particleList) {
-                    p.position = rotate(p.position-g, rot) + g;
-                    p.normal = rotate(p.normal, rot);
-                }
-            }
-        }
-        this.entity.obj.pos = g;
+    private void step() {
+        vec3 g = this.calcCenter();
+        this.lVel = this.calcVelocity();
+
+        this.rotateParticles(g);
+        this.parent.entity.obj.pos = g;
 
         //拘束解消
         {
@@ -134,58 +69,62 @@ class ElasticSphere {
                 }
             }
         }
-        //†ちょっと†ふくらませる
-        {
-            import std.stdio;
-            float force = BALOON_COEF * area / (volume * particleList.length);
-            foreach (ref particle; this.particleList) {
-                particle.force += particle.normal * force;
-            }
-        }
-        //重力
-        foreach (p; this.particleList) {
-            p.force.y -= GRAVITY * MASS;
-        }
-        foreach (ref particle; this.particleList) {
-            particle.velocity += (particle.force + particle.extForce) * FORCE_COEF;
-        }
-
-        foreach (ref particle; this.particleList) {
+        float force = this.calcBaloonForce();
+        foreach (ref particle; this.parent.particleList) {
+            particle.force += particle.normal * force;
+            particle.force.y -= GRAVITY * MASS;
+            particle.velocity += particle.force * FORCE_COEF;
             move(particle);
-        }
-        foreach (ref particle; this.particleList) {
             collision(particle);
-        }
-        foreach (ref particle; this.particleList) {
             end(particle);
         }
-        foreach (i, ref p; this.particleList) {
-            this.geom.vertices[i].normal = vec3(0);
+    }
+
+    private void rotateParticles(vec3 center) {
+        //移動量から強引に回転させる
+        auto radius = this.calcRadius();
+        auto dif = center - this.parent.entity.obj.pos;
+        dif.y = 0;
+        auto axis = vec3(0,1,0).cross(dif);
+        float len = axis.length;
+        if (len > 0) {
+            axis /= len;
+            float angle = dif.length / radius;
+            quat rot = quat.axisAngle(axis, angle);
+            foreach (p; this.parent.particleList) {
+                p.position = rotate(p.position-center, rot) + center;
+                p.normal = rotate(p.normal, rot);
+            }
         }
-        import std.stdio;
-        foreach (face; this.geom.faces) {
+    }
+
+    private void updateGeometry() {
+        auto vs = this.parent.entity.getMesh().geom.vertices;
+        foreach (ref v; vs) {
+            v.normal = vec3(0);
+        }
+        foreach (face; this.parent.entity.getMesh().geom.faces) {
             auto normal = normalize(cross(
-                    this.geom.vertices[face.indexList[2]].position - this.geom.vertices[face.indexList[0]].position,
-                    this.geom.vertices[face.indexList[1]].position - this.geom.vertices[face.indexList[0]].position));
-            this.geom.vertices[face.indexList[0]].normal += normal;
-            this.geom.vertices[face.indexList[1]].normal += normal;
-            this.geom.vertices[face.indexList[2]].normal += normal;
+                    vs[face.indexList[2]].position - vs[face.indexList[0]].position,
+                    vs[face.indexList[1]].position - vs[face.indexList[0]].position));
+            vs[face.indexList[0]].normal += normal;
+            vs[face.indexList[1]].normal += normal;
+            vs[face.indexList[2]].normal += normal;
         }
-        foreach (i,v; this.geom.vertices) {
-            auto p = this.particleList[i];
+        foreach (i,v; vs) {
+            auto p = this.parent.particleList[i];
             v.normal = safeNormalize(v.normal);
-            v.position = (this.entity.obj.viewMatrix * vec4(needlePosition(p), 1)).xyz;
+            v.position = (this.parent.entity.obj.viewMatrix * vec4(needlePosition(p), 1)).xyz;
         }
-        this.geom.updateBuffer();
     }
 
     private float calcVolume() {
         float volume = 0;
-        auto center = this.entity.obj.pos;
-        foreach (face; this.geom.faces) {
-            auto a = particleList[face.indexList[0]].position - center;
-            auto b = particleList[face.indexList[1]].position - center;
-            auto c = particleList[face.indexList[2]].position - center;
+        auto center = this.parent.entity.obj.pos;
+        foreach (face; this.parent.entity.getMesh().geom.faces) {
+            auto a = this.parent.particleList[face.indexList[0]].position - center;
+            auto b = this.parent.particleList[face.indexList[1]].position - center;
+            auto c = this.parent.particleList[face.indexList[2]].position - center;
             volume += mat3.determinant(mat3(a,b,c));
         }
         return abs(volume) / 6;
@@ -193,13 +132,40 @@ class ElasticSphere {
 
     private float calcArea() {
         float area = 0;
-        foreach (face; this.geom.faces) {
-            auto a = particleList[face.indexList[0]].position;
-            auto b = particleList[face.indexList[1]].position;
-            auto c = particleList[face.indexList[2]].position;
+        foreach (face; this.parent.entity.getMesh().geom.faces) {
+            auto a = this.parent.particleList[face.indexList[0]].position;
+            auto b = this.parent.particleList[face.indexList[1]].position;
+            auto c = this.parent.particleList[face.indexList[2]].position;
             area += length(cross(a - b, a - c));
         }
         return area / 2;
+    }
+
+    private vec3 calcCenter() {
+        return this.parent.particleList.map!(p => p.position).sum / this.parent.particleList.length;
+    }
+
+    private float calcRadius() {
+        auto center = this.calcCenter();
+        return this.parent.particleList.map!(a => (a.position - center).length).sum / this.parent.particleList.length;
+    }
+
+    private vec3 calcVelocity() {
+        return this.parent.particleList.map!(a => a.velocity).sum / this.parent.particleList.length;
+    }
+
+    float calcLower() {
+        return this.parent.particleList.map!(p => p.position.y).reduce!min;
+    }
+
+    float calcUpper() {
+        return this.parent.particleList.map!(p => p.position.y).reduce!max;
+    }
+
+    private float  calcBaloonForce() {
+        auto area = this.calcArea();
+        auto volume = this.calcVolume();
+        return BALOON_COEF * area / (volume * this.parent.particleList.length);
     }
 
     private void move(Particle particle) {
@@ -208,7 +174,7 @@ class ElasticSphere {
     }
 
     private void collision(Particle particle) {
-        foreach (f; floors) {
+        foreach (f; this.parent.floors) {
             auto colInfos = Array!CollisionInfo(0);
             f.collide(colInfos, particle.entity);
             auto collided = colInfos.all!(a => !a.collided);
@@ -246,32 +212,33 @@ class ElasticSphere {
         return -t + t * arrival;
     }
 
-    class Pair {
-        Particle p0, p1;
-        vec3 dist;
-        vec3 force;
+    class ElasticPair {
+        import game.player.Pair;
+        private Pair pair;
+        private vec3 dist;
+        private vec3 force;
+        private float deflen;
 
-        this(Particle p0, Particle p1) {
-            this.p0 = p0;
-            this.p1 = p1;
+        this(Pair pair) {
+            this.pair = pair;
+            this.deflen = length(this.pair.p1.position - this.pair.p0.position);
         }
 
         void init() {
-            vec3 d = this.p1.position - this.p0.position;
+            vec3 d = this.pair.p1.position - this.pair.p0.position;
             auto len = d.length;
             if (len > 0) d /= len;
             len -= deflen;
             d *= len;
             this.dist = d;
-            this.force = (this.p1.force + this.p0.force) / 2; //適当です
         }
 
         void solve() {
-            vec3 v1 = this.p1.velocity - this.p0.velocity;
+            vec3 v1 = this.pair.p1.velocity - this.pair.p0.velocity;
             vec3 v2 = v1 * VEL_COEF + this.dist * POS_COEF;
             vec3 dv = (v2 - v1) * 0.5f;
-            this.p0.velocity -= dv;
-            this.p1.velocity += dv;
+            this.pair.p0.velocity -= dv;
+            this.pair.p1.velocity += dv;
         }
     }
 
