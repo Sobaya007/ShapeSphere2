@@ -49,6 +49,7 @@ class CollisionEntry {
             }
         }
         info.colEntry = this;
+        info.colEntry2 = collidable;
         return info;
     }
 

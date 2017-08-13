@@ -5,6 +5,7 @@ import sbylib.math.Vector;
 
 struct CollisionInfo {
     CollisionEntry colEntry;
+    CollisionEntry colEntry2;
     bool collided;
 }
 

@@ -76,8 +76,8 @@ void gameMain(string[] args) {
         Entity e1 = new Entity(geom1, mat, polygons[1]);
         world3d.add(e0);
         world3d.add(e1);
-        player.floors ~= e0;
-        player.floors ~= e1;
+        player.floors.addChild(e0);
+        player.floors.addChild(e1);
     };
     makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
     makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);

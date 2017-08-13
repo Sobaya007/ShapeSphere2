@@ -131,7 +131,7 @@ public:
     void opOpAssign(string op, S, uint P, uint Q)(Matrix!(S, P, Q) m) {
         static if (op == "+" || op == "-") {
             static assert(U == P && V == Q);
-            mixin(getOpAssignMMCode(op, U));
+            mixin(getOpAssignMMCode(op, U, V));
         } else static if (op == "*") {
             Matrix result = this * m;
             mixin(getCopyCode("result", U, V));
@@ -168,7 +168,7 @@ public:
     }
 
     Vector!(T,V)[U] row() {
-        Vector!(T,U)[V] result;
+        Vector!(T,V)[U] result;
         mixin(getRowCode(U,V));
         return result;
     }

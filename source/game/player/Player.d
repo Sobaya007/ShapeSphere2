@@ -1,7 +1,9 @@
 module game.player.Player;
 
 import game.command;
+import game.player.BaseSphere;
 import game.player.ElasticSphere;
+import game.player.NeedleSphere;
 import game.player.Particle;
 import game.player.PlayerMaterial;
 import game.player.Pair;
@@ -22,12 +24,13 @@ class Player {
     Particle[] particleList;
     Pair[] pairList;
     PlayerEntity entity;
-    Entity[] floors;
-    private ElasticSphere esphere;
+    Entity floors;
+    private BaseSphere sphere;
+    private ElasticSphere elasticSphere;
+    private NeedleSphere needleSphere;
     private Key key;
-    private Camera camera;
+    Camera camera;
     flim pushCount;
-    private vec3 force;
     CommandSpawner[] commandSpawners;
 
     this(Key key, Camera camera) {
@@ -35,14 +38,16 @@ class Player {
         auto mat = new Mat();
         mat.ambient = vec3(1);
         this.entity = new PlayerEntity(geom, mat);
+        this.floors = new Entity();
         this.particleList = this.generateParticles(geom);
         this.pairList = this.generatePairs(geom, this.particleList);
         this.initParticles(this.particleList, this.pairList);
-        this.esphere = new ElasticSphere(this);
+        this.elasticSphere = new ElasticSphere(this);
+        this.needleSphere = new NeedleSphere(this);
+        this.sphere = this.elasticSphere;
         this.key = key;
         this.camera = camera;
         this.pushCount = flim(0.0, 0.0, 1);
-        this.force = vec3(0);
         this.commandSpawners = [
             new CommandSpawner(() => key.isPressed(KeyButton.Space), new Command(&this.onDownPress)),
             new CommandSpawner(() => key.justReleased(KeyButton.Space), new Command(&this.onDownJustRelease)),
@@ -55,58 +60,49 @@ class Player {
     }
 
     void step() {
-        this.esphere.move();
-        this.entity.getMesh().geom.updateBuffer();
-        this.force.y = 0;
-        if (this.force.length > 0) this.force = normalize(this.force) * SIDE_PUSH_FORCE;
-        foreach (p; this.particleList) {
-            p.force = this.force;
-        }
-        this.force = vec3(0);
+        this.sphere.move();
+        this.updateGeometry();
     }
 
     void onDownPress() {
-        this.pushCount += 0.1;
-        vec3 g = this.entity.obj.pos;
-        auto lower = this.esphere.calcLower();
-        auto upper = this.esphere.calcUpper();
-        foreach (p; this.particleList) {
-            //下向きの力
-            auto len = (p.position - g).xz.length;
-            auto t = (p.position.y - lower) / (upper - lower);
-            float power = DOWN_PUSH_FORCE / pow(len + 0.6, 2.5);
-            power = min(DOWN_PUSH_FORE_MIN, power);
-            power *= t;
-            p.force.y -= power * this.pushCount;
-        }
+        this.sphere.onDownPress();
     }
 
     void onDownJustRelease() {
-        this.pushCount = 0;
+        this.sphere.onDownJustRelease();
     }
 
     void onNeedlePress() {
-        this.esphere.needleCount += 0.1;
+        if (this.sphere !is this.needleSphere) {
+            this.sphere = this.needleSphere;
+            this.needleSphere.initialize();
+        }
+        this.needleSphere.onNeedlePress();
     }
 
     void onNeedleRelease() {
-        this.esphere.needleCount -= 0.3;
+        if (this.sphere != this.needleSphere) return;
+        this.sphere.onNeedleRelease();
+        if (this.needleSphere.hasFinished) {
+            this.sphere = this.elasticSphere;
+            this.elasticSphere.fromNeedle(this.needleSphere);
+        }
     }
 
     void onLeftPress() {
-        this.force -= this.camera.rot.column[0].xyz;
+        this.sphere.onLeftPress();
     }
 
     void onRightPress() {
-        this.force += this.camera.rot.column[0].xyz;
+        this.sphere.onRightPress();
     }
 
     void onForwardPress() {
-        this.force -= this.camera.rot.column[2].xyz;
+        this.sphere.onForwardPress();
     }
 
     void onBackPress() {
-        this.force += this.camera.rot.column[2].xyz;
+        this.sphere.onBackPress();
     }
 
     private Particle[] generateParticles(const GeometryN geom) const {
@@ -141,5 +137,27 @@ class Player {
         foreach (p; particles) {
             p.isStinger = p.next.all!(a => a.isStinger == false);
         }
+    }
+
+    private void updateGeometry() {
+        auto geom = this.entity.getMesh().geom;
+        auto vs = geom.vertices;
+        foreach (ref v; vs) {
+            v.normal = vec3(0);
+        }
+        foreach (face; geom.faces) {
+            auto normal = normalize(cross(
+                    vs[face.indexList[2]].position - vs[face.indexList[0]].position,
+                    vs[face.indexList[1]].position - vs[face.indexList[0]].position));
+            vs[face.indexList[0]].normal += normal;
+            vs[face.indexList[1]].normal += normal;
+            vs[face.indexList[2]].normal += normal;
+        }
+        foreach (i,v; vs) {
+            auto p = this.particleList[i];
+            v.normal = safeNormalize(v.normal);
+            v.position = (this.entity.obj.viewMatrix * vec4(p.position, 1)).xyz;
+        }
+        geom.updateBuffer();
     }
 }

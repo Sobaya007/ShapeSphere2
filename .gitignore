@@ -7,3 +7,4 @@ __dummy.html
 bin/*
 dll/*
 history/*
+.vscode/*

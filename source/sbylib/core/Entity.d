@@ -105,7 +105,7 @@ class Entity {
     void collide(ref Array!CollisionInfo result, Entity entity) {
         entity.collide(result, this.getCollisionEntry());
         foreach (child; this.children) {
-            child.collide(result, colEntry);
+            child.collide(result, entity);
         }
     }
 

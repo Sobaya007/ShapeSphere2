@@ -4,9 +4,9 @@ import sbylib;
 import std.algorithm;
 
 class Particle {
-    vec3 position;
+    vec3 position; /* in World, used for Render */
     vec3 velocity;
-    vec3 normal;
+    vec3 normal; /* in World */
     vec3 force;
     bool isGround;
     bool isStinger;
