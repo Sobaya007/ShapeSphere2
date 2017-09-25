@@ -667,11 +667,11 @@ private static string getTranslationCode(uint U) {
     foreach (i; 0..U) {
         foreach (j; 0..U) {
             code ~= format!"result[%d,%d] = "(i,j);
-            if (i == j) 
+            if (i == j)
                 code ~= "1;";
-            else if (j == U-1) 
+            else if (j == U-1)
                 code ~= format!"vec[%d];"(i);
-            else 
+            else
                 code ~= "0;";
         }
     }
@@ -825,7 +825,7 @@ private static string getOrthoCode() {
     }
     code ~= "result[0,0] = 2 / width;";
     code ~= "result[1,1] = 2 / height;";
-    code ~= "result[2,2] = 1 / (farZ - nearZ);";
+    code ~= "result[2,2] = 1 / (nearZ - farZ);";
     code ~= "result[2,3] = nearZ / (nearZ - farZ);";
     code ~= "result[3,3] = 1;";
     return code;
