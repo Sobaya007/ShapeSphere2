@@ -36,31 +36,44 @@ class GuiControl {
     void update(Process proc) {
         this.mouse.update();
         if (this.mouse.justPressed()) {
-            Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
-            import std.algorithm, std.math, std.array;
-            auto colInfos = this.world.calcCollideRay(this.ray).filter!(a => !a.colDist.isNaN).array;
-            if (colInfos.length == 0) return;
-            auto colInfo = colInfos.minElement!(a => a.colDist);
-            if (!colInfo.collided) return;
-            if (auto con = cast(IControllable)colInfo.colEntry.getOwner().getRootParent().getUserData) {
-                this.colEntry[this.mouse.justPressedButton()] = con;
-                con.onMousePressed(this.mouse.justPressedButton());
+            auto controllable = getCollidedControllable();
+            if (controllable !is null) {
+                this.colEntry[this.mouse.justPressedButton()] = controllable;
+                controllable.onMousePressed(this.mouse.justPressedButton());
             }
         }
         if (this.mouse.justReleased()) {
-            if (this.mouse.justReleasedButton() in this.colEntry
-                && this.colEntry[this.mouse.justReleasedButton()] !is null) {
-                this.colEntry[this.mouse.justReleasedButton()].onMouseReleased(this.mouse.justReleasedButton());
-                this.colEntry[this.mouse.justReleasedButton()] = null;
+            auto mouseButton = this.mouse.justReleasedButton();
+            if (mouseButton in this.colEntry && this.colEntry[mouseButton] !is null) {
+                auto controllable = getCollidedControllable();
+                this.colEntry[mouseButton].onMouseReleased(mouseButton, controllable is this.colEntry[mouseButton]);
             }
+
+            this.colEntry[mouseButton] = null;
         }
-        foreach (con; this.controllables) {
-            con.update(this.mouse);
+        foreach (controllable; this.controllables) {
+            controllable.update(this.mouse);
         }
     }
 
-    void add(IControllable con) {
-        this.controllables ~= con;
-        this.world.add(con.getEntity());
+    void add(IControllable controllable) {
+        this.controllables ~= controllable;
+        this.world.add(controllable.getEntity());
+    }
+
+    private IControllable getCollidedControllable() {
+        import std.algorithm, std.math, std.array;
+
+        Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
+        auto colInfos = this.world.calcCollideRay(this.ray).filter!(a => !a.colDist.isNaN).array;
+        if (colInfos.length == 0) return null;
+        auto colInfo = colInfos.minElement!(a => a.colDist);
+        if (!colInfo.collided) return null;
+
+        auto entity = colInfo.colEntry.getOwner;
+        while(entity.getUserData() is null) {
+            entity = entity.getParent;
+        }
+        return cast(IControllable)entity.getUserData;
     }
 }
