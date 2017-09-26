@@ -154,9 +154,7 @@ class Entity {
         }
     }
 
-    private void setParent(Entity entity) in {
-        assert(this.userData is null);
-    } body {
+    private void setParent(Entity entity) {
         this.parent = entity;
         this._obj.onSetParent(entity);
     }
