@@ -6,7 +6,9 @@ import editor.guiComponent;
 interface GuiComponent : IControllable {
 
     float x() @property;
+    float x(float) @property;
     float y() @property;
+    float y(float) @property;
     float width() @property;
     float height() @property;
 
@@ -34,8 +36,16 @@ public:
         return entity.pos.x;
     }
 
+    override float x(float value) {
+        return entity.pos.x = value;
+    }
+
     override float y() {
         return entity.pos.y;
+    }
+
+    override float y(float value) {
+        return entity.pos.y = value;
     }
 
     abstract override float width();
