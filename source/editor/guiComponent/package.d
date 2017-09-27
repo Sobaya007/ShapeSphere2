@@ -7,6 +7,7 @@ public {
     import editor.guiComponent.CheckBoxComponent;
     import editor.guiComponent.ButtonComponent;
     import editor.guiComponent.DropDownComponent;
+    import editor.guiComponent.GroupBoxComponent;
 
     import editor.guiComponent.material;
 }

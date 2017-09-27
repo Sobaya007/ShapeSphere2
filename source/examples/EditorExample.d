@@ -40,10 +40,12 @@ void editorExample() {
         import std.stdio;
         button.writeln;
     });
+    control.add(button);
     auto dropDown = new DropDownComponent(w/3, h/5*2, 0, 400, 40, ["ONONONON!!!!", "アカーーーーン！！！！"], 25, vec4(1, 1, 1, 1));
     control.add(dropDown);
+    auto groupBox = new GroupBoxComponent(10, h/3, 1, 200, "バイ成ィ"d, new CheckBoxComponent(0, 0, 0, 40));
+    control.add(groupBox);
 
-    control.add(button);
 
     core.addProcess(render, "render");
     core.addProcess(&control.update, "control");
