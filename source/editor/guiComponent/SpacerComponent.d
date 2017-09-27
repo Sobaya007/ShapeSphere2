@@ -11,6 +11,9 @@ private:
 
 public:
     this(float x, float y, size_t zIndex, float width, float height) {
+        _width = width;
+        _height = height;
+
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, ColorMaterial)(geom);
         entity.getMesh.mat.color = vec4(0); // 透明
