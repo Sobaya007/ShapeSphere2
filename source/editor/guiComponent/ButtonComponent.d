@@ -6,10 +6,12 @@ import editor.guiComponent;
 class ButtonComponent : AGuiComponent {
 
 private:
-    const vec4 _darkColor = vec4(0.2, 0.2, 0.2, 1.0);
-    const vec4 _lightColor = vec4(0.9, 0.9, 0.9, 1.0);
-    const vec4 _borderColor = vec4(0.5, 0.5, 0.5, 1.0);
-    const float _borderSize = 5.0;
+    LabelComponent _label;
+
+    vec4 _darkColor = vec4(0.2, 0.2, 0.2, 1.0);
+    vec4 _lightColor = vec4(0.9, 0.9, 0.9, 1.0);
+    vec4 _borderColor = vec4(0.5, 0.5, 0.5, 1.0);
+    float _borderSize = 5.0;
     void delegate() _onTrigger;
 
     const int _duration = 20;
@@ -34,15 +36,41 @@ public:
         entity.getMesh.mat.borderSize = _borderSize;
         entity.getMesh.mat.value = 0;
         entity.getMesh.mat.size = vec2(width, height);
-        auto labelComponent = new LabelComponent(width/2, -height/2, 1, text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
-        labelComponent.entity.setUserData(null);
-        entity.addChild(labelComponent.entity);
+
+        _label = new LabelComponent(width/2, -height/2, 1, text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        _label.entity.setUserData(null);
+        entity.addChild(_label.entity);
+
         setTrigger({});
         super(x, y, zIndex, entity);
     }
 
     void setTrigger(void delegate() onTrigger) {
         _onTrigger = onTrigger;
+    }
+
+    void setText(dstring text) {
+        _label.setText(text);
+    }
+
+    void setDarkColor(vec4 color) {
+        _darkColor = color;
+        (cast(ButtonComponentMaterial)entity.getMesh.mat).darkColor = _darkColor;
+    }
+
+    void setLightColor(vec4 color) {
+        _lightColor = color;
+        (cast(ButtonComponentMaterial)entity.getMesh.mat).lightColor = _lightColor;
+    }
+
+    void setBorderColor(vec4 color) {
+        _borderColor = color;
+        (cast(ButtonComponentMaterial)entity.getMesh.mat).borderColor = _borderColor;
+    }
+
+    void setBorderSize(float size) {
+        _borderSize = size;
+        (cast(ButtonComponentMaterial)entity.getMesh.mat).borderSize = _borderSize;
     }
 
     override float width() {
