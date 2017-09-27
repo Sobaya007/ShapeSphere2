@@ -6,9 +6,9 @@ import editor.guiComponent;
 class ButtonComponent : AGuiComponent {
 
 private:
-    const vec4 _darkColor = vec4(0.1, 0.1, 0.1, 1.0);
+    const vec4 _darkColor = vec4(0.2, 0.2, 0.2, 1.0);
     const vec4 _lightColor = vec4(0.9, 0.9, 0.9, 1.0);
-    const vec4 _borderColor = vec4(0.6, 0.6, 0.6, 1.0);
+    const vec4 _borderColor = vec4(0.5, 0.5, 0.5, 1.0);
     const float _borderSize = 5.0;
     void delegate() _onTrigger;
 
