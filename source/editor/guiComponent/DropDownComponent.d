@@ -54,6 +54,10 @@ public:
         );
     }
 
+    int getIndex() {
+        return _selectedIndex;
+    }
+
     void setIndex(int index) {
         _selectedIndex = index;
     }

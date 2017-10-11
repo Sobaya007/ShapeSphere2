@@ -35,16 +35,27 @@ void editorExample() {
     control.add(label);
     auto checkBox = new CheckBoxComponent(w/2, h, 0, 40);
     control.add(checkBox);
-    auto button = new ButtonComponent(w/2, h/4*3, 0, 300, 40, "犯人は@_n_ari！！！！"d, 25);
-    button.setTrigger({
-        import std.stdio;
-        button.writeln;
-    });
+    auto button = new ButtonComponent(w/2, h/4*3, 0, 300, 40, "犯人は"d, 25);
+
+
+    dstring[] ary = ["ONONONON!!!!", "アカーーーーン！！！！", "簡単すぎィィィ！！！！"];
     control.add(button);
-    auto dropDown = new DropDownComponent(w/3, h/5*2, 0, 400, 40, ["ONONONON!!!!", "アカーーーーン！！！！"], 25, vec4(1, 1, 1, 1));
+    auto dropDown = new DropDownComponent(w/3, h/5*2, 0, 400, 40, ary, 25, vec4(1, 1, 1, 1));
     control.add(dropDown);
     auto groupBox = new GroupBoxComponent(10, h/3, 1, 200, "バイ成ィ"d, new CheckBoxComponent(0, 0, 0, 40));
     control.add(groupBox);
+
+    int t = 0;
+    button.setTrigger({
+        import std.stdio;
+        import std.algorithm;
+        int i = dropDown.getIndex;
+        dstring po = i<0 ? "@_n_ari！！！！"d : ary[i];
+        auto a = new LabelComponent(10.0, h-20-t, 2, po, 50, vec4(0, 0, 0, 1.0));
+        t += 50;
+        control.add(a);
+        button.writeln;
+    });
 
 
     core.addProcess(render, "render");
