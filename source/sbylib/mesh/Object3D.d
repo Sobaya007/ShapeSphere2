@@ -8,9 +8,9 @@ import sbylib.wrapper.gl.Uniform;
 import sbylib.core.Entity;
 
 class Object3D {
-    Watch!vec3 pos;
-    Watch!mat3 rot;
-    Watch!vec3 scale;
+    private Watch!vec3 _pos;
+    private Watch!mat3 _rot;
+    private Watch!vec3 _scale;
     private Watcher!mat4 parentWorldMatrix;
     private Watcher!mat4 parentViewMatrix;
     private Entity owner;
@@ -20,14 +20,14 @@ class Object3D {
 
     this(Entity owner) {
         this.owner = owner;
-        this.pos = new Watch!vec3();
-        this.pos = vec3(0);
+        this._pos = new Watch!vec3();
+        this._pos = vec3(0);
 
-        this.rot = new Watch!mat3();
-        this.rot = mat3.identity();
+        this._rot = new Watch!mat3();
+        this._rot = mat3.identity();
 
-        this.scale = new Watch!vec3();
-        this.scale = vec3(1);
+        this._scale = new Watch!vec3();
+        this._scale = vec3(1);
 
         this.worldMatrix = new Watcher!umat4((ref umat4 mat) {
             mat.value = parentWorldMatrix * generateWorldMatrix();
@@ -45,13 +45,13 @@ class Object3D {
             mat = mat4.identity();
         }, mat4.identity());
 
-        this.worldMatrix.addWatch(this.pos);
-        this.worldMatrix.addWatch(this.rot);
-        this.worldMatrix.addWatch(this.scale);
+        this.worldMatrix.addWatch(this._pos);
+        this.worldMatrix.addWatch(this._rot);
+        this.worldMatrix.addWatch(this._scale);
         this.worldMatrix.addWatch(this.parentWorldMatrix);
-        this.viewMatrix.addWatch(this.pos);
-        this.viewMatrix.addWatch(this.rot);
-        this.viewMatrix.addWatch(this.scale);
+        this.viewMatrix.addWatch(this._pos);
+        this.viewMatrix.addWatch(this._rot);
+        this.viewMatrix.addWatch(this._scale);
         this.viewMatrix.addWatch(this.parentViewMatrix);
     }
 
@@ -94,5 +94,29 @@ class Object3D {
                 rot[0,1] / scale.y, rot[1,1] / scale.y, rot[2,1] / scale.y, -dot(column[1], pos) / scale.y,
                 rot[0,2] / scale.z, rot[1,2] / scale.z, rot[2,2] / scale.z, -dot(column[2], pos) / scale.z,
                 0,0,0, 1);
+    }
+
+    void pos(vec3 p) @property {
+        this._pos = p;
+    }
+
+    Watch!vec3 pos() @property {
+        return this._pos;
+    }
+
+    void rot(mat3 p) @property {
+        this._rot = p;
+    }
+
+    Watch!mat3 rot() @property {
+        return this._rot;
+    }
+
+    void scale(vec3 p) @property {
+        this._scale = p;
+    }
+
+    Watch!vec3 scale() @property {
+        return this._scale;
     }
 }

@@ -17,7 +17,7 @@ void plotMain() {
     auto screen = window.getRenderTarget();
     auto world = new World();
 
-    auto camera = new OrthoCamera(1, 1, -1, 1);
+    OrthoCamera camera = new OrthoCamera(1, 1, -1, 1);
     camera.getObj().pos = vec3(+0.5, +0.5, 0);
     world.setCamera(camera);
 
