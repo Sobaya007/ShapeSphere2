@@ -189,7 +189,7 @@ class NeedleSphere : BaseSphere {
         foreach (i,v; vs) {
             auto p = this.particleList[i];
             v.normal = safeNormalize(v.normal);
-            v.position = (this.entity.obj.viewMatrix * vec4(p.position, 1)).xyz;
+            v.position = p.position;
         }
         geom.updateBuffer();
     }

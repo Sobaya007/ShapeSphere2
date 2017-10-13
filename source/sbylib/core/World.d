@@ -68,7 +68,6 @@ class World {
     } body{
         foreach (r; rs) {
             this.entities = this.entities.remove!(e => e == r); //TODO: やばそう？
-            r.setWorld(null);
         }
     }
 
