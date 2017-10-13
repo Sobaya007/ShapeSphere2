@@ -34,13 +34,11 @@ public:
     }
 
     override float width() {
-        // TODO
-        return 10;
+        return _label.getWidth();
     }
 
     override float height() {
-        // TODO
-        return 100;
+        return _label.getHeight();
     }
 
     void setText(dstring text) {
