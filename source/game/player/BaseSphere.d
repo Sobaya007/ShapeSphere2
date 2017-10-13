@@ -1,5 +1,7 @@
 module game.player.BaseSphere;
 
+import game.player.Player;
+
 interface BaseSphere {
 
     void move();
@@ -11,4 +13,6 @@ interface BaseSphere {
     void onRightPress();
     void onForwardPress();
     void onBackPress();
+    void leave();
+    Player.PlayerEntity getEntity();
 }
