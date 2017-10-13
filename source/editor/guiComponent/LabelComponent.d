@@ -9,15 +9,12 @@ private:
     Label _label;
 
 public:
-    this(float x, float y, size_t zIndex, Label label) {
+    this(Label label) {
         _label = label;
-        super(x, y, zIndex, label.entity);
+        super(label.entity);
     }
 
     this(
-        float x,
-        float y,
-        size_t zIndex,
         dstring text,
         float fontSize,
         vec4 fontColor,
@@ -34,7 +31,7 @@ public:
         label.setWrapWidth(wrapWidth);
         label.renderText(text);
 
-        this(x, y, zIndex, label);
+        this(label);
     }
 
     override float width() {

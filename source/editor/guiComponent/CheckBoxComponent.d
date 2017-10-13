@@ -11,14 +11,14 @@ private:
     const vec4 _foreColor = vec4(0.8, 0.8, 0.8, 1.0);
 
 public:
-    this(float x, float y, size_t zIndex, float size) {
+    this(float size) {
         _size = size;
         auto geom = Rect.create(_size, _size, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, CheckBoxComponentMaterial)(geom);
         entity.getMesh.mat.backColor = _backColor;
         entity.getMesh.mat.foreColor = _foreColor;
         entity.getMesh.mat.isChecked = false;
-        super(x, y, zIndex, entity);
+        super(entity);
     }
 
     override float width() {

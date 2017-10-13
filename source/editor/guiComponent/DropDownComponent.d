@@ -16,9 +16,6 @@ private:
 
 public:
     this(
-        float x,
-        float y,
-        size_t zIndex,
         float width,
         float height,
         dstring[] textList,
@@ -27,16 +24,17 @@ public:
     ) {
         Entity root = new Entity;
 
-        _mainNode = new MainNodeComponent(0, 0, 1, width, height, ""d, fontSize, fontColor, this);
+        _mainNode = new MainNodeComponent(width, height, ""d, fontSize, fontColor, this);
+        _mainNode.zIndex = 1;
         root.addChild(_mainNode.entity);
 
         _nodes.length = textList.length;
         foreach(int i, text; textList) {
-            _nodes[i] = new ListNodeComponent(0, -((i + 1)*height), 0, width, height, text, fontSize, fontColor, this, i);
+            _nodes[i] = new ListNodeComponent(-((i + 1)*height), width, height, text, fontSize, fontColor, this, i);
             root.addChild(_nodes[i].entity);
         }
 
-        super(x, y, zIndex, root);
+        super(root);
     }
 
     override float width() {
@@ -44,7 +42,7 @@ public:
     }
 
     override float height() {
-        return _mainNode.height;
+        return _mainNode.height + _nodes.map!"a.height".sum;
     }
 
     override void update(Mouse2D mouse) {
@@ -104,9 +102,6 @@ private:
 
 public:
     this(
-        float x,
-        float y,
-        int zIndex,
         float width,
         float height,
         dstring text,
@@ -125,11 +120,14 @@ public:
         entity.getMesh.mat.value = 0;
         entity.getMesh.mat.size = vec2(width, height);
 
-        _labelComponent = new LabelComponent(width/2, -height/2, 1, text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        _labelComponent = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        _labelComponent.x = width/2;
+        _labelComponent.y = -height/2;
+        _labelComponent.zIndex = 1;
         _labelComponent.entity.setUserData(null);
         entity.addChild(_labelComponent.entity);
 
-        super(x, y, zIndex, entity);
+        super(entity);
     }
 
     override float width() {
@@ -177,7 +175,7 @@ private:
     DropDownComponent _owner;
     const int _index;
     const dstring _text;
-    const float _maxY;
+    const float _bottomY;
 
     const vec4 _darkColor = vec4(0.1, 0.1, 0.1, 1.0);
     const vec4 _lightColor = vec4(0.0, 0.0, 0.9, 1.0);
@@ -192,9 +190,7 @@ private:
 
 public:
     this(
-        float x,
-        float y,
-        int zIndex,
+        float bottomY,
         float width,
         float height,
         dstring text,
@@ -206,7 +202,7 @@ public:
         _owner = owner;
         _index = index;
         _text = text;
-        _maxY = y;
+        _bottomY = bottomY;
 
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, ButtonComponentMaterial)(geom);
@@ -216,10 +212,13 @@ public:
         entity.getMesh.mat.borderSize = _borderSize;
         entity.getMesh.mat.value = 0;
         entity.getMesh.mat.size = vec2(width, height);
-        auto labelComponent = new LabelComponent(width/2, -height/2, 1, text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        auto labelComponent = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        labelComponent.x = width/2;
+        labelComponent.y = -height/2;
+        labelComponent.zIndex = 1;
         labelComponent.entity.setUserData(null);
         entity.addChild(labelComponent.entity);
-        super(x, 0, zIndex, entity);
+        super(entity);
     }
 
     override float width() @property {
@@ -228,14 +227,6 @@ public:
 
     override float height() @property {
         return (cast(ButtonComponentMaterial)entity.getMesh.mat).size.y;
-    }
-
-    float getY() {
-        return entity.obj.pos.y;
-    }
-
-    void setY(float y) {
-        entity.obj.pos.y = y;
     }
 
     dstring text() @property {
@@ -282,10 +273,10 @@ public:
     private void move() in {
         assert(!_isOpen || !_isClosed);
     } body {
-        float targetY = _isOpen ? _maxY : _isClosed ? 0 : getY;
+        float targetY = _isOpen ? _bottomY : _isClosed ? 0 : y;
 
         float a = 0.5;
-        setY(a*targetY + (1 - a)*getY);
+        y = a*targetY + (1 - a)*y;
     }
 
 }

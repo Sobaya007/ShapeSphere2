@@ -8,6 +8,7 @@ public {
     import editor.guiComponent.ButtonComponent;
     import editor.guiComponent.DropDownComponent;
     import editor.guiComponent.GroupBoxComponent;
+    import editor.guiComponent.ComponentListComponent;
 
     import editor.guiComponent.material;
 }

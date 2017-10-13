@@ -23,15 +23,13 @@ package(editor.guiComponent) abstract class AGuiComponent : GuiComponent {
 private:
     Entity _entity;
 
-    size_t _zIndex;
+    size_t _zIndex = 0;
     const float _zDetail = 0.1;
 
 public:
     // zIndexが大きいほど手前で描画される
-    this(float x, float y, size_t zIndex, Entity entity = null, bool createColEntryFlag = true) {
-        _zIndex = zIndex;
+    this(Entity entity = null, bool createColEntryFlag = true) {
         _entity = entity is null ? new Entity : entity;
-        _entity.pos = vec3(x, y, _zDetail * zIndex);
         if (_entity.getMesh !is null && createColEntryFlag) {
             _entity.createCollisionPolygon();
         }

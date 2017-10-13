@@ -18,9 +18,6 @@ private:
 
 public:
     this(
-        float x,
-        float y,
-        size_t zIndex,
         float width,
         dstring name,
         GuiComponent content
@@ -42,7 +39,10 @@ public:
 
         entity.addChild(_content.entity);
 
-        auto opener = new ButtonComponent(10, 0, 1, _borderSize*(name.length + 2), _borderSize, getShowText(), _borderSize*0.8, _borderColor);
+        auto opener = new ButtonComponent( _borderSize*(name.length + 2), _borderSize, getShowText(), _borderSize*0.8, _borderColor);
+        opener.x = 10;
+        opener.y = 0;
+        opener.zIndex = 1;
         opener.setDarkColor(vec4(0.3, 0.3, 0.3, 0.5));
         opener.setLightColor(vec4(0.3, 0.3, 0.3, 0.5));
         opener.setBorderColor(vec4(0));
@@ -55,7 +55,7 @@ public:
 
         entity.addChild(_opener.entity);
 
-        super(x, y, zIndex, entity, false);
+        super(entity, false);
     }
 
     override float width() {

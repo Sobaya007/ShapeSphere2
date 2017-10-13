@@ -19,9 +19,6 @@ private:
 
 public:
     this(
-        float x,
-        float y,
-        int zIndex,
         float width,
         float height,
         dstring text = ""d,
@@ -37,12 +34,15 @@ public:
         entity.getMesh.mat.value = 0;
         entity.getMesh.mat.size = vec2(width, height);
 
-        _label = new LabelComponent(width/2, -height/2, 1, text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        _label = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        _label.x = width/2;
+        _label.y = -height/2;
+        _label.zIndex = 1;
         _label.entity.setUserData(null);
         entity.addChild(_label.entity);
 
         setTrigger({});
-        super(x, y, zIndex, entity);
+        super(entity);
     }
 
     void setTrigger(void delegate() onTrigger) {

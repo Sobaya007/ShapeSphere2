@@ -10,7 +10,7 @@ private:
     float _height;
 
 public:
-    this(float x, float y, size_t zIndex, float width, float height) {
+    this(float width, float height) {
         _width = width;
         _height = height;
 
@@ -18,7 +18,7 @@ public:
         auto entity = new EntityTemp!(GeometryRect, ColorMaterial)(geom);
         entity.getMesh.mat.color = vec4(0); // 透明
         entity.getMesh.mat.color = vec4(1, 1, 1, 1); // debug
-        super(x, y, zIndex, entity);
+        super(entity);
     }
 
     override float width() {
