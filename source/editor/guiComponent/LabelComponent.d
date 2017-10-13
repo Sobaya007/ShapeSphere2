@@ -24,8 +24,7 @@ public:
     ) {
 
         auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256); // TODO
-        auto label = new Label(font);
-        label.setSize(fontSize);
+        auto label = new Label(font, fontSize);
         label.setColor(fontColor);
         label.setOrigin(originX, originY);
         label.setWrapWidth(wrapWidth);
