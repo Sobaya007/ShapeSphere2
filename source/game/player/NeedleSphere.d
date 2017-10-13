@@ -53,8 +53,8 @@ class NeedleSphere : BaseSphere {
 
     void fromElastic(ElasticSphere elastic) {
         this.needleCount = 0;
-        this.lVel = this.calcLinearVelocity();
-        this.aVel = this.calcAngularVelocity();
+        this.lVel = this.calcLinearVelocity(elastic.particleList);
+        this.aVel = this.calcAngularVelocity(elastic.particleList);
         foreach (particle; this.particleList) {
             particle.initialize();
         }
@@ -122,16 +122,17 @@ class NeedleSphere : BaseSphere {
         }
     }
 
-    private vec3 calcLinearVelocity() {
-        return this.particleList.map!(p => p.velocity).sum / this.particleList.length;
+    private vec3 calcLinearVelocity(ElasticSphere.ElasticParticle[] particleList) {
+        return particleList.map!(p => p.velocity).sum / particleList.length;
     }
 
-    private vec3 calcAngularVelocity() {
-        return this.particleList.map!((p) {
+    /* CAUTION: before calling this function, SET this.entity.obj.pos & this.lVel */
+    private vec3 calcAngularVelocity(ElasticSphere.ElasticParticle[] particleList) {
+        return particleList.map!((p) {
             auto r = p.position - this.entity.obj.pos;
             auto v = p.velocity - this.lVel;
             return cross(r, v) / lengthSq(r);
-        }).sum / this.particleList.length;
+        }).sum / particleList.length;
     }
 
     vec3 calcVelocity(vec3 pos) {
@@ -196,7 +197,6 @@ class NeedleSphere : BaseSphere {
 
     class NeedleParticle {
         vec3 position; /* in World, used for Render */
-        vec3 velocity;
         vec3 normal; /* in World */
         vec3 force;
         bool isGround;
@@ -208,7 +208,6 @@ class NeedleSphere : BaseSphere {
         this(vec3 p) {
             this.position = p;
             this.normal = normalize(p);
-            this.velocity = vec3(0,0,0);
             this.force = vec3(0,0,0);
             this.capsule = new CollisionCapsule(0.1, this.position, this.position);
             this.entity = new Entity(this.capsule);

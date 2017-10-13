@@ -14,14 +14,14 @@ import sbylib.core.Entity;
  */
 
 final class PerspectiveCamera : Camera {
-public:
+private:
     Watch!float aspectWperH;
     Watch!float fovy;
     Watch!float nearZ;
     Watch!float farZ;
-
+    Watcher!umat4 _projMatrix;
+public:
     Entity entity;
-    private Watcher!umat4 _projMatrix;
 
     this(float aspect, float fovy, float nearZ, float farZ) {
         this.aspectWperH = new Watch!float(aspect);
