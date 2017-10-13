@@ -14,17 +14,22 @@ class Letter {
 
     private LetterEntity entity;
     private LetterInfo info;
+    const float width, height;
 
     this(Letter letter) {
         this.info = letter.info;
         auto before = letter.getEntity().getMesh();
         this.entity = new LetterEntity(before.geom, before.mat);
+        this.width = letter.width;
+        this.height = letter.height;
     }
 
-    this(Font font, dchar c, float height) {
+    this(Font font, dchar c, float h) {
         font.loadChar(c, FontLoadType.Render);
         this.info = font.characters[c];
-        auto geom = Rect.create(height * this.info.width / this.info.height, height);
+        this.width = h * this.info.width / this.info.height;
+        this.height = h;
+        auto geom = Rect.create(this.width, this.height);
         this.entity = new LetterEntity(geom);
         this.entity.getMesh().mat.texture = this.info.texture;
         this.entity.getMesh().mat.color = vec4(0,0,0,1);

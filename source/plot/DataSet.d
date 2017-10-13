@@ -50,8 +50,7 @@ class DataSet {
             mat.ambient = color;
             auto entity = new Entity(geom, mat);
             lineMesh[key] = entity;
-            Label label = new Label(font);
-            label.setSize(0.05);
+            Label label = new Label(font, 0.05);
             label.renderText(key.to!dstring);
             label.entity.obj.pos = vec3(0.9, baseY, 0);
             label.setColor(vec4(color, 1));

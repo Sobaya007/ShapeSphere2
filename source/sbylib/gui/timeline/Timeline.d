@@ -32,16 +32,14 @@ class Timeline : IControllable {
         this.rect = new RectEntity(Rect.create(1,1));
         this.rect.getMesh().mat.color = vec4(0.4);
         this.rect.createCollisionPolygon();
-        this.minLabel = new Label(font);
+        this.minLabel = new Label(font, 0.05);
         this.minLabel.obj.pos = vec3(-0.5, -0.5, -0.1);
         this.minLabel.setColor(vec4(1));
         this.minLabel.setOrigin(Label.OriginX.Left, Label.OriginY.Bottom);
-        this.minLabel.setSize(0.05);
-        this.maxLabel = new Label(font);
+        this.maxLabel = new Label(font, 0.05);
         this.maxLabel.obj.pos = vec3(-0.5, +0.5, -0.1);
         this.maxLabel.setColor(vec4(1));
         this.maxLabel.setOrigin(Label.OriginX.Left, Label.OriginY.Top);
-        this.maxLabel.setSize(0.05);
         this.root = new Entity;
         this.root.addChild(this.line);
         this.root.addChild(this.rect);
