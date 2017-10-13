@@ -1,10 +1,8 @@
-module examples.XFileLoad;
+module examples.CameraControlExample;
 
 import sbylib;
 
-import model.xfile.loader;
-
-void xFileLoadExample() {
+void cameraControlExample() {
     auto core = Core();
 
     auto world = new World;
@@ -18,8 +16,8 @@ void xFileLoadExample() {
             120, /* FOV (in angle) */
             0.1, /* Near Clip      */
             100, /* Far Clip       */);
-    camera.pos = vec3(0, 2, 15);
-    camera.lookAt(vec3(0, 2, 0));
+    camera.pos = vec3(3, 2, 9);
+    camera.lookAt(vec3(0,2,0));
 
     auto control = new CameraControl(core.getKey(), core.getMouse(), camera);
 
@@ -32,33 +30,12 @@ void xFileLoadExample() {
 
     auto planeEntity = new Entity(planeGeom, planeMat);
 
-    // ---
+    auto boxGeom = Box.create(10, 10, 10); /* width, height, depth */
 
-    XLoader xLoader = new XLoader;
+    auto boxMat = new NormalMaterial;
 
-    Entity texCubeEntity = xLoader.load("model/texCube.x", true, true, true).buildEntity();
-    texCubeEntity.obj.pos = vec3(-2, 3, 0);
-
-    Entity sphereEntity = xLoader.load("model/sphere.x", true, true, false).buildEntity();
-    sphereEntity.obj.pos = vec3(-4, 3, 0);
-
-    Entity parentEntity = xLoader.load("model/parent.x", true, true, false).buildEntity();
-    parentEntity.obj.pos = vec3(2, 2, 0);
-
-
-    // auto boxGeom = Box.create(10, 10, 10); /* width, height, depth */
-    // auto boxMat = new LambertMaterial;
-    // boxMat.diffuse = vec3(0, 0.4, 0.8);
-    // auto boxEntity = new Entity(boxGeom, boxMat);
-    // boxEntity.obj.pos = vec3(2,3,0);
-
-    PointLight pointLight;
-    pointLight.pos = vec3(10,10,10);
-    pointLight.diffuse = vec3(1);
-    world.addPointLight(pointLight);
-
-    // ---
-
+    auto boxEntity = new Entity(boxGeom, boxMat);
+    boxEntity.obj.pos = vec3(0,2,0);
 
     auto renderToScreen = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
@@ -67,10 +44,7 @@ void xFileLoadExample() {
 
     world.setCamera(camera);
     world.add(planeEntity);
-    world.add(texCubeEntity);
-    world.add(sphereEntity);
-    world.add(parentEntity);
-    // world.add(boxEntity);
+    world.add(boxEntity);
     core.addProcess(renderToScreen, "render");
     core.addProcess(&control.update, "update");
 

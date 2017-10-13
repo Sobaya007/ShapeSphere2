@@ -1,4 +1,4 @@
-module examples.Text;
+module examples.TextExample;
 
 import sbylib;
 import std.algorithm, std.array;

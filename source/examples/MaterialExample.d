@@ -1,4 +1,4 @@
-module examples.Material;
+module examples.MaterialExample;
 
 import sbylib;
 import std.stdio;
