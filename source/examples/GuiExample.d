@@ -1,4 +1,4 @@
-module examples.Gui;
+module examples.GuiExample;
 
 import sbylib;
 
