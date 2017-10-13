@@ -1,4 +1,4 @@
-module examples.Mouse;
+module examples.MouseExample;
 
 import sbylib;
 import std.stdio;
