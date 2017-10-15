@@ -10,134 +10,74 @@ import std.range;
 import std.math;
 import std.stdio;
 
-class ElasticSphere : BaseSphere{
+class SpringSphere : BaseSphere {
 
-    private static immutable {
+
+    static immutable {
         alias TIME_STEP = Player.TIME_STEP;
-        uint RECURSION_LEVEL = 2;
-        float DEFAULT_RADIUS = 0.5;
         float RADIUS = 2.0f;
-        float MASS = 0.05;
-        float FRICTION = 0.3;
-        float ZETA = 0.5;
-        float OMEGA = 100;
-        float c = 2 * ZETA * OMEGA * MASS;
-        float k = MASS * OMEGA * OMEGA;
-        float GRAVITY = 100;
-        uint ITERATION_COUNT = 20;
-
-        float VEL_COEF = 1 / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
-        float POS_COEF = - (TIME_STEP*k/MASS) / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
-        float FORCE_COEF = (TIME_STEP/MASS) / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
-        float BALOON_COEF = 20000;
-        float DOWN_PUSH_FORCE = 600;
-        float DOWN_PUSH_FORE_MIN = 800;
-        float SIDE_PUSH_FORCE = 10;
+        uint T_CUT = 20;
+        uint P_CUT = 20;
     }
 
-    private ElasticParticle[] particleList;
-    private ElasticPair[] pairList;
-    private Player.PlayerEntity entity;
+    SpringParticle[] particleList;
+    Player.PlayerEntity entity;
     private flim pushCount;
     private Player parent;
-    private vec3 force;
-    private Lazy!vec3 center;
-    private Lazy!vec3 lVel;
-    private Lazy!vec3 aVel;
+    private vec3 fixedPoint;
 
     this(Player parent)  {
         this.parent = parent;
         this.pushCount = flim(0.0, 0.0, 1);
-        this.force = vec3(0);
-        auto geom = Sphere.create(ElasticSphere.DEFAULT_RADIUS, ElasticSphere.RECURSION_LEVEL);
+        auto geom = SphereUV.create(RADIUS, T_CUT, P_CUT);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
         this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
-        this.particleList = entity.getMesh().geom.vertices.map!(p => new ElasticParticle(p.position)).array;
-        this.center = new Lazy!vec3(() => this.particleList.map!(p => p.position).sum / this.particleList.length, this.particleList.map!(p => cast(IObserved)p.position).array);
-        this.lVel = new Lazy!vec3(() => this.particleList.map!(p => p.velocity).sum / this.particleList.length,
-                this.particleList.map!(p => cast(IObserved)p.velocity).array);
-        this.aVel = new Lazy!vec3(() {
-                return this.particleList.map!((p) {
-                        auto r = p.position - this.center;
-                        auto v = p.velocity - this.lVel;
-                        return cross(r, v) / lengthSq(r);
-                        }).sum / this.particleList.length;
-                }, this.lVel, this.center);
-        //隣を発見
-        uint[2][] pairIndex;
-        uint[2] makePair(uint a,uint b) {
-            return a < b ? [a,b] : [b,a];
-        }
-        foreach (face; geom.faces) {
-            auto idx0 = face.indexList[0];
-            auto idx1 = face.indexList[1];
-            auto idx2 = face.indexList[2];
+        this.particleList = entity.getMesh().geom.vertices.map!(p => new SpringParticle(p.position)).array;
+    }
 
-            if (pairIndex.canFind(makePair(idx0,idx1)) == false) {
-                pairIndex ~= makePair(idx0,idx1);
-                this.pairList ~= new ElasticPair(
-                        particleList[idx0],
-                        particleList[idx1]);
+    void fromElastic(ElasticSphere elastic) {
+        auto contactInfo = elastic.getWallContact();
+    }
+
+    override void move() {
+        this.entity.obj.pos = g;
+
+        //拘束解消
+        {
+            //隣との距離を計算
+            foreach (pair; this.pairList) {
+                pair.init();
             }
-            if (pairIndex.canFind(makePair(idx1,idx2)) == false) {
-                pairIndex ~= makePair(idx1,idx2);
-                this.pairList ~= new ElasticPair(
-                        particleList[idx1],
-                        particleList[idx2]);
-            }
-            if (pairIndex.canFind(makePair(idx2,idx0)) == false) {
-                pairIndex ~= makePair(idx2,idx0);
-                this.pairList ~= new ElasticPair(
-                        particleList[idx2],
-                        particleList[idx0]);
+            foreach (k; 0..ITERATION_COUNT){
+                //隣との拘束
+                foreach (pair; this.pairList) {
+                    pair.solve();
+                }
             }
         }
-    }
-
-    void fromNeedle(NeedleSphere needleSphere) {
-        parent.world.add(entity);
-        auto arrivalCenter = needleSphere.getCenter();
-        auto currentCenter = this.center;
-        auto dCenter = arrivalCenter - currentCenter;
-        foreach (particle; this.particleList) {
-            particle.position += dCenter;
+        float baloonForce = this.calcBaloonForce();
+        foreach (ref particle; this.particleList) {
+            particle.force += particle.normal * baloonForce;
+            particle.force.y -= GRAVITY * MASS;
+            particle.velocity += particle.force * FORCE_COEF;
+            move(particle);
+            collision(particle);
+            end(particle);
         }
-        this.entity.obj.pos += dCenter;
-        foreach (particle; this.particleList) {
-            particle.velocity = needleSphere.calcVelocity(particle.position);
+        this.force.y = 0;
+        if (this.force.length > 0) this.force = normalize(this.force) * SIDE_PUSH_FORCE;
+        foreach (p; this.particleList) {
+            p.force = this.force;
         }
-    }
+        this.force = vec3(0);
 
-    vec3 getCenter() {
-        return this.center;
-    }
-
-    vec3 getLinearVelocity() {
-        return this.lVel;
-    }
-
-    vec3 getAngularVelocity() {
-        return this.aVel;
-    }
-
-    // pos, dir, error
-    Tuple!(vec3,vec3,bool) getWallContact() {
-        static CollisionRay ray;
-        if (ray is null)
-            ray = new CollisionRay;
-        if (this.parent.floors.getChildNum() == 0) return Tuple!(vec3(0), vec3(0), true);
-        auto floor = this.parent.floors.getChildren[0];
-        ray.start = this.center;
-        ray.dir = -floor.getMesh().geom.faces[0].normal;
-        auto colInfo = this.parent.floors.collide(ray);
-        if (!colInfo.collided) return Tuple!(vec3(0), vec3(0), true);
-        return Tuple!(colInfo.colPoint, -ray.dir, false);
+        updateGeometry();
     }
 
     override void onDownPress() {
         this.pushCount += 0.1;
-        vec3 g = this.center;
+        vec3 g = this.calcCenter();
         auto lower = this.calcLower();
         auto upper = this.calcUpper();
         foreach (p; this.particleList) {
@@ -177,42 +117,18 @@ class ElasticSphere : BaseSphere{
         parent.world.remove(entity);
     }
 
-    override void move() {
-        vec3 g = this.center;
-
-        this.rotateParticles(g);
-        this.entity.obj.pos = g;
-
-        //拘束解消
-        {
-            //隣との距離を計算
-            foreach (pair; this.pairList) {
-                pair.init();
-            }
-            foreach (k; 0..ITERATION_COUNT){
-                //隣との拘束
-                foreach (pair; this.pairList) {
-                    pair.solve();
-                }
-            }
+    void fromNeedle(NeedleSphere needleSphere) {
+        parent.world.add(entity);
+        auto arrivalCenter = needleSphere.entity.obj.pos;
+        auto currentCenter = this.calcCenter();
+        auto dCenter = arrivalCenter - currentCenter;
+        foreach (particle; this.particleList) {
+            particle.position += dCenter;
         }
-        float baloonForce = this.calcBaloonForce();
-        foreach (ref particle; this.particleList) {
-            particle.force += particle.normal * baloonForce;
-            particle.force.y -= GRAVITY * MASS;
-            particle.velocity += particle.force * FORCE_COEF;
-            move(particle);
-            collision(particle);
-            end(particle);
+        this.entity.obj.pos += dCenter;
+        foreach (particle; this.particleList) {
+            particle.velocity = needleSphere.calcVelocity(particle.position);
         }
-        this.force.y = 0;
-        if (this.force.length > 0) this.force = normalize(this.force) * SIDE_PUSH_FORCE;
-        foreach (p; this.particleList) {
-            p.force = this.force;
-        }
-        this.force = vec3(0);
-
-        updateGeometry();
     }
 
     private void rotateParticles(vec3 center) {
@@ -256,7 +172,12 @@ class ElasticSphere : BaseSphere{
         return area / 2;
     }
 
+    private vec3 calcCenter() {
+        return this.particleList.map!(p => p.position).sum / this.particleList.length;
+    }
+
     private float calcRadius() {
+        auto center = this.calcCenter();
         return this.particleList.map!(a => (a.position - center).length).sum / this.particleList.length;
     }
 
@@ -334,8 +255,8 @@ class ElasticSphere : BaseSphere{
     }
 
     class ElasticParticle {
-        Observed!vec3 position; /* in World, used for Render */
-        Observed!vec3 velocity;
+        vec3 position; /* in World, used for Render */
+        vec3 velocity;
         vec3 normal; /* in World */
         vec3 force;
         bool isGround;
@@ -344,9 +265,9 @@ class ElasticSphere : BaseSphere{
         CollisionCapsule capsule;
 
         this(vec3 p) {
-            this.position = new Observed!vec3(p);
+            this.position = p;
             this.normal = normalize(p);
-            this.velocity = new Observed!vec3(vec3(0));
+            this.velocity = vec3(0,0,0);
             this.force = vec3(0,0,0);
             this.capsule = new CollisionCapsule(0.1, this.position, this.position);
             this.entity = new Entity(this.capsule);

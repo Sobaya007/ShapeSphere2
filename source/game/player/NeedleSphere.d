@@ -12,22 +12,24 @@ import std.stdio;
 
 class NeedleSphere : BaseSphere {
 
-    private static immutable FRICTION = 2.0f;
-    private static immutable RADIUS = 2.0f;
-    private static immutable ALLOWED_PENETRATION = 0.5f;
-    private static immutable SEPARATION_COEF = 0.5f / Player.TIME_STEP;
-    private static immutable RESTITUTION_RATE = 0.3f;
-    private static immutable MASS = 1.0f;
-    private static immutable AIR_REGISTANCE = 0.5f;
-    private static immutable GRAVITY = 30.0f;
+    private static immutable {
+        float FRICTION = 2.0f;
+        float RADIUS = 2.0f;
+        float ALLOWED_PENETRATION = 0.5f;
+        float SEPARATION_COEF = 0.5f / Player.TIME_STEP;
+        float RESTITUTION_RATE = 0.3f;
+        float MASS = 1.0f;
+        float AIR_REGISTANCE = 0.5f;
+        float GRAVITY = 30.0f;
 
-    private static immutable MASS_INV = 1.0f / MASS;
-    private static immutable INERTIA_INV = 2.5 / (MASS * RADIUS * RADIUS);
-    private static immutable uint RECURSION_LEVEL = 2;
-    private static immutable float DEFAULT_RADIUS = 0.5;
+        float MASS_INV = 1.0f / MASS;
+        float INERTIA_INV = 2.5 / (MASS * RADIUS * RADIUS);
+        uint RECURSION_LEVEL = 2;
+        float DEFAULT_RADIUS = 0.5;
+    }
 
-    NeedleParticle[] particleList;
-    Player.PlayerEntity entity;
+    private NeedleParticle[] particleList;
+    private Player.PlayerEntity entity;
     private Player parent;
     private flim needleCount;
     private vec3 lVel;
@@ -53,13 +55,17 @@ class NeedleSphere : BaseSphere {
 
     void fromElastic(ElasticSphere elastic) {
         this.needleCount = 0;
-        this.lVel = this.calcLinearVelocity(elastic.particleList);
-        this.aVel = this.calcAngularVelocity(elastic.particleList);
+        this.entity.obj.pos = elastic.getCenter();
+        this.lVel = elastic.getLinearVelocity();
+        this.aVel = elastic.getAngularVelocity();
         foreach (particle; this.particleList) {
             particle.initialize();
         }
         parent.world.add(entity);
-        this.entity.obj.pos = elastic.entity.obj.pos;
+    }
+
+    vec3 getCenter() {
+        return this.entity.obj.pos;
     }
 
     override void move() {
@@ -120,19 +126,6 @@ class NeedleSphere : BaseSphere {
                 contact.solve();
             }
         }
-    }
-
-    private vec3 calcLinearVelocity(ElasticSphere.ElasticParticle[] particleList) {
-        return particleList.map!(p => p.velocity).sum / particleList.length;
-    }
-
-    /* CAUTION: before calling this function, SET this.entity.obj.pos & this.lVel */
-    private vec3 calcAngularVelocity(ElasticSphere.ElasticParticle[] particleList) {
-        return particleList.map!((p) {
-            auto r = p.position - this.entity.obj.pos;
-            auto v = p.velocity - this.lVel;
-            return cross(r, v) / lengthSq(r);
-        }).sum / particleList.length;
     }
 
     vec3 calcVelocity(vec3 pos) {

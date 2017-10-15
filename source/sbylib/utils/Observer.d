@@ -38,8 +38,10 @@ class Observed(T) : IObserved {
         foreach (observer; observers) {
             observer.onChange();
         }
-        import std.traits;
-        static if (__traits(hasMember, T, "opDispatch")) {
+        import std.meta;
+        static if (staticIndexOf!(s, __traits(allMembers, T)) >= 0) {
+            return mixin("this.value." ~ s);
+        } else static if (__traits(hasMember, T, "opDispatch")) {
             return this.value.opDispatch!(s, Args)(args);
         } else static if (isCallable!(__traits(getMember, T, s))) {
             static if (is(ReturnType!(__traits(getMember, T, s)) == void)) {
@@ -48,7 +50,7 @@ class Observed(T) : IObserved {
                 return mixin("this.value." ~ s)(args);
             }
         } else {
-            return mixin("this.value." ~ s);
+            static assert(false);
         }
     }
 
@@ -136,13 +138,19 @@ class Observer(T) : IObserver, IObserved {
     alias get this;
 }
 
-class Lazy(ReturnType,SavedType=ReturnType) : IObserver {
+class Lazy(ReturnType,SavedType=ReturnType) : IObserver, IObserved {
 
     private SavedType value;
     private bool needsUpdate;
     private ReturnType delegate() defineFunc;
+    private IObserver[] observers;
 
     this(ReturnType delegate() defineFunc, IObserved[] args...) {
+        this(SavedType.init, defineFunc, args);
+    }
+
+    this(SavedType initialValue, ReturnType delegate() defineFunc, IObserved[] args...) {
+        this.value = initialValue;
         this.defineFunc = defineFunc;
         this.needsUpdate = true;
         foreach (arg; args) {
@@ -150,15 +158,8 @@ class Lazy(ReturnType,SavedType=ReturnType) : IObserver {
         }
     }
 
-    this(SavedType initialValue, ReturnType delegate() defineFunc, IObserved[] args...) {
-        this.value = initialValue;
-        this(defineFunc, args);
-    }
-
     ReturnType get() {
         if (this.needsUpdate) {
-            import std.stdio;
-            writeln("updated");
             this.value = this.defineFunc();
             this.needsUpdate = false;
         }
@@ -169,6 +170,13 @@ class Lazy(ReturnType,SavedType=ReturnType) : IObserver {
         this.needsUpdate = true;
     }
 
+    override void capturedBy(IObserver observer) {
+        this.observers ~= observer;
+    }
+
+    override void releasedBy(IObserver observer) {
+        this.observers = this.observers.remove!(o => o is observer);
+    }
     override string toString() {
         import std.conv;
         return this.get().to!string;

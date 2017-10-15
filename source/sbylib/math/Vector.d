@@ -44,8 +44,8 @@ public:
                 cnt++;
                 //isInstanceOfでやろうとしたが、この時点ではVectorの型情報が正しく作られていないため参照できない。
             } else {
-                this.elements[cnt..cnt+arg.elements.length] = arg.elements;
-                cnt += arg.elements.length;
+                this.elements[cnt..cnt+arg.array.length] = arg.array;
+                cnt += arg.array.length;
             }
         }
     }

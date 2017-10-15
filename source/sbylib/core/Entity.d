@@ -148,6 +148,10 @@ class Entity {
         return res;
     }
 
+    Entity[] getChildren() {
+        return this.children;
+    }
+
     private void onSetWorld(World world) {
         if (this.mesh) {
             this.mesh.onSetWorld(world);
