@@ -3,56 +3,56 @@ module sbylib.mesh.Object3D;
 import sbylib.math.Matrix;
 import sbylib.math.Vector;
 import sbylib.math.Quaternion;
-import sbylib.utils.Watcher;
+import sbylib.utils.Observer;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.core.Entity;
 
 class Object3D {
-    private Watch!vec3 _pos;
-    private Watch!mat3 _rot;
-    private Watch!vec3 _scale;
-    private Watcher!mat4 parentWorldMatrix;
-    private Watcher!mat4 parentViewMatrix;
+    Observed!vec3 _pos;
+    Observed!mat3 _rot;
+    Observed!vec3 _scale;
+    private Observer!mat4 parentWorldMatrix;
+    private Observer!mat4 parentViewMatrix;
     private Entity owner;
     private Entity parent;
-    Watcher!umat4 worldMatrix;
-    Watcher!umat4 viewMatrix;
+    Observer!umat4 worldMatrix;
+    Observer!umat4 viewMatrix;
 
     this(Entity owner) {
         this.owner = owner;
-        this._pos = new Watch!vec3();
+        this._pos = new Observed!vec3();
         this._pos = vec3(0);
 
-        this._rot = new Watch!mat3();
+        this._rot = new Observed!mat3();
         this._rot = mat3.identity();
 
-        this._scale = new Watch!vec3();
+        this._scale = new Observed!vec3();
         this._scale = vec3(1);
 
-        this.worldMatrix = new Watcher!umat4((ref umat4 mat) {
+        this.worldMatrix = new Observer!umat4((ref umat4 mat) {
             mat.value = parentWorldMatrix * generateWorldMatrix();
         }, new umat4("worldMatrix"));
 
-        this.viewMatrix = new Watcher!umat4((ref umat4 mat) {
+        this.viewMatrix = new Observer!umat4((ref umat4 mat) {
             mat.value = parentViewMatrix * generateViewMatrix();
         }, new umat4("viewMatrix"));
 
-        this.parentWorldMatrix = new Watcher!mat4((ref mat4 mat) {
+        this.parentWorldMatrix = new Observer!mat4((ref mat4 mat) {
             mat = mat4.identity();
         }, mat4.identity());
 
-        this.parentViewMatrix = new Watcher!mat4((ref mat4 mat) {
+        this.parentViewMatrix = new Observer!mat4((ref mat4 mat) {
             mat = mat4.identity();
         }, mat4.identity());
 
-        this.worldMatrix.addWatch(this._pos);
-        this.worldMatrix.addWatch(this._rot);
-        this.worldMatrix.addWatch(this._scale);
-        this.worldMatrix.addWatch(this.parentWorldMatrix);
-        this.viewMatrix.addWatch(this._pos);
-        this.viewMatrix.addWatch(this._rot);
-        this.viewMatrix.addWatch(this._scale);
-        this.viewMatrix.addWatch(this.parentViewMatrix);
+        this.worldMatrix.capture(this._pos);
+        this.worldMatrix.capture(this._rot);
+        this.worldMatrix.capture(this._scale);
+        this.worldMatrix.capture(this.parentWorldMatrix);
+        this.viewMatrix.capture(this._pos);
+        this.viewMatrix.capture(this._rot);
+        this.viewMatrix.capture(this._scale);
+        this.viewMatrix.capture(this.parentViewMatrix);
     }
 
     void lookAt(vec3 target, vec3 up = vec3(0,1,0)) {
@@ -66,16 +66,16 @@ class Object3D {
     }
 
     void onSetParent(Entity parent) {
-        this.parentWorldMatrix.setDefineFunc((ref mat4 mat) {
+        this.parentWorldMatrix.define((ref mat4 mat) {
             mat = parent.obj.worldMatrix.get().value;
         });
-        if (this.parent) this.parentWorldMatrix.removeWatch(this.parent.obj.worldMatrix);
-        this.parentWorldMatrix.addWatch(parent.obj.worldMatrix);
-        this.parentViewMatrix.setDefineFunc((ref mat4 mat) {
+        if (this.parent) this.parentWorldMatrix.release(this.parent.obj.worldMatrix);
+        this.parentWorldMatrix.capture(parent.obj.worldMatrix);
+        this.parentViewMatrix.define((ref mat4 mat) {
             mat = parent.obj.viewMatrix.get().value;
         });
-        if (this.parent) this.parentViewMatrix.removeWatch(this.parent.obj.viewMatrix);
-        this.parentViewMatrix.addWatch(parent.obj.viewMatrix);
+        if (this.parent) this.parentViewMatrix.release(this.parent.obj.viewMatrix);
+        this.parentViewMatrix.capture(parent.obj.viewMatrix);
         this.parent = parent;
     }
 
@@ -100,7 +100,7 @@ class Object3D {
         this._pos = p;
     }
 
-    Watch!vec3 pos() @property {
+    Observed!vec3 pos() @property {
         return this._pos;
     }
 
@@ -108,7 +108,7 @@ class Object3D {
         this._rot = p;
     }
 
-    Watch!mat3 rot() @property {
+    Observed!mat3 rot() @property {
         return this._rot;
     }
 
@@ -116,7 +116,7 @@ class Object3D {
         this._scale = p;
     }
 
-    Watch!vec3 scale() @property {
+    Observed!vec3 scale() @property {
         return this._scale;
     }
 }
