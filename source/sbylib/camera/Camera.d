@@ -5,11 +5,11 @@ public {
     import sbylib.math.Vector;
     import sbylib.mesh.Object3D;
     import sbylib.wrapper.gl.Uniform;
-    import sbylib.utils.Watcher;
+    import sbylib.utils.Observer;
 }
 
 interface Camera {
     inout(Object3D) getObj() inout;
-    @property Watcher!umat4 projMatrix();
+    @property Observer!umat4 projMatrix();
     alias getObj this;
 }

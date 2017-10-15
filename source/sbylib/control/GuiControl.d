@@ -9,7 +9,7 @@ import sbylib.camera.OrthoCamera;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Quaternion;
-import sbylib.utils.Watcher;
+import sbylib.utils.Observer;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;

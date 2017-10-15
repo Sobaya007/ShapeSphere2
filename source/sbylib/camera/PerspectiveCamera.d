@@ -3,7 +3,7 @@ module sbylib.camera.PerspectiveCamera;
 import sbylib.camera.Camera;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.mesh.Object3D;
-import sbylib.utils.Watcher;
+import sbylib.utils.Observer;
 import sbylib.math.Matrix;
 import sbylib.math.Vector;
 import sbylib.core.Entity;
@@ -15,34 +15,34 @@ import sbylib.core.Entity;
 
 final class PerspectiveCamera : Camera {
 private:
-    Watch!float aspectWperH;
-    Watch!float fovy;
-    Watch!float nearZ;
-    Watch!float farZ;
-    Watcher!umat4 _projMatrix;
+    Observed!float aspectWperH;
+    Observed!float fovy;
+    Observed!float nearZ;
+    Observed!float farZ;
+    Observer!umat4 _projMatrix;
 public:
     Entity entity;
 
     this(float aspect, float fovy, float nearZ, float farZ) {
-        this.aspectWperH = new Watch!float(aspect);
-        this.fovy = new Watch!float(fovy);
-        this.nearZ = new Watch!float(nearZ);
-        this.farZ = new Watch!float(farZ);
+        this.aspectWperH = new Observed!float(aspect);
+        this.fovy = new Observed!float(fovy);
+        this.nearZ = new Observed!float(nearZ);
+        this.farZ = new Observed!float(farZ);
         this.entity = new Entity();
-        this._projMatrix = new Watcher!umat4((ref umat4 mat) {
+        this._projMatrix = new Observer!umat4((ref umat4 mat) {
             mat.value = this.generateProjectionMatrix();
         }, new umat4("projMatrix"));
-        this._projMatrix.addWatch(this.aspectWperH);
-        this._projMatrix.addWatch(this.fovy);
-        this._projMatrix.addWatch(this.nearZ);
-        this._projMatrix.addWatch(this.farZ);
+        this._projMatrix.capture(this.aspectWperH);
+        this._projMatrix.capture(this.fovy);
+        this._projMatrix.capture(this.nearZ);
+        this._projMatrix.capture(this.farZ);
     }
 
     override inout(Object3D) getObj() inout {
         return this.entity.obj;
     }
 
-    override @property Watcher!umat4 projMatrix() {
+    override @property Observer!umat4 projMatrix() {
         return this._projMatrix;
     }
 
