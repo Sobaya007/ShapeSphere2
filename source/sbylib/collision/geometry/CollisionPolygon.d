@@ -1,7 +1,7 @@
 module sbylib.collision.geometry.CollisionPolygon;
 
 import sbylib.math.Vector;
-import sbylib.utils.Watcher;
+import sbylib.utils.Observer;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.Vertex;
 import sbylib.mesh.Object3D;
@@ -13,8 +13,8 @@ import sbylib.collision.geometry.CollisionGeometry;
 class CollisionPolygon : CollisionGeometry {
     private vec3[3] _positions;
     private vec3 _normal;
-    Watcher!(vec3)[3] positions;
-    Watcher!(vec3) normal;
+    Observer!(vec3)[3] positions;
+    Observer!(vec3) normal;
     private Entity owner;
 
     this(vec3[3] positions...) {
@@ -35,15 +35,15 @@ class CollisionPolygon : CollisionGeometry {
         this.owner = owner;
         foreach (i; 0..3) {
             (j) {
-                this.positions[j] = new Watcher!vec3((ref vec3 p) {
+                this.positions[j] = new Observer!vec3((ref vec3 p) {
                     p = (this.owner.obj.worldMatrix * vec4(this._positions[j], 1)).xyz;
                 }, this._positions[j]);
-                this.positions[j].addWatch(this.owner.obj.worldMatrix);
+                this.positions[j].capture(this.owner.obj.worldMatrix);
             }(i);
         }
-        this.normal = new Watcher!vec3((ref vec3 n) {
+        this.normal = new Observer!vec3((ref vec3 n) {
            n = (this.owner.obj.worldMatrix * vec4(this._normal, 0)).xyz;
         }, this._normal);
-        this.normal.addWatch(this.owner.obj.worldMatrix);
+        this.normal.capture(this.owner.obj.worldMatrix);
     }
 }

@@ -4,7 +4,7 @@ public {
     import sbylib.camera.Camera;
     import sbylib.wrapper.gl.Uniform;
     import sbylib.mesh.Object3D;
-    import sbylib.utils.Watcher;
+    import sbylib.utils.Observer;
     import sbylib.math.Matrix;
     import sbylib.math.Vector;
     import sbylib.core.Entity;
@@ -18,34 +18,34 @@ public {
 final class OrthoCamera : Camera {
 public:
 
-    Watch!float width;
-    Watch!float height;
-    Watch!float nearZ;
-    Watch!float farZ;
+    Observed!float width;
+    Observed!float height;
+    Observed!float nearZ;
+    Observed!float farZ;
 
     private Entity entity;
-    private Watcher!umat4 _projMatrix;
+    private Observer!umat4 _projMatrix;
 
     this(float width, float height, float nearZ, float farZ) {
-        this.width = new Watch!float(width);
-        this.height = new Watch!float(height);
-        this.nearZ = new Watch!float(nearZ);
-        this.farZ = new Watch!float(farZ);
+        this.width = new Observed!float(width);
+        this.height = new Observed!float(height);
+        this.nearZ = new Observed!float(nearZ);
+        this.farZ = new Observed!float(farZ);
         this.entity = new Entity();
-        this._projMatrix = new Watcher!umat4((ref umat4 mat) {
+        this._projMatrix = new Observer!umat4((ref umat4 mat) {
             mat.value = this.generateProjectionMatrix();
         }, new umat4("projMatrix"));
-        this._projMatrix.addWatch(this.width);
-        this._projMatrix.addWatch(this.height);
-        this._projMatrix.addWatch(this.nearZ);
-        this._projMatrix.addWatch(this.farZ);
+        this._projMatrix.capture(this.width);
+        this._projMatrix.capture(this.height);
+        this._projMatrix.capture(this.nearZ);
+        this._projMatrix.capture(this.farZ);
     }
 
     override inout(Object3D) getObj() inout {
         return this.entity.obj;
     }
 
-    override @property Watcher!umat4 projMatrix() {
+    override @property Observer!umat4 projMatrix() {
         return this._projMatrix;
     }
 
