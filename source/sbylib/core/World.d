@@ -2,7 +2,7 @@ module sbylib.core.World;
 
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
-import sbylib.utils.Watcher;
+import sbylib.utils.Observer;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
@@ -18,40 +18,40 @@ import std.algorithm;
 
 class World {
     private Entity[] entities;
-    private Watch!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
-    private Watcher!umat4 viewMatrix;
-    private Watcher!umat4 projMatrix;
-    private Watcher!(UniformBuffer!PointLightBlock) pointLightBlockBuffer;
-    private Watch!(PointLightBlock) pointLightBlock;
+    private Observed!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
+    private Observer!umat4 viewMatrix;
+    private Observer!umat4 projMatrix;
+    private Observer!(UniformBuffer!PointLightBlock) pointLightBlockBuffer;
+    private Observed!(PointLightBlock) pointLightBlock;
 
     this() {
-        this.camera = new Watch!Camera;
-        this.viewMatrix = new Watcher!umat4((ref umat4 mat) {
+        this.camera = new Observed!Camera;
+        this.viewMatrix = new Observer!umat4((ref umat4 mat) {
             mat.value = this.camera.getObj().viewMatrix;
         }, new umat4("viewMatrix"));
-        this.projMatrix = new Watcher!umat4((ref umat4 mat) {
+        this.projMatrix = new Observer!umat4((ref umat4 mat) {
             mat.value = this.camera.projMatrix;
         }, new umat4("projMatrix"));
-        this.pointLightBlock = new Watch!PointLightBlock;
+        this.pointLightBlock = new Observed!PointLightBlock;
         auto uni = new UniformBuffer!PointLightBlock("PointLightBlock");
         uni.sendData(this.pointLightBlock.get(), BufferUsage.Dynamic);
-        this.pointLightBlockBuffer = new Watcher!(UniformBuffer!PointLightBlock)((ref UniformBuffer!PointLightBlock uni) {
+        this.pointLightBlockBuffer = new Observer!(UniformBuffer!PointLightBlock)((ref UniformBuffer!PointLightBlock uni) {
             PointLightBlock* buffer = uni.map(BufferAccess.Write);
             buffer.num = this.pointLightBlock.num;
             buffer.lights = this.pointLightBlock.lights;
             uni.unmap();
         }, uni);
-        this.pointLightBlockBuffer.addWatch(this.pointLightBlock);
+        this.pointLightBlockBuffer.capture(this.pointLightBlock);
     }
 
     void setCamera(Camera camera) {
         if (this.camera.get()) {
-            this.viewMatrix.removeWatch(this.camera.getObj().viewMatrix);
-            this.projMatrix.removeWatch(this.camera.projMatrix);
+            this.viewMatrix.release(this.camera.getObj().viewMatrix);
+            this.projMatrix.release(this.camera.projMatrix);
         }
         this.camera = camera;
-        this.viewMatrix.addWatch(this.camera.getObj().viewMatrix);
-        this.projMatrix.addWatch(this.camera.projMatrix);
+        this.viewMatrix.capture(this.camera.getObj().viewMatrix);
+        this.projMatrix.capture(this.camera.projMatrix);
     }
 
     void add(T)(T[] rs...) 

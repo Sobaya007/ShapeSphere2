@@ -320,7 +320,7 @@ class Utils {
             //
             //
             //void checkTime(void delegate() func, int limitTime)() {
-            //    StopWatch sw;
+            //    StopObserved sw;
             //    sw.start;
             //    func();
             //    sw.stop;
@@ -328,7 +328,7 @@ class Utils {
             //}
             //
             //ulong getTime(void delegate() func)() {
-            //    StopWatch sw;
+            //    StopObserved sw;
             //    sw.start;
             //    func();
             //    sw.stop;

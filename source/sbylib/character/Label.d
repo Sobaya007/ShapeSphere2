@@ -7,11 +7,14 @@ import sbylib.mesh.Mesh;
 import sbylib.material.TextMaterial;
 import sbylib.mesh.Object3D;
 import sbylib.math.Vector;
-import sbylib.utils.Watcher;
+import sbylib.utils.Observer;
 import sbylib.character.Letter;
 import std.typecons;
+import std.math;
 
 class Label {
+
+    alias entity this;
 
     enum OriginX {Center, Left, Right}
     enum OriginY {Center, Top, Bottom}
@@ -25,12 +28,14 @@ class Label {
     private float wrapWidth;
     private float size; //1 letter height
     private Letter[dchar] cache;
+    private float width, height;
 
-    this(Font font) {
+    this(Font font, float size) {
         this.font = font;
         this.originX = OriginX.Center;
         this.originY = OriginY.Center;
         this.wrapWidth = 1145141919.810;
+        this.size = size;
         this.color = vec4(0,0,0,1);
         this.entity = new Entity;
     }
@@ -41,6 +46,10 @@ class Label {
             auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
             mat.color = color;
         }
+    }
+
+    vec4 getColor() {
+        return this.color;
     }
 
     void setSize(float size) {
@@ -57,6 +66,14 @@ class Label {
         this.originX = x;
         this.originY = y;
         this.lineUp();
+    }
+
+    float getWidth() {
+        return this.width;
+    }
+
+    float getHeight() {
+        return this.height;
     }
 
     void renderText(dstring text) {
@@ -77,6 +94,10 @@ class Label {
         this.lineUp();
     }
 
+    vec3 getPos(OriginX ox, OriginY oy) {
+        return this.obj.pos + vec3(offsetX(this.originX,this.width) - offsetX(OriginX.Center,this.width), offsetY(this.originY) - offsetY(OriginY.Center), 0);
+    }
+
     struct RowInfo {
         Letter[] letters;
         float width;
@@ -84,13 +105,16 @@ class Label {
 
     private void lineUp() {
         auto rows = getRows(null, this.letters, null, 0);
-        import std.stdio;
-        auto allHeight = rows.length * this.size;
-        auto y = this.offsetY(allHeight);
+        this.width = 0;
+        foreach (row; rows) {
+            this.width = fmax(this.width, row.width);
+        }
+        this.height = rows.length * this.size;
+        auto y = this.offsetY(this.originY);
         alias h = this.size;
         foreach (row; rows) {
             if (row.letters.length == 0) continue;
-            float x = this.offsetX(row.width, h * row.letters[0].getInfo().width / row.letters[0].getInfo().height);
+            float x = this.offsetX(this.originX, row.width);
             int count = 0;
             foreach (l; row.letters) {
                 auto w = h * l.getInfo().width / l.getInfo().height;
@@ -112,8 +136,8 @@ class Label {
         return getRows([l], rest, rows, dw);
     }
 
-    private float offsetX(float fullWidth, float width) {
-        final switch (this.originX) {
+    private float offsetX(OriginX ox, float fullWidth) {
+        final switch (ox) {
         case OriginX.Left:
             return 0;
         case OriginX.Center:
@@ -123,14 +147,14 @@ class Label {
         }
     }
 
-    private float offsetY(float height) {
-        final switch (this.originY) {
+    private float offsetY(OriginY oy) {
+        final switch (oy) {
         case OriginY.Top:
             return -this.size / 2;
         case OriginY.Center:
-            return +height / 2 - this.size / 2;
+            return this.height / 2 - this.size / 2;
         case OriginY.Bottom:
-            return height - this.size / 2;
+            return this.height - this.size / 2;
         }
     }
 

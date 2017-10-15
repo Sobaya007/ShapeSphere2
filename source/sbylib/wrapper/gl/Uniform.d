@@ -30,6 +30,11 @@ class UniformTemp(Type) : Uniform {
         this.name = name;
     }
 
+    this(string name, Type value) {
+        this.name = name;
+        this.value = value;
+    }
+
     override string getName() const {
         return this.name;
     }

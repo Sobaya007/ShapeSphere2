@@ -34,8 +34,7 @@ void gameMain(string[] args) {
     /* Label Settings */
     if (commandManager.isPlaying()) {
         auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
-        auto label = new Label(font);
-        label.setSize(0.1);
+        auto label = new Label(font, 0.1);
         label.setOrigin(Label.OriginX.Right, Label.OriginY.Top);
         label.pos = vec3(1,1,0);
         label.setColor(vec4(1));

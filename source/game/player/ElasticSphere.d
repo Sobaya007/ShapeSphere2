@@ -164,9 +164,6 @@ class ElasticSphere : BaseSphere{
     }
 
     void fromNeedle(NeedleSphere needleSphere) {
-        foreach (particle; this.particleList) {
-            particle.velocity = needleSphere.calcVelocity(particle.position);
-        }
         parent.world.add(entity);
         auto arrivalCenter = needleSphere.entity.obj.pos;
         auto currentCenter = this.calcCenter();
@@ -175,6 +172,9 @@ class ElasticSphere : BaseSphere{
             particle.position += dCenter;
         }
         this.entity.obj.pos += dCenter;
+        foreach (particle; this.particleList) {
+            particle.velocity = needleSphere.calcVelocity(particle.position);
+        }
     }
 
     private void rotateParticles(vec3 center) {
