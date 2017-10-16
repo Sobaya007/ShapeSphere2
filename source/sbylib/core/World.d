@@ -2,7 +2,7 @@ module sbylib.core.World;
 
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
-import sbylib.utils.Observer;
+import sbylib.utils.Lazy;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
@@ -75,14 +75,14 @@ class World {
         target.renderEnd();
     }
 
-    Uniform delegate() getUniform(UniformDemand demand) {
+    Lazy!Uniform getUniform(UniformDemand demand) {
         switch (demand) {
         case UniformDemand.View:
-            return () => this.viewMatrix;
+            return this.viewMatrix.getLazy!Uniform;
         case UniformDemand.Proj:
-            return () => this.projMatrix;
+            return this.projMatrix.getLazy!Uniform;
         case UniformDemand.Light:
-            return () => this.pointLightBlockBuffer;
+            return this.pointLightBlockBuffer.getLazy!Uniform;
         default:
             assert(false);
         }

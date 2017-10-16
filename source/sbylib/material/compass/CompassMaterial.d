@@ -11,27 +11,30 @@ class CompassMaterialUniformKeeper : UniformKeeper {
 
     mixin MaterialUtils.declare;
 
-    private Observer!(uvec2) _xvec;
-    private Observer!(uvec2) _yvec;
-    private Observer!(uvec2) _zvec;
+    private Lazy!(uvec2) xvec;
+    private Lazy!(uvec2) yvec;
+    private Lazy!(uvec2) zvec;
 }
 
 class CompassMaterial : MaterialTemp!CompassMaterialUniformKeeper {
 
     this(Camera camera) {
         super((CompassMaterialUniformKeeper keeper) {
-            keeper._xvec = new Observer!(uvec2)((ref uvec2 xvec) {
+            keeper.xvec = new Lazy!(uvec2)((ref uvec2 xvec) {
                 xvec = normalize((camera.worldMatrix.toMatrix3() * vec3(1,0,0)).xy);
-            }, new uvec2("xvec"));
-            keeper._yvec = new Observer!(uvec2)((ref uvec2 yvec) {
+            },
+            new uvec2("xvec"),
+            camera.worldMatrix);
+            keeper.yvec = new Lazy!(uvec2)((ref uvec2 yvec) {
                 yvec = normalize((camera.worldMatrix.toMatrix3() * vec3(0,1,0)).xy);
-            }, new uvec2("yvec"));
-            keeper._zvec = new Observer!(uvec2)((ref uvec2 zvec) {
+            },
+            new uvec2("yvec"),
+            camera.worldMatrix);
+            keeper.zvec = new Lazy!(uvec2)((ref uvec2 zvec) {
                 zvec = normalize((camera.worldMatrix.toMatrix3() * vec3(0,0,1)).xy);
-            }, new uvec2("zvec"));
-            keeper._xvec.capture(camera.worldMatrix);
-            keeper._yvec.capture(camera.worldMatrix);
-            keeper._zvec.capture(camera.worldMatrix);
+            },
+            new uvec2("zvec"),
+            camera.worldMatrix);
         });
     }
 }
