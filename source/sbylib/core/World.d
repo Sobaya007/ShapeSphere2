@@ -6,7 +6,7 @@ import sbylib.utils.Lazy;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
-import sbylib.core.RenderTarget;
+import sbylib.render.RenderTarget;
 import sbylib.light.PointLight;
 import sbylib.material.glsl.UniformDemand;
 import sbylib.math.Vector;
@@ -67,12 +67,10 @@ class World {
         this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
     }
 
-    void render(RenderTarget target) {
-        target.renderBegin();
+    void render() {
         foreach (r; this.entities) {
             r.render();
         }
-        target.renderEnd();
     }
 
     Lazy!Uniform getUniform(UniformDemand demand) {

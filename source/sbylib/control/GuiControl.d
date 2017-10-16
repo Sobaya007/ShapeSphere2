@@ -1,7 +1,7 @@
 module sbylib.control.GuiControl;
 
 import sbylib.wrapper.glfw.Constants;
-import sbylib.wrapper.glfw.Window;
+import sbylib.core.Window;
 import sbylib.input.Mouse2D;
 import sbylib.mesh.Object3D;
 import sbylib.camera.Camera;

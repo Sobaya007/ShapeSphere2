@@ -95,7 +95,7 @@ class Observer(T) : IObserver, IObserved {
 
     this(S)(void delegate(ref S) defineFunc, S sinit, IObserved[] args...) {
         this.defineFunc = defineFunc;
-        this.value = init;
+        this.value = sinit;
         this.needsUpdate = true;
         foreach (arg; args) this.capture(arg);
     }
