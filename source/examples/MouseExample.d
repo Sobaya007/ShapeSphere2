@@ -37,11 +37,10 @@ void mouseExample() {
     CollisionRay ray = new CollisionRay();
     auto detect = delegate(Process proc) {
         Utils.getRay(mouse.getPos(), camera, ray);
-        auto colInfos = world.calcCollideRay(ray).filter!(a => a.collided).array;
-        if (colInfos.length == 0) return;
-        auto colInfo = colInfos.minElement!(a => a.colDist);
-        polyEntity.getMesh().mat.condition = colInfo.colEntry.getOwner().getRootParent() is polyEntity;
-        capEntity.getMesh().mat.condition = colInfo.colEntry.getOwner().getRootParent() is capEntity;
+        auto colInfo = world.rayCast(ray);
+        if (colInfo.isNone) return;
+        polyEntity.getMesh().mat.condition = colInfo.get.entity.getRootParent() is polyEntity;
+        capEntity.getMesh().mat.condition  = colInfo.get.entity.getRootParent() is capEntity;
     };
     camera.getObj().pos.z = 4;
     camera.getObj().lookAt(vec3(0));

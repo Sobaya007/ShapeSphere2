@@ -2,18 +2,43 @@ module sbylib.utils.Maybe;
 
 struct Maybe(T) {
     private T value;
-    private bool _nothing;
+    private bool _none;
 
-    this(T value) {
+    private this(T value) {
         this.value = value;
-        this._nothing = false;
+        this._none = false;
     }
 
-    this() {
-        this._nothing = true;
+    private this(bool none) {
+        this._none = none;
     }
 
-    T just() {
+    T get() in {
+        assert(!_none);
+    } body {
+        return this.value;
     }
 
+    bool isJust() {
+        return !_none;
+    }
+
+    bool isNone() {
+        return _none;
+    }
+}
+
+Maybe!T Just(T)(T v) {
+    return Maybe!T(v);
+}
+
+Maybe!T None(T)() {
+    return Maybe!T(true);
+}
+
+unittest {
+    auto po = Just(3);
+
+    assert(po.just == 3);
+    assert(!po.none);
 }

@@ -52,14 +52,12 @@ class BasicControl {
 
     private void none() {
         Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
-        auto colInfos = this.world.calcCollideRay(this.ray).filter!(a => a.collided).array;
-        if (colInfos.length == 0) return;
-        import std.algorithm;
-        auto colInfo = minElement!(a => a.colDist)(colInfos);
-        this.entity = colInfo.colEntry.getOwner().getRootParent();
+        auto colInfo = this.world.rayCast(this.ray);
+        if (colInfo.isNone) return;
+        this.entity = colInfo.get.entity.getRootParent();
         if (this.mouse.justPressed(MouseButton.Button1)) {
             this.mode = Mode.Translate;
-            this.z = -(colInfo.colPoint - this.camera.getObj().pos).dot(this.camera.getObj().worldMatrix.column[2].xyz);
+            this.z = -(colInfo.get.point - this.camera.getObj().pos).dot(this.camera.getObj().worldMatrix.column[2].xyz);
         }
         if (this.mouse.justPressed(MouseButton.Button2)) {
             this.mode = Mode.Rotate;

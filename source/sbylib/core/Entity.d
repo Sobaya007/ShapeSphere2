@@ -5,6 +5,7 @@ public {
     import sbylib.mesh.Mesh;
     import sbylib.mesh.Object3D;
     import sbylib.utils.Array;
+    import sbylib.utils.Maybe;
 }
 
 class Entity {
@@ -112,7 +113,10 @@ class Entity {
     void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) {
         if (colEntry is null) return;
         if (this.getCollisionEntry()) {
-            result ~= this.getCollisionEntry().collide(colEntry);
+            auto info = this.getCollisionEntry().collide(colEntry);
+            if (info.isJust) {
+                result ~= info.get;
+            }
         }
         foreach (child; this.children) {
             child.collide(result, colEntry);
@@ -122,12 +126,23 @@ class Entity {
     CollisionInfoRay[] collide(CollisionRay ray) {
         CollisionInfoRay[] result;
         if (this.getCollisionEntry()) {
-            result ~= this.getCollisionEntry.collide(ray);
+            auto info = this.getCollisionEntry.collide(ray);
+            if (info.isJust) {
+                result ~= info.get;
+            }
         }
         foreach (child; this.children) {
             result ~=  child.collide(ray);
         }
         return result;
+    }
+
+    Maybe!CollisionInfoRay rayCast(CollisionRay ray) {
+        auto infos = this.collide(ray);
+        if (infos.length == 0) return None!CollisionInfoRay;
+        import std.algorithm;
+        import sbylib.math.Vector;
+        return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 
     Entity getParent() {

@@ -92,10 +92,10 @@ class NeedleSphere : BaseSphere {
     override void onBackPress() {}
 
     override void onNeedlePress() {
-        this.needleCount += 0.1;
+        this.needleCount += 0.08;
     }
     override void onNeedleRelease(){
-        this.needleCount -= 0.3;
+        this.needleCount -= 0.05;
     }
 
     override Player.PlayerEntity getEntity() {
@@ -117,7 +117,6 @@ class NeedleSphere : BaseSphere {
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
         foreach (colInfo; colInfos) {
-            if (!colInfo.collided) continue;
             auto contact = Contact(colInfo, this);
             contacts ~= contact;
         }
@@ -245,11 +244,13 @@ class NeedleSphere : BaseSphere {
 
         this(CollisionInfo info, NeedleSphere sphere) {
             this.sphere = sphere;
-            assert(cast(CollisionPolygon)info.colEntry.getGeometry() !is null
-                    || cast(CollisionPolygon)info.colEntry2.getGeometry() !is null);
-            auto polygon = cast(CollisionPolygon)info.colEntry.getGeometry();
+            auto geom = info.entity.getCollisionEntry().getGeometry();
+            auto geom2 = info.entity2.getCollisionEntry().getGeometry();
+            assert(cast(CollisionPolygon)geom !is null
+                    || cast(CollisionPolygon)geom2 !is null);
+            auto polygon = cast(CollisionPolygon)geom;
             if (polygon is null) {
-                polygon = cast(CollisionPolygon)info.colEntry2.getGeometry();
+                polygon = cast(CollisionPolygon)geom2;
             }
             this.normal = polygon.normal;
             this.normalTotalImpulse = 0;

@@ -9,6 +9,7 @@ import std.algorithm;
 import std.range;
 import std.math;
 import std.stdio;
+import std.typecons;
 
 class ElasticSphere : BaseSphere{
 
@@ -41,9 +42,9 @@ class ElasticSphere : BaseSphere{
     private flim pushCount;
     private Player parent;
     private vec3 force;
-    private Lazy!vec3 center;
-    private Lazy!vec3 lVel;
-    private Lazy!vec3 aVel;
+    private Observer!vec3 center;
+    private Observer!vec3 lVel;
+    private Observer!vec3 aVel;
 
     this(Player parent)  {
         this.parent = parent;
@@ -54,16 +55,18 @@ class ElasticSphere : BaseSphere{
         mat.ambient = vec3(1);
         this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
         this.particleList = entity.getMesh().geom.vertices.map!(p => new ElasticParticle(p.position)).array;
-        this.center = new Lazy!vec3(() => this.particleList.map!(p => p.position).sum / this.particleList.length, this.particleList.map!(p => cast(IObserved)p.position).array);
-        this.lVel = new Lazy!vec3(() => this.particleList.map!(p => p.velocity).sum / this.particleList.length,
+        this.center = new Observer!vec3(() => this.particleList.map!(p => p.position).sum / this.particleList.length, this.particleList.map!(p => cast(IObserved)p.position).array);
+        this.lVel = new Observer!vec3(() => this.particleList.map!(p => p.velocity).sum / this.particleList.length,
                 this.particleList.map!(p => cast(IObserved)p.velocity).array);
-        this.aVel = new Lazy!vec3(() {
+        this.aVel = new Observer!vec3(() {
                 return this.particleList.map!((p) {
                         auto r = p.position - this.center;
                         auto v = p.velocity - this.lVel;
                         return cross(r, v) / lengthSq(r);
                         }).sum / this.particleList.length;
-                }, this.lVel, this.center);
+                });
+        this.aVel.capture(this.lVel);
+        this.aVel.capture(this.center);
         //隣を発見
         uint[2][] pairIndex;
         uint[2] makePair(uint a,uint b) {
@@ -122,17 +125,25 @@ class ElasticSphere : BaseSphere{
     }
 
     // pos, dir, error
-    Tuple!(vec3,vec3,bool) getWallContact() {
+    struct WallContact {
+        vec3 pos;
+        vec3 dir;
+
+        this(vec3 pos, vec3 dir) { this.pos = pos; this.dir = dir;}
+    }
+    Maybe!WallContact getWallContact() {
         static CollisionRay ray;
         if (ray is null)
             ray = new CollisionRay;
-        if (this.parent.floors.getChildNum() == 0) return Tuple!(vec3(0), vec3(0), true);
+        if (this.parent.floors.getChildNum() == 0) return None!WallContact;
         auto floor = this.parent.floors.getChildren[0];
         ray.start = this.center;
-        ray.dir = -floor.getMesh().geom.faces[0].normal;
-        auto colInfo = this.parent.floors.collide(ray);
-        if (!colInfo.collided) return Tuple!(vec3(0), vec3(0), true);
-        return Tuple!(colInfo.colPoint, -ray.dir, false);
+        auto polygon = cast(CollisionPolygon)floor.getCollisionEntry.getGeometry;
+        assert(polygon !is null);
+        ray.dir = -polygon.normal;
+        auto colInfo = this.parent.floors.rayCast(ray);
+        if (colInfo.isNone) return None!WallContact;
+        return Just(WallContact(colInfo.get.point, -ray.dir));
     }
 
     override void onDownPress() {
@@ -290,9 +301,8 @@ class ElasticSphere : BaseSphere{
             colInfos.destroy();
         }
         foreach (colInfo; colInfos) {
-            if (!colInfo.collided) continue;
-            auto floor = cast(CollisionPolygon)colInfo.colEntry.getGeometry();
-            if (floor is null) floor = cast(CollisionPolygon)colInfo.colEntry2.getGeometry();
+            auto floor = cast(CollisionPolygon)colInfo.entity.getCollisionEntry.getGeometry;
+            if (floor is null) floor = cast(CollisionPolygon)colInfo.entity2.getCollisionEntry.getGeometry;
             float depth = -(particle.position - floor.positions[0]).dot(floor.normal);
             if (depth < 0) continue;
             auto po = particle.velocity - dot(particle.velocity, floor.normal) * floor.normal;

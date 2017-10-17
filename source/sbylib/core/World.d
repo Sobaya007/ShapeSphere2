@@ -13,6 +13,7 @@ import sbylib.math.Vector;
 import sbylib.wrapper.gl.Attribute;
 import sbylib.geometry.Geometry;
 import sbylib.utils.Array;
+import sbylib.utils.Maybe;
 import std.traits;
 import std.algorithm;
 
@@ -107,5 +108,11 @@ class World {
             result ~= entity.collide(ray);
         }
         return result;
+    }
+
+    Maybe!CollisionInfoRay rayCast(CollisionRay ray) {
+        auto infos = this.calcCollideRay(ray);
+        if (infos.length == 0) return None!CollisionInfoRay;
+        return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 }
