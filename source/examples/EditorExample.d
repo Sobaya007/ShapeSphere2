@@ -9,26 +9,26 @@ import std.stdio;
 void editorExample() {
     auto core = Core();
     auto window = core.getWindow();
-    // window.setSize(1600, 1200);
-    auto screen = window.getRenderTarget();
-    auto world2d = new World;
-    screen.clearColor = vec4(0.2);
+    auto screen = window.getScreen();
+    screen.setClearColor(vec4(0.2));
+    auto renderer = new Renderer();
+    auto viewport = new AutomaticViewport(window);
+    auto world = new World;
 
     auto render = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        world2d.render(screen);
+        renderer.render(world, screen, viewport);
     };
 
-    float w = screen.width;
-    float h = screen.height;
+    float w = screen.getWidth;
+    float h = screen.getHeight;
 
     // [0, 800]✕[0, 600]
     auto camera = new OrthoCamera(w, h, -1, 1);
     camera.getObj.pos = vec3(w/2, h/2, 0);
-    world2d.setCamera(camera);
+    world.setCamera(camera);
 
-
-    auto control = new GuiControl(window, camera, world2d);
+    auto control = new GuiControl(window, camera, world);
 
     auto spacer = new SpacerComponent(400, 300);
     auto label = new LabelComponent("D is 神"d, 50, vec4(0.6, 0.7, 0.8, 1.0));
