@@ -7,7 +7,9 @@ import std.math;
 void textExample() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getRenderTarget();
+    auto screen = window.getScreen();
+    auto renderer = new Renderer();
+    auto viewport = new AutomaticViewport(window);
     auto world = new World;
     auto camera = new OrthoCamera(2,2,-1,1);
     auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
@@ -66,10 +68,10 @@ void textExample() {
     label9.setColor(getColor(0));
     label9.renderText("東"d);
 
-    screen.clearColor = vec4(0.2);
+    screen.setClearColor(vec4(0.2));
     auto render = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        world.render(screen);
+        renderer.render(world, screen, viewport);
     };
 
     world.setCamera(camera);

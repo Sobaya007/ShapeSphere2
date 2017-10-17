@@ -17,7 +17,7 @@ class Mesh {
     Geometry geom;
     Material mat;
     private VertexArray vao;
-    Uniform delegate()[string] getUniforms;
+    private Lazy!Uniform[string] getUniforms;
     private Entity owner;
 
     this(Geometry geom, Material mat, Entity owner) {
@@ -40,7 +40,7 @@ class Mesh {
         foreach (demand; this.mat.getDemands()) {
             final switch (demand) {
             case UniformDemand.World:
-                this.setUniform(() => this.owner.obj.worldMatrix.get());
+                this.setUniform(this.owner.obj.worldMatrix.getLazy!Uniform);
                 break;
             case UniformDemand.View:
             case UniformDemand.Proj:
@@ -56,9 +56,9 @@ class Mesh {
         }
     }
 
-    final void setUniform(Uniform delegate() getUniform) {
-        auto name = getUniform().getName();
-        this.getUniforms[name] = getUniform;
+    final void setUniform(T)(Lazy!T uniform) if (is(T : Uniform)) {
+        auto name = uniform.getName();
+        this.getUniforms[name] = uniform;
     }
 
     Entity getOwner() {

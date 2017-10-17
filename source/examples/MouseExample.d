@@ -11,7 +11,9 @@ alias CapsuleEntity = EntityTemp!(GeometryNT, ConditionalMaterial!(LambertMateri
 void mouseExample() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getRenderTarget();
+    auto screen = window.getScreen();
+    auto renderer = new Renderer();
+    auto viewport = new AutomaticViewport(window);
     auto world = new World;
     auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
     auto mouse = new Mouse(window);
@@ -26,7 +28,7 @@ void mouseExample() {
 
     auto render = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        world.render(screen);
+        renderer.render(world, screen, viewport);
     };
 
     auto mouseUpdate = delegate(Process proc) {
@@ -46,7 +48,7 @@ void mouseExample() {
     world.setCamera(camera);
     world.add(polyEntity);
     world.add(capEntity);
-    screen.clearColor = vec4(0.2);
+    screen.setClearColor(vec4(0.2));
     core.addProcess(render, "render");
     core.addProcess(mouseUpdate, "mouse");
     core.addProcess(detect, "detect");

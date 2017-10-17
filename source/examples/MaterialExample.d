@@ -12,21 +12,23 @@ alias PlaneEntity = EntityTemp!(GeometryPlane, Check4);
 void materialExample() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getRenderTarget();
+    auto screen = window.getScreen();
+    auto renderer = new Renderer();
+    auto viewport = new AutomaticViewport(window);
     auto world = new World;
     auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
     auto polyEntity = new PlaneEntity(Plane.create(10,10));
 
     auto render = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        world.render(screen);
+        renderer.render(world, screen, viewport);
     };
 
     camera.getObj().pos = vec3(1,2,4);
     camera.getObj().lookAt(vec3(0));
     world.setCamera(camera);
     world.add(polyEntity);
-    screen.clearColor = vec4(0.2);
+    screen.setClearColor(vec4(0.2));
     core.addProcess(render, "render");
     polyEntity.getMesh().mat.size = 0.02;
     polyEntity.getMesh().mat.size1 = 0.01;

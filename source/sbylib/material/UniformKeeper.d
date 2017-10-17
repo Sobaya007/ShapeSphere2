@@ -2,8 +2,9 @@ module sbylib.material.UniformKeeper;
 
 import sbylib.material.Material;
 import sbylib.wrapper.gl.Uniform;
+import sbylib.utils.Lazy;
 
 abstract class UniformKeeper {
 
-    abstract Uniform delegate()[] getUniforms();
+    abstract Lazy!Uniform[] getUniforms();
 }

@@ -1,4 +1,4 @@
-module sbylib.utils.Observer;
+module sbylib.utils.Lazy;
 
 import std.functional;
 import std.algorithm;
@@ -83,14 +83,21 @@ class Observer(T) : IObserver, IObserved {
     private void delegate(ref T) defineFunc;
     private IObserver[] observers;
 
-    this(T init = T.init) {
-        this.value = init;
+    this(S)(S delegate() defineFunc, IObserved[] args...) {
+        this(defineFunc, S.init, args);
     }
 
-    this(void delegate(ref T) defineFunc, T init = T.init) {
+    this(S)(S delegate() defineFunc, S sinit, IObserved[] args...) {
+        this((ref S s) {
+                s = defineFunc();
+        }, sinit, args);
+    }
+
+    this(S)(void delegate(ref S) defineFunc, S sinit, IObserved[] args...) {
         this.defineFunc = defineFunc;
-        this.value = init;
+        this.value = sinit;
         this.needsUpdate = true;
+        foreach (arg; args) this.capture(arg);
     }
 
     void capture(IObserved watch) {
@@ -120,6 +127,10 @@ class Observer(T) : IObserver, IObserved {
         this.observers = this.observers.remove!(o => o is observer);
     }
 
+    Lazy!(S) getLazy(S=T)() {
+        return new Lazy!(S)(this);
+    }
+
     T get() {
         if (this.needsUpdate) {
             this.defineFunc(this.value);
@@ -136,37 +147,40 @@ class Observer(T) : IObserver, IObserved {
     alias get this;
 }
 
-class Lazy(ReturnType,SavedType=ReturnType) : IObserver {
+class Lazy(Type) {
 
-    private SavedType value;
-    private bool needsUpdate;
-    private ReturnType delegate() defineFunc;
+    alias Po = Type;
+    private Type delegate() func;
 
-    this(ReturnType delegate() defineFunc, IObserved[] args...) {
-        this.defineFunc = defineFunc;
-        this.needsUpdate = true;
-        foreach (arg; args) {
-            arg.capturedBy(this);
-        }
+    this(Type delegate() func) {
+        this.func = func;
     }
 
-    this(SavedType initialValue, ReturnType delegate() defineFunc, IObserved[] args...) {
-        this.value = initialValue;
-        this(defineFunc, args);
+    this(S)(Observer!S observer) {
+        this.func = () => observer.get();
     }
 
-    ReturnType get() {
-        if (this.needsUpdate) {
-            import std.stdio;
-            writeln("updated");
-            this.value = this.defineFunc();
-            this.needsUpdate = false;
-        }
-        return this.value;
+    this(S)(S delegate() defineFunc, IObserved[] args...) {
+        this(defineFunc, S.init, args);
     }
 
-    override void onChange() {
-        this.needsUpdate = true;
+    this(S)(S delegate() defineFunc, S sinit, IObserved[] args...) {
+        this((ref S s) {
+                s = defineFunc();
+        }, sinit, args);
+    }
+
+    this(S)(void delegate(ref S) defineFunc, S sinit, IObserved[] args...) {
+        auto observer = new Observer!(S)(defineFunc, sinit, args);
+        this.func = () => observer.get();
+    }
+
+    NewType opCast(NewType)() {
+        return new Lazy!(NewType.Po)(() => func());
+    }
+
+    Type get() {
+        return func();
     }
 
     override string toString() {
@@ -177,11 +191,12 @@ class Lazy(ReturnType,SavedType=ReturnType) : IObserver {
     alias get this;
 }
 
+
 unittest {
 
     auto a = new Observed!uvec3(new uvec3("homo", vec3(0)));
-    auto x = new Lazy!float(delegate () => a.x + a.y + a.z, a);
-    auto y = new Lazy!float(delegate () => a.x + a.y + a.z); //Missing Observe
+    auto x = new Observer!float(delegate () => a.x + a.y + a.z,a).getLazy();
+    auto y = new Observer!float(delegate () => a.x + a.y + a.z).getLazy(); //Missing Observe
 
     assert(x + 1 == 1);
     assert(y + 1 == 1);

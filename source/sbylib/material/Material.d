@@ -5,7 +5,7 @@ import sbylib.wrapper.gl.Program;
 import sbylib.wrapper.gl.Attribute;
 import sbylib.wrapper.gl.BufferObject;
 import sbylib.wrapper.gl.VertexArray;
-import sbylib.utils.Observer;
+import sbylib.utils.Lazy;
 import sbylib.material.glsl.GlslUtils;
 import sbylib.material.glsl.UniformDemand;
 import sbylib.material.RenderConfig;
@@ -13,7 +13,7 @@ import std.algorithm;
 import std.typecons;
 import std.array;
 
-alias umat4w = Observer!(umat4);
+alias umat4w = Lazy!(umat4);
 
 class Material {
 
@@ -25,20 +25,20 @@ class Material {
         this.config = new RenderConfig();
     }
 
-    final void set(Uniform delegate()[string] getUniforms) {
+    final void set(Lazy!(Uniform)[string] uniforms) {
         this.config.set();
         this.shader.use();
         uint uniformBlockPoint = 0;
         uint textureUnit = 0;
         import std.stdio;
-        foreach (getUniform; getUniforms) {
+        foreach (uni; uniforms) {
             //writeln(getUniform());
-            getUniform().apply(this.shader, uniformBlockPoint, textureUnit);
+            uni.apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
 
     abstract UniformDemand[] getDemands();
-    abstract Uniform delegate()[] getUniforms();
+    abstract Lazy!Uniform [] getUniforms();
 }
 
 class MaterialTemp(UniformKeeper) : Material {
@@ -84,7 +84,7 @@ class MaterialTemp(UniformKeeper) : Material {
         return this.demands;
     }
 
-    override Uniform delegate()[] getUniforms() {
+    override Lazy!Uniform [] getUniforms() {
         return this.keeper.getUniforms();
     }
 }

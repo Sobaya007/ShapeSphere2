@@ -5,6 +5,7 @@ import sbylib.camera.OrthoCamera;
 import sbylib.input.Mouse;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
+import sbylib.core.Window;
 
 class Mouse2D {
     private Mouse mouse;

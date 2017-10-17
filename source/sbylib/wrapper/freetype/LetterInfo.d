@@ -4,7 +4,6 @@ import derelict.freetype.ft;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Texture;
 import sbylib.wrapper.gl.Functions;
-import sbylib.core.RenderTarget;
 import sbylib.wrapper.freetype.Constants;
 
 class LetterInfo {

@@ -3,7 +3,7 @@ module sbylib.mesh.Object3D;
 import sbylib.math.Matrix;
 import sbylib.math.Vector;
 import sbylib.math.Quaternion;
-import sbylib.utils.Observer;
+import sbylib.utils.Lazy;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.core.Entity;
 
