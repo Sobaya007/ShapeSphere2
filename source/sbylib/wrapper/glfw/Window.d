@@ -3,26 +3,26 @@ module sbylib.wrapper.glfw.Window;
 import derelict.glfw3.glfw3;
 import derelict.opengl;
 
-import std.string, std.stdio;
+import std.string, std.stdio, std.algorithm;
 import sbylib.math.Vector;
 import sbylib.wrapper.glfw.Constants;
 import sbylib.wrapper.gl.Functions;
-import sbylib.core.RenderTarget;
 
 /*
    GLFW準拠のウインドウのクラスです
  */
 
-private Window[GLFWwindow*] windows;
+private GlfwWindow[GLFWwindow*] windows;
 
-class Window {
+class GlfwWindow {
+
+    alias ResizeCallback = void delegate();
     private {
         GLFWwindow *window;
         uint width, height;
         bool resized;
-        float aspect;
         string title;
-        RenderTarget renderTarget;
+        ResizeCallback[] resizeCallbacks;
     }
     public {
 
@@ -41,10 +41,6 @@ class Window {
             window.glfwSetWindowTitle(title.toStringz);
         }
 
-        RenderTarget getRenderTarget() {
-            return this.renderTarget;
-        }
-
         uint getWidth() const {
             return this.width;
         }
@@ -56,6 +52,14 @@ class Window {
         string getTitle() const {
             return this.title;
         }
+
+        void addResizeCallback(ResizeCallback cb) {
+            this.resizeCallbacks ~= cb;
+        }
+
+        void removeResizeCallback(ResizeCallback cb) {
+            this.resizeCallbacks = this.resizeCallbacks.remove!(r => r is cb);
+        }
     }
 
     package(sbylib) {
@@ -64,7 +68,7 @@ class Window {
             this.title = title;
             this.width = width;
             this.height = height;
-            this.aspect = cast(float)width / height;
+            this.resized = true; // for first resize callback
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -86,7 +90,6 @@ class Window {
             writeln("Version = ", glver);
             assert(glver > GLVersion.gl33, "OpenGL version is too low");
 
-            this.renderTarget = new RenderTarget(this);
             windows[this.window] = this;
         }
 
@@ -116,18 +119,10 @@ class Window {
         void pollEvents() {
             glfwPollEvents();
             if (!this.resized) return;
-            /* CAUTION : this is 'event'!!!!! so placed here */
             this.resized = false; 
-            auto w = width;
-            auto h = height;
-            if(width > height * aspect) { //width is too big
-                w = cast(uint)(h * aspect);
-            } else { //height is too big
-                h = cast(uint)(w / aspect);
+            foreach (cb; resizeCallbacks) {
+                cb();
             }
-            auto x = (width - w) / 2;
-            auto y = (height - h) / 2;
-            GlFunction.setViewport(x,y,w,h);
         }
 
         void swapBuffers() {

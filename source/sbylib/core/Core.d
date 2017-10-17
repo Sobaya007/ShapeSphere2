@@ -39,6 +39,18 @@ class Core {
 
     mixin Utils.singleton;
 
+    static class Config {
+        uint windowWidth;
+        uint windowHeight;
+        float fps;
+    }
+    private static Config _config;
+
+    public static Config config() @property {
+        assert(_config !is null, "You can configure only before first acquire of Core.");
+        return _config;
+    }
+
     static this() {
         /*
         string path = std.file.thisExePath();
@@ -54,6 +66,10 @@ class Core {
         rootPath = tmp.join(sep);
 */
         // for DEBUG ここまで
+        _config = new Config;
+        _config.windowWidth = 800;
+        _config.windowHeight = 600;
+        _config.fps = 60;
     }
 
     private Window window; //現在のウインドウ
@@ -72,11 +88,13 @@ class Core {
         FreeImage.init();
         SDL.init();
         ConstantManager.init();
-        this.window = new Window("Window Title", 800, 600);
+        this.window = new Window("Window Title", config.windowWidth, config.windowHeight);
         this.key = new Key(this.window);
         this.mouse = new Mouse(this.window);
-        this.fpsBalancer = new FpsBalancer(60);
+        this.fpsBalancer = new FpsBalancer(config.fps);
         this.processes = Array!Process(0);
+
+        _config = null;
     }
 
     ~this() {

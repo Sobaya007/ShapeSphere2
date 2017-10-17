@@ -7,7 +7,7 @@ import sbylib.utils.Functions;
 
 import std.traits;
 public {
-    import sbylib.wrapper.glfw.Window;
+    import sbylib.core.Window;
     import sbylib.math.Vector;
     import sbylib.wrapper.glfw.Constants;
 }

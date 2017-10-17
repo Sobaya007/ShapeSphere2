@@ -1,4 +1,4 @@
-module sbylib.core.RenderTarget;
+module sbylib.render.RenderTarget;
 
 import sbylib.math.Vector;
 import sbylib.wrapper.gl.Constants;
@@ -6,38 +6,30 @@ import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.FrameBuffer;
 import sbylib.wrapper.gl.RenderBuffer;
 import sbylib.wrapper.gl.Texture;
-import sbylib.wrapper.glfw.Window;
 
 import std.algorithm;
 
-class RenderTarget {
+interface IRenderTarget {
+    void renderBegin();
+    void renderEnd();
+    void setClearColor(vec4);
+    void setClearStencil(int);
+    void clear(ClearMode[]...);
+    int getWidth();
+    int getHeight();
+}
 
+class RenderTarget : IRenderTarget {
     private const FrameBuffer frameBuffer;
-
     private Texture[FrameBufferAttachType] textures;
-    const uint width, height;
-    uint viewportX, viewportY, viewportWidth, viewportHeight;
-    vec4 clearColor = vec4(0, .5, .5, 1);
-    int clearStencil;
+    private uint width, height;
+    private vec4 clearColor = vec4(0, .5, .5, 1);
+    private int clearStencil;
 
     this(uint width, uint height) {
         this.frameBuffer = new FrameBuffer();
         this.width = width;
         this.height = height;
-        this.viewportX = 0;
-        this.viewportY = 0;
-        this.viewportWidth = width;
-        this.viewportHeight = height;
-    }
-
-    this(Window window) {
-        this.frameBuffer = null;
-        this.width = window.getWidth();
-        this.height = window.getHeight();
-        this.viewportX = 0;
-        this.viewportY = 0;
-        this.viewportWidth = width;
-        this.viewportHeight = height;
     }
 
     void attachTexture(T)(FrameBufferAttachType attachType) {
@@ -75,17 +67,23 @@ class RenderTarget {
         return textures[FrameBufferAttachType.Depth];
     }
 
-    void renderBegin() {
-        if (!this.frameBuffer) return;
+    override void renderBegin() {
         this.frameBuffer.bind(FrameBufferBindType.Both);
     }
 
-    void renderEnd() {
-        if (!this.frameBuffer) return;
+    override void renderEnd() {
         this.frameBuffer.unbind(FrameBufferBindType.Both);
     }
-   
-    void clear(ClearMode[] clearMode...) {
+
+    override void setClearColor(vec4 color) {
+        this.clearColor = color;
+    }
+
+    override void setClearStencil(int stencil) {
+        this.clearStencil = stencil;
+    }
+
+    override void clear(ClearMode[] clearMode...) {
         if (clearMode.canFind(ClearMode.Color)) {
             GlFunction.clearColor(this.clearColor);
         }
@@ -93,5 +91,13 @@ class RenderTarget {
             GlFunction.clearStencil(this.clearStencil);
         }
         GlFunction.clear(clearMode);
+    }
+
+    override int getWidth() {
+        return this.width;
+    }
+
+    override int getHeight() {
+        return this.height;
     }
 }

@@ -9,7 +9,9 @@ void gameMain(string[] args) {
     /* Core Settings */
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getRenderTarget();
+    auto screen = window.getScreen();
+    auto renderer = new Renderer();
+    auto viewport = new AutomaticViewport(window);
     auto world2d = new World;
     auto world3d = new World;
     auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
@@ -97,9 +99,9 @@ void gameMain(string[] args) {
     /* Render */
     core.addProcess((proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        world3d.render(screen);
+        renderer.render(world3d, screen, viewport);
         screen.clear(ClearMode.Depth);
-        world2d.render(screen);
+        renderer.render(world2d, screen, viewport);
     }, "render");
 
     /* FPS Observe */

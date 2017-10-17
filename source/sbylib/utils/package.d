@@ -9,5 +9,5 @@ import sbylib.utils.LinkList;
 import sbylib.utils.ObjectPool;
 import sbylib.utils.Stack;
 import sbylib.utils.ObjectPool;
-import sbylib.utils.Observer;
+import sbylib.utils.Lazy;
 import sbylib.utils.Logger;

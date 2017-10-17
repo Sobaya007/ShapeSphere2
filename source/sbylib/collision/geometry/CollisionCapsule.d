@@ -4,15 +4,15 @@ import sbylib.math.Vector;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.geometry3d.Capsule;
 import sbylib.mesh.Object3D;
-import sbylib.utils.Observer;
+import sbylib.utils.Lazy;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionGeometry;
 
 class CollisionCapsule : CollisionGeometry {
     const float radius;
     private vec3 _start, _end;
-    Observer!vec3 start;
-    Observer!vec3 end;
+    Lazy!vec3 start;
+    Lazy!vec3 end;
     private Entity owner;
 
     invariant {
@@ -41,13 +41,13 @@ class CollisionCapsule : CollisionGeometry {
 
     override void setOwner(Entity owner) {
         this.owner = owner;
-        this.start = new Observer!vec3((ref vec3 p) {
-            p = (this.owner.obj.worldMatrix * vec4(_start, 1)).xyz;
-        });
-        this.end = new Observer!vec3((ref vec3 p) {
-            p = (this.owner.obj.worldMatrix * vec4(_end, 1)).xyz;
-        });
-        this.start.capture(this.owner.obj.worldMatrix);
-        this.end.capture(this.owner.obj.worldMatrix);
+        this.start = new Lazy!vec3(
+            () => (this.owner.obj.worldMatrix * vec4(_start, 1)).xyz,
+            this.owner.obj.worldMatrix
+        );
+        this.end = new Lazy!vec3(
+            () => (this.owner.obj.worldMatrix * vec4(_end, 1)).xyz,
+            this.owner.obj.worldMatrix
+        );
     }
 }

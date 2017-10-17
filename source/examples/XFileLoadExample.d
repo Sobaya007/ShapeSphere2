@@ -11,7 +11,11 @@ void xFileLoadExample() {
 
     auto window = core.getWindow();
 
-    auto screen = window.getRenderTarget();
+    auto screen = window.getScreen();
+
+    auto renderer = new Renderer();
+
+    auto viewport = new AutomaticViewport(window);
 
     Camera camera = new PerspectiveCamera(
             window.getWidth() / window.getHeight(), /* Aspect Ratio   */
@@ -62,7 +66,7 @@ void xFileLoadExample() {
 
     auto renderToScreen = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        world.render(core.getWindow().getRenderTarget());
+        renderer.render(world, screen, viewport);
     };
 
     world.setCamera(camera);

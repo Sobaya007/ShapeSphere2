@@ -2,11 +2,11 @@ module sbylib.core.World;
 
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
-import sbylib.utils.Observer;
+import sbylib.utils.Lazy;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
-import sbylib.core.RenderTarget;
+import sbylib.render.RenderTarget;
 import sbylib.light.PointLight;
 import sbylib.material.glsl.UniformDemand;
 import sbylib.math.Vector;
@@ -75,22 +75,20 @@ class World {
         this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
     }
 
-    void render(RenderTarget target) {
-        target.renderBegin();
+    void render() {
         foreach (r; this.entities) {
             r.render();
         }
-        target.renderEnd();
     }
 
-    Uniform delegate() getUniform(UniformDemand demand) {
+    Lazy!Uniform getUniform(UniformDemand demand) {
         switch (demand) {
         case UniformDemand.View:
-            return () => this.viewMatrix;
+            return this.viewMatrix.getLazy!Uniform;
         case UniformDemand.Proj:
-            return () => this.projMatrix;
+            return this.projMatrix.getLazy!Uniform;
         case UniformDemand.Light:
-            return () => this.pointLightBlockBuffer;
+            return this.pointLightBlockBuffer.getLazy!Uniform;
         default:
             assert(false);
         }
