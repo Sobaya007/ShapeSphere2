@@ -14,8 +14,10 @@ import std.array;
 void plotMain() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getRenderTarget();
+    auto screen = window.getScreen();
     auto world = new World();
+    auto renderer = new Renderer();
+    auto viewport = new AutomaticViewport(window);
 
     OrthoCamera camera = new OrthoCamera(1, 1, -1, 1);
     camera.getObj().pos = vec3(+0.5, +0.5, 0);
@@ -32,7 +34,7 @@ void plotMain() {
 
     auto render = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        world.render(screen);
+        renderer.render(world, screen, viewport);
     };
 
     auto mouse = new Mouse(window);

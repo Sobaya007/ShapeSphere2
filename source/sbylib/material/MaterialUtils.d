@@ -36,6 +36,7 @@ class MaterialUtils {
         import std.file;
         import sbylib.material.glsl.Ast;
         import sbylib.material.glsl.GlslUtils;
+        import sbylib.utils.Lazy;
         enum FRAG_ROOT = file.replace(".d", ".frag");
 
         static Ast generateFragmentAST() {
@@ -44,12 +45,12 @@ class MaterialUtils {
             return fragAST;
         }
 
-        override Uniform delegate()[] getUniforms() {
+        override Lazy!Uniform[] getUniforms() {
             import std.traits;
-            Uniform delegate()[] result;
+            Lazy!Uniform[] result;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
                 static if (isAssignable!(Uniform, type)) {
-                    result ~= () => mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
+                    result ~= new Lazy!Uniform(() => mixin("this." ~ FieldNameTuple!(typeof(this))[i]));
                 }
             }
             return result;
@@ -72,8 +73,7 @@ class MaterialUtils {
                 this.constructor();
             }
             constructor(this);
-            foreach (ud; this.getUniforms) {
-                auto u = ud();
+            foreach (u; this.getUniforms) {
                 assert(u, "Uniform variable must be initialized");
                 u.setName(replace(u.getName()));
             }
@@ -92,6 +92,7 @@ class MaterialUtils {
         import std.traits;
         import sbylib.material.glsl.Ast;
         import sbylib.material.glsl.GlslUtils;
+        import sbylib.utils.Lazy;
         enum FRAG_ROOT = file.replace(".d", ".frag");
         private A.Keeper a;
         private B.Keeper b;
@@ -111,11 +112,11 @@ class MaterialUtils {
             return fragAST;
         }
 
-        override Uniform delegate()[] getUniforms() {
-            Uniform delegate()[] result;
+        override Lazy!Uniform[] getUniforms() {
+            Lazy!Uniform[] result;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
                 static if (isAssignable!(Uniform, type)) {
-                    result ~= () => mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
+                    result ~= new Lazy!Uniform(() => mixin("this." ~ FieldNameTuple!(typeof(this))[i]));
                 }
             }
             result ~= this.a.getUniforms();

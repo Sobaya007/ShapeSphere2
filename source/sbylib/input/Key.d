@@ -3,7 +3,7 @@ module sbylib.input.Key;
 import std.traits;
 
 public {
-    import sbylib.wrapper.glfw.Window;
+    import sbylib.core.Window;
     import sbylib.wrapper.glfw.Constants;
 }
 

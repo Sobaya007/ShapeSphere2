@@ -1,7 +1,7 @@
 module sbylib.control.GuiControl;
 
 import sbylib.wrapper.glfw.Constants;
-import sbylib.wrapper.glfw.Window;
+import sbylib.core.Window;
 import sbylib.input.Mouse2D;
 import sbylib.mesh.Object3D;
 import sbylib.camera.Camera;
@@ -9,7 +9,7 @@ import sbylib.camera.OrthoCamera;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Quaternion;
-import sbylib.utils.Observer;
+import sbylib.utils.Lazy;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
