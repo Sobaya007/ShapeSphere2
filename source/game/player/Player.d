@@ -4,6 +4,7 @@ import game.command;
 import game.player.BaseSphere;
 import game.player.ElasticSphere;
 import game.player.NeedleSphere;
+import game.player.SpringSphere;
 import game.player.PlayerMaterial;
 import sbylib;
 import std.algorithm, std.array;
@@ -23,6 +24,7 @@ class Player {
     private BaseSphere sphere;
     private ElasticSphere elasticSphere;
     private NeedleSphere needleSphere;
+    private SpringSphere springSphere;
     private Key key;
     package World world;
     Camera camera;
@@ -34,6 +36,10 @@ class Player {
         this.floors = new Entity();
         this.elasticSphere = new ElasticSphere(this);
         this.needleSphere = new NeedleSphere(this);
+        this.springSphere = new SpringSphere(this);
+        this.elasticSphere.constructor(this.needleSphere, this.springSphere);
+        this.needleSphere.constructor(this.elasticSphere);
+        this.springSphere.constructor(this.elasticSphere);
         this.sphere = this.elasticSphere;
         this.key = key;
         this.camera = camera;
@@ -43,6 +49,8 @@ class Player {
             new CommandSpawner(() => key.justReleased(KeyButton.Space), new Command(&this.onDownJustRelease)),
             new CommandSpawner(() => key.isPressed(KeyButton.KeyX), new Command(&this.onNeedlePress)),
             new CommandSpawner(() => key.isReleased(KeyButton.KeyX), new Command(&this.onNeedleRelease)),
+            new CommandSpawner(() => key.isPressed(KeyButton.KeyC), new Command(&this.onSpringPress)),
+            new CommandSpawner(() => key.isReleased(KeyButton.KeyC), new Command(&this.onSpringRelease)),
             new CommandSpawner(() => key.isPressed(KeyButton.Left), new Command(&this.onLeftPress)),
             new CommandSpawner(() => key.isPressed(KeyButton.Right), new Command(&this.onRightPress)),
             new CommandSpawner(() => key.isPressed(KeyButton.Up), new Command(&this.onForwardPress)),
@@ -51,50 +59,47 @@ class Player {
     }
 
     void step() {
-        this.sphere.move();
+        this.sphere = this.sphere.move();
     }
 
     void onDownPress() {
-        this.sphere.onDownPress();
+        this.sphere = this.sphere.onDownPress();
     }
 
     void onDownJustRelease() {
-        this.sphere.onDownJustRelease();
-    }
-
-    void onNeedlePress() {
-        if (this.sphere !is this.needleSphere) {
-            this.needleSphere.fromElastic(this.elasticSphere);
-            this.sphere.leave();
-            this.sphere = this.needleSphere;
-        }
-        this.needleSphere.onNeedlePress();
-    }
-
-    void onNeedleRelease() {
-        if (this.sphere != this.needleSphere) return;
-        this.sphere.onNeedleRelease();
-        if (this.needleSphere.hasFinished) {
-            this.sphere.leave();
-            this.sphere = this.elasticSphere;
-            this.elasticSphere.fromNeedle(this.needleSphere);
-        }
+        this.sphere = this.sphere.onDownJustRelease();
     }
 
     void onLeftPress() {
-        this.sphere.onLeftPress();
+        this.sphere = this.sphere.onLeftPress();
     }
 
     void onRightPress() {
-        this.sphere.onRightPress();
+        this.sphere = this.sphere.onRightPress();
     }
 
     void onForwardPress() {
-        this.sphere.onForwardPress();
+        this.sphere = this.sphere.onForwardPress();
     }
 
     void onBackPress() {
-        this.sphere.onBackPress();
+        this.sphere = this.sphere.onBackPress();
+    }
+
+    void onNeedlePress() {
+        this.sphere = this.sphere.onNeedlePress();
+    }
+
+    void onNeedleRelease() {
+        this.sphere = this.sphere.onNeedleRelease();
+    }
+
+    void onSpringPress() {
+        this.sphere = this.sphere.onSpringPress();
+    }
+
+    void onSpringRelease() {
+        this.sphere = this.sphere.onSpringRelease();
     }
 
     Entity getEntity() {

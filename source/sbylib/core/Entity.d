@@ -142,6 +142,7 @@ class Entity {
         if (infos.length == 0) return None!CollisionInfoRay;
         import std.algorithm;
         import sbylib.math.Vector;
+        import std.stdio;
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 

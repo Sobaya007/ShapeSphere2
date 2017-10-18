@@ -28,6 +28,7 @@ class NeedleSphere : BaseSphere {
         float DEFAULT_RADIUS = 0.5;
     }
 
+    private ElasticSphere elasticSphere;
     private NeedleParticle[] particleList;
     private Player.PlayerEntity entity;
     private Player parent;
@@ -37,6 +38,7 @@ class NeedleSphere : BaseSphere {
 
     this(Player parent) {
         this.parent = parent; 
+        this.elasticSphere = elasticSphere;
         this.needleCount = flim(0,0,1);
         auto geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         auto mat = new Player.Mat();
@@ -53,22 +55,28 @@ class NeedleSphere : BaseSphere {
         }
     }
 
-    void fromElastic(ElasticSphere elastic) {
+    //生成時にElasticSphereいないからやむなし
+    void constructor(ElasticSphere elasticSphere) {
+        this.elasticSphere = elasticSphere;
+    }
+
+    override void initialize(BaseSphere sphere) {
+        assert(sphere is this.elasticSphere);
         this.needleCount = 0;
-        this.entity.obj.pos = elastic.getCenter();
-        this.lVel = elastic.getLinearVelocity();
-        this.aVel = elastic.getAngularVelocity();
+        this.entity.obj.pos = this.elasticSphere.getCenter();
+        this.lVel = this.elasticSphere.getLinearVelocity();
+        this.aVel = this.elasticSphere.getAngularVelocity();
         foreach (particle; this.particleList) {
             particle.initialize();
         }
-        parent.world.add(entity);
+        this.parent.world.add(this.entity);
     }
 
     vec3 getCenter() {
         return this.entity.obj.pos;
     }
 
-    override void move() {
+    override BaseSphere move() {
         this.lVel.y -= GRAVITY * Player.TIME_STEP;
         this.lVel -= AIR_REGISTANCE * this.lVel * Player.TIME_STEP / MASS;
         this.collision();
@@ -82,32 +90,25 @@ class NeedleSphere : BaseSphere {
             particle.move();
         }
         updateGeometry();
+        return this;
     }
 
-    override void onDownPress() {}
-    override void onDownJustRelease() {}
-    override void onLeftPress() {}
-    override void onRightPress() {}
-    override void onForwardPress() {}
-    override void onBackPress() {}
-
-    override void onNeedlePress() {
+    override BaseSphere onNeedlePress() {
         this.needleCount += 0.08;
+        return this;
     }
-    override void onNeedleRelease(){
+    override BaseSphere onNeedleRelease(){
         this.needleCount -= 0.05;
+        if (this.needleCount == 0) {
+            this.parent.world.remove(this.entity);
+            this.elasticSphere.initialize(this);
+            return this.elasticSphere;
+        }
+        return this;
     }
 
     override Player.PlayerEntity getEntity() {
         return entity;
-    }
-
-    override void leave() {
-        parent.world.remove(entity);
-    }
-
-    bool hasFinished() {
-        return this.needleCount == 0;
     }
 
     private void collision() {

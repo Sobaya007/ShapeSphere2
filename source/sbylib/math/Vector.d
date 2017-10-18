@@ -284,6 +284,19 @@ template cross(T, S, uint U) if (U == 3) {
 }
 
 
+Vector!(T, S) getOrtho(T, uint S)(Vector!(T,S) v) {
+    static if (S == 2) {
+        return Vector!(T, S)(-v.y, v.x);
+    } else static if (S == 3) {
+        if (v.x == 0 && v.z == 0) {
+            return normalize(cross(v, Vector!(T,S)(1,0,0)));
+        } else {
+            return normalize(cross(v, Vector!(T,S)(0,1,0)));
+        }
+    }
+}
+
+
 T length(T, int S)(Vector!(T, S) v) {
     mixin({
         string code = "T result = sqrt(";

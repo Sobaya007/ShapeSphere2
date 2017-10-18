@@ -2,6 +2,7 @@ module game.player.ElasticSphere;
 
 public import game.player.BaseSphere;
 public import game.player.NeedleSphere;
+public import game.player.SpringSphere;
 import game.player.PlayerMaterial;
 import game.player.Player;
 import sbylib;
@@ -36,6 +37,8 @@ class ElasticSphere : BaseSphere{
         float SIDE_PUSH_FORCE = 10;
     }
 
+    private NeedleSphere needleSphere;
+    private SpringSphere springSphere;
     private ElasticParticle[] particleList;
     private ElasticPair[] pairList;
     private Player.PlayerEntity entity;
@@ -98,8 +101,24 @@ class ElasticSphere : BaseSphere{
         }
     }
 
-    void fromNeedle(NeedleSphere needleSphere) {
-        parent.world.add(entity);
+    //生成時にNeedleSphereとかいないからやむなし
+    void constructor(NeedleSphere needleSphere, SpringSphere springSphere) {
+        this.needleSphere = needleSphere;
+        this.springSphere = springSphere;
+    }
+
+    override void initialize(BaseSphere sphere) {
+        if (sphere is this.needleSphere) {
+            this.fromNeedle();
+        } else if (sphere is this.springSphere) {
+            this.fromSpring();
+        } else {
+            assert(false);
+        }
+    }
+
+    private void fromNeedle() {
+        this.parent.world.add(this.entity);
         auto arrivalCenter = needleSphere.getCenter();
         auto currentCenter = this.center;
         auto dCenter = arrivalCenter - currentCenter;
@@ -110,6 +129,10 @@ class ElasticSphere : BaseSphere{
         foreach (particle; this.particleList) {
             particle.velocity = needleSphere.calcVelocity(particle.position);
         }
+    }
+
+    private void fromSpring() {
+        parent.world.add(entity);
     }
 
     vec3 getCenter() {
@@ -143,10 +166,11 @@ class ElasticSphere : BaseSphere{
         ray.dir = -polygon.normal;
         auto colInfo = this.parent.floors.rayCast(ray);
         if (colInfo.isNone) return None!WallContact;
-        return Just(WallContact(colInfo.get.point, -ray.dir));
+        auto nearestPolygon = cast(CollisionPolygon)colInfo.get.entity.getCollisionEntry.getGeometry;
+        return Just(WallContact(colInfo.get.point, nearestPolygon.normal));
     }
 
-    override void onDownPress() {
+    override BaseSphere onDownPress() {
         this.pushCount += 0.1;
         vec3 g = this.center;
         auto lower = this.calcLower();
@@ -160,35 +184,51 @@ class ElasticSphere : BaseSphere{
             power *= t;
             p.force.y -= power * this.pushCount;
         }
+        return this;
     }
-    override void onDownJustRelease() {
+    override BaseSphere onDownJustRelease() {
         this.pushCount = 0;
+        return this;
     }
-    override void onLeftPress() {
+    override BaseSphere onLeftPress() {
         this.force -= this.parent.camera.rot.column[0].xyz;
+        return this;
     }
-    override void onRightPress() {
+    override BaseSphere onRightPress() {
         this.force += this.parent.camera.rot.column[0].xyz;
+        return this;
     }
-    override void onForwardPress() {
+    override BaseSphere onForwardPress() {
         this.force -= this.parent.camera.rot.column[2].xyz;
+        return this;
     }
-    override void onBackPress() {
+    override BaseSphere onBackPress() {
         this.force += this.parent.camera.rot.column[2].xyz;
+        return this;
     }
 
-    override void onNeedlePress() {}
-    override void onNeedleRelease(){}
+    override BaseSphere onNeedlePress() {
+        this.parent.world.remove(this.entity);
+        this.needleSphere.initialize(this);
+        return this.needleSphere;
+    }
+
+    override BaseSphere onSpringPress() {
+        if (!this.springSphere.canTransform()) return this;
+        this.parent.world.remove(this.entity);
+        this.springSphere.initialize(this);
+        return this.springSphere;
+    }
 
     override Player.PlayerEntity getEntity() {
         return entity;
     }
 
-    override void leave() {
-        parent.world.remove(entity);
+    ElasticParticle[] getParticleList() {
+        return this.particleList;
     }
 
-    override void move() {
+    override BaseSphere move() {
         vec3 g = this.center;
 
         this.rotateParticles(g);
@@ -224,6 +264,8 @@ class ElasticSphere : BaseSphere{
         this.force = vec3(0);
 
         updateGeometry();
+
+        return this;
     }
 
     private void rotateParticles(vec3 center) {

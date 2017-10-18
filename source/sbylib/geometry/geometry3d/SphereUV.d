@@ -21,9 +21,13 @@ class SphereUV {
         return g;
     }
 
-    public static Vertex[] northern(Vertex=VertexNT)(float radius, uint tCut, uint pCut) {
+    public static Vertex[] northern(Vertex=VertexNT)(float radius, uint tCut, uint pCut) out(res) {
+        assert(res.length == 1 + (tCut+1) * pCut);
+    } body {
         struct TP {float t; float p;}
         TP[] tps;
+        //T = [0, 1]
+        //P = [0, 1]
         tps ~= TP(0,1);
         foreach_reverse (i; 0..pCut) {
             auto p = cast(float)i / pCut;
@@ -56,31 +60,37 @@ class SphereUV {
         }).array;
     }
 
-    public static uint[] getNorthernIndices(uint tCut, uint pCut) {
+    public static uint[] getNorthernIndices(uint tCut, uint pCut) out (res) {
+        assert(res.minElement == 0);
+        assert(res.maxElement == (tCut+1) * pCut);
+    } body {
         uint[] result;
         foreach (i; 0..tCut+1) {
             result ~= [0, i+1, i+2];
         }
-        foreach (i; 0..pCut) {
-            auto ni = i+1;
+        foreach (i; 0..pCut-1) {
+            auto ni = i+1; //[1, pCut+1]
             foreach (j; 0..tCut+1) {
-                auto nj = (j+1) % (tCut + 1);
+                auto nj = j+1;
                 result ~= [
-                0 +  j +  i * tCut,
-                0 +  j + ni * tCut,
-                0 + nj + ni * tCut
+                0 +  j +  i * (tCut+1),
+                0 +  j + ni * (tCut+1),
+                0 + nj + ni * (tCut+1)
                 ];
                 result ~= [
-                0 + nj + ni * tCut,
-                0 + nj +  i * tCut,
-                0 +  j +  i * tCut
+                0 + nj + ni * (tCut+1),
+                0 + nj +  i * (tCut+1),
+                0 +  j +  i * (tCut+1)
                 ];
             }
         }
         return result;
     }
 
-    public static uint[] getSouthernIndices(uint tCut, uint pCut) {
+    public static uint[] getSouthernIndices(uint tCut, uint pCut) out (res) {
+        assert(res.minElement == (tCut+1) * pCut + 1);
+        assert(res.maxElement == (tCut+1) * pCut * 2 + 1);
+    } body {
         return getNorthernIndices(tCut, pCut)
         .map!(idx => idx+(tCut+1)*pCut+1).array;
     }
