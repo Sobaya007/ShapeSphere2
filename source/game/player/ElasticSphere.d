@@ -99,6 +99,10 @@ class ElasticSphere : BaseSphere{
                         particleList[idx0]);
             }
         }
+        foreach(pair; this.pairList) {
+            pair.p0.next ~= pair.p1;
+            pair.p1.next ~= pair.p0;
+        }
     }
 
     //生成時にNeedleSphereとかいないからやむなし
@@ -166,6 +170,8 @@ class ElasticSphere : BaseSphere{
         ray.dir = -polygon.normal;
         auto colInfo = this.parent.floors.rayCast(ray);
         if (colInfo.isNone) return None!WallContact;
+        auto nearestParticle = this.getNearestParticle(colInfo.get.point);
+        if (length(nearestParticle.position - colInfo.get.point) > 0.2) return None!WallContact;
         auto nearestPolygon = cast(CollisionPolygon)colInfo.get.entity.getCollisionEntry.getGeometry;
         return Just(WallContact(colInfo.get.point, nearestPolygon.normal));
     }
@@ -227,6 +233,7 @@ class ElasticSphere : BaseSphere{
     ElasticParticle[] getParticleList() {
         return this.particleList;
     }
+
 
     override BaseSphere move() {
         vec3 g = this.center;
@@ -385,6 +392,22 @@ class ElasticSphere : BaseSphere{
         geom.updateBuffer();
     }
 
+    //山登りで探索
+    public ElasticParticle getNearestParticle(vec3 pos) {
+        ElasticParticle particle = this.particleList[0];
+        float minDist = length(particle.position - pos);
+        while (true) {
+            ElasticParticle newParticle = particle.next.minElement!(p => length(p.position - pos));
+            float dist = length(newParticle.position - pos);
+            if (dist < minDist) {
+                minDist = dist;
+            } else {
+                return particle;
+            }
+            particle = newParticle;
+        }
+    }
+
     class ElasticParticle {
         Observed!vec3 position; /* in World, used for Render */
         Observed!vec3 velocity;
@@ -394,6 +417,7 @@ class ElasticSphere : BaseSphere{
         bool isStinger;
         Entity entity;
         CollisionCapsule capsule;
+        ElasticParticle[] next;
 
         this(vec3 p) {
             this.position = new Observed!vec3(p);
