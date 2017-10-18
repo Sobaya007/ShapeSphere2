@@ -10,20 +10,18 @@ import std.algorithm;
 import std.array;
 import std.range;
 
-alias GeometrySphereUV = GeometryNT;
-
 class SphereUV {
 
     private this() {}
-    
-    public static GeometrySphereUV create(float radius = 0.5, uint tCut = 20, uint pCut = 20) {
-        auto vertices = (northern(radius, tCut, pCut) ~ southern(radius, tCut, pCut));
+
+    public static Geometry create(Geometry=GeometryNT)(float radius = 0.5, uint tCut = 20, uint pCut = 20) {
+        auto vertices = (northern!(Geometry.VertexA)(radius, tCut, pCut) ~ southern!(Geometry.VertexA)(radius, tCut, pCut));
         auto indices = getNorthernIndices(tCut, pCut) ~ getSouthernIndices(tCut, pCut);
-        auto g = new GeometryNT(vertices, indices);
+        auto g = new Geometry(vertices, indices);
         return g;
     }
 
-    public static VertexNT[] northern(float radius, uint tCut, uint pCut) {
+    public static Vertex[] northern(Vertex=VertexNT)(float radius, uint tCut, uint pCut) {
         struct TP {float t; float p;}
         TP[] tps;
         tps ~= TP(0,1);
@@ -41,21 +39,20 @@ class SphereUV {
                 cos(phi) * cos(theta),
                 sin(phi),
                 cos(phi) * sin(theta));
-            auto res = new VertexNT;
-            res.position = vec * radius;
-            res.normal = vec;
-            res.uv = vec2(tp.t, tp.p*.5 + .5);
-            return res;
+            return VertexNT.create!Vertex(
+                    vec * radius,
+                    vec,
+                    vec2(tp.t, tp.p*.5 + .5));
         }).array;
     }
 
-    public static VertexNT[] southern(float radius, uint tCut, uint pCut) {
+    public static Vertex[] southern(Vertex=VertexNT)(float radius, uint tCut, uint pCut) {
         return northern(radius, tCut, pCut)
         .map!((v) {
-            v.position = -v.position;
-            v.normal = -v.normal;
-            v.uv = vec2(.5 + v.uv.x, 1 - v.uv.y);
-            return v;
+            return VertexNT.create!Vertex(
+                -v.position,
+                -v.normal,
+                vec2(.5 + v.uv.x, 1 - v.uv.y));
         }).array;
     }
 
