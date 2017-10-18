@@ -137,6 +137,9 @@ class ElasticSphere : BaseSphere{
 
     private void fromSpring() {
         parent.world.add(entity);
+        foreach (particle; this.particleList) {
+            particle.velocity = vec3(0);
+        }
     }
 
     vec3 getCenter() {

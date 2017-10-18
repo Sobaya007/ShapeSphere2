@@ -11,6 +11,10 @@ import std.range;
 import std.math;
 import std.stdio;
 
+private void to(ref float value, float arrival) {
+    value = (value - arrival) * 0.9 + arrival;
+}
+
 class SpringSphere : BaseSphere {
 
 
@@ -27,6 +31,8 @@ class SpringSphere : BaseSphere {
     private flim pushCount;
     private Player parent;
     private Maybe!(ElasticSphere.WallContact) wallContact;
+    private float initialSpringLength;
+    private float initialSmallRadius;
     private float springLength;
     private float spiral;
     private float largeRadius;
@@ -61,13 +67,16 @@ class SpringSphere : BaseSphere {
         this.largeRadius = 1;
         this.smallRadius = 0.1;
 
-        this.springLength = 
+
+        this.initialSpringLength = 
               this.elasticSphere.getParticleList.map!(p => p.position.y).maxElement
             - this.elasticSphere.getParticleList.map!(p => p.position.y).minElement;
+        this.initialSmallRadius =
+            this.elasticSphere.getParticleList.map!(p => (p.position - this.elasticSphere.getCenter).xz.length).maxElement;
+        this.springLength = this.initialSpringLength;
+        this.smallRadius = this.initialSmallRadius;
         this.spiral = 0;
         this.largeRadius = 0;
-        this.smallRadius =
-            this.elasticSphere.getParticleList.map!(p => (p.position - this.elasticSphere.getCenter).xz.length).maxElement;
         auto v = this.wallContact.get().dir;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
@@ -88,14 +97,21 @@ class SpringSphere : BaseSphere {
     }
 
     override BaseSphere onSpringPress() {
-        this.springLength = 3;
-        this.spiral = 5;
-        this.largeRadius = 1;
-        this.smallRadius = 0.1;
+        this.springLength.to(4);
+        this.spiral.to(5);
+        this.largeRadius.to(0.8);
+        this.smallRadius.to(0.1);
         return this;
     }
 
     override BaseSphere onSpringRelease(){
+        this.springLength.to(this.initialSpringLength);
+        this.spiral.to(0);
+        this.largeRadius.to(0);
+        this.smallRadius.to(this.initialSmallRadius);
+
+        if (this.spiral > 0.01) return this;
+
         this.parent.world.remove(this.entity);
         this.elasticSphere.initialize(this);
         return this.elasticSphere;
