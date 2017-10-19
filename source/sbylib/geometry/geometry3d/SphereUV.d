@@ -91,7 +91,26 @@ class SphereUV {
         assert(res.minElement == (tCut+1) * pCut + 1);
         assert(res.maxElement == (tCut+1) * pCut * 2 + 1);
     } body {
-        return getNorthernIndices(tCut, pCut)
-        .map!(idx => idx+(tCut+1)*pCut+1).array;
+        uint[] result;
+        foreach (i; 0..tCut+1) {
+            result ~= [0, i+2, i+1];
+        }
+        foreach (i; 0..pCut-1) {
+            auto ni = i+1; //[1, pCut+1]
+            foreach (j; 0..tCut+1) {
+                auto nj = j+1;
+                result ~= [
+                0 +  j +  i * (tCut+1),
+                0 + nj + ni * (tCut+1),
+                0 +  j + ni * (tCut+1)
+                ];
+                result ~= [
+                0 + nj + ni * (tCut+1),
+                0 +  j +  i * (tCut+1),
+                0 + nj +  i * (tCut+1)
+                ];
+            }
+        }
+        return result.map!(r => r + (tCut+1)*pCut+1).array;
     }
 }

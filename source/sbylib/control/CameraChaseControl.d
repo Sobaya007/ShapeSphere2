@@ -29,8 +29,10 @@ class CameraChaseControl {
         v = normalize(v);
         vel -= (k * dp + c * dot(vel, v)) * v;
         vel *= 1 - c;
-        this.camera.getObj().pos += vel;
-        this.camera.getObj().pos.y = 3 + t.pos.y;
-        this.camera.getObj().lookAt(t.pos);
+        auto cobj = this.camera.getObj();
+        cobj.pos += vel;
+        auto ay = t.pos.y + 3;
+        cobj.pos.y = (cobj.pos.y - ay) * 0.9 + ay;
+        cobj.lookAt(t.pos);
     }
 }

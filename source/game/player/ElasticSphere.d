@@ -137,8 +137,15 @@ class ElasticSphere : BaseSphere{
 
     private void fromSpring() {
         parent.world.add(entity);
+        auto arrivalCenter = this.springSphere.getCenter();
+        auto currentCenter = this.center;
+        auto dCenter = arrivalCenter - currentCenter;
         foreach (particle; this.particleList) {
-            particle.velocity = vec3(0);
+            particle.position += dCenter;
+        }
+        this.entity.obj.pos += dCenter;
+        foreach (particle; this.particleList) {
+            particle.velocity = this.springSphere.getVelocity();
         }
     }
 

@@ -18,6 +18,6 @@ class BaseSphere {
     BaseSphere onNeedlePress(){return this;}
     BaseSphere onNeedleRelease(){return this;}
     BaseSphere onSpringPress(){return this;}
-    BaseSphere onSpringRelease(){return this;}
+    BaseSphere onSpringJustRelease(){return this;}
     abstract Player.PlayerEntity getEntity();
 }
