@@ -23,7 +23,7 @@ class Mouse2D {
     void update() {
         this.mouse.update();
         auto before = this.pos;
-        this.pos = (mat4.invert(camera.projMatrix * camera.getObj().viewMatrix) * vec4(mouse.getPos(), 0, 1)).xy;
+        this.pos = mouse.getPos();
         this.dif = this.pos - before;
     }
 

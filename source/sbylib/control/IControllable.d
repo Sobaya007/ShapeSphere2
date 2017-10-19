@@ -8,7 +8,7 @@ public {
 
 interface IControllable {
     Entity getEntity();
-    void onMousePressed(MouseButton);
-    void onMouseReleased(MouseButton);
-    void update(Mouse2D);
+    void onMousePressed(MouseButton mouseButton);
+    void onMouseReleased(MouseButton mouseButton, bool isCollided);
+    void update(Mouse2D mouse);
 }

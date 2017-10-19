@@ -14,7 +14,8 @@ enum RunMode {
     Mouse,
     Text,
     Plot,
-    XFileLoad
+    XFileLoad,
+    Editor
 };
 
 void run(RunMode mode, string[] args) {
@@ -48,6 +49,9 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.XFileLoad:
         xFileLoadExample();
+        break;
+    case RunMode.Editor:
+        editorExample();
         break;
     }
 }

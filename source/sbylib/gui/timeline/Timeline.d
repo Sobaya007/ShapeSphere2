@@ -104,7 +104,7 @@ class Timeline : IControllable {
         this.control = &this.translate;
     }
 
-    override void onMouseReleased(MouseButton button) {
+    override void onMouseReleased(MouseButton button, bool isCollided) {
         if (button != MouseButton.Button1) return;
         this.control = null;
     }

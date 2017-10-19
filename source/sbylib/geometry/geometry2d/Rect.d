@@ -13,12 +13,28 @@ alias GeometryRect = GeometryTemp!([Attribute.Position, Attribute.UV], Prim.Tria
 
 class Rect {
 
-    public static GeometryRect create(float width=0.5, float height = 0.5) {
+    enum OriginX {
+        Left = -1,
+        Center = 0,
+        Right = 1
+    }
+    enum OriginY {
+        Bottom = -1,
+        Center = 0,
+        Top = 1
+    }
+
+    public static GeometryRect create(float width=0.5, float height = 0.5, OriginX originX = OriginX.Center, OriginY originY = OriginY.Center) {
+        vec3 center = vec3(
+            -originX * (width/2),
+            -originY * (height/2),
+            0
+        );
         const positions = [
-        vec3(-width/2, -height/2, 0),
-        vec3(+width/2, -height/2, 0),
-        vec3(+width/2, +height/2, 0),
-        vec3(-width/2, +height/2, 0),
+            vec3(-width/2, -height/2, 0) + center,
+            vec3(+width/2, -height/2, 0) + center,
+            vec3(+width/2, +height/2, 0) + center,
+            vec3(-width/2, +height/2, 0) + center,
         ];
         const uvs = [
         vec2(0,0),
