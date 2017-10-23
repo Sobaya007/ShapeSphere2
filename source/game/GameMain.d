@@ -3,7 +3,97 @@ module game.GameMain;
 import sbylib;
 import game.player;
 import game.command;
+import game.scene.Scene;
+import game.scene.LogoAnimation;
 import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex;
+
+void gameRoot() {
+    //アニメーション情報をどこまで詳細に載せるか
+    //具体的に見えるものは後。
+    //とりあえず遷移図を記す。
+    auto sm = new SceneManager();
+    with (sm) {
+        define(
+            LogoAnimation(
+                onFinish(
+                    move!LogoAnimation
+                )
+            ),
+            LogoAnimation(
+                onFinish(
+                    over!LogoAnimation
+                )
+            ),
+            LogoAnimation(
+                onFinish(
+                    over!LogoAnimation(
+                        onFinish(
+                            over!LogoAnimation
+                        ),
+                    )
+                )
+            ),
+        );
+    }
+    /*
+    with (sm) {
+        define(
+            LogoAnimation(
+                onFinish(
+                    move!OpeningAnimation
+                )
+            ),
+            OpeningAnimation(
+                onFinish(
+                    move!Title
+                )
+             ),
+            Title(
+                onStable( //落ちつくってなに
+                    over!(Select![
+                        NewGame,
+                        LoadGame,
+                        Exit
+                    ])
+                )
+            ),
+            NewGame(
+                onYes(
+                    move!OpeningMovie(
+                        onFinish(
+                            move!OpeningStage(
+                                onFinish(
+                                    move!Stage //現在の状態をみていいかんじのステージに飛ぶ
+                                )
+                            )
+                        )
+                    )
+                ),
+                onNo(
+                    pop
+                )
+            ),
+            Loadgame(
+                onYes(
+                    move!Stage
+                ),
+                onNo(
+                    pop
+                )
+            ),
+            Exit(
+                onYes(
+                    over!DoExit
+                ),
+                onNo(
+                    pop
+                )
+            ),
+        );
+        launch!(LogoAnimation);
+    }
+    */
+}
 
 void gameMain(string[] args) {
     /* Core Settings */
