@@ -1,30 +1,21 @@
 module game.scene.LogoAnimation;
 
-import game.scene.Scene;
+import game.scene.SceneBase;
+import game.scene.SceneTransition;
 import sbylib;
 
 class LogoAnimation : SceneBase {
 
-    mixin DeclareCallbacks;
-
-    mixin SetCallbacks;
-
-    public static auto opCall(SceneCallback[] cbs...) {
-        return new LogoAnimation(cbs);
-    }
+    mixin SceneBasePack;
 
     private int count = 0;
-
-    this(SceneCallback[] callbacks...) {
-        setCallbacks(callbacks);
-    }
 
     override Maybe!SceneTransition step() {
         if (count < 60) {
             animate();
             return None!SceneTransition;
         }
-        return finish();
+        return this.finish();
     }
 
     void animate() {

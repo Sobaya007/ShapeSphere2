@@ -3,40 +3,14 @@ module game.GameMain;
 import sbylib;
 import game.player;
 import game.command;
-import game.scene.Scene;
-import game.scene.LogoAnimation;
+import game.scene;
 import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex;
 
-void gameRoot() {
+void setGameTransition() {
     //アニメーション情報をどこまで詳細に載せるか
     //具体的に見えるものは後。
     //とりあえず遷移図を記す。
-    auto sm = new SceneManager();
-    with (sm) {
-        define(
-            LogoAnimation(
-                onFinish(
-                    move!LogoAnimation
-                )
-            ),
-            LogoAnimation(
-                onFinish(
-                    over!LogoAnimation
-                )
-            ),
-            LogoAnimation(
-                onFinish(
-                    over!LogoAnimation(
-                        onFinish(
-                            over!LogoAnimation
-                        ),
-                    )
-                )
-            ),
-        );
-    }
-    /*
-    with (sm) {
+    with (SceneManager) {
         define(
             LogoAnimation(
                 onFinish(
@@ -50,11 +24,11 @@ void gameRoot() {
              ),
             Title(
                 onStable( //落ちつくってなに
-                    over!(Select![
+                    over!(Select!(
                         NewGame,
                         LoadGame,
                         Exit
-                    ])
+                    ))
                 )
             ),
             NewGame(
@@ -73,7 +47,7 @@ void gameRoot() {
                     pop
                 )
             ),
-            Loadgame(
+            LoadGame(
                 onYes(
                     move!Stage
                 ),
@@ -82,9 +56,6 @@ void gameRoot() {
                 )
             ),
             Exit(
-                onYes(
-                    over!DoExit
-                ),
                 onNo(
                     pop
                 )
@@ -92,7 +63,6 @@ void gameRoot() {
         );
         launch!(LogoAnimation);
     }
-    */
 }
 
 void gameMain(string[] args) {
@@ -209,6 +179,8 @@ void gameMain(string[] args) {
         }
         if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
     }, "po");
+
+    setGameTransition();
 
     core.start();
 }
