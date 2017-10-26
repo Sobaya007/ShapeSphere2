@@ -11,8 +11,10 @@ import std.range;
 import std.math;
 import std.stdio;
 
+private float TO_SPEED = 0.9;
+
 private void to(ref float value, float arrival) {
-    value = (value - arrival) * 0.9 + arrival;
+    value = (value - arrival) * TO_SPEED + arrival;
 }
 
 class SpringSphere : BaseSphere {
@@ -20,10 +22,11 @@ class SpringSphere : BaseSphere {
 
     static immutable {
         alias TIME_STEP = Player.TIME_STEP;
+        float GRAVITY = 20;
         float RADIUS = 2.0f;
         uint T_CUT = 20;
         uint P_CUT = 80;
-        float PERIOD = 0.8;
+        float PERIOD = 0.4;
         float DAMPING_RATIO = 0.3; //減衰比
         float MAX_LENGTH = 10;
         float MAX_SPIRAL = 5;
@@ -56,7 +59,8 @@ class SpringSphere : BaseSphere {
     private float smallRadius;
     private Spring spring;
     private uint phase;
-    private float velocity;
+    private uint count;
+    private vec3 velocity;
 
     this(Player parent)  {
         this.parent = parent;
@@ -93,6 +97,8 @@ class SpringSphere : BaseSphere {
         this.spiral = 0;
         this.largeRadius = 0;
         this.phase = 0;
+        this.count = 0;
+        TO_SPEED = 0.9;
         auto v = this.wallContact.get().dir;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
@@ -107,32 +113,37 @@ class SpringSphere : BaseSphere {
     override BaseSphere move() {
         final switch (this.phase) {
             case 0: //Transforming...
-                this.springLength.to(MAX_LENGTH);
+                this.springLength.to(SHRINK_LENGTH);
                 this.spiral.to(MAX_SPIRAL);
                 this.largeRadius.to(0.5);
                 this.smallRadius.to(0.1);
-                if (this.springLength > MAX_LENGTH - 0.01) {
+                if (this.springLength < SHRINK_LENGTH + 0.01) {
                     this.spring.setLength(this.springLength);
                     this.spring.setVelocity(V0);
                     this.phase++;
                 }
                 break;
             case 1: //Waiting...
-                this.springLength = this.spring.getLength();
                 break;
-            case 2: //Shrinking...
-                this.springLength.to(SHRINK_LENGTH);
-                this.spring.setLength(this.springLength);
-                break;
-            case 3: //Jumping!!!
+            case 2: //Jumping!!!
                 this.springLength = this.spring.getLength();
                 if (this.springLength > BASE_LENGTH) {
-                    this.velocity = this.spring.getVelocity() / 2;
+                    this.velocity = this.spring.getVelocity() / 2 * this.entity.obj.rot.column[1];
                     this.phase++;
                 }
                 break;
+            case 3:
+                if (this.count++ > 6) {
+                    this.phase++;
+                    TO_SPEED = 0.8;
+                }
+                this.springLength = this.spring.getLength();
+                this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
+                this.entity.obj.pos += this.velocity * DELTA_TIME;
+                break;
             case 4: //Flying!!!
-                this.entity.obj.pos += this.velocity * DELTA_TIME * this.entity.obj.rot.column[1];
+                this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
+                this.entity.obj.pos += this.velocity * DELTA_TIME;
                 this.springLength.to(this.initialSpringLength);
                 this.spiral.to(0);
                 this.largeRadius.to(0);
@@ -157,15 +168,9 @@ class SpringSphere : BaseSphere {
         return this;
     }
 
-    override BaseSphere onDownPress() {
+    override BaseSphere onSpringJustRelease() {
         if (this.phase != 1) return this;
         this.phase = 2;
-        return this;
-    }
-
-    override BaseSphere onDownJustRelease() {
-        if (this.phase != 2) return this;
-        this.phase = 3;
         return this;
     }
 
@@ -178,7 +183,7 @@ class SpringSphere : BaseSphere {
     }
 
     vec3 getVelocity() {
-        return this.velocity * this.entity.rot.column[1];
+        return this.velocity;
     }
 
     private void updateGeometry() {
