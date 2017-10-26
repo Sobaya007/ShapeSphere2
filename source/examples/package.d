@@ -8,3 +8,4 @@ import examples.MaterialExample;
 import examples.MouseExample;
 import examples.TextExample;
 import examples.XFileLoadExample;
+import examples.EditorExample;

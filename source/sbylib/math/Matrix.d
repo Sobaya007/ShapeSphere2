@@ -312,7 +312,7 @@ public:
                 return Matrix(
                         2 / width, 0,          0,                  0,
                         0,         2 / height, 0,                  0,
-                        0,         0,          1 / (farZ - nearZ), nearZ / (nearZ - farZ),
+                        0,         0,          1 / (nearZ - farZ), nearZ / (nearZ - farZ),
                         0,         0,          0,                  1
                         );
             }
@@ -672,11 +672,11 @@ private static string getTranslationCode(uint U) {
     foreach (i; 0..U) {
         foreach (j; 0..U) {
             code ~= format!"result[%d,%d] = "(i,j);
-            if (i == j) 
+            if (i == j)
                 code ~= "1;";
-            else if (j == U-1) 
+            else if (j == U-1)
                 code ~= format!"vec[%d];"(i);
-            else 
+            else
                 code ~= "0;";
         }
     }
