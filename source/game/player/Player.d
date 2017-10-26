@@ -27,14 +27,13 @@ class Player {
     private SpringSphere springSphere;
     private Key key;
     package World world;
-    Camera camera;
-    flim pushCount;
-    CommandSpawner[] commandSpawners;
+    private Camera camera;
+    private CameraChaseControl cameraControl;
 
-    this(Key key, Camera camera, World world) {
+    this(Key key, Camera camera, World world, CommandManager commandManager) {
         this.world = world;
         this.floors = new Entity();
-        this.elasticSphere = new ElasticSphere(this);
+        this.elasticSphere = new ElasticSphere(this, camera, world);
         this.needleSphere = new NeedleSphere(this);
         this.springSphere = new SpringSphere(this);
         this.elasticSphere.constructor(this.needleSphere, this.springSphere);
@@ -43,23 +42,22 @@ class Player {
         this.sphere = this.elasticSphere;
         this.key = key;
         this.camera = camera;
-        this.pushCount = flim(0.0, 0.0, 1);
-        this.commandSpawners = [
-            new CommandSpawner(() => key.isPressed(KeyButton.Space), new Command(&this.onDownPress)),
-            new CommandSpawner(() => key.justReleased(KeyButton.Space), new Command(&this.onDownJustRelease)),
-            new CommandSpawner(() => key.isPressed(KeyButton.KeyX), new Command(&this.onNeedlePress)),
-            new CommandSpawner(() => key.isReleased(KeyButton.KeyX), new Command(&this.onNeedleRelease)),
-            new CommandSpawner(() => key.isPressed(KeyButton.KeyC), new Command(&this.onSpringPress)),
-            new CommandSpawner(() => key.justReleased(KeyButton.KeyC), new Command(&this.onSpringJustRelease)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Left), new Command(&this.onLeftPress)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Right), new Command(&this.onRightPress)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Up), new Command(&this.onForwardPress)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Down), new Command(&this.onBackPress))];
-        this.world.add(sphere.getEntity());
+        commandManager.addSpawner(new CommandSpawner(() => key.isPressed(KeyButton.Space), new Command(&this.onDownPress)));
+        commandManager.addSpawner(new CommandSpawner(() => key.justReleased(KeyButton.Space), new Command(&this.onDownJustRelease)));
+        commandManager.addSpawner(new CommandSpawner(() => key.isPressed(KeyButton.KeyX), new Command(&this.onNeedlePress)));
+        commandManager.addSpawner(new CommandSpawner(() => key.isReleased(KeyButton.KeyX), new Command(&this.onNeedleRelease)));
+        commandManager.addSpawner(new CommandSpawner(() => key.isPressed(KeyButton.KeyC), new Command(&this.onSpringPress)));
+        commandManager.addSpawner(new CommandSpawner(() => key.justReleased(KeyButton.KeyC), new Command(&this.onSpringJustRelease)));
+        commandManager.addSpawner(new CommandSpawner(() => key.isPressed(KeyButton.Left), new Command(&this.onLeftPress)));
+        commandManager.addSpawner(new CommandSpawner(() => key.isPressed(KeyButton.Right), new Command(&this.onRightPress)));
+        commandManager.addSpawner(new CommandSpawner(() => key.isPressed(KeyButton.Up), new Command(&this.onForwardPress)));
+        commandManager.addSpawner(new CommandSpawner(() => key.isPressed(KeyButton.Down), new Command(&this.onBackPress)));
+        this.cameraControl = new CameraChaseControl(camera, () => this.sphere.getCameraTarget);
     }
 
     void step() {
         this.sphere = this.sphere.move();
+        this.cameraControl.step();
     }
 
     void onDownPress() {
@@ -100,9 +98,5 @@ class Player {
 
     void onSpringJustRelease() {
         this.sphere = this.sphere.onSpringJustRelease();
-    }
-
-    Entity getEntity() {
-        return this.sphere.getEntity();
     }
 }

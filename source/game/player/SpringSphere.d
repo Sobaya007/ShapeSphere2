@@ -111,6 +111,10 @@ class SpringSphere : BaseSphere {
         this.move();
     }
 
+    override vec3 getCameraTarget() {
+        return this.entity.pos + this.entity.rot.column[1] * this.springLength / 2;
+    }
+
     override BaseSphere move() {
         final switch (this.phase) {
             case 0: //Transforming...
@@ -182,10 +186,6 @@ class SpringSphere : BaseSphere {
             this.phase = 5;
         }
         return this;
-    }
-
-    override Player.PlayerEntity getEntity() {
-        return this.entity;
     }
 
     vec3 getCenter() {

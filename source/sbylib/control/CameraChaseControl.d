@@ -8,11 +8,11 @@ import sbylib.constant.Const;
 class CameraChaseControl {
 
     private Camera camera;
-    private Object3D delegate() target;
+    private vec3 delegate() target;
     private vec3 vel;
     private ConstTemp!float defaultLength, k, c;
 
-    this(Camera camera, Object3D delegate() target) {
+    this(Camera camera, vec3 delegate() target) {
         this.camera = camera;
         this.target = target;
         this.defaultLength = ConstantManager.get!float("defaultLength");
@@ -23,7 +23,7 @@ class CameraChaseControl {
 
     void step() {
         auto t = target();
-        auto v = this.camera.getObj().pos - t.pos;
+        auto v = this.camera.getObj().pos - t;
         auto dp = v.length - defaultLength;
         auto dy = v.y;
         v = normalize(v);
@@ -31,8 +31,8 @@ class CameraChaseControl {
         vel *= 1 - c;
         auto cobj = this.camera.getObj();
         cobj.pos += vel;
-        auto ay = t.pos.y + 3;
+        auto ay = t.y + 3;
         cobj.pos.y = (cobj.pos.y - ay) * 0.9 + ay;
-        cobj.lookAt(t.pos);
+        cobj.lookAt(t);
     }
 }

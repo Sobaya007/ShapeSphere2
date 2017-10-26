@@ -12,15 +12,19 @@ class CommandManager {
 
     import std.stdio;
 
-    this(CommandSpawner[] spawners, string writeFilePath) {
+    this(string writeFilePath) {
         this.spawners = spawners;
         this.writeFilePath = writeFilePath;
     }
 
-    this(CommandSpawner[] spawners, string readFilePath, string writeFilePath) {
-        this(spawners, writeFilePath);
+    this(string readFilePath, string writeFilePath) {
+        this(writeFilePath);
         this.play = true;
         this.commands = this.loadData(readFilePath);
+    }
+
+    void addSpawner(CommandSpawner spawner) {
+        this.spawners ~= spawner;
     }
 
     void update() {

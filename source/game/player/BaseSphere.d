@@ -9,6 +9,7 @@ class BaseSphere {
 
     abstract void initialize(BaseSphere);
     abstract BaseSphere move();
+    abstract vec3 getCameraTarget();
     BaseSphere onDownPress(){return this;}
     BaseSphere onDownJustRelease(){return this;}
     BaseSphere onLeftPress(){return this;}
@@ -19,5 +20,4 @@ class BaseSphere {
     BaseSphere onNeedleRelease(){return this;}
     BaseSphere onSpringPress(){return this;}
     BaseSphere onSpringJustRelease(){return this;}
-    abstract Player.PlayerEntity getEntity();
 }

@@ -87,9 +87,6 @@ class SphereUV {
                 ];
             }
         }
-        import std.stdio;
-        writeln(result.minElement);
-        writeln(result.maxElement);
         return result;
     }
 

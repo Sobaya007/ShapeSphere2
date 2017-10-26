@@ -44,13 +44,17 @@ class ElasticSphere : BaseSphere{
     private Player.PlayerEntity entity;
     private flim pushCount;
     private Player parent;
+    private Camera camera;
+    private World world;
     private vec3 force;
     private Observer!vec3 center;
     private Observer!vec3 lVel;
     private Observer!vec3 aVel;
 
-    this(Player parent)  {
+    this(Player parent, Camera camera, World world)  {
         this.parent = parent;
+        this.camera = camera;
+        this.world = world;
         this.pushCount = flim(0.0, 0.0, 1);
         this.force = vec3(0);
         auto geom = Sphere.create(ElasticSphere.DEFAULT_RADIUS, ElasticSphere.RECURSION_LEVEL);
@@ -103,6 +107,7 @@ class ElasticSphere : BaseSphere{
             pair.p0.next ~= pair.p1;
             pair.p1.next ~= pair.p0;
         }
+        this.world.add(this.entity);
     }
 
     //生成時にNeedleSphereとかいないからやむなし
@@ -186,6 +191,10 @@ class ElasticSphere : BaseSphere{
         return Just(WallContact(colInfo.get.point, nearestPolygon.normal));
     }
 
+    override vec3 getCameraTarget() {
+        return this.center;
+    }
+
     override BaseSphere onDownPress() {
         this.pushCount += 0.1;
         vec3 g = this.center;
@@ -207,37 +216,33 @@ class ElasticSphere : BaseSphere{
         return this;
     }
     override BaseSphere onLeftPress() {
-        this.force -= this.parent.camera.rot.column[0].xyz;
+        this.force -= this.camera.rot.column[0].xyz;
         return this;
     }
     override BaseSphere onRightPress() {
-        this.force += this.parent.camera.rot.column[0].xyz;
+        this.force += this.camera.rot.column[0].xyz;
         return this;
     }
     override BaseSphere onForwardPress() {
-        this.force -= this.parent.camera.rot.column[2].xyz;
+        this.force -= this.camera.rot.column[2].xyz;
         return this;
     }
     override BaseSphere onBackPress() {
-        this.force += this.parent.camera.rot.column[2].xyz;
+        this.force += this.camera.rot.column[2].xyz;
         return this;
     }
 
     override BaseSphere onNeedlePress() {
-        this.parent.world.remove(this.entity);
+        this.world.remove(this.entity);
         this.needleSphere.initialize(this);
         return this.needleSphere;
     }
 
     override BaseSphere onSpringPress() {
         if (!this.springSphere.canTransform()) return this;
-        this.parent.world.remove(this.entity);
+        this.world.remove(this.entity);
         this.springSphere.initialize(this);
         return this.springSphere;
-    }
-
-    override Player.PlayerEntity getEntity() {
-        return entity;
     }
 
     ElasticParticle[] getParticleList() {

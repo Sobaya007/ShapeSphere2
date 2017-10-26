@@ -24,12 +24,10 @@ void gameMain(string[] args) {
     world2d.setCamera(new OrthoCamera(2,2,-1,1));
 
     /* Player Settings */
-    Player player = new Player(core.getKey(), camera, world3d);
-    auto commandManager = getCommandManager(player.commandSpawners, args);
-    CameraChaseControl control = new CameraChaseControl(camera, () => player.getEntity().obj);
+    auto commandManager = getCommandManager(args);
+    Player player = new Player(core.getKey(), camera, world3d, commandManager);
     core.addProcess((proc) {
         player.step();
-        control.step();
     }, "player update");
     core.addProcess(&commandManager.update, "command update");
 
@@ -123,7 +121,7 @@ void gameMain(string[] args) {
     core.start();
 }
 
-CommandManager getCommandManager(CommandSpawner[] commands, string[] args) {
+CommandManager getCommandManager(string[] args) {
     string replayDataPath;
     string historyDataPath;
     getopt(args, "replay", &replayDataPath, "history", &historyDataPath);
@@ -146,6 +144,6 @@ CommandManager getCommandManager(CommandSpawner[] commands, string[] args) {
         }
     }
 
-    if (replayDataPath) return new CommandManager(commands, replayDataPath, historyDataPath);
-    return new CommandManager(commands, historyDataPath);
+    if (replayDataPath) return new CommandManager(replayDataPath, historyDataPath);
+    return new CommandManager(historyDataPath);
 }
