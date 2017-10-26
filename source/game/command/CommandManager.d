@@ -63,7 +63,7 @@ class ReplayCommandManager : ICommandManager {
 
     override void update() {
         if (this.playing) {
-            foreach (i, cmd; this.commands) {
+            foreach (cmd; this.commands) {
                 cmd.replay(this.inputHistory);
                 this.outputHistory ~= cmd.value;
             }

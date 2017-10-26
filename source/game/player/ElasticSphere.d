@@ -215,20 +215,9 @@ class ElasticSphere : BaseSphere{
         this.pushCount = 0;
         return this;
     }
-    override BaseSphere onLeftPress() {
-        this.force -= this.camera.rot.column[0].xyz;
-        return this;
-    }
-    override BaseSphere onRightPress() {
-        this.force += this.camera.rot.column[0].xyz;
-        return this;
-    }
-    override BaseSphere onForwardPress() {
-        this.force -= this.camera.rot.column[2].xyz;
-        return this;
-    }
-    override BaseSphere onBackPress() {
-        this.force += this.camera.rot.column[2].xyz;
+
+    override BaseSphere onMovePress(vec2 v) {
+        this.force += this.camera.rot * vec3(v.x, 0, v.y);
         return this;
     }
 
@@ -279,7 +268,7 @@ class ElasticSphere : BaseSphere{
             end(particle);
         }
         this.force.y = 0;
-        if (this.force.length > 0) this.force = normalize(this.force) * SIDE_PUSH_FORCE;
+        this.force *= SIDE_PUSH_FORCE;
         foreach (p; this.particleList) {
             p.force = this.force;
         }

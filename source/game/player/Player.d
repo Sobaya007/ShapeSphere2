@@ -48,10 +48,14 @@ class Player {
         commandManager.addCommand(new ButtonCommand(() => key.isReleased(KeyButton.KeyX), &this.onNeedleRelease));
         commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.KeyC), &this.onSpringPress));
         commandManager.addCommand(new ButtonCommand(() => key.justReleased(KeyButton.KeyC), &this.onSpringJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.Left), &this.onLeftPress));
-        commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.Right), &this.onRightPress));
-        commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.Up), &this.onForwardPress));
-        commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.Down), &this.onBackPress));
+        commandManager.addCommand(new StickCommand(() {
+            vec2 v = vec2(0);
+            if (key.isPressed(KeyButton.Left)) v.x--;
+            if (key.isPressed(KeyButton.Right)) v.x++;
+            if (key.isPressed(KeyButton.Up)) v.y--;
+            if (key.isPressed(KeyButton.Down)) v.y++;
+            return safeNormalize(v);
+        }, &this.onMovePress));
         this.cameraControl = new CameraChaseControl(camera, () => this.sphere.getCameraTarget);
     }
 
@@ -68,20 +72,8 @@ class Player {
         this.sphere = this.sphere.onDownJustRelease();
     }
 
-    void onLeftPress() {
-        this.sphere = this.sphere.onLeftPress();
-    }
-
-    void onRightPress() {
-        this.sphere = this.sphere.onRightPress();
-    }
-
-    void onForwardPress() {
-        this.sphere = this.sphere.onForwardPress();
-    }
-
-    void onBackPress() {
-        this.sphere = this.sphere.onBackPress();
+    void onMovePress(vec2 v) {
+        this.sphere = this.sphere.onMovePress(v);
     }
 
     void onNeedlePress() {

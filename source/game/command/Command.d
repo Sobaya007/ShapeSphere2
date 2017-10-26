@@ -46,19 +46,23 @@ class StickCommand : ICommand {
 
     override ubyte[] value() {
         auto v = state();
-        return [this.encode(v.x), this.encode(v.y)];
+        return [encode(v.x), encode(v.y)];
     }
 
     override void act() {
-        this.action(this.state());
+        // for making result same as replay, once encode
+        auto s = this.state();
+        auto d = vec2(decode(encode(s.x)), decode(encode(s.y)));
+        this.action(d);
     }
 
     override void replay(ref ubyte[] v) {
-        this.action(vec2(this.decode(v[0]), this.decode(v[1])));
+        import std.stdio;
+        this.action(vec2(decode(v[0]), decode(v[1])));
         v = v[2..$];
     }
 
-    private ubyte encode(float v) in {
+    private static ubyte encode(float v) in {
         assert(-1 <= v && v <= 1);
     } body {
         auto tmp = (v + 1) / 2 * 255;
@@ -66,9 +70,17 @@ class StickCommand : ICommand {
         return cast(ubyte)(tmp);
     }
 
-    private float decode(ubyte v) out(res) {
+    private static float decode(ubyte v) out(res) {
         assert(-1 <= res && res <= 1);
     } body {
         return (cast(float)v) / 255 * 2 - 1;
+    }
+
+    unittest {
+        assert(encode(1) == 255);
+        assert(encode(0) == 127);
+        assert(encode(-1) == 0);
+        assert(decode(255) == 1);
+        assert(decode(0) == -1);
     }
 }
