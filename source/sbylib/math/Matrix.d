@@ -67,7 +67,11 @@ public:
         }
 
         Matrix!(Type,U,V) result;
-        mixin(format!q{result[i,j] = this[i,j] %s m[i,j]}(op));
+        foreach (i; 0..U) {
+            foreach (j; 0..V) {
+                mixin(format!q{result[i,j] = this[i,j] %s m[i,j];}(op));
+            }
+        }
         return result;
     }
 
@@ -79,7 +83,8 @@ public:
         }
         Matrix!(Type,U,Q) result;
         foreach (i; 0..U) {
-            foreach (j; 0..V) {
+            foreach (j; 0..Q) {
+                result[i,j] = 0;
                 foreach (k; 0..V) {
                     result[i,j] += this[i,k] * m[k,j];
                 }
@@ -152,8 +157,8 @@ public:
         return element[j+i*V] = value;
     }
 
-    T opIndexOpAssign(string op)(T value, size_t x, size_t y) {
-        mixin("return element[y*V+x] " ~ op ~ "= value;");
+    T opIndexOpAssign(string op)(T value, size_t i, size_t j) {
+        mixin("return element[j+i*V] " ~ op ~ "= value;");
     }
 
     T[U*V] array() inout {
