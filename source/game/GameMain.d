@@ -121,7 +121,7 @@ void gameMain(string[] args) {
     core.start();
 }
 
-CommandManager getCommandManager(string[] args) {
+ICommandManager getCommandManager(string[] args) {
     string replayDataPath;
     string historyDataPath;
     getopt(args, "replay", &replayDataPath, "history", &historyDataPath);
@@ -144,6 +144,6 @@ CommandManager getCommandManager(string[] args) {
         }
     }
 
-    if (replayDataPath) return new CommandManager(replayDataPath, historyDataPath);
-    return new CommandManager(historyDataPath);
+    if (replayDataPath) return new ReplayCommandManager(replayDataPath, historyDataPath);
+    return new PlayCommandManager(historyDataPath);
 }

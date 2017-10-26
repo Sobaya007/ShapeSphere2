@@ -12,6 +12,7 @@ class BaseSphere {
     abstract vec3 getCameraTarget();
     BaseSphere onDownPress(){return this;}
     BaseSphere onDownJustRelease(){return this;}
+    BaseSphere onMovePress() {return this;}
     BaseSphere onLeftPress(){return this;}
     BaseSphere onRightPress(){return this;}
     BaseSphere onForwardPress(){return this;}
