@@ -38,8 +38,10 @@ class Observed(T) : IObserved {
         foreach (observer; observers) {
             observer.onChange();
         }
-        import std.traits;
-        static if (__traits(hasMember, T, "opDispatch")) {
+        import std.meta;
+        static if (staticIndexOf!(s, __traits(allMembers, T)) >= 0) {
+            return mixin("this.value." ~ s);
+        } else static if (__traits(hasMember, T, "opDispatch")) {
             return this.value.opDispatch!(s, Args)(args);
         } else static if (isCallable!(__traits(getMember, T, s))) {
             static if (is(ReturnType!(__traits(getMember, T, s)) == void)) {
@@ -48,7 +50,7 @@ class Observed(T) : IObserved {
                 return mixin("this.value." ~ s)(args);
             }
         } else {
-            return mixin("this.value." ~ s);
+            static assert(false);
         }
     }
 

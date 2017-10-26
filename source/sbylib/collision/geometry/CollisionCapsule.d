@@ -50,4 +50,8 @@ class CollisionCapsule : CollisionGeometry {
             this.owner.obj.worldMatrix
         );
     }
+
+    Entity getOwner() {
+        return this.owner;
+    }
 }

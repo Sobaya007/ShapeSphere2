@@ -27,10 +27,11 @@ struct Matrix(T, uint U, uint V) if (__traits(isArithmetic, T) && 1 <= U && U <=
 private:
     T[U*V] element;
 public:
-
     enum dimension1 = U;
     enum dimension2 = V;
     enum type = T.stringof;
+    alias vec3 = Vector!(T, 3);
+    alias vec4 = Vector!(T, 4);
 
     this(T e) {
         foreach (ref el; this.element) el = e;
@@ -43,27 +44,19 @@ public:
     }
 
     this(T[U][V] vectors...) {
-        mixin({
-            string result;
-            foreach (i; 0..U) {
-                foreach (j; 0..V) {
-                    result ~= format!"this[%d,%d] = vectors[%d][%d];"(i,j,j,i);
-                }
+        foreach (i; 0..U) {
+            foreach (j; 0..V) {
+                this[i,j] = vectors[j][i];
             }
-            return result;
-        }());
+        }
     }
 
     this(Vector!(T, U)[V] vectors...) {
-        mixin({
-            string result;
-            foreach (i; 0..U) {
-                foreach (j; 0..V) {
-                    result ~= format!"this[%d,%d] = vectors[%d][%d];"(i,j,j,i);
-                }
+        foreach (i; 0..U) {
+            foreach (j; 0..V) {
+                this[i,j] = vectors[j][i];
             }
-            return result;
-        }());
+        }
     }
 
     Matrix opBinary(string op, S, uint P, uint Q)(const Matrix!(S, P,Q)  m) const if ((op == "+" || op == "-") && U == P && V == Q) {
@@ -74,7 +67,7 @@ public:
         }
 
         Matrix!(Type,U,V) result;
-        mixin(getOpBinaryMMCode(op, U,V));
+        mixin(format!q{result[i,j] = this[i,j] %s m[i,j]}(op));
         return result;
     }
 
@@ -85,7 +78,13 @@ public:
             alias Type = T;
         }
         Matrix!(Type,U,Q) result;
-        mixin(multMMCode(U,V,P,Q));
+        foreach (i; 0..U) {
+            foreach (j; 0..V) {
+                foreach (k; 0..V) {
+                    result[i,j] += this[i,k] * m[k,j];
+                }
+            }
+        }
         return result;
     }
 
@@ -199,7 +198,6 @@ public:
         return res;
     }
 
-
     static if (U == V) {
         static Matrix identity() {
             Matrix result;
@@ -304,21 +302,28 @@ public:
             }
 
             static Matrix lookAt(Vector!(T,3) eye, Vector!(T,3) vec, Vector!(T,3) up) {
-                Matrix result;
-                mixin(getLookAtCode());
-                return result;
+                Vector!(T,3) side = normalize(cross(up, vec));
+                up = normalize(cross(vec, side));
+                alias vec4 = Vector!(T, 4);
+                return Matrix(vec4(side, 0), vec4(up, 0), vec4(vec, 0), vec4(0,0,0,1));
             }
 
             static Matrix ortho(T width, T height, T nearZ, T farZ) {
-                Matrix result;
-                mixin(getOrthoCode());
-                return result;
+                return Matrix(
+                        2 / width, 0,          0,                  0,
+                        0,         2 / height, 0,                  0,
+                        0,         0,          1 / (nearZ - farZ), nearZ / (nearZ - farZ),
+                        0,         0,          0,                  1
+                        );
             }
 
             static Matrix perspective(T aspectWperH, T fovy, T nearZ, T farZ) {
-                Matrix result;
-                mixin(getPerspectiveCode());
-                return result;
+                return Matrix(
+                        1 / (aspectWperH * tan(fovy/2)), 0,                 0,                         0,
+                        0,                               1 / (tan(fovy/2)), 0,                         0,
+                        0,                               0,                 (nearZ+farZ)/(nearZ-farZ), 2 * nearZ * farZ / (nearZ - farZ),
+                        0,                               0,                 -1,                        0
+                        );
             }
 
             Matrix!(T,3,3) toMatrix3() {
@@ -756,100 +761,6 @@ private static string getOpAssignMMCode(string op, uint U, uint V) {
             code ~= format!"this[%d,%d] = this[%d,%d] %s m[%d,%d];"(i,j,i,j,op,i,j);
         }
     }
-    return code;
-}
-
-private static string getLookAtCode() {
-    string code;
-    code ~= "Vector!(T,3) side;";
-    //sideを外積で生成
-    foreach (i; 0..3) {
-        code ~= format!"side[%d] = up[%d] * vec[%d] - up[%d] * vec[%d];"(i, (i+1)%3, (i+2)%3, (i+2)%3, (i+1)%3);
-    }
-    //sideを正規化
-    code ~= "T length = sqrt(";
-    foreach (i; 0..3) {
-        code ~= format!"+side[%d]*side[%d]"(i,i);
-    }
-    code ~= ");";
-    foreach (i; 0..3) {
-        code ~= format!"side[%d] /= length;"(i);
-    }
-    //upを再計算
-    foreach (i; 0..3) {
-        code ~= format!"up[%d] = vec[%d] * side[%d] - vec[%d] * side[%d];"(i,(i+1)%3,(i+2)%3,(i+2)%3,(i+1)%3);
-    }
-    //upを正規化
-    code ~= "length = sqrt(";
-    foreach (i; 0..3) {
-        code ~= format!"+up[%d] * up[%d]"(i,i);
-    }
-    code ~= ");";
-    foreach (i; 0..3) {
-        code ~= format!"up[%d] /= length;"(i);
-    }
-
-    //行列
-    foreach (i; 0..3) {
-        code ~= format!"result[0,%d] = side[%d];"(i,i);
-        code ~= format!"result[1,%d] = up[%d];"(i,i);
-        code ~= format!"result[2,%d] = vec[%d];"(i,i);
-    }
-    foreach (i; 0..3) {
-        code ~= format!"result[%d,3] = "(i);
-        foreach (j; 0..3) {
-            code ~= format!"-eye[%d] * result[%d, %d]"(j, j, i);
-        }
-        code ~= ";";
-    }
-    foreach (i; 0..3) {
-        code ~= format!"result[3, %d] = 0;"(i);
-    }
-    code ~= "result[3,3] = 1;";
-    return code;
-}
-
-private static string getOrthoCode() {
-    string code;
-    foreach (i; 0..4) {
-        if (i != 0) code ~= format!"result[0,%d] = 0;"(i);
-    }
-    foreach (i; 0..4) {
-        if (i != 1) code ~= format!"result[1,%d] = 0;"(i);
-    }
-    foreach (i; 0..4) {
-        if (i < 2) code ~= format!"result[2,%d] = 0;"(i);
-    }
-    foreach (i; 0..3) {
-        code ~= format!"result[3,%d] = 0;"(i);
-    }
-    code ~= "result[0,0] = 2 / width;";
-    code ~= "result[1,1] = 2 / height;";
-    code ~= "result[2,2] = 1 / (nearZ - farZ);";
-    code ~= "result[2,3] = nearZ / (nearZ - farZ);";
-    code ~= "result[3,3] = 1;";
-    return code;
-}
-
-private static string getPerspectiveCode() {
-    string code;
-    foreach (i; 0..4) {
-        if (i != 0) code ~= format!"result[0,%d] = 0;"(i);
-    }
-    foreach (i; 0..4) {
-        if (i != 1) code ~= format!"result[1,%d] = 0;"(i);
-    }
-    foreach (i; 0..2) {
-        code ~= format!"result[2,%d] = 0;"(i);
-    }
-    foreach (i; 0..4) {
-        if (i != 2) code ~= format!"result[3,%d] = 0;"(i);
-    }
-    code ~= "result[0,0] = 1 / (aspectWperH * tan(fovy/2));";
-    code ~= "result[1,1] = 1 / (tan(fovy/2));";
-    code ~= "result[2,2] = (nearZ+farZ)/(nearZ-farZ);";
-    code ~= "result[2,3] = 2 * nearZ * farZ / (nearZ - farZ);";
-    code ~= "result[3,2] = -1;";
     return code;
 }
 

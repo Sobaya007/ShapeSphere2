@@ -9,6 +9,7 @@ public {
     import sbylib.collision.geometry.CollisionRay;
     import sbylib.collision.geometry.CollisionGeometry;
     import sbylib.collision.CollisionInfo;
+    import sbylib.utils.Maybe;
 }
 
 class CollisionEntry {
@@ -29,93 +30,79 @@ class CollisionEntry {
         return this.owner;
     }
 
-    CollisionInfo collide(CollisionEntry collidable) {
-        CollisionInfo info;
+    Maybe!CollisionInfo collide(CollisionEntry collidable) {
         if (auto cap = cast(CollisionCapsule)this.geom) {
             if (auto cap2 = cast(CollisionCapsule)collidable.geom) {
-                info = collide(cap, cap2);
+                return collide(cap, cap2);
             } else if (auto pol = cast(CollisionPolygon)collidable.geom) {
-                info = collide(cap, pol);
+                return collide(cap, pol);
             } else {
                 assert(false);
             }
         } else if (auto pol = cast(CollisionPolygon)this.geom) {
             if (auto cap = cast(CollisionCapsule)collidable.geom) {
-                info = collide(cap, pol);
+                return collide(cap, pol);
             } else if (auto pol2 = cast(CollisionPolygon)collidable.geom) {
-                info = collide(pol, pol2);
+                return collide(pol, pol2);
             } else {
                 assert(false);
             }
         }
-        info.colEntry = this;
-        info.colEntry2 = collidable;
-        return info;
+        assert(false);
     }
 
-    CollisionInfoRay collide(CollisionRay ray) {
-        CollisionInfoRay info;
+    Maybe!CollisionInfoRay collide(CollisionRay ray) {
         if (auto cap = cast(CollisionCapsule)this.geom) {
-            info = collide(cap, ray);
+            return collide(cap, ray);
         } else if (auto pol = cast(CollisionPolygon)this.geom) {
-            info = collide(pol, ray);
+            return collide(pol, ray);
         }
-        info.colEntry = this;
-        return info;
+        assert(false);
     }
 
-    public static CollisionInfo collide(CollisionCapsule capsule1, CollisionCapsule capsule2) {
-        CollisionInfo info;
-        info.collided = segDistance(capsule1.start, capsule1.end, capsule2.start, capsule2.end) <= capsule1.radius + capsule2.radius;
-        return info;
+    public static Maybe!CollisionInfo collide(CollisionCapsule capsule1, CollisionCapsule capsule2) {
+        if (segDistance(capsule1.start, capsule1.end, capsule2.start, capsule2.end) <= capsule1.radius + capsule2.radius) {
+            return Just(CollisionInfo(capsule1.getOwner(), capsule2.getOwner()));
+        }
+        return None!CollisionInfo;
     }
 
-    public static CollisionInfo collide(CollisionCapsule capsule, CollisionPolygon polygon) {
-        CollisionInfo info;
-        info.collided = polySegDistance(capsule.start, capsule.end, polygon.positions[0], polygon.positions[1], polygon.positions[2], polygon.normal) <= capsule.radius;
-        return info;
+    public static Maybe!CollisionInfo collide(CollisionCapsule capsule, CollisionPolygon polygon) {
+        if (polySegDistance(capsule.start, capsule.end, polygon.positions[0], polygon.positions[1], polygon.positions[2], polygon.normal) <= capsule.radius) {
+            return Just(CollisionInfo(capsule.getOwner(), polygon.getOwner()));
+        }
+        return None!CollisionInfo;
     }
 
-    public static CollisionInfo collide(CollisionPolygon polygon1, CollisionPolygon polygon2) {
-        CollisionInfo info;
-        info.collided = polygonDetection(polygon1, polygon2);
-        return info;
+    public static Maybe!CollisionInfo collide(CollisionPolygon polygon1, CollisionPolygon polygon2) {
+        if (polygonDetection(polygon1, polygon2)) {
+            return Just(CollisionInfo(polygon1.getOwner(), polygon2.getOwner()));
+        }
+        return None!CollisionInfo;
     }
 
-    public static CollisionInfoRay collide(CollisionCapsule capsule, CollisionRay ray) {
+    public static Maybe!CollisionInfoRay collide(CollisionCapsule capsule, CollisionRay ray) {
         vec3 p;
         float d;
         CollisionInfoRay info;
         if (rayCastSphere(ray.start, ray.dir, capsule.start, capsule.radius, p, d)
              && dot(p - capsule.start, capsule.end - capsule.start) < 0) {
-            info.collided = true;
-            info.colPoint = p;
-            info.colDist = d;
-            return info;
+            return Just(CollisionInfoRay(capsule.getOwner(), ray, p));
         } else if (rayCastSphere(ray.start, ray.dir, capsule.end, capsule.radius, p, d)
              && dot(p - capsule.end, capsule.start - capsule.end) < 0) {
-            info.collided = true;
-            info.colPoint = p;
-            info.colDist = d;
-            return info;
+            return Just(CollisionInfoRay(capsule.getOwner(), ray, p));
         } else if (rayCastPoll(ray.start, ray.dir, capsule.start, capsule.end - capsule.start, capsule.radius, p, d)
              && dot(p - capsule.start, capsule.end - capsule.start) >= 0
             && dot(p - capsule.end ,capsule.start - capsule.end) >= 0) {
-            info.collided = true;
-            info.colPoint = p;
-            info.colDist = d;
-            return info;
+            return Just(CollisionInfoRay(capsule.getOwner(), ray, p));
         }
-        info.collided = false;
-        return info;
+        return None!CollisionInfoRay;
     }
 
-    public static CollisionInfoRay collide(CollisionPolygon polygon, CollisionRay ray) {
-        CollisionInfoRay info;
+    public static Maybe!CollisionInfoRay collide(CollisionPolygon polygon, CollisionRay ray) {
         auto t = dot(polygon.positions[0] - ray.start, polygon.normal) / dot(ray.dir, polygon.normal);
         if (t < 0) {
-            info.collided = false;
-            return info;
+            return None!CollisionInfoRay;
         }
         auto p = ray.start + t * ray.dir;
         auto s0 = dot(polygon.normal, cross(polygon.positions[1] - polygon.positions[0], p - polygon.positions[1]));
@@ -123,13 +110,9 @@ class CollisionEntry {
         auto s2 = dot(polygon.normal, cross(polygon.positions[0] - polygon.positions[2], p - polygon.positions[0]));
         if (s0 > 0 && s1 > 0 && s2 > 0
             || s0 < 0 && s1 < 0 && s2 < 0) {
-            info.collided = true;
-            info.colPoint = p;
-            info.colDist = t;
-            return info;
+            return Just(CollisionInfoRay(polygon.getOwner(), ray, p));
         }
-        info.collided = false;
-        return info;
+        return None!CollisionInfoRay;
     }
 
     alias clamp =

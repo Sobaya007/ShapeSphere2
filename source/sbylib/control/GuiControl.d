@@ -36,17 +36,19 @@ class GuiControl {
     void update(Process proc) {
         this.mouse.update();
         if (this.mouse.justPressed()) {
-            auto controllable = getCollidedControllable();
-            if (controllable !is null) {
+            getCollidedControllable()
+                .apply!((IControllable controllable) {
                 this.colEntry[this.mouse.justPressedButton()] = controllable;
                 controllable.onMousePressed(this.mouse.justPressedButton());
-            }
+            });
         }
         if (this.mouse.justReleased()) {
             auto mouseButton = this.mouse.justReleasedButton();
             if (mouseButton in this.colEntry && this.colEntry[mouseButton] !is null) {
-                auto controllable = getCollidedControllable();
-                this.colEntry[mouseButton].onMouseReleased(mouseButton, controllable is this.colEntry[mouseButton]);
+                getCollidedControllable()
+                    .apply!((IControllable controllable) {
+                    this.colEntry[mouseButton].onMouseReleased(mouseButton, controllable is this.colEntry[mouseButton]);
+                });
             }
 
             this.colEntry[mouseButton] = null;
@@ -61,19 +63,16 @@ class GuiControl {
         this.world.add(controllable.getEntity());
     }
 
-    private IControllable getCollidedControllable() {
+    private Maybe!IControllable getCollidedControllable() {
         import std.algorithm, std.math, std.array;
 
         Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
-        auto colInfos = this.world.calcCollideRay(this.ray).filter!(a => !a.colDist.isNaN).array;
-        if (colInfos.length == 0) return null;
-        auto colInfo = colInfos.minElement!(a => a.colDist);
-        if (!colInfo.collided) return null;
-
-        auto entity = colInfo.colEntry.getOwner;
-        while(entity.getUserData() is null) {
-            entity = entity.getParent;
-        }
-        return cast(IControllable)entity.getUserData;
+        return this.world.rayCast(this.ray).fmap!((CollisionInfoRay colInfo) {
+            auto entity = colInfo.entity;
+            while(entity.getUserData() is null) {
+                entity = entity.getParent;
+            }
+            return cast(IControllable)entity.getUserData;
+        });
     }
 }

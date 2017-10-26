@@ -9,6 +9,8 @@ interface Const {
     void setValue(Const);
 }
 
+alias ConstFloat = ConstTemp!(float);
+
 class ConstTemp(T) : Const {
     private T value;
     private string name;

@@ -17,16 +17,31 @@ template GenAttribute(Attribute[] attr) {
     const char[] GenAttribute = attr.map!(a => format!"vec%s %s;"(a.dim, a.name.dropOne())).join("\n");
 }
 
+
 class Vertex(Attribute[] attr) {
+
+    enum attributes = attr;
     mixin(GenAttribute!(attr));
 
     this() {}
 
-    mixin((attr) {
+    //static Vertex!newAttr create(Attribute[] newAttr)(
+    template create(NewVertex) {
+        mixin(() {
+            return format!"
+                static NewVertex create(%s) {
+                    return new NewVertex(%s);
+                }"
+                (attr.map!(a => format!"vec%s %s"(a.dim, a.name.dropOne())).join(", "),
+                 NewVertex.attributes.map!(a => a.name.dropOne()).join(", "));
+                }());
+    }
+
+    mixin(() {
         return format!"this(%s) {%s}"(
             attr.map!(a => format!"vec%s %s"(a.dim, a.name.dropOne())).join(", "),
             attr.map!(a => format!"this.%s = %s;"(a.name.dropOne(), a.name.dropOne())).join("\n"));
-    }(attr));
+        }());
 
     Vertex!(attr2) to(Attribute[] attr2)() {
         static names = attr.map!(a => a.name).array;

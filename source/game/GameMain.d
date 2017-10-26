@@ -24,10 +24,9 @@ void gameMain(string[] args) {
     world2d.setCamera(new OrthoCamera(2,2,-1,1));
 
     /* Player Settings */
-    Player player = new Player(core.getKey(), camera);
+    Player player = new Player(core.getKey(), camera, world3d);
     auto commandManager = getCommandManager(player.commandSpawners, args);
-    world3d.add(player.entity);
-    CameraChaseControl control = new CameraChaseControl(camera, player.entity.obj);
+    CameraChaseControl control = new CameraChaseControl(camera, () => player.getEntity().obj);
     core.addProcess((proc) {
         player.step();
         control.step();
@@ -119,9 +118,6 @@ void gameMain(string[] args) {
             core.end();
         }
         if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
-        if (core.getKey[KeyButton.KeyW]) player.entity.getMesh().mat.config.polygonMode = PolygonMode.Line;
-        else player.entity.getMesh().mat.config.polygonMode = PolygonMode.Fill;
-        player.entity.getMesh().mat.condition = !core.getKey[KeyButton.Enter];
     }, "po");
 
     core.start();

@@ -46,4 +46,8 @@ class CollisionPolygon : CollisionGeometry {
             this.owner.obj.worldMatrix
         );
     }
+
+    Entity getOwner() {
+        return this.owner;
+    }
 }

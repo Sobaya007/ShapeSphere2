@@ -44,8 +44,8 @@ public:
                 cnt++;
                 //isInstanceOfでやろうとしたが、この時点ではVectorの型情報が正しく作られていないため参照できない。
             } else {
-                this.elements[cnt..cnt+arg.elements.length] = arg.elements;
-                cnt += arg.elements.length;
+                this.elements[cnt..cnt+arg.array.length] = arg.array;
+                cnt += arg.array.length;
             }
         }
     }
@@ -280,6 +280,19 @@ template cross(T, S, uint U) if (U == 3) {
                 return code;
         }());
         return result;
+    }
+}
+
+
+Vector!(T, S) getOrtho(T, uint S)(Vector!(T,S) v) {
+    static if (S == 2) {
+        return Vector!(T, S)(-v.y, v.x);
+    } else static if (S == 3) {
+        if (v.x == 0 && v.z == 0) {
+            return normalize(cross(v, Vector!(T,S)(1,0,0)));
+        } else {
+            return normalize(cross(v, Vector!(T,S)(0,1,0)));
+        }
     }
 }
 
