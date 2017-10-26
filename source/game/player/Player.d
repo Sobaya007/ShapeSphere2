@@ -50,7 +50,7 @@ class Player {
             new CommandSpawner(() => key.isPressed(KeyButton.KeyX), new Command(&this.onNeedlePress)),
             new CommandSpawner(() => key.isReleased(KeyButton.KeyX), new Command(&this.onNeedleRelease)),
             new CommandSpawner(() => key.isPressed(KeyButton.KeyC), new Command(&this.onSpringPress)),
-            new CommandSpawner(() => key.justReleased(KeyButton.KeyC), new Command(&this.onSpringJustRelease)),
+            new CommandSpawner(() => key.isReleased(KeyButton.KeyC), new Command(&this.onSpringRelease)),
             new CommandSpawner(() => key.isPressed(KeyButton.Left), new Command(&this.onLeftPress)),
             new CommandSpawner(() => key.isPressed(KeyButton.Right), new Command(&this.onRightPress)),
             new CommandSpawner(() => key.isPressed(KeyButton.Up), new Command(&this.onForwardPress)),
@@ -98,8 +98,8 @@ class Player {
         this.sphere = this.sphere.onSpringPress();
     }
 
-    void onSpringJustRelease() {
-        this.sphere = this.sphere.onSpringJustRelease();
+    void onSpringRelease() {
+        this.sphere = this.sphere.onSpringRelease();
     }
 
     Entity getEntity() {

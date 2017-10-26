@@ -167,7 +167,7 @@ class SpringSphere : BaseSphere {
         return this;
     }
 
-    override BaseSphere onSpringJustRelease() {
+    override BaseSphere onSpringRelease() {
         if (this.phase != 1) return this;
         this.phase = 2;
         return this;
