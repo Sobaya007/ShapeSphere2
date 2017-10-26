@@ -98,6 +98,7 @@ class SpringSphere : BaseSphere {
         this.largeRadius = 0;
         this.phase = 0;
         this.count = 0;
+        this.velocity = vec3(0);
         TO_SPEED = 0.9;
         auto v = this.wallContact.get().dir;
         auto t = v.getOrtho;
@@ -118,12 +119,12 @@ class SpringSphere : BaseSphere {
                 this.largeRadius.to(0.5);
                 this.smallRadius.to(0.1);
                 if (abs(this.smallRadius - 0.1) < 0.001) {
-                    this.spring.setLength(this.springLength);
-                    this.spring.setVelocity(V0);
                     this.phase++;
                 }
                 break;
             case 1: //Waiting...
+                this.spring.setLength(this.springLength);
+                this.spring.setVelocity(V0);
                 break;
             case 2: //Jumping!!!
                 this.springLength = this.spring.getLength();
@@ -138,12 +139,23 @@ class SpringSphere : BaseSphere {
                     TO_SPEED = 0.8;
                 }
                 this.springLength = this.spring.getLength();
-                this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
+                //this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
                 this.entity.obj.pos += this.velocity * DELTA_TIME;
                 break;
             case 4: //Flying!!!
                 this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
                 this.entity.obj.pos += this.velocity * DELTA_TIME;
+                this.springLength.to(this.initialSpringLength);
+                this.spiral.to(0);
+                this.largeRadius.to(0);
+                this.smallRadius.to(this.initialSmallRadius);
+                if (this.spiral < 0.01) {
+                    this.elasticSphere.initialize(this);
+                    this.parent.world.remove(this.entity);
+                    return this.elasticSphere;
+                }
+                break;
+            case 5: //Failed....
                 this.springLength.to(this.initialSpringLength);
                 this.spiral.to(0);
                 this.largeRadius.to(0);
@@ -163,13 +175,12 @@ class SpringSphere : BaseSphere {
         return this;
     }
 
-    override BaseSphere onSpringPress() {
-        return this;
-    }
-
-    override BaseSphere onSpringRelease() {
-        if (this.phase != 1) return this;
-        this.phase = 2;
+    override BaseSphere onSpringJustRelease() {
+        if (this.phase == 1) {
+            this.phase = 2;
+        } else {
+            this.phase = 5;
+        }
         return this;
     }
 
@@ -237,12 +248,10 @@ class SpringSphere : BaseSphere {
     class Spring {
         private float x;
         private float v;
-        private float f;
 
         this() {
             this.x = 0;
             this.v = 0;
-            this.f = 0;
         }
 
         void setVelocity(float v) {
@@ -253,13 +262,9 @@ class SpringSphere : BaseSphere {
             this.x = x;
         }
 
-        void setForce(float f) {
-            this.f = f;
-        }
-
         void step() {
             float d = this.x - BASE_LENGTH;
-            float f = -K * d - C * v - this.f;
+            float f = -K * d - C * v;
             this.v += f * DELTA_TIME;
             this.x += this.v * DELTA_TIME;
         }
