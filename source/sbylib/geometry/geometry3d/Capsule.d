@@ -19,17 +19,36 @@ class Capsule {
             northern(radius, length, tCut, pCut)
           ~ southern(radius, length, tCut, pCut);
         uint[] indices =
-            SphereUV.getNorthernIndices(tCut, pCut)
-          ~ SphereUV.getSouthernIndices(tCut, pCut)
+            getNorthernIndices(tCut, pCut)
+          ~ getSouthernIndices(tCut, pCut)
           ~ getPollIndices(tCut, pCut);
         return new GeometryNT(vertices, indices);
     }
 
     private static VertexNT[] northern(float radius, float length, uint tCut, uint pCut) {
-       return SphereUV.northern(radius, tCut, pCut)
-        .map!((v) {
-            v.position.y += length / 2;
-            return v;
+        struct TP {float t; float p;}
+        TP[] tps;
+        //T = [0, 1)
+        //P = [0, 1]
+        tps ~= TP(0,1);
+        foreach_reverse (i; 0..pCut) {
+            auto p = cast(float)i / pCut;
+            foreach (j; 0..tCut) {
+                auto t = cast(float)j / tCut;
+                tps ~= TP(t,p);
+            }
+        }
+        return tps.map!((tp) {
+            auto theta = tp.t * 2 * PI;
+            auto phi = tp.p * PI / 2;
+            auto vec = vec3(
+                cos(phi) * cos(theta),
+                sin(phi) + length/2,
+                cos(phi) * sin(theta));
+            return new VertexNT(
+                    vec * radius,
+                    vec,
+                    vec2(tp.t, tp.p*.5 + .5));
         }).array;
     }
 
@@ -56,5 +75,61 @@ class Capsule {
             result ~= shead + i+1;
         }
         return result;
+    }
+
+    public static uint[] getNorthernIndices(uint tCut, uint pCut) out (res) {
+        assert(res.length == 3 * (tCut + (pCut-1) * tCut * 2));
+        assert(res.minElement == 0);
+        assert(res.maxElement == tCut * pCut);
+    } body {
+        uint[] result;
+        foreach (i; 0..tCut) {
+            result ~= [0, i+1, i+2];
+        }
+        foreach (i; 0..pCut-1) {
+            auto ni = i+1; //[1, pCut]
+            foreach (j; 0..tCut) {
+                auto nj = (j+1) % tCut;
+                result ~= [
+                1 +  j +  i * tCut,
+                1 +  j + ni * tCut,
+                1 + nj + ni * tCut
+                ];
+                result ~= [
+                1 + nj + ni * tCut,
+                1 + nj +  i * tCut,
+                1 +  j +  i * tCut
+                ];
+            }
+        }
+        return result;
+    }
+
+    public static uint[] getSouthernIndices(uint tCut, uint pCut) out (res) {
+        assert(res.length == 3 * (tCut + (pCut-1) * tCut * 2));
+        assert(res.minElement == tCut * pCut + 1);
+        assert(res.maxElement == tCut * pCut * 2 + 1);
+    } body {
+        uint[] result;
+        foreach (i; 0..tCut) {
+            result ~= [0, i+2, i+1];
+        }
+        foreach (i; 0..pCut-1) {
+            auto ni = i+1; //[1, pCut]
+            foreach (j; 0..tCut) {
+                auto nj = (j+1) % tCut; //[0, tCut-1]
+                result ~= [
+                1 +  j +  i * tCut,
+                1 + nj + ni * tCut,
+                1 +  j + ni * tCut
+                ];
+                result ~= [
+                1 + nj + ni * tCut,
+                1 +  j +  i * tCut,
+                1 + nj +  i * tCut
+                ];
+            }
+        }
+        return result.map!(r => r + tCut*pCut+1).array;
     }
 }
