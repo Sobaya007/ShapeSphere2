@@ -49,6 +49,7 @@ class SpringSphere : BaseSphere {
     private Player.PlayerEntity entity;
     private ElasticSphere elasticSphere;
     private flim pushCount;
+    private Camera camera;
     private Player parent;
     private Maybe!(ElasticSphere.WallContact) wallContact;
     private float initialSpringLength;
@@ -61,9 +62,13 @@ class SpringSphere : BaseSphere {
     private uint phase;
     private uint count;
     private vec3 velocity;
+    private vec3 baseAxis;
+    private vec3 axis;
+    private vec2 axisDif;
 
-    this(Player parent)  {
+    this(Player parent, Camera camera)  {
         this.parent = parent;
+        this.camera = camera;
         this.spring = new Spring();
         this.pushCount = flim(0.0, 0.0, 1);
         auto geom = SphereUV.create!GeometryN(RADIUS, T_CUT, P_CUT);
@@ -98,8 +103,11 @@ class SpringSphere : BaseSphere {
         this.largeRadius = 0;
         this.phase = 0;
         this.count = 0;
+        this.velocity = vec3(0);
         TO_SPEED = 0.9;
-        auto v = this.wallContact.get().dir;
+        this.axisDif = vec2(0);
+        this.baseAxis = this.axis = this.wallContact.get().dir;
+        auto v = this.baseAxis;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.pos = this.wallContact.get().pos;
@@ -110,6 +118,10 @@ class SpringSphere : BaseSphere {
         this.move();
     }
 
+    override vec3 getCameraTarget() {
+        return this.entity.pos + this.entity.rot.column[1] * this.springLength / 2;
+    }
+
     override BaseSphere move() {
         final switch (this.phase) {
             case 0: //Transforming...
@@ -118,12 +130,12 @@ class SpringSphere : BaseSphere {
                 this.largeRadius.to(0.5);
                 this.smallRadius.to(0.1);
                 if (abs(this.smallRadius - 0.1) < 0.001) {
-                    this.spring.setLength(this.springLength);
-                    this.spring.setVelocity(V0);
                     this.phase++;
                 }
                 break;
             case 1: //Waiting...
+                this.spring.setLength(this.springLength);
+                this.spring.setVelocity(V0);
                 break;
             case 2: //Jumping!!!
                 this.springLength = this.spring.getLength();
@@ -138,12 +150,23 @@ class SpringSphere : BaseSphere {
                     TO_SPEED = 0.8;
                 }
                 this.springLength = this.spring.getLength();
-                this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
+                //this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
                 this.entity.obj.pos += this.velocity * DELTA_TIME;
                 break;
             case 4: //Flying!!!
                 this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
                 this.entity.obj.pos += this.velocity * DELTA_TIME;
+                this.springLength.to(this.initialSpringLength);
+                this.spiral.to(0);
+                this.largeRadius.to(0);
+                this.smallRadius.to(this.initialSmallRadius);
+                if (this.spiral < 0.01) {
+                    this.elasticSphere.initialize(this);
+                    this.parent.world.remove(this.entity);
+                    return this.elasticSphere;
+                }
+                break;
+            case 5: //Failed....
                 this.springLength.to(this.initialSpringLength);
                 this.spiral.to(0);
                 this.largeRadius.to(0);
@@ -163,18 +186,24 @@ class SpringSphere : BaseSphere {
         return this;
     }
 
-    override BaseSphere onSpringPress() {
-        return this;
-    }
-
     override BaseSphere onSpringJustRelease() {
-        if (this.phase != 1) return this;
-        this.phase = 2;
+        if (this.phase == 1) {
+            this.phase = 2;
+        } else {
+            this.phase = 5;
+        }
         return this;
     }
 
-    override Player.PlayerEntity getEntity() {
-        return this.entity;
+    override BaseSphere onMovePress(vec2 a) {
+        this.axisDif.x.to(a.x);
+        this.axisDif.y.to(a.y);
+        this.axis = this.baseAxis + this.camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y);
+        auto v = this.axis;
+        auto t = v.getOrtho;
+        auto b = cross(t, v).normalize;
+        this.entity.obj.rot = mat3(t, v, b);
+        return this;
     }
 
     vec3 getCenter() {
@@ -237,12 +266,10 @@ class SpringSphere : BaseSphere {
     class Spring {
         private float x;
         private float v;
-        private float f;
 
         this() {
             this.x = 0;
             this.v = 0;
-            this.f = 0;
         }
 
         void setVelocity(float v) {
@@ -253,13 +280,9 @@ class SpringSphere : BaseSphere {
             this.x = x;
         }
 
-        void setForce(float f) {
-            this.f = f;
-        }
-
         void step() {
             float d = this.x - BASE_LENGTH;
-            float f = -K * d - C * v - this.f;
+            float f = -K * d - C * v;
             this.v += f * DELTA_TIME;
             this.x += this.v * DELTA_TIME;
         }

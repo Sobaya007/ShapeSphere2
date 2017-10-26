@@ -93,6 +93,10 @@ class NeedleSphere : BaseSphere {
         return this;
     }
 
+    override vec3 getCameraTarget() {
+        return this.entity.pos;
+    }
+
     override BaseSphere onNeedlePress() {
         this.needleCount += 0.08;
         return this;
@@ -105,10 +109,6 @@ class NeedleSphere : BaseSphere {
             return this.elasticSphere;
         }
         return this;
-    }
-
-    override Player.PlayerEntity getEntity() {
-        return entity;
     }
 
     private void collision() {

@@ -59,6 +59,6 @@ Maybe!T None(T)() {
 unittest {
     auto po = Just(3);
 
-    assert(po.just == 3);
-    assert(!po.none);
+    assert(po.get == 3);
+    assert(!po.isNone);
 }
