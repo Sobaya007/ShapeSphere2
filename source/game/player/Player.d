@@ -35,7 +35,7 @@ class Player {
         this.floors = new Entity();
         this.elasticSphere = new ElasticSphere(this, camera, world);
         this.needleSphere = new NeedleSphere(this);
-        this.springSphere = new SpringSphere(this);
+        this.springSphere = new SpringSphere(this, camera);
         this.elasticSphere.constructor(this.needleSphere, this.springSphere);
         this.needleSphere.constructor(this.elasticSphere);
         this.springSphere.constructor(this.elasticSphere);

@@ -49,6 +49,7 @@ class SpringSphere : BaseSphere {
     private Player.PlayerEntity entity;
     private ElasticSphere elasticSphere;
     private flim pushCount;
+    private Camera camera;
     private Player parent;
     private Maybe!(ElasticSphere.WallContact) wallContact;
     private float initialSpringLength;
@@ -61,9 +62,13 @@ class SpringSphere : BaseSphere {
     private uint phase;
     private uint count;
     private vec3 velocity;
+    private vec3 baseAxis;
+    private vec3 axis;
+    private vec2 axisDif;
 
-    this(Player parent)  {
+    this(Player parent, Camera camera)  {
         this.parent = parent;
+        this.camera = camera;
         this.spring = new Spring();
         this.pushCount = flim(0.0, 0.0, 1);
         auto geom = SphereUV.create!GeometryN(RADIUS, T_CUT, P_CUT);
@@ -100,7 +105,9 @@ class SpringSphere : BaseSphere {
         this.count = 0;
         this.velocity = vec3(0);
         TO_SPEED = 0.9;
-        auto v = this.wallContact.get().dir;
+        this.axisDif = vec2(0);
+        this.baseAxis = this.axis = this.wallContact.get().dir;
+        auto v = this.baseAxis;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.pos = this.wallContact.get().pos;
@@ -185,6 +192,17 @@ class SpringSphere : BaseSphere {
         } else {
             this.phase = 5;
         }
+        return this;
+    }
+
+    override BaseSphere onMovePress(vec2 a) {
+        this.axisDif.x.to(a.x);
+        this.axisDif.y.to(a.y);
+        this.axis = this.baseAxis + this.camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y);
+        auto v = this.axis;
+        auto t = v.getOrtho;
+        auto b = cross(t, v).normalize;
+        this.entity.obj.rot = mat3(t, v, b);
         return this;
     }
 
