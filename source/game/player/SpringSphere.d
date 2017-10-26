@@ -117,7 +117,7 @@ class SpringSphere : BaseSphere {
                 this.spiral.to(MAX_SPIRAL);
                 this.largeRadius.to(0.5);
                 this.smallRadius.to(0.1);
-                if (this.springLength < SHRINK_LENGTH + 0.01) {
+                if (abs(this.smallRadius - 0.1) < 0.001) {
                     this.spring.setLength(this.springLength);
                     this.spring.setVelocity(V0);
                     this.phase++;
@@ -164,7 +164,6 @@ class SpringSphere : BaseSphere {
     }
 
     override BaseSphere onSpringPress() {
-        this.phase = 0;
         return this;
     }
 

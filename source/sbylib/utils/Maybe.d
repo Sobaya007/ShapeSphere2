@@ -7,6 +7,9 @@ struct Maybe(T) {
     private this(T value) {
         this.value = value;
         this._none = false;
+        //static if (is(T = class)) {
+        //    assert(this.value !is null);
+        //}
     }
 
     private this(bool none) {
