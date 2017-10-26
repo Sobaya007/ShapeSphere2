@@ -15,27 +15,28 @@ class SphereUV {
     private this() {}
 
     public static Geometry create(Geometry=GeometryNT)(float radius = 0.5, uint tCut = 20, uint pCut = 20) {
-        auto vertices = (northern!(Geometry.VertexA)(radius, tCut, pCut) ~ southern!(Geometry.VertexA)(radius, tCut, pCut));
-        auto indices = getNorthernIndices(tCut, pCut) ~ getSouthernIndices(tCut, pCut);
+        auto vertices = getVertices!(Geometry.VertexA)(radius, tCut, pCut);
+        auto indices = getIndices(tCut, pCut);
         auto g = new Geometry(vertices, indices);
         return g;
     }
 
-    public static Vertex[] northern(Vertex=VertexNT)(float radius, uint tCut, uint pCut) out(res) {
-        assert(res.length == 1 + tCut * pCut);
+    public static Vertex[] getVertices(Vertex=VertexNT)(float radius, uint tCut, uint pCut) out(res) {
+        assert(res.length == (pCut*2-1) * tCut + 2);
     } body {
         struct TP {float t; float p;}
         TP[] tps;
         //T = [0, 1)
-        //P = [0, 1]
+        //P = [-1, 1]
         tps ~= TP(0,1);
-        foreach_reverse (i; 0..pCut) {
-            auto p = cast(float)i / pCut;
+        foreach_reverse (i; 1..pCut*2) {
+            auto p = cast(float)i / pCut - 1;
             foreach (j; 0..tCut) {
                 auto t = cast(float)j / tCut;
                 tps ~= TP(t,p);
             }
         }
+        tps ~= TP(0,-1);
         return tps.map!((tp) {
             auto theta = tp.t * 2 * PI;
             auto phi = tp.p * PI / 2;
@@ -50,28 +51,16 @@ class SphereUV {
         }).array;
     }
 
-    public static Vertex[] southern(Vertex=VertexNT)(float radius, uint tCut, uint pCut) out (res) {
-        assert(res.length == 1 + tCut * pCut);
-    } body {
-        return northern(radius, tCut, pCut)
-        .map!((v) {
-            return VertexNT.create!Vertex(
-                -v.position,
-                -v.normal,
-                vec2(.5 + v.uv.x, 1 - v.uv.y));
-        }).array;
-    }
-
-    public static uint[] getNorthernIndices(uint tCut, uint pCut) out (res) {
-        assert(res.length == 3 * (tCut + (pCut-1) * tCut * 2));
+    public static uint[] getIndices(uint tCut, uint pCut) out (res) {
+        assert(res.length == 3 * ((2*pCut-1) * tCut * 2));
         assert(res.minElement == 0);
-        assert(res.maxElement == tCut * pCut);
+        assert(res.maxElement == (pCut*2-1) * tCut + 1);
     } body {
         uint[] result;
         foreach (i; 0..tCut) {
             result ~= [0, i+1, i+2];
         }
-        foreach (i; 0..pCut-1) {
+        foreach (i; 0..2*pCut-2) {
             auto ni = i+1; //[1, pCut]
             foreach (j; 0..tCut) {
                 auto nj = (j+1) % tCut;
@@ -87,34 +76,10 @@ class SphereUV {
                 ];
             }
         }
-        return result;
-    }
-
-    public static uint[] getSouthernIndices(uint tCut, uint pCut) out (res) {
-        assert(res.length == 3 * (tCut + (pCut-1) * tCut * 2));
-        assert(res.minElement == tCut * pCut + 1);
-        assert(res.maxElement == tCut * pCut * 2 + 1);
-    } body {
-        uint[] result;
+        auto last = (pCut*2-1) * tCut + 1;
         foreach (i; 0..tCut) {
-            result ~= [0, i+2, i+1];
+            result ~= [last, last - tCut + i - 1, last - tCut + i];
         }
-        foreach (i; 0..pCut-1) {
-            auto ni = i+1; //[1, pCut]
-            foreach (j; 0..tCut) {
-                auto nj = (j+1) % tCut; //[0, tCut-1]
-                result ~= [
-                1 +  j +  i * tCut,
-                1 + nj + ni * tCut,
-                1 +  j + ni * tCut
-                ];
-                result ~= [
-                1 + nj + ni * tCut,
-                1 +  j +  i * tCut,
-                1 + nj +  i * tCut
-                ];
-            }
-        }
-        return result.map!(r => r + tCut*pCut+1).array;
+        return result;
     }
 }
