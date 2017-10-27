@@ -130,6 +130,7 @@ class Core {
         this.fpsBalancer.loop({
             this.key.update();
             this.mouse.update();
+            this.joy.update();
             this.processes.filter!("a.step");
             this.window.swapBuffers();
             this.window.pollEvents();

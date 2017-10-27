@@ -6,6 +6,7 @@ import game.player.ElasticSphere;
 import game.player.NeedleSphere;
 import game.player.SpringSphere;
 import game.player.PlayerMaterial;
+import game.player.Controler;
 import sbylib;
 import std.algorithm, std.array;
 import std.math;
@@ -25,8 +26,7 @@ class Player {
     private ElasticSphere elasticSphere;
     private NeedleSphere needleSphere;
     private SpringSphere springSphere;
-    private Key key;
-    private JoyStick joy;
+    private Controler controler;
     package World world;
     private Camera camera;
     private CameraChaseControl cameraControl;
@@ -41,30 +41,15 @@ class Player {
         this.needleSphere.constructor(this.elasticSphere);
         this.springSphere.constructor(this.elasticSphere);
         this.sphere = this.elasticSphere;
-        this.key = key;
-        this.joy = joy;
+        this.controler = new Controler(key, joy);
         this.camera = camera;
-        commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.Space), &this.onDownPress));
-        commandManager.addCommand(new ButtonCommand(() => key.justReleased(KeyButton.Space), &this.onDownJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.KeyX), &this.onNeedlePress));
-        commandManager.addCommand(new ButtonCommand(() => key.isReleased(KeyButton.KeyX), &this.onNeedleRelease));
-        commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.KeyC), &this.onSpringPress));
-        commandManager.addCommand(new ButtonCommand(() => key.justReleased(KeyButton.KeyC), &this.onSpringJustRelease));
-        commandManager.addCommand(new StickCommand(() {
-            vec2 v = vec2(0);
-            if (this.joy.canUse) {
-                v.x = this.joy.getAxis(0);
-                v.y = this.joy.getAxis(1);
-                if (abs(v.x) < 1.1 / 128) v.x = 0;
-                if (abs(v.y) < 1.1 / 128) v.y = 0;
-            } else {
-                if (key.isPressed(KeyButton.Left)) v.x--;
-                if (key.isPressed(KeyButton.Right)) v.x++;
-                if (key.isPressed(KeyButton.Up)) v.y--;
-                if (key.isPressed(KeyButton.Down)) v.y++;
-            }
-            return safeNormalize(v);
-        }, &this.onMovePress));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Down), &this.onDownPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.Down), &this.onDownJustRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Needle), &this.onNeedlePress));
+        commandManager.addCommand(new ButtonCommand(() => controler.isReleased(ControlerButton.Needle), &this.onNeedleRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Spring), &this.onSpringPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.Spring), &this.onSpringJustRelease));
+        commandManager.addCommand(new StickCommand(() => controler.getLeftStickValue.safeNormalize, &this.onMovePress));
         this.cameraControl = new CameraChaseControl(camera, () => this.sphere.getCameraTarget);
     }
 
