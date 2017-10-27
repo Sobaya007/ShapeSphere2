@@ -25,7 +25,7 @@ void gameMain(string[] args) {
 
     /* Player Settings */
     auto commandManager = getCommandManager(args);
-    Player player = new Player(core.getKey(), camera, world3d, commandManager);
+    Player player = new Player(core.getKey(), core.getJoyStick(), camera, world3d, commandManager);
     core.addProcess((proc) {
         player.step();
     }, "player update");
@@ -87,12 +87,11 @@ void gameMain(string[] args) {
     world3d.addPointLight(pointLight);
 
     /* Joy Stick Settings */
-    if (JoyStick.canUse(0)) {
-        auto joy = new JoyStick(0);
-        core.addProcess((proc) {
-            writeln(joy);
-        }, "test");
-    }
+    core.addProcess((proc) {
+        if (core.getJoyStick().canUse) {
+            writeln(core.getJoyStick());
+        }
+    }, "joy state");
 
     /* Render */
     core.addProcess((proc) {

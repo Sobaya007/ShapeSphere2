@@ -26,11 +26,12 @@ class Player {
     private NeedleSphere needleSphere;
     private SpringSphere springSphere;
     private Key key;
+    private JoyStick joy;
     package World world;
     private Camera camera;
     private CameraChaseControl cameraControl;
 
-    this(Key key, Camera camera, World world, ICommandManager commandManager) {
+    this(Key key, JoyStick joy, Camera camera, World world, ICommandManager commandManager) {
         this.world = world;
         this.floors = new Entity();
         this.elasticSphere = new ElasticSphere(this, camera, world);
@@ -41,6 +42,7 @@ class Player {
         this.springSphere.constructor(this.elasticSphere);
         this.sphere = this.elasticSphere;
         this.key = key;
+        this.joy = joy;
         this.camera = camera;
         commandManager.addCommand(new ButtonCommand(() => key.isPressed(KeyButton.Space), &this.onDownPress));
         commandManager.addCommand(new ButtonCommand(() => key.justReleased(KeyButton.Space), &this.onDownJustRelease));
@@ -50,10 +52,17 @@ class Player {
         commandManager.addCommand(new ButtonCommand(() => key.justReleased(KeyButton.KeyC), &this.onSpringJustRelease));
         commandManager.addCommand(new StickCommand(() {
             vec2 v = vec2(0);
-            if (key.isPressed(KeyButton.Left)) v.x--;
-            if (key.isPressed(KeyButton.Right)) v.x++;
-            if (key.isPressed(KeyButton.Up)) v.y--;
-            if (key.isPressed(KeyButton.Down)) v.y++;
+            if (this.joy.canUse) {
+                v.x = this.joy.getAxis(0);
+                v.y = this.joy.getAxis(1);
+                if (abs(v.x) < 1.1 / 128) v.x = 0;
+                if (abs(v.y) < 1.1 / 128) v.y = 0;
+            } else {
+                if (key.isPressed(KeyButton.Left)) v.x--;
+                if (key.isPressed(KeyButton.Right)) v.x++;
+                if (key.isPressed(KeyButton.Up)) v.y--;
+                if (key.isPressed(KeyButton.Down)) v.y++;
+            }
             return safeNormalize(v);
         }, &this.onMovePress));
         this.cameraControl = new CameraChaseControl(camera, () => this.sphere.getCameraTarget);

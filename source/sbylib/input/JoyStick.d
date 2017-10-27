@@ -1,53 +1,41 @@
 module sbylib.input.JoyStick;
 
-import derelict.sdl2.sdl;
-
-import sbylib.input, sbylib.setting, sbylib.wrapper.sdl.SDL;
+import sbylib.input, sbylib.setting, sbylib.wrapper.glfw;
 import std.stdio, std.conv, std.format, std.range, std.algorithm, std.array;
 
+//常に使用できるなかで一番若いものを取り扱うことにする。
 class JoyStick {
 
-    private SDL_Joystick *stick;
+    private GlfwJoyStick[GlfwJoyStick.MAX_JOY - GlfwJoyStick.MIN_JOY + 1] sticks;
 
-    static bool canUse(uint index) {
-        return index < SDL_NumJoysticks();
+    package(sbylib) this() {
+        foreach (i; 0..sticks.length) {
+            sticks[i] = new GlfwJoyStick(GlfwJoyStick.MIN_JOY + i);
+        }
     }
 
-    this(uint index) in {
-        assert(canUse(index));
-    } body {
-        SDL_JoystickEventState(SDL_ENABLE);
-        this.stick = SDL_JoystickOpen(index);
-        SDL.addOnTerminate(&this.close);
-    }
-
-    private void close() {
-        SDL_JoystickClose(this.stick);
-    }
-
-    package void update() {
-        SDL_JoystickUpdate();
+    bool canUse() {
+        return this.joy !is null;
     }
 
     string getName() {
-        return SDL_JoystickName(this.stick).to!string;
+        return this.joy.getName;
     }
 
     uint getButtonNum() {
-        return SDL_JoystickNumButtons(this.stick);
+        return this.joy.getButtonNum;
     }
 
     uint getAxisNum() {
-        return SDL_JoystickNumAxes(this.stick);
+        return this.joy.getAxisNum;
     }
 
     bool getButton(int buttonNum) {
-        return SDL_JoystickGetButton(this.stick, buttonNum) == 1;
+        return this.joy.getButton(buttonNum);
     }
 
     float getAxis(uint axis) {
-        auto result = SDL_JoystickGetAxis(this.stick, axis);
-        return result / 32768.0;
+        return this.joy.getAxis(axis);
     }
 
     override string toString() {
@@ -55,5 +43,12 @@ class JoyStick {
         (this.getName(),
                 iota(this.getButtonNum()).map!(i => this.getButton(i)).array,
                 iota(this.getAxisNum()).map!(i => this.getAxis(i)).array);
+    }
+
+    private GlfwJoyStick joy() {
+        foreach (s; sticks) {
+            if (s.canUse) return s;
+        }
+        return null;
     }
 }
