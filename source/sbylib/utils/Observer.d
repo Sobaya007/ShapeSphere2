@@ -26,7 +26,7 @@ class Observed(T) : IObserved {
         return this.value;
     }
 
-    T opOpAssign(string op)(T value) {
+    T opOpAssign(string op, S)(S value) {
         mixin("this.value " ~ op ~ "= value;");
         foreach (observer; observers) {
             observer.onChange();
@@ -208,8 +208,14 @@ unittest {
 
     a.y++;
     a.z = 3;
-    assert(a.toString() == "Uniform[homo]: (1,2,3)");
+    a *= 2;
+    assert(a.toString() == "Uniform[homo]: (2,4,6)");
+    assert(x + 4 == 16);
 
-    assert(x + 4 == 10);
+    auto b = new Observed!vec3(vec3(1));
+
+    b *= 2;
+
+    assert(b.x == 2);
 }
 
