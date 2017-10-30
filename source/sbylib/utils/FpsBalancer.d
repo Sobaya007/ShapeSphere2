@@ -8,6 +8,7 @@ import core.thread;
 class FpsBalancer {
     private StopWatch sw;
     private const long frameTime;
+    private Duration before;
 
     this(float fps) {
         this.frameTime = cast(long)(1000 / fps);
@@ -15,14 +16,15 @@ class FpsBalancer {
 
     void loop(bool delegate() func) {
         sw.start();
+        before = sw.peek;
         while (true) {
             if (func()) break;
-            auto period = sw.peek.total!"msecs";
-            if (this.frameTime > period) {
-                Thread.sleep(dur!("msecs")(this.frameTime - period));
+            auto current = sw.peek;
+            auto period = current - before;
+            if (this.frameTime.msecs > period) {
+                Thread.sleep(this.frameTime.msecs - period);
             }
-            sw.start();
-            //stdout.flush();
+            before = current;
         }
     }
 }
