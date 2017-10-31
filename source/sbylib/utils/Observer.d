@@ -185,10 +185,6 @@ class Lazy(Type) {
         return func();
     }
 
-    auto opUnary(string op)() {
-        mixin("return " ~ op ~ "func();");
-    }
-
     override string toString() {
         import std.conv;
         return this.get().to!string;

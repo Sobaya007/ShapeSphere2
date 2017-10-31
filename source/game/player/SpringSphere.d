@@ -47,7 +47,6 @@ class SpringSphere : BaseSphere {
 
     private SpringParticle[] particleList;
     private Player.PlayerEntity entity;
-    private CollisionCapsule capsule;
     private ElasticSphere elasticSphere;
     private flim pushCount;
     private Camera camera;
@@ -75,8 +74,7 @@ class SpringSphere : BaseSphere {
         auto geom = SphereUV.create!GeometryN(RADIUS, T_CUT, P_CUT);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
-        this.capsule = new CollisionCapsule(RADIUS, vec3(0), vec3(0));
-        this.entity = new Player.PlayerEntity(geom, mat, this.capsule);
+        this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
         this.particleList = entity.getMesh().geom.vertices.map!(p => new SpringParticle(p.position)).array;
     }
 
@@ -122,10 +120,6 @@ class SpringSphere : BaseSphere {
 
     override vec3 getCameraTarget() {
         return this.entity.pos + this.entity.rot.column[1] * this.springLength / 2;
-    }
-
-    override void setCenter(vec3 center) {
-        this.entity.pos = center;
     }
 
     override BaseSphere move() {
@@ -188,7 +182,6 @@ class SpringSphere : BaseSphere {
         foreach (p; this.particleList) {
             p.move();
         }
-        updateCapsule();
         updateGeometry();
         return this;
     }
@@ -205,7 +198,7 @@ class SpringSphere : BaseSphere {
     override BaseSphere onMovePress(vec2 a) {
         this.axisDif.x.to(a.x);
         this.axisDif.y.to(a.y);
-        this.axis = normalize(this.baseAxis + this.camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y));
+        this.axis = this.baseAxis + this.camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y);
         auto v = this.axis;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
@@ -220,30 +213,6 @@ class SpringSphere : BaseSphere {
     vec3 getVelocity() {
         return this.velocity;
     }
-
-    private void updateCapsule() {
-        this.capsule.setStart(this.entity.pos + this.axis * RADIUS);
-        this.capsule.setEnd(this.entity.pos + this.axis * (this.springLength - RADIUS));
-    }
-
-    /*
-    private void collision() {
-        auto colInfos = Array!CollisionInfo(0);
-        scope (exit) colInfos.destroy();
-        this.parent.floors.collide(colInfos, this.entity);
-        auto contacts = Array!Contact(0);
-        scope (exit) contacts.destroy();
-        foreach (colInfo; colInfos) {
-            auto contact = Contact(colInfo, this);
-            contacts ~= contact;
-        }
-        foreach (i; 0..3) {
-            foreach (contact; contacts) {
-                contact.solve();
-            }
-        }
-    }
-    */
 
     private void updateGeometry() {
         auto geom = this.entity.getMesh().geom;
