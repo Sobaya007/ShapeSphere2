@@ -10,6 +10,7 @@ class BaseSphere {
     abstract void initialize(BaseSphere);
     abstract BaseSphere move();
     abstract vec3 getCameraTarget();
+    abstract void setCenter(vec3);
     BaseSphere onDownPress(){return this;}
     BaseSphere onDownJustRelease(){return this;}
     BaseSphere onMovePress(vec2) {return this;}

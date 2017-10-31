@@ -177,6 +177,10 @@ class Lazy(Type) {
         this.func = () => observer.get();
     }
 
+    auto opUnary(string op)() {
+        mixin("return " ~ op ~ "func();");
+    }
+
     NewType opCast(NewType)() {
         return new Lazy!(NewType.Po)(() => func());
     }

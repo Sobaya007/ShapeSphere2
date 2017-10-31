@@ -47,6 +47,7 @@ class SpringSphere : BaseSphere {
 
     private SpringParticle[] particleList;
     private Player.PlayerEntity entity;
+    private CollisionCapsule capsule;
     private ElasticSphere elasticSphere;
     private flim pushCount;
     private Camera camera;
@@ -74,7 +75,8 @@ class SpringSphere : BaseSphere {
         auto geom = SphereUV.create!GeometryN(RADIUS, T_CUT, P_CUT);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
-        this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
+        this.capsule = new CollisionCapsule(RADIUS, vec3(0), vec3(0));
+        this.entity = new Player.PlayerEntity(geom, mat, this.capsule);
         this.particleList = entity.getMesh().geom.vertices.map!(p => new SpringParticle(p.position)).array;
     }
 
@@ -182,6 +184,7 @@ class SpringSphere : BaseSphere {
         foreach (p; this.particleList) {
             p.move();
         }
+        updateCapsule();
         updateGeometry();
         return this;
     }
@@ -198,12 +201,16 @@ class SpringSphere : BaseSphere {
     override BaseSphere onMovePress(vec2 a) {
         this.axisDif.x.to(a.x);
         this.axisDif.y.to(a.y);
-        this.axis = this.baseAxis + this.camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y);
+        this.axis = normalize(this.baseAxis + this.camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y));
         auto v = this.axis;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.rot = mat3(t, v, b);
         return this;
+    }
+
+    override void setCenter(vec3 center) {
+        this.entity.pos = center;
     }
 
     vec3 getCenter() {
@@ -234,6 +241,11 @@ class SpringSphere : BaseSphere {
             v.position = p.position;
         }
         geom.updateBuffer();
+    }
+
+    private void updateCapsule() {
+        this.capsule.setStart(this.entity.pos + this.axis * RADIUS);
+        this.capsule.setEnd(this.entity.pos + this.axis * (this.springLength - RADIUS));
     }
 
     class SpringParticle {
