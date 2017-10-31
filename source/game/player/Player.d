@@ -7,6 +7,7 @@ import game.player.NeedleSphere;
 import game.player.SpringSphere;
 import game.player.PlayerMaterial;
 import game.player.Controler;
+import game.player.PlayerChaseControl;
 import sbylib;
 import std.algorithm, std.array;
 import std.math;
@@ -29,7 +30,7 @@ class Player {
     private Controler controler;
     package World world;
     private Camera camera;
-    private CameraChaseControl cameraControl;
+    private PlayerChaseControl cameraControl;
 
     this(Key key, JoyStick joy, Camera camera, World world, ICommandManager commandManager) {
         this.world = world;
@@ -49,8 +50,10 @@ class Player {
         commandManager.addCommand(new ButtonCommand(() => controler.isReleased(ControlerButton.Needle), &this.onNeedleRelease));
         commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Spring), &this.onSpringPress));
         commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.Spring), &this.onSpringJustRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.justPressed(ControlerButton.CameraReset), &this.onCameraResetJustPress));
         commandManager.addCommand(new StickCommand(() => controler.getLeftStickValue.safeNormalize, &this.onMovePress));
-        this.cameraControl = new CameraChaseControl(camera, () => this.sphere.getCameraTarget);
+        commandManager.addCommand(new StickCommand(() => controler.getRightStickValue.safeNormalize, &this.onRotatePress));
+        this.cameraControl = new PlayerChaseControl(camera, this);
     }
 
     void step() {
@@ -70,6 +73,11 @@ class Player {
         this.sphere = this.sphere.onMovePress(v);
     }
 
+    void onRotatePress(vec2 v) {
+        // なぜかyが死ぬ
+        this.cameraControl.turn(v.x);
+    }
+
     void onNeedlePress() {
         this.sphere = this.sphere.onNeedlePress();
     }
@@ -85,4 +93,22 @@ class Player {
     void onSpringJustRelease() {
         this.sphere = this.sphere.onSpringJustRelease();
     }
+
+    void onCameraResetJustPress() {
+        this.cameraControl.reset();
+    }
+
+    vec3 getCameraTarget() {
+        return this.sphere.getCameraTarget;
+    }
+
+    Maybe!vec3 getLastDirection() {
+        if (this.sphere !is this.elasticSphere) {
+            return None!vec3;
+        }
+        auto v = this.elasticSphere.getLinearVelocity;
+        if (v.length < 1e-2) return None!vec3;
+        return Just(normalize(v));
+    }
+
 }

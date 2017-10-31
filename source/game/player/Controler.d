@@ -6,7 +6,10 @@ import std.math;
 enum ControlerButton {
     Down,
     Needle,
-    Spring
+    Spring,
+    CameraLeft,
+    CameraRight,
+    CameraReset
 }
 
 class Controler {
@@ -29,6 +32,7 @@ class Controler {
     private JoyStick joy;
     private Button[ControlerButton] buttons;
     private Stick leftStick;
+    private Stick rightStick;
 
     this(Key key, JoyStick joy) {
         this.key = key;
@@ -36,7 +40,11 @@ class Controler {
         this.buttons[ControlerButton.Down] = Button(KeyButton.Space, JoyButton.X);
         this.buttons[ControlerButton.Needle] = Button(KeyButton.KeyX, JoyButton.Y);
         this.buttons[ControlerButton.Spring] = Button(KeyButton.KeyC, JoyButton.A);
+        this.buttons[ControlerButton.CameraLeft] = Button(KeyButton.KeyQ, JoyButton.L1);
+        this.buttons[ControlerButton.CameraRight] = Button(KeyButton.KeyE, JoyButton.R1);
+        this.buttons[ControlerButton.CameraReset] = Button(KeyButton.KeyZ, JoyButton.R3);
         this.leftStick = Stick(KeyButton.Left, KeyButton.Right, KeyButton.Up, KeyButton.Down, JoyAxis.LeftX, JoyAxis.LeftY);
+        this.rightStick = Stick(KeyButton.KeyA, KeyButton.KeyD, KeyButton.KeyW, KeyButton.KeyS, JoyAxis.RightX, JoyAxis.RightY);
     }
 
     bool isPressed(ControlerButton b) {
@@ -72,17 +80,25 @@ class Controler {
     }
 
     vec2 getLeftStickValue() {
+        return this.getStickValue(this.leftStick);
+    }
+  
+    vec2 getRightStickValue() {
+        return this.getStickValue(this.rightStick);
+    }
+
+    private vec2 getStickValue(Stick stick) {
         vec2 v = vec2(0);
         if (this.joy.canUse) {
-            v.x = this.joy.getAxis(JoyAxis.LeftX);
-            v.y = this.joy.getAxis(JoyAxis.LeftY);
+            v.x = this.joy.getAxis(stick.joyAxisX);
+            v.y = this.joy.getAxis(stick.joyAxisY);
             if (abs(v.x) < 1.1 / 128) v.x = 0;
             if (abs(v.y) < 1.1 / 128) v.y = 0;
         } else {
-            if (key.isPressed(KeyButton.Left)) v.x--;
-            if (key.isPressed(KeyButton.Right)) v.x++;
-            if (key.isPressed(KeyButton.Up)) v.y--;
-            if (key.isPressed(KeyButton.Down)) v.y++;
+            if (key.isPressed(stick.keyLeft)) v.x--;
+            if (key.isPressed(stick.keyRight)) v.x++;
+            if (key.isPressed(stick.keyUp)) v.y--;
+            if (key.isPressed(stick.keyDown)) v.y++;
         }
         return v;
     }
