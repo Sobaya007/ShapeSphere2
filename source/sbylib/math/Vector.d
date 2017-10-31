@@ -8,6 +8,7 @@ import std.string;
 import std.stdio;
 import std.format;
 import std.traits;
+import std.typecons;
 
 alias Vector!(float, 2) vec2; //========================================適当にaliasしとく
 alias Vector!(float, 3) vec3;

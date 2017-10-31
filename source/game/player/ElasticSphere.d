@@ -22,7 +22,7 @@ class ElasticSphere : BaseSphere{
         float MASS = 0.05;
         float FRICTION = 0.3;
         float ZETA = 0.5;
-        float OMEGA = 100;
+        float OMEGA = 110;
         float c = 2 * ZETA * OMEGA * MASS;
         float k = MASS * OMEGA * OMEGA;
         float GRAVITY = 100;
@@ -34,7 +34,9 @@ class ElasticSphere : BaseSphere{
         float BALOON_COEF = 20000;
         float DOWN_PUSH_FORCE = 600;
         float DOWN_PUSH_FORE_MIN = 800;
-        float SIDE_PUSH_FORCE = 10;
+        float NORMAL_SIDE_PUSH_FORCE = 10;
+        float SLOW_SIDE_PUSH_FORCE = 2;
+        float MAX_VELOCITY = 40;
     }
 
     private NeedleSphere needleSphere;
@@ -195,6 +197,13 @@ class ElasticSphere : BaseSphere{
         return this.center;
     }
 
+    override void setCenter(vec3 center) {
+        auto d = center - this.getCenter;
+        foreach (particle; this.particleList) {
+            particle.position += d;
+        }
+    }
+
     override BaseSphere onDownPress() {
         this.pushCount += 0.1;
         vec3 g = this.center;
@@ -268,12 +277,11 @@ class ElasticSphere : BaseSphere{
             end(particle);
         }
         this.force.y = 0;
-        this.force *= SIDE_PUSH_FORCE;
+        this.force *= calcSidePushForce();
         foreach (p; this.particleList) {
             p.force = this.force;
         }
         this.force = vec3(0);
-
         updateGeometry();
 
         return this;
@@ -342,7 +350,18 @@ class ElasticSphere : BaseSphere{
         return BALOON_COEF * area / (volume * this.particleList.length);
     }
 
+    private float calcSidePushForce() {
+        if (this.pushCount == 0) {
+            return NORMAL_SIDE_PUSH_FORCE;
+        } else {
+            return SLOW_SIDE_PUSH_FORCE;
+        }
+    }
+
     private void move(ElasticParticle particle) {
+        if (particle.velocity.length > MAX_VELOCITY) {
+            particle.velocity *= MAX_VELOCITY / particle.velocity.length;
+        }
         particle.position += particle.velocity * Player.TIME_STEP;
         particle.isGround = false;
     }
@@ -354,8 +373,9 @@ class ElasticSphere : BaseSphere{
             colInfos.destroy();
         }
         foreach (colInfo; colInfos) {
-            auto floor = cast(CollisionPolygon)colInfo.entity.getCollisionEntry.getGeometry;
-            if (floor is null) floor = cast(CollisionPolygon)colInfo.entity2.getCollisionEntry.getGeometry;
+            auto other = colInfo.getOtherEntity(particle.entity);
+            auto floor = cast(CollisionPolygon)other.getCollisionEntry.getGeometry;
+            if (floor is null) continue;
             float depth = -(particle.position - floor.positions[0]).dot(floor.normal);
             if (depth < 0) continue;
             auto po = particle.velocity - dot(particle.velocity, floor.normal) * floor.normal;

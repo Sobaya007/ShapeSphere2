@@ -14,18 +14,20 @@ class NeedleSphere : BaseSphere {
 
     private static immutable {
         float FRICTION = 2.0f;
-        float RADIUS = 2.0f;
+        float MAX_RADIUS = 1.5f;
+        float DEFAULT_RADIUS = 1.0f;
+        float MIN_RADIUS = 0.7f;
         float ALLOWED_PENETRATION = 0.5f;
-        float SEPARATION_COEF = 0.5f / Player.TIME_STEP;
+        float SEPARATION_COEF = 1f / Player.TIME_STEP;
         float RESTITUTION_RATE = 0.3f;
         float MASS = 1.0f;
         float AIR_REGISTANCE = 0.5f;
-        float GRAVITY = 30.0f;
+        float GRAVITY = 10.0f;
 
         float MASS_INV = 1.0f / MASS;
-        float INERTIA_INV = 2.5 / (MASS * RADIUS * RADIUS);
+        float INERTIA_INV = 2.5 / (MASS * MAX_RADIUS * MAX_RADIUS);
         uint RECURSION_LEVEL = 2;
-        float DEFAULT_RADIUS = 0.5;
+        float MAX_VELOCITY = 40;
     }
 
     private ElasticSphere elasticSphere;
@@ -43,7 +45,7 @@ class NeedleSphere : BaseSphere {
         auto geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
-        this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
+        this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(MAX_RADIUS, vec3(0), vec3(0)));
         this.particleList = entity.getMesh().geom.vertices.map!(p => new NeedleParticle(p.position)).array;
         NeedlePair[] pairs = this.generatePairs(geom, this.particleList);
         foreach(pair; pairs) {
@@ -66,9 +68,6 @@ class NeedleSphere : BaseSphere {
         this.entity.obj.pos = this.elasticSphere.getCenter();
         this.lVel = this.elasticSphere.getLinearVelocity();
         this.aVel = this.elasticSphere.getAngularVelocity();
-        foreach (particle; this.particleList) {
-            particle.initialize();
-        }
         this.parent.world.add(this.entity);
     }
 
@@ -79,6 +78,7 @@ class NeedleSphere : BaseSphere {
     override BaseSphere move() {
         this.lVel.y -= GRAVITY * Player.TIME_STEP;
         this.lVel -= AIR_REGISTANCE * this.lVel * Player.TIME_STEP / MASS;
+        if (this.lVel.length > MAX_VELOCITY) this.lVel *= MAX_VELOCITY / this.lVel.length;
         this.collision();
         auto d = this.lVel * Player.TIME_STEP;
         this.entity.obj.pos += d;
@@ -97,17 +97,21 @@ class NeedleSphere : BaseSphere {
         return this.entity.pos;
     }
 
+    override void setCenter(vec3 center) {
+        this.entity.pos = center;
+    }
+
     override BaseSphere onNeedlePress() {
         this.needleCount += 0.08;
         return this;
     }
     override BaseSphere onNeedleRelease(){
-        this.needleCount -= 0.05;
         if (this.needleCount == 0) {
             this.parent.world.remove(this.entity);
             this.elasticSphere.initialize(this);
             return this.elasticSphere;
         }
+        this.needleCount -= 0.05;
         return this;
     }
 
@@ -118,8 +122,7 @@ class NeedleSphere : BaseSphere {
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
         foreach (colInfo; colInfos) {
-            auto contact = Contact(colInfo, this);
-            contacts ~= contact;
+            contacts ~= Contact(colInfo, this);
         }
         foreach (i; 0..3) {
             foreach (contact; contacts) {
@@ -127,6 +130,7 @@ class NeedleSphere : BaseSphere {
             }
         }
     }
+
 
     vec3 calcVelocity(vec3 pos) {
         auto r = pos - this.entity.obj.pos;
@@ -195,34 +199,23 @@ class NeedleSphere : BaseSphere {
         bool isGround;
         bool isStinger;
         NeedleParticle[] next;
-        Entity entity;
-        CollisionCapsule capsule;
 
         this(vec3 p) {
             this.position = p;
             this.normal = normalize(p);
             this.force = vec3(0,0,0);
-            this.capsule = new CollisionCapsule(0.1, this.position, this.position);
-            this.entity = new Entity(this.capsule);
-        }
-
-        void initialize() {
-            //this.position = this.particle.position;
         }
 
         void move() {
            //this.particle.normal = normalize(this.position - entity.obj.pos);
-           this.position = entity.obj.pos + this.normal * this.getLength(this.isStinger);
+           this.position = this.normal * this.getLength(this.isStinger);
            this.force = vec3(0,0,0); //用済み
-           this.capsule.setEnd(this.capsule.start);
-           this.capsule.setStart(this.position);
         }
 
         private float getLength(bool isNeedle){
             alias t = needleCount;
-            const minLength = RADIUS * 0.7;
-            auto maxLength = isNeedle ? RADIUS : RADIUS * 0.5;
-            return t * (maxLength - minLength) + minLength;
+            auto maxLength = isNeedle ? MAX_RADIUS : MIN_RADIUS;
+            return t * (maxLength - DEFAULT_RADIUS) + DEFAULT_RADIUS;
         }
     }
 
@@ -245,22 +238,15 @@ class NeedleSphere : BaseSphere {
 
         this(CollisionInfo info, NeedleSphere sphere) {
             this.sphere = sphere;
-            auto geom = info.entity.getCollisionEntry().getGeometry();
-            auto geom2 = info.entity2.getCollisionEntry().getGeometry();
-            assert(cast(CollisionPolygon)geom !is null
-                    || cast(CollisionPolygon)geom2 !is null);
-            auto polygon = cast(CollisionPolygon)geom;
-            if (polygon is null) {
-                polygon = cast(CollisionPolygon)geom2;
-            }
-            this.normal = polygon.normal;
+            auto res = info.getMyResult(sphere.entity);
+            this.normal = res.normal;
             this.normalTotalImpulse = 0;
             this.tanTotalImpulse = 0;
             this.binTotalImpulse = 0;
 
             //tangentベクトルは物体間の相対速度から法線成分を抜いた方向
             auto center = sphere.entity.obj.pos;
-            auto colPoint = center - RADIUS * this.normal;
+            auto colPoint = center - MAX_RADIUS * this.normal;
             auto colPointVel = sphere.calcVelocity(colPoint);
             auto relativeColPointVel = colPointVel;
             auto relativeColPointVelNormal = dot(relativeColPointVel, normal);
@@ -293,7 +279,7 @@ class NeedleSphere : BaseSphere {
             //    nvel = 0;
             //}
 
-            auto penetration = dot(this.normal, polygon.positions[0] - colPoint) - ALLOWED_PENETRATION; //ちょっと甘くする
+            auto penetration = -res.distance - ALLOWED_PENETRATION; //ちょっと甘くする
             auto restitutionVelocity = -RESTITUTION_RATE * relativeColPointVelNormal;
             auto separationVelocity = penetration * SEPARATION_COEF;
             this.targetNormalLinearVelocity = max(restitutionVelocity, separationVelocity);
