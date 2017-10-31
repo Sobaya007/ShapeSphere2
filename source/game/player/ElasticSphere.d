@@ -35,6 +35,7 @@ class ElasticSphere : BaseSphere{
         float DOWN_PUSH_FORCE = 600;
         float DOWN_PUSH_FORE_MIN = 800;
         float NORMAL_SIDE_PUSH_FORCE = 10;
+        float AIR_SIDE_PUSH_FORCE = 10;
         float SLOW_SIDE_PUSH_FORCE = 2;
         float MAX_VELOCITY = 40;
     }
@@ -52,6 +53,7 @@ class ElasticSphere : BaseSphere{
     private Observer!vec3 center;
     private Observer!vec3 lVel;
     private Observer!vec3 aVel;
+    private bool ground;
 
     this(Player parent, Camera camera, World world)  {
         this.parent = parent;
@@ -268,6 +270,7 @@ class ElasticSphere : BaseSphere{
             }
         }
         float baloonForce = this.calcBaloonForce();
+        this.ground = false;
         foreach (ref particle; this.particleList) {
             particle.force += particle.normal * baloonForce;
             particle.force.y -= GRAVITY * MASS;
@@ -352,10 +355,12 @@ class ElasticSphere : BaseSphere{
     }
 
     private float calcSidePushForce() {
-        if (this.pushCount == 0) {
+        if (this.pushCount > 0) {
+            return SLOW_SIDE_PUSH_FORCE;
+        } else if (this.ground) {
             return NORMAL_SIDE_PUSH_FORCE;
         } else {
-            return SLOW_SIDE_PUSH_FORCE;
+            return AIR_SIDE_PUSH_FORCE;
         }
     }
 
@@ -364,7 +369,6 @@ class ElasticSphere : BaseSphere{
             particle.velocity *= MAX_VELOCITY / particle.velocity.length;
         }
         particle.position += particle.velocity * Player.TIME_STEP;
-        particle.isGround = false;
     }
 
     private void collision(ElasticParticle particle) {
@@ -380,7 +384,7 @@ class ElasticSphere : BaseSphere{
             if (depth < 0) continue;
             auto po = particle.velocity - dot(particle.velocity, floor.normal) * floor.normal;
             particle.velocity -= po * FRICTION;
-            particle.isGround = true;
+            this.ground = true;
             if (dot(particle.velocity, floor.normal) < 0) {
                 particle.velocity -= floor.normal * dot(floor.normal, particle.velocity) * 1;
             }
@@ -437,7 +441,6 @@ class ElasticSphere : BaseSphere{
         Observed!vec3 velocity;
         vec3 normal; /* in World */
         vec3 force;
-        bool isGround;
         bool isStinger;
         Entity entity;
         CollisionCapsule capsule;
