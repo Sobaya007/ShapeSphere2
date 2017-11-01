@@ -23,7 +23,7 @@ public:
         float wrapWidth = 1e10
     ) {
 
-        auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256); // TODO
+        auto font = FontLoader.load(RESOURCE_ROOT ~ "meiryo.ttc", 256);
         auto label = new Label(font, fontSize);
         label.setColor(fontColor);
         label.setOrigin(originX, originY);
