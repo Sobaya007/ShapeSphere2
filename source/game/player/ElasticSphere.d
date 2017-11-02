@@ -40,7 +40,6 @@ class ElasticSphere : BaseSphere{
         float SLOW_SIDE_PUSH_FORCE = 2;
         float MAX_VELOCITY = 40;
     }
-
     private NeedleSphere needleSphere;
     private SpringSphere springSphere;
     private ElasticParticle[] particleList;
@@ -213,6 +212,7 @@ class ElasticSphere : BaseSphere{
     }
 
     override void requestLookOver() {
+        if (!this.ground) return;
         auto dir = (this.center - this.camera.pos);
         dir.y = 0;
         dir = normalize(dir);
@@ -241,7 +241,10 @@ class ElasticSphere : BaseSphere{
     }
 
     override BaseSphere onMovePress(vec2 v) {
-        if (this.control.isLooking) return this;
+        if (this.control.isLooking) {
+            this.control.turn(v);
+            return this;
+        }
         this.force += this.camera.rot * vec3(v.x, 0, v.y);
         return this;
     }

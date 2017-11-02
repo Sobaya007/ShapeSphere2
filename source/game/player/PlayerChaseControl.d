@@ -7,6 +7,7 @@ class PlayerChaseControl {
 
     private interface Step {
         Step step();
+        void turn(vec2);
     }
 
     private static float TURN_SPEED = 2;
@@ -63,6 +64,13 @@ class PlayerChaseControl {
             cobj.lookAt(t);
             return normalStep;
         }
+
+        override void turn(vec2 value) {
+            auto v = this.player.getCameraTarget() - this.camera.getObj().pos;
+            auto arrival = normalize(cross(vec3(0,1,0),v)) * TURN_SPEED * value.x;
+            auto dif = arrival - vel;
+            vel += dif * 0.1;
+        }
     }
 
     private class ResetStep : Step {
@@ -97,33 +105,45 @@ class PlayerChaseControl {
             }
             return normalStep;
         }
+
+        override void turn(vec2 v) {
+        }
     }
 
     private class LookOverStep : Step {
 
+        enum RADIUS = 20;
         private vec3 targetArrival;
         private vec3 target;
+        private vec3 center;
+        private vec3 dir;
 
         Step init(vec3 dir) {
-            this.target = player.getCameraTarget();
-            this.targetArrival = this.target + dir * 20;
+            this.dir = dir;
+            this.center = player.getCameraTarget();
+            this.target = this.center;
+            this.targetArrival = this.center + dir * RADIUS;
             return this;
         }
 
         override Step step() {
-            camera.pos += (player.getCameraTarget() - camera.pos) * 0.1;
-            this.target += (this.targetArrival - this.target) * 0.1;
+            camera.pos += (player.getCameraTarget() - this.dir * 0.01 - camera.pos) * 0.1;
+            this.target += (this.targetArrival - this.target) * 0.05;
             camera.lookAt(this.target);
             return lookOverStep;
         }
+
+        override void turn(vec2 v) {
+            auto xvec = normalize(cross(this.dir, vec3(0,1,0)));
+            auto yvec = normalize(cross(this.dir, xvec));
+            this.dir += mat3x2(xvec, yvec) * v * 0.05;
+            this.dir = normalize(this.dir);
+            this.targetArrival = this.center + this.dir * RADIUS;
+        }
     }
 
-    void turn(float value) {
-        if (this.stepImpl !is this.normalStep) return;
-        auto v = this.player.getCameraTarget() - this.camera.getObj().pos;
-        auto arrival = normalize(cross(vec3(0,1,0),v)) * TURN_SPEED * value;
-        auto dif = arrival - vel;
-        vel += dif * 0.1;
+    void turn(vec2 value) {
+        this.stepImpl.turn(value);
     }
 
     void reset() {

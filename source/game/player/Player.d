@@ -52,7 +52,7 @@ class Player {
         commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Spring), &this.onSpringPress));
         commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.Spring), &this.onSpringJustRelease));
         commandManager.addCommand(new ButtonCommand(() => controler.justPressed(ControlerButton.CameraReset), &this.onCameraResetJustPress));
-        commandManager.addCommand(new ButtonCommand(() => controler.justPressed(ControlerButton.LookOver), &this.onLookOverJustPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.LookOver), &this.onLookOverPress));
         commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.LookOver), &this.onLookOverJustRelease));
         commandManager.addCommand(new StickCommand(() => controler.getLeftStickValue.safeNormalize, &this.onMovePress));
         commandManager.addCommand(new StickCommand(() => controler.getRightStickValue.safeNormalize, &this.onRotatePress));
@@ -77,7 +77,7 @@ class Player {
 
     void onRotatePress(vec2 v) {
         // なぜかyが死ぬ
-        this.cameraControl.turn(v.x);
+        this.cameraControl.turn(vec2(v.x,0));
     }
 
     void onNeedlePress() {
@@ -100,7 +100,8 @@ class Player {
         this.cameraControl.reset();
     }
 
-    void onLookOverJustPress() {
+    void onLookOverPress() {
+        if (this.cameraControl.isLooking) return;
         this.sphere.requestLookOver();
     }
 
