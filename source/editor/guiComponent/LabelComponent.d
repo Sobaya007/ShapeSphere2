@@ -7,6 +7,7 @@ class LabelComponent : AGuiComponent {
 
 private:
     Label _label;
+    float _fontSize;
 
 public:
     this(Label label) {
@@ -29,6 +30,7 @@ public:
         label.setOrigin(originX, originY);
         label.setWrapWidth(wrapWidth);
         label.renderText(text);
+        _fontSize = fontSize;
 
         this(label);
     }
@@ -41,8 +43,16 @@ public:
         return _label.getHeight();
     }
 
+    float getFontSize() {
+        return _fontSize;
+    }
+
     void setText(dstring text) {
         _label.renderText(text);
+    }
+
+    Label getLabel() {
+        return _label;
     }
 
 }
