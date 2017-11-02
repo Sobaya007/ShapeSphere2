@@ -17,7 +17,7 @@ void gameMain(string[] args) {
     auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
 
     /* Camera Settings */
-    Camera camera = new PerspectiveCamera(1, 120, 0.1, 100);
+    Camera camera = new PerspectiveCamera(1, 60, 0.1, 100);
     camera.pos = vec3(3, 2, 9);
     camera.lookAt(vec3(0,2,0));
     world3d.setCamera(camera);
