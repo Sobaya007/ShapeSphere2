@@ -1,4 +1,4 @@
-module sbylib.wrapper.freetype.Character;
+module sbylib.wrapper.freetype.LetterInfo;
 
 import derelict.freetype.ft;
 import sbylib.wrapper.gl.Constants;
@@ -23,14 +23,14 @@ class LetterInfo {
         // buffer width := met.advance
         // buffer height:= maxHeight
 
-        uint bearingX = cast(uint)met.horiBearingX/64;
-        uint bearingY = cast(uint)met.horiBearingY/64;
-        uint width = cast(uint)met.width/64;
-        uint height = cast(uint)met.height/64;
+        int bearingX = met.horiBearingX/64;
+        int bearingY = met.horiBearingY/64;
+        int width = met.width/64;
+        int height = met.height/64;
 
-        uint baseLineHeight = cast(int)sz.ascender / 64;
-        uint maxWidth = cast(uint)met.horiAdvance/64;
-        uint maxHeight = cast(int)(sz.ascender - sz.descender) / 64;
+        int baseLineHeight = sz.ascender / 64;
+        int maxWidth = met.horiAdvance/64;
+        int maxHeight = (sz.ascender - sz.descender) / 64;
 
         auto bm = glyph.bitmap;
 
