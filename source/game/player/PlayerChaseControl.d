@@ -18,6 +18,7 @@ class PlayerChaseControl {
     private ConstTemp!float defaultLength, k, c;
     private NormalStep normalStep;
     private ResetStep resetStep;
+    private LookOverStep lookOverStep;
     private Step stepImpl;
 
     this(Camera camera, Player player) {
@@ -29,6 +30,7 @@ class PlayerChaseControl {
         this.vel = vec3(0);
         this.normalStep = new NormalStep(player, camera);
         this.resetStep = new ResetStep(player, camera);
+        this.lookOverStep = new LookOverStep;
         this.stepImpl = this.normalStep;
     }
 
@@ -64,7 +66,7 @@ class PlayerChaseControl {
     }
 
     private class ResetStep : Step {
-        
+
         private Player player;
         private Camera camera;
         private vec3 dir;
@@ -97,6 +99,25 @@ class PlayerChaseControl {
         }
     }
 
+    private class LookOverStep : Step {
+
+        private vec3 targetArrival;
+        private vec3 target;
+
+        Step init(vec3 dir) {
+            this.target = player.getCameraTarget();
+            this.targetArrival = this.target + dir * 20;
+            return this;
+        }
+
+        override Step step() {
+            camera.pos += (player.getCameraTarget() - camera.pos) * 0.1;
+            this.target += (this.targetArrival - this.target) * 0.1;
+            camera.lookAt(this.target);
+            return lookOverStep;
+        }
+    }
+
     void turn(float value) {
         if (this.stepImpl !is this.normalStep) return;
         auto v = this.player.getCameraTarget() - this.camera.getObj().pos;
@@ -110,5 +131,19 @@ class PlayerChaseControl {
         if (mdir.isNone) return;
         auto dir = mdir.get;
         this.stepImpl = resetStep.init(dir);
+    }
+
+    void lookOver(vec3 dir) {
+        this.stepImpl = this.lookOverStep;
+        this.lookOverStep.init(dir);
+    }
+
+    void stopLookOver() {
+        if (this.stepImpl !is this.lookOverStep) return;
+        this.stepImpl = this.normalStep;
+    }
+
+    bool isLooking() {
+        return this.stepImpl is this.lookOverStep;
     }
 }

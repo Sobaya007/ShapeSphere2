@@ -9,7 +9,8 @@ enum ControlerButton {
     Spring,
     CameraLeft,
     CameraRight,
-    CameraReset
+    CameraReset,
+    LookOver
 }
 
 class Controler {
@@ -37,12 +38,13 @@ class Controler {
     this(Key key, JoyStick joy) {
         this.key = key;
         this.joy = joy;
-        this.buttons[ControlerButton.Down] = Button(KeyButton.Space, JoyButton.X);
-        this.buttons[ControlerButton.Needle] = Button(KeyButton.KeyX, JoyButton.Y);
-        this.buttons[ControlerButton.Spring] = Button(KeyButton.KeyC, JoyButton.A);
+        this.buttons[ControlerButton.Down] = Button(KeyButton.Space, JoyButton.B);
+        this.buttons[ControlerButton.Needle] = Button(KeyButton.KeyX, JoyButton.X);
+        this.buttons[ControlerButton.Spring] = Button(KeyButton.KeyC, JoyButton.Y);
         this.buttons[ControlerButton.CameraLeft] = Button(KeyButton.KeyQ, JoyButton.L1);
         this.buttons[ControlerButton.CameraRight] = Button(KeyButton.KeyE, JoyButton.R1);
         this.buttons[ControlerButton.CameraReset] = Button(KeyButton.KeyZ, JoyButton.R3);
+        this.buttons[ControlerButton.LookOver] = Button(KeyButton.KeyR, JoyButton.L2);
         this.leftStick = Stick(KeyButton.Left, KeyButton.Right, KeyButton.Up, KeyButton.Down, JoyAxis.LeftX, JoyAxis.LeftY);
         this.rightStick = Stick(KeyButton.KeyA, KeyButton.KeyD, KeyButton.KeyW, KeyButton.KeyS, JoyAxis.RightX, JoyAxis.RightY);
     }

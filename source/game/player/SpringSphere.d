@@ -4,6 +4,7 @@ public import game.player.BaseSphere;
 public import game.player.ElasticSphere;
 public import game.player.NeedleSphere;
 import game.player.PlayerMaterial;
+import game.player.PlayerChaseControl;
 import game.player.Player;
 import sbylib;
 import std.algorithm;
@@ -52,6 +53,7 @@ class SpringSphere : BaseSphere {
     private flim pushCount;
     private Camera camera;
     private Player parent;
+    private PlayerChaseControl control;
     private Maybe!(ElasticSphere.WallContact) wallContact;
     private float initialSpringLength;
     private float initialSmallRadius;
@@ -67,9 +69,10 @@ class SpringSphere : BaseSphere {
     private vec3 axis;
     private vec2 axisDif;
 
-    this(Player parent, Camera camera)  {
+    this(Player parent, Camera camera, PlayerChaseControl control)  {
         this.parent = parent;
         this.camera = camera;
+        this.control = control;
         this.spring = new Spring();
         this.pushCount = flim(0.0, 0.0, 1);
         auto geom = SphereUV.create!GeometryN(RADIUS, T_CUT, P_CUT);
@@ -122,6 +125,12 @@ class SpringSphere : BaseSphere {
 
     override vec3 getCameraTarget() {
         return this.entity.pos + this.entity.rot.column[1] * this.springLength / 2;
+    }
+
+    override void requestLookOver() {
+        if (this.phase <= 1) {
+            this.control.lookOver(this.entity.rot.column[1]);
+        }
     }
 
     override BaseSphere move() {

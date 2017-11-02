@@ -5,6 +5,7 @@ public import game.player.NeedleSphere;
 public import game.player.SpringSphere;
 import game.player.PlayerMaterial;
 import game.player.Player;
+import game.player.PlayerChaseControl;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -48,6 +49,7 @@ class ElasticSphere : BaseSphere{
     private flim pushCount;
     private Player parent;
     private Camera camera;
+    private PlayerChaseControl control;
     private World world;
     private vec3 force;
     private Observer!vec3 center;
@@ -55,15 +57,19 @@ class ElasticSphere : BaseSphere{
     private Observer!vec3 aVel;
     private bool ground;
 
-    this(Player parent, Camera camera, World world)  {
+    this(Player parent, Camera camera, World world, PlayerChaseControl control)  {
         this.parent = parent;
         this.camera = camera;
         this.world = world;
+        this.control = control;
         this.pushCount = flim(0.0, 0.0, 1);
         this.force = vec3(0);
         auto geom = Sphere.create(ElasticSphere.DEFAULT_RADIUS, ElasticSphere.RECURSION_LEVEL);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
+        mat.config.depthWrite = false;
+        mat.config.faceMode = FaceMode.Front;
+        mat.config.transparency = true;
         this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
         this.particleList = entity.getMesh().geom.vertices.map!(p => new ElasticParticle(p.position)).array;
         this.center = new Observer!vec3(() => this.particleList.map!(p => p.position).sum / this.particleList.length, this.particleList.map!(p => cast(IObserved)p.position).array);
@@ -206,6 +212,13 @@ class ElasticSphere : BaseSphere{
         return this.center;
     }
 
+    override void requestLookOver() {
+        auto dir = (this.center - this.camera.pos);
+        dir.y = 0;
+        dir = normalize(dir);
+        this.control.lookOver(dir);
+    }
+
     override BaseSphere onDownPress() {
         this.pushCount += 0.1;
         vec3 g = this.center;
@@ -228,6 +241,7 @@ class ElasticSphere : BaseSphere{
     }
 
     override BaseSphere onMovePress(vec2 v) {
+        if (this.control.isLooking) return this;
         this.force += this.camera.rot * vec3(v.x, 0, v.y);
         return this;
     }

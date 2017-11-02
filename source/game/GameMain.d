@@ -89,7 +89,7 @@ void gameMain(string[] args) {
     /* Joy Stick Settings */
     core.addProcess((proc) {
         if (core.getJoyStick().canUse) {
-            writeln(core.getJoyStick());
+            //writeln(core.getJoyStick());
         }
     }, "joy state");
 
