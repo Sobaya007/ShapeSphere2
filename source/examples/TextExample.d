@@ -12,13 +12,13 @@ void textExample() {
     auto viewport = new AutomaticViewport(window);
     auto world = new World;
     auto camera = new OrthoCamera(2,2,-1,1);
-    auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
+    auto font = FontLoader.load(RESOURCE_ROOT ~ "meiryo.ttc", 256);
     auto label = new Label(font, 0.2);
     label.setOrigin(Label.OriginX.Center, Label.OriginY.Center);
     label.entity.obj.pos = vec3(0);
-    label.setWrapWidth(2);
+    label.setWrapWidth(1.5);
     label.setColor(vec4(0,0,0,1));
-    label.renderText("くぁwせdrftgyふじこlp"d);
+    label.renderText("abcdefghijklmnopqrstuvwxyz1234567890-^@[;:],./\\!\"#$%&'()=~`{+*}<>?_|"d);
 
     auto label2 = new Label(font, 0.1);
     label2.setOrigin(Label.OriginX.Left, Label.OriginY.Top);
