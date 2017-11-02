@@ -31,7 +31,7 @@ void editorExample() {
     camera.getObj.pos = vec3(w/2, h/2, 0);
     world.setCamera(camera);
 
-    auto control = new GuiControl(window, camera, world);
+    auto control = new GuiControl(window, camera, world, core.getKey());
 
     auto spacer = new SpacerComponent(400, 300);
     auto label = new LabelComponent("D is 神"d, 50, vec4(0.6, 0.7, 0.8, 1.0));
@@ -40,6 +40,7 @@ void editorExample() {
     dstring[] ary = ["ONONONON!!!!", "アカーーーーン！！！！", "簡単すぎィィィ！！！！"];
     auto dropDown = new DropDownComponent(600, 50, ary, 40, vec4(1, 1, 1, 1));
     auto groupBox = new GroupBoxComponent(500, "バイ成ィ"d, new CheckBoxComponent(40));
+    auto textArea = new TextAreaComponent(600, 300, 30);
 
     int t = 0;
     button.setTrigger({
@@ -57,14 +58,16 @@ void editorExample() {
 
     auto leftComponent = new ComponentListComponent(
         ComponentListComponent.Direction.Vertical,
-        spacer, label, groupBox
+        spacer, label, groupBox, textArea
     );
     leftComponent.y = h;
     control.add(leftComponent);
 
     auto threeCheckBox = new ComponentListComponent(
         ComponentListComponent.Direction.Horizontal,
-        new CheckBoxComponent(20), new CheckBoxComponent(30), new CheckBoxComponent(40)
+        new CheckBoxComponent(20),
+        new CheckBoxComponent(30),
+        new CheckBoxComponent(40)
     );
     auto rightComponent = new ComponentListComponent(
         ComponentListComponent.Direction.Vertical,
