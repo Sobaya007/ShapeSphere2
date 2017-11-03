@@ -151,11 +151,17 @@ class ElasticSphere : BaseSphere{
 
     private void fromSpring() {
         parent.world.add(entity);
+        auto ginfo = this.springSphere.getGeometricInfo();
         auto arrivalCenter = this.springSphere.getCenter();
         auto currentCenter = this.center;
         auto dCenter = arrivalCenter - currentCenter;
+        auto height = this.particleList.map!(p => p.position.y).maxElement - this.particleList.map!(p => p.position.y).minElement;
+        auto yrate = ginfo.length / height;
         foreach (particle; this.particleList) {
             particle.position += dCenter;
+            particle.position.y -= arrivalCenter.y;
+            particle.position.y *= yrate;
+            particle.position.y += arrivalCenter.y;
         }
         this.entity.obj.pos += dCenter;
         foreach (particle; this.particleList) {

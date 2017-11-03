@@ -56,16 +56,9 @@ class SpringSphere : BaseSphere {
     private Player parent;
     private PlayerChaseControl control;
     private Maybe!(ElasticSphere.WallContact) wallContact;
-    private float initialSpringLength;
-    private float initialSmallRadius;
-    private float spiral;
-    private float largeRadius;
-    private float smallRadius;
     private Spring spring;
+    private GeometricInfo geom;
     private vec3 velocity;
-    private vec3 baseAxis;
-    private vec3 axis;
-    private vec2 axisDif;
     private Step stepImpl;
     private Step transform, wait, jump, fly, success, fail;
     private bool shouldFinish;
@@ -87,6 +80,7 @@ class SpringSphere : BaseSphere {
         this.fly = new Fly;
         this.success = new Success;
         this.fail = new Fail;
+        this.geom = new GeometricInfo;
     }
 
     //生成時にElasticSphereいないからやむなし
@@ -103,26 +97,25 @@ class SpringSphere : BaseSphere {
         assert(sphere is this.elasticSphere);
         assert(this.wallContact.isJust());
     } body {
-        this.initialSpringLength = 
-              this.elasticSphere.getParticleList.map!(p => p.position.y).maxElement
-            - this.elasticSphere.getParticleList.map!(p => p.position.y).minElement;
-        this.initialSmallRadius =
-            this.elasticSphere.getParticleList.map!(p => (p.position - this.elasticSphere.getCenter).xz.length).maxElement;
-        this.spring.length = this.initialSpringLength;
-        this.smallRadius = this.initialSmallRadius;
-        this.spiral = 0;
-        this.largeRadius = 0;
-        this.velocity = vec3(0);
-        TO_SPEED = 0.9;
-        this.stepImpl = transform;
-        this.shouldFinish = false;
-        this.axisDif = vec2(0);
-        this.baseAxis = this.axis = this.wallContact.get().dir;
-        auto v = this.baseAxis;
+        auto v = this.wallContact.get().dir;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.pos = this.wallContact.get().pos;
         this.entity.obj.rot = mat3(t, v, b);
+        auto length = 
+              this.elasticSphere.getParticleList.map!(p => p.position.dot(v)).maxElement
+            - this.elasticSphere.getParticleList.map!(p => p.position.dot(v)).minElement;
+        auto smallRadius =
+            this.elasticSphere.getParticleList.map!((p) {
+                auto r = p.position - this.elasticSphere.getCenter;
+                r -= dot(r, v) * v;
+                return r.length;
+            }).maxElement;
+        this.geom.init(length, smallRadius, v);
+        this.velocity = vec3(0);
+        TO_SPEED = 0.9;
+        this.stepImpl = transform;
+        this.shouldFinish = false;
         parent.world.add(this.entity);
         this.wallContact = None!(ElasticSphere.WallContact);
 
@@ -158,10 +151,10 @@ class SpringSphere : BaseSphere {
     }
 
     override BaseSphere onMovePress(vec2 a) {
-        this.axisDif.x.to(a.x);
-        this.axisDif.y.to(a.y);
-        this.axis = normalize(this.baseAxis + this.camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y));
-        auto v = this.axis;
+        this.geom.axisDif.x.to(a.x);
+        this.geom.axisDif.y.to(a.y);
+        this.geom.updateAxis();
+        auto v = this.geom.axis;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.rot = mat3(t, v, b);
@@ -178,6 +171,10 @@ class SpringSphere : BaseSphere {
 
     vec3 getVelocity() {
         return this.velocity;
+    }
+
+    GeometricInfo getGeometricInfo() {
+        return this.geom;
     }
 
     private void updateGeometry() {
@@ -229,16 +226,44 @@ class SpringSphere : BaseSphere {
         }
 
         void move() {
-            auto angleSpeed = PI * 2 * spiral;
+            auto angleSpeed = PI * 2 * geom.spiral;
             auto t = sin(this.phi) * .5 + .5;
             auto angle = t * angleSpeed;
-            auto h = t * spring.length;
-            auto p = vec3(cos(angle) * largeRadius, h, sin(angle) * largeRadius);
-            auto v = vec3(-sin(angle) * angleSpeed, spring.length, cos(angle) * angleSpeed).normalize;
+            auto h = t * geom.length;
+            auto p = vec3(cos(angle) * geom.largeRadius, h, sin(angle) * geom.largeRadius);
+            auto v = vec3(-sin(angle) * angleSpeed, geom.length, cos(angle) * angleSpeed).normalize;
             auto a = v.getOrtho;
             auto b = cross(a, v).normalize;
-            this.position = p + smallRadius * cos(this.phi) * (cos(this.theta) * a + sin(this.theta) * b);
+            this.position = p + geom.smallRadius * cos(this.phi) * (cos(this.theta) * a + sin(this.theta) * b);
             // normal = positionのtheta微分とphi微分の外積方向になるはず
+        }
+    }
+
+    class GeometricInfo {
+        float initialLength;
+        float initialSmallRadius;
+        float spiral;
+        float largeRadius;
+        float smallRadius;
+        vec3 baseAxis;
+        vec2 axisDif;
+        vec3 axis;
+
+        void init(float length, float smallRadius, vec3 axis) {
+            this.initialLength = spring.length = length;
+            this.initialSmallRadius = this.smallRadius = smallRadius;
+            this.spiral = 0;
+            this.largeRadius = 0;
+            this.baseAxis = axis;
+            this.axisDif = vec2(0);
+        }
+
+        void updateAxis() {
+            this.axis = normalize(this.baseAxis + camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y));
+        }
+
+        ref float length() {
+            return spring.length;
         }
     }
 
@@ -279,17 +304,17 @@ class SpringSphere : BaseSphere {
 
     private class Transform : Step {
         override void step() {
-            spring.length.to(SHRINK_LENGTH);
-            spiral.to(MAX_SPIRAL);
-            largeRadius.to(LARGE_RADIUS);
-            smallRadius.to(SMALL_RADIUS);
-            if (abs(smallRadius - SMALL_RADIUS) < 0.001) {
+            geom.length.to(SHRINK_LENGTH);
+            geom.spiral.to(MAX_SPIRAL);
+            geom.largeRadius.to(LARGE_RADIUS);
+            geom.smallRadius.to(SMALL_RADIUS);
+            if (abs(geom.smallRadius - SMALL_RADIUS) < 0.001) {
                 transit(wait);
             }
         }
 
         override void onRelease() {
-            if (abs(smallRadius - SMALL_RADIUS) < 0.1) {
+            if (abs(geom.smallRadius - SMALL_RADIUS) < 0.1) {
                 transit(jump);
             } else {
                 transit(fail);
@@ -340,11 +365,11 @@ class SpringSphere : BaseSphere {
         override void step() {
             velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
             entity.obj.pos += velocity * DELTA_TIME;
-            spring.length.to(initialSpringLength);
-            spiral.to(0);
-            largeRadius.to(0);
-            smallRadius.to(initialSmallRadius);
-            if (spiral < 0.01) {
+            geom.length.to(geom.initialLength);
+            geom.spiral.to(0);
+            geom.largeRadius.to(0);
+            geom.smallRadius.to(geom.initialSmallRadius);
+            if (geom.spiral < 0.01) {
                 finish();
             }
         }
@@ -352,13 +377,15 @@ class SpringSphere : BaseSphere {
 
     private class Fail : Step {
         override void step() {
-            spring.length.to(initialSpringLength);
-            spiral.to(0);
-            largeRadius.to(0);
-            smallRadius.to(initialSmallRadius);
-            if (spiral < 0.01) {
+            geom.length.to(geom.initialLength);
+            geom.spiral.to(0);
+            geom.largeRadius.to(0);
+            geom.smallRadius.to(geom.initialSmallRadius);
+            if (geom.spiral < 0.01) {
                 finish();
             }
         }
     }
+
+    alias geom this;
 }
