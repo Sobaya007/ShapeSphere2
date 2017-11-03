@@ -74,6 +74,7 @@ class Core {
     private Key key;
     private Mouse mouse;
     private JoyStick joy;
+    private Clipboard clipboard;
     private FpsBalancer fpsBalancer;
     private Array!Process processes;
     private bool endFlag;
@@ -90,6 +91,7 @@ class Core {
         this.key = new Key(this.window);
         this.mouse = new Mouse(this.window);
         this.joy = new JoyStick();
+        this.clipboard = new Clipboard(this.window);
         this.fpsBalancer = new FpsBalancer(config.fps);
         this.processes = Array!Process(0);
 
@@ -154,5 +156,9 @@ class Core {
 
     JoyStick getJoyStick() {
         return this.joy;
+    }
+
+    Clipboard getClipboard() {
+        return this.clipboard;
     }
 }

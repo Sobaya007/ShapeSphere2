@@ -119,7 +119,7 @@ class GlfwWindow {
         void pollEvents() {
             glfwPollEvents();
             if (!this.resized) return;
-            this.resized = false; 
+            this.resized = false;
             foreach (cb; resizeCallbacks) {
                 cb();
             }
@@ -127,6 +127,16 @@ class GlfwWindow {
 
         void swapBuffers() {
             window.glfwSwapBuffers();
+        }
+
+        void setClipboardString(dstring str) {
+            import std.conv;
+            window.glfwSetClipboardString(str.to!string.toStringz);
+        }
+
+        dstring getClipboardString() {
+            import std.conv;
+            return window.glfwGetClipboardString().fromStringz.to!dstring;
         }
     }
 }
