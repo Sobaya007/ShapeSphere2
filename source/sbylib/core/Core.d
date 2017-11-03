@@ -75,6 +75,7 @@ class Core {
     private Window window; //現在のウインドウ
     private Key key;
     private Mouse mouse;
+    private Clipboard clipboard;
     private FpsBalancer fpsBalancer;
     private Array!Process processes;
     private bool endFlag;
@@ -91,6 +92,7 @@ class Core {
         this.window = new Window("Window Title", config.windowWidth, config.windowHeight);
         this.key = new Key(this.window);
         this.mouse = new Mouse(this.window);
+        this.clipboard = new Clipboard(this.window);
         this.fpsBalancer = new FpsBalancer(config.fps);
         this.processes = Array!Process(0);
 
@@ -152,5 +154,9 @@ class Core {
 
     Mouse getMouse() {
         return this.mouse;
+    }
+
+    Clipboard getClipboard() {
+        return this.clipboard;
     }
 }
