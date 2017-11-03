@@ -40,7 +40,9 @@ void editorExample() {
     dstring[] ary = ["ONONONON!!!!", "アカーーーーン！！！！", "簡単すぎィィィ！！！！"];
     auto dropDown = new DropDownComponent(600, 50, ary, 40, vec4(1, 1, 1, 1));
     auto groupBox = new GroupBoxComponent(500, "バイ成ィ"d, new CheckBoxComponent(40));
+
     auto textArea = new TextAreaComponent(600, 300, 30);
+    textArea.setClipboard(core.getClipboard);
 
     int t = 0;
     button.setTrigger({

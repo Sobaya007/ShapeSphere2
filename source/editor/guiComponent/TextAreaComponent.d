@@ -16,12 +16,15 @@ private:
     float _height;
 
     dstring _text = "";
+    int _maximumTextLength = 1000; // 最大文字数
+
+    Maybe!Clipboard _clipboard = None!Clipboard;
 
     // [_leftIndex, _rightIndex] は文字列の選択範囲
-    // _selectIndex は選択範囲の起点
+    // _selectedIndex は選択範囲の起点
     int _leftIndex = 0;
     int _rightIndex = 0;
-    int _selectIndex = 0;
+    int _selectedIndex = 0;
 
     LabelComponent _label;
 
@@ -74,6 +77,21 @@ public:
         return _height;
     }
 
+    void setClipboard(Clipboard clipboard) {
+        _clipboard = Just(clipboard);
+    }
+
+    void setText(dstring text) {
+        _text = text;
+        refreshText();
+        goRightEnd(false);
+    }
+
+    void setMaximumTextLength(int length) {
+        _maximumTextLength = length;
+        refreshText();
+    }
+
     override void update(Mouse2D mouse) {
         updateCover();
     }
@@ -83,8 +101,9 @@ public:
 
     override void onKeyPressed(KeyButton keyButton, bool shiftPressed, bool controlPressed) {
         convChar(keyButton, shiftPressed, controlPressed).apply!(
-            c => insertChar(c)
+            c => insertText(c)
         );
+
         if (keyButton == KeyButton.BackSpace) {
             deleteLeft();
         }
@@ -97,71 +116,153 @@ public:
         if (keyButton == KeyButton.Right) {
             incIndex(shiftPressed);
         }
+        if (keyButton == KeyButton.Up) {
+            goLeftEnd(shiftPressed);
+        }
+        if (keyButton == KeyButton.Down) {
+            goRightEnd(shiftPressed);
+        }
         if (keyButton == KeyButton.KeyA && controlPressed) {
             selectAll();
         }
+        if (keyButton == KeyButton.KeyC && controlPressed) {
+            copyText();
+        }
+        if (keyButton == KeyButton.KeyV && controlPressed) {
+            pasteText();
+        }
+
     }
 
 private:
+    // 選択中の範囲があるか？
+    bool hasSelectedRange() {
+        return _leftIndex < _rightIndex;
+    }
+
+    Maybe!dstring getSelectedText() {
+        return hasSelectedRange() ? Just(_text[_leftIndex.._rightIndex]) : None!dstring;
+    }
+
     void incIndex(bool shiftPressed) {
-        if (_leftIndex < _selectIndex) {
+        if (_leftIndex > _selectedIndex) {
             _leftIndex = min(_text.length, _leftIndex + 1);
         } else {
             _rightIndex = min(_text.length, _rightIndex + 1);
         }
         if (!shiftPressed) {
-            _selectIndex = _leftIndex = _rightIndex;
+            _leftIndex = _selectedIndex = _rightIndex;
         }
         refreshCover();
     }
 
     void decIndex(bool shiftPressed) {
-        if (_selectIndex < _rightIndex) {
+        if (_selectedIndex < _rightIndex) {
             _rightIndex = max(0, _rightIndex - 1);
         } else {
             _leftIndex = max(0, _leftIndex - 1);
         }
         if (!shiftPressed) {
-            _selectIndex = _rightIndex = _leftIndex;
+            _rightIndex = _selectedIndex = _leftIndex;
         }
         refreshCover();
     }
 
+    void goRightEnd(bool shiftPressed) {
+        if (shiftPressed) {
+            _rightIndex = _text.length;
+        } else {
+            _leftIndex = _selectedIndex = _rightIndex = _text.length;
+        }
+        refreshCover();
+    }
+
+    void goLeftEnd(bool shiftPressed) {
+        if (shiftPressed) {
+            _leftIndex = 0;
+        } else {
+            _rightIndex = _selectedIndex = _leftIndex = 0;
+        }
+        refreshCover();
+    }
+
+    // setClipboardをしていないと何もしない
+    void copyText() {
+        _clipboard.apply!(
+            c => getSelectedText().apply!(
+                (selectedText) {
+                    c.set(selectedText);
+                    clearSelectedRange();
+                }
+            )
+        );
+    }
+
+    // setClipboardをしていないと何もしない
+    void pasteText() {
+        _clipboard.apply!(
+            (c) {
+                deleteSelectedRange();
+                insertText(c.get());
+                refreshText();
+            }
+        );
+    }
+
     void selectAll() {
-        _selectIndex = _leftIndex = 0;
+        _selectedIndex = _leftIndex = 0;
         _rightIndex = _text.length;
         refreshCover();
     }
 
-    void insertChar(dchar c) {
-        deleteInterval();
+    void insertText(dchar c) {
+        deleteSelectedRange();
         _text.insertInPlace(_leftIndex, c);
         incIndex(false);
         refreshText();
     }
 
-    void deleteLeft() {
-        if (_leftIndex == _rightIndex) {
-            decIndex(true);
-        }
-        deleteInterval();
-    }
-
-    void deleteRight() {
-        if (_leftIndex == _rightIndex) {
-            incIndex(true);
-        }
-        deleteInterval();
-    }
-
-    // 選択範囲の文字列を削除する
-    void deleteInterval() {
-        _text = _text[0.._leftIndex] ~ _text[_rightIndex..$];
-        _selectIndex = _rightIndex = _leftIndex;
+    void insertText(dstring str) {
+        deleteSelectedRange();
+        _text.insertInPlace(_leftIndex, str);
+        _leftIndex = _selectedIndex = _rightIndex = _rightIndex + str.length;
         refreshText();
     }
 
+    // 選択中の文字列を削除、何も選択していない場合は左1文字を削除
+    void deleteLeft() {
+        if (!hasSelectedRange()) {
+            decIndex(true);
+        }
+        deleteSelectedRange();
+    }
+
+    // 選択中の文字列を削除、何も選択していない場合は右1文字を削除
+    void deleteRight() {
+        if (!hasSelectedRange()) {
+            incIndex(true);
+        }
+        deleteSelectedRange();
+    }
+
+    // 選択範囲の文字列を削除する
+    void deleteSelectedRange() {
+        _text = _text[0.._leftIndex] ~ _text[_rightIndex..$];
+        _selectedIndex = _rightIndex = _leftIndex;
+        refreshText();
+    }
+
+    // 選択範囲を解除する
+    void clearSelectedRange() {
+        _rightIndex = _leftIndex = _selectedIndex;
+        refreshCover();
+    }
+
     void refreshText() {
+        _text = _text[0..min($, _maximumTextLength)];
+        _leftIndex     = min(_leftIndex, _maximumTextLength);
+        _selectedIndex = min(_selectedIndex, _maximumTextLength);
+        _rightIndex    = min(_rightIndex, _maximumTextLength);
         _label.setText(_text);
         refreshCover();
     }
@@ -183,11 +284,11 @@ private:
         {
             // selectIndexの位置に関するcoverの設置
             float x = letters
-                .take(_selectIndex)
+                .take(_selectedIndex)
                 .map!"a.getEntity.obj.pos.x + a.width/2"
                 .fold!"b"(0f);
             float y = letters
-                .take(_selectIndex)
+                .take(_selectedIndex)
                 .map!"a.getEntity.obj.pos.y"
                 .fold!"b"(-_label.getFontSize/2);
             auto geom = Rect.create(2, _label.getFontSize, Rect.OriginX.Left, Rect.OriginY.Center);
@@ -291,10 +392,12 @@ private:
     }
 
     invariant {
-        assert(0 <= _leftIndex);
-        assert(_leftIndex <= _selectIndex);
-        assert(_selectIndex <= _rightIndex);
-        assert(_rightIndex <= _text.length);
+        import std.format;
+        string msg = format!"[leftIndex: %d, selectedIndex: %d, rightIndex: %d]"(_leftIndex, _selectedIndex, _rightIndex);
+        assert(0 <= _leftIndex, msg);
+        assert(_leftIndex <= _selectedIndex, msg);
+        assert(_selectedIndex <= _rightIndex, msg);
+        assert(_rightIndex <= _text.length, msg);
     }
 
 }
