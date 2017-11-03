@@ -131,6 +131,16 @@ class GlfwWindow {
         void swapBuffers() {
             window.glfwSwapBuffers();
         }
+
+        void setClipboardString(dstring str) {
+            import std.conv;
+            window.glfwSetClipboardString(str.to!string.toStringz);
+        }
+
+        dstring getClipboardString() {
+            import std.conv;
+            return window.glfwGetClipboardString().fromStringz.to!dstring;
+        }
     }
 }
 
