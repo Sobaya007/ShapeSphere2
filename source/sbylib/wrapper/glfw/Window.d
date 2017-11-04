@@ -155,8 +155,8 @@ private extern(C) void resizeCallback(GLFWwindow *window, int w, int h) nothrow 
 
 private extern(C) void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) nothrow {
     if (key == GLFW_KEY_UNKNOWN) {
-        windows[window].hasKeyPressed[-scancode] = action == GLFW_PRESS;
+        windows[window].hasKeyPressed[-scancode] = action == GLFW_PRESS || action == GLFW_REPEAT;
     } else {
-        windows[window].hasKeyPressed[key] = action == GLFW_PRESS;
+        windows[window].hasKeyPressed[key] = action == GLFW_PRESS || action == GLFW_REPEAT;
     }
 }
