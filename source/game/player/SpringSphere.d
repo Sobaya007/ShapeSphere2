@@ -317,6 +317,7 @@ class SpringSphere : BaseSphere {
             if (abs(geom.smallRadius - SMALL_RADIUS) < 0.1) {
                 transit(jump);
             } else {
+                TO_SPEED = 0.8;
                 transit(fail);
             }
         }
