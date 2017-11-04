@@ -2,14 +2,11 @@ module sbylib.utils.Maybe;
 
 struct Maybe(T) {
     private T value;
-    private bool _none;
+    private bool _none = true;
 
     private this(T value) {
         this.value = value;
         this._none = false;
-        //static if (is(T = class)) {
-        //    assert(this.value !is null);
-        //}
     }
 
     private this(bool none) {
@@ -43,11 +40,6 @@ void apply(alias fun, T)(Maybe!T m) {
     }
 }
 
-//S fmap(alias func, T)(Maybe!T po) {
-//    if (po.isNone) return None!(;
-//    return Just(func(po.value));
-//}
-
 Maybe!T Just(T)(T v) {
     return Maybe!T(v);
 }
@@ -61,4 +53,16 @@ unittest {
 
     assert(po.get == 3);
     assert(!po.isNone);
+}
+
+unittest {
+    class A{
+        int x;
+    }
+
+    Maybe!int intMaybe;
+    assert(intMaybe.isNone);
+
+    Maybe!A aMaybe;
+    assert(aMaybe.isNone);
 }
