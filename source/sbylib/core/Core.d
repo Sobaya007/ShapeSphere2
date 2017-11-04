@@ -2,7 +2,6 @@ module sbylib.core.Core;
 
 import std.datetime;
 import core.thread;
-import derelict.sdl2.sdl;
 import sbylib.core;
 import sbylib.camera;
 import sbylib.constant.ConstantManager;
@@ -22,7 +21,6 @@ import sbylib.utils.Array;
 import sbylib.core.Process;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.sdl.SDL;
 import sbylib.math.Vector;
 static import std.file, std.path;
 import std.stdio, std.string;
@@ -75,6 +73,7 @@ class Core {
     private Window window; //現在のウインドウ
     private Key key;
     private Mouse mouse;
+    private JoyStick joy;
     private Clipboard clipboard;
     private FpsBalancer fpsBalancer;
     private Array!Process processes;
@@ -87,11 +86,11 @@ class Core {
         GLFW.init();
         FreeType.init();
         FreeImage.init();
-        SDL.init();
         ConstantManager.init();
         this.window = new Window("Window Title", config.windowWidth, config.windowHeight);
         this.key = new Key(this.window);
         this.mouse = new Mouse(this.window);
+        this.joy = new JoyStick();
         this.clipboard = new Clipboard(this.window);
         this.fpsBalancer = new FpsBalancer(config.fps);
         this.processes = Array!Process(0);
@@ -103,7 +102,6 @@ class Core {
         //後始末
         GLFW.terminate();
         //AL.terminate();
-        SDL.terminate();
     }
 
     void start() {
@@ -134,10 +132,10 @@ class Core {
         this.fpsBalancer.loop({
             this.key.update();
             this.mouse.update();
+            this.joy.update();
             this.processes.filter!("a.step");
             this.window.swapBuffers();
             this.window.pollEvents();
-            SDL.update();
             stdout.flush();
             return window.shouldClose() || endFlag;
         });
@@ -154,6 +152,10 @@ class Core {
 
     Mouse getMouse() {
         return this.mouse;
+    }
+
+    JoyStick getJoyStick() {
+        return this.joy;
     }
 
     Clipboard getClipboard() {

@@ -27,5 +27,5 @@ void main() {
         acc += cus*ligC*col*4.0/fac * 2.0;
     }
     fragColor.rgb = acc;
-    fragColor.w = 1;
+    fragColor.a = length(pos) * length(pos) * 0.1;
 }

@@ -78,7 +78,10 @@ class World {
 
     void render() {
         foreach (r; this.entities) {
-            r.render();
+            r.render(false);
+        }
+        foreach (r; this.entities) {
+            r.render(true);
         }
     }
 

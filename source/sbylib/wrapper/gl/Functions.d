@@ -59,6 +59,12 @@ static:
         glDisable(cap);
     }
 
+    void depthWrite(bool depthWrite) out {
+        checkError();
+    } body {
+        glDepthMask(depthWrite);
+    }
+
     void depthFunc(TestFunc func) out {
         checkError();
     } body {
@@ -77,17 +83,17 @@ static:
             final switch (face) {
             case FaceMode.FrontBack:
                 glDisable(Capability.CullFace);
-                glPolygonMode(face, polygon);
+                glPolygonMode(FaceMode.FrontBack, polygon);
                 break;
             case FaceMode.Front:
                 glEnable(Capability.CullFace);
                 glCullFace(FaceMode.Back);
-                glPolygonMode(face, polygon);
+                glPolygonMode(FaceMode.FrontBack, polygon);
                 break;
             case FaceMode.Back:
                 glEnable(Capability.CullFace);
                 glCullFace(FaceMode.Front);
-                glPolygonMode(face, polygon);
+                glPolygonMode(FaceMode.FrontBack, polygon);
                 break;
             }
         }

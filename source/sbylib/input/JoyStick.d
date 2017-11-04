@@ -1,59 +1,106 @@
 module sbylib.input.JoyStick;
 
-import derelict.sdl2.sdl;
+import sbylib.input, sbylib.setting, sbylib.wrapper.glfw;
+import std.stdio, std.conv, std.format, std.range, std.algorithm, std.array, std.traits;
 
-import sbylib.input, sbylib.setting, sbylib.wrapper.sdl.SDL;
-import std.stdio, std.conv, std.format, std.range, std.algorithm, std.array;
+//常に使用できるなかで一番若いものを取り扱うことにする。
 
+enum JoyButton {
+    A = 1,
+    B = 2,
+    X = 3,
+    Y = 0,
+    L1 = 4,
+    R1 = 5,
+    L2 = 6,
+    R2 = 7,
+    L3 = 10,
+    R3 = 11,
+    Select = 8,
+    Start = 9,
+    Left = 15,
+    Right = 13,
+    Up = 12,
+    Down = 14,
+}
+
+enum JoyAxis {
+    LeftX = 0,
+    LeftY = 1,
+    RightX = 2,
+    RightY = 3,
+}
 class JoyStick {
 
-    private SDL_Joystick *stick;
+    private GlfwJoyStick[GlfwJoyStick.MAX_JOY - GlfwJoyStick.MIN_JOY + 1] sticks;
 
-    static bool canUse(uint index) {
-        return index < SDL_NumJoysticks();
+    private bool[JoyButton] before;
+    private bool[JoyButton] buttons;
+
+    package(sbylib) this() {
+        foreach (i; 0..sticks.length) {
+            sticks[i] = new GlfwJoyStick(GlfwJoyStick.MIN_JOY + i);
+        }
+        foreach (button; EnumMembers!(JoyButton)) {
+            this.before[button] = this.buttons[button] = false;
+        }
     }
 
-    this(uint index) in {
-        assert(canUse(index));
-    } body {
-        SDL_JoystickEventState(SDL_ENABLE);
-        this.stick = SDL_JoystickOpen(index);
-        SDL.addOnTerminate(&this.close);
+    package(sbylib) void update() {
+        if (!this.canUse) return;
+        foreach (button; EnumMembers!(JoyButton)) {
+            this.before[button] = this.buttons[button];
+            this.buttons[button] = this.joy.getButton(button);
+        }
     }
 
-    private void close() {
-        SDL_JoystickClose(this.stick);
-    }
-
-    package void update() {
-        SDL_JoystickUpdate();
+    bool canUse() {
+        return this.joy !is null;
     }
 
     string getName() {
-        return SDL_JoystickName(this.stick).to!string;
+        return this.joy.getName;
     }
 
     uint getButtonNum() {
-        return SDL_JoystickNumButtons(this.stick);
+        return this.joy.getButtonNum;
     }
 
     uint getAxisNum() {
-        return SDL_JoystickNumAxes(this.stick);
+        return this.joy.getAxisNum;
     }
 
-    bool getButton(int buttonNum) {
-        return SDL_JoystickGetButton(this.stick, buttonNum) == 1;
+    bool isPressed(JoyButton b) {
+        return this.buttons[b];
     }
 
-    float getAxis(uint axis) {
-        auto result = SDL_JoystickGetAxis(this.stick, axis);
-        return result / 32768.0;
+    bool isReleased(JoyButton b) {
+        return !this.buttons[b];
+    }
+
+    bool justPressed(JoyButton b) {
+        return this.buttons[b] && !this.before[b];
+    }
+
+    bool justReleased(JoyButton b) {
+        return !this.buttons[b] && this.before[b];
+    }
+
+    float getAxis(JoyAxis a) {
+        return this.joy.getAxis(a);
     }
 
     override string toString() {
-        return format!"Name = %s\nButton = %s\nAxis = %s"
+        return format!"Name = %s\nButton:\n %s\nAxis = %s"
         (this.getName(),
-                iota(this.getButtonNum()).map!(i => this.getButton(i)).array,
-                iota(this.getAxisNum()).map!(i => this.getAxis(i)).array);
+                [EnumMembers!JoyButton].map!(button => button.to!string ~ "  " ~ this.buttons[button].to!string).join("\n"),
+                [EnumMembers!JoyAxis].map!(axis => axis.to!string ~ "  " ~ this.getAxis(axis).to!string).join("\n"));
+    }
+
+    private GlfwJoyStick joy() {
+        foreach (s; sticks) {
+            if (s.canUse) return s;
+        }
+        return null;
     }
 }

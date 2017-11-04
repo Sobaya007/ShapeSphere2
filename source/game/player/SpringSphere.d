@@ -4,6 +4,7 @@ public import game.player.BaseSphere;
 public import game.player.ElasticSphere;
 public import game.player.NeedleSphere;
 import game.player.PlayerMaterial;
+import game.player.PlayerChaseControl;
 import game.player.Player;
 import sbylib;
 import std.algorithm;
@@ -32,6 +33,8 @@ class SpringSphere : BaseSphere {
         float MAX_SPIRAL = 5;
         float BASE_LENGTH = 5;
         float SHRINK_LENGTH = 1;
+        float LARGE_RADIUS = 0.5;
+        float SMALL_RADIUS = 0.1;
         float M = 1;
         float A = MAX_LENGTH - BASE_LENGTH; //振幅
         float K = M * (log(DAMPING_RATIO) ^^ 2 + (2*PI)^^2) / PERIOD^^2;
@@ -47,35 +50,38 @@ class SpringSphere : BaseSphere {
 
     private SpringParticle[] particleList;
     private Player.PlayerEntity entity;
+    private CollisionCapsule capsule;
     private ElasticSphere elasticSphere;
-    private flim pushCount;
     private Camera camera;
     private Player parent;
+    private PlayerChaseControl control;
     private Maybe!(ElasticSphere.WallContact) wallContact;
-    private float initialSpringLength;
-    private float initialSmallRadius;
-    private float springLength;
-    private float spiral;
-    private float largeRadius;
-    private float smallRadius;
     private Spring spring;
-    private uint phase;
-    private uint count;
+    private GeometricInfo geom;
     private vec3 velocity;
-    private vec3 baseAxis;
-    private vec3 axis;
-    private vec2 axisDif;
+    private Step stepImpl;
+    private Step transform, wait, jump, fly, success, fail;
+    private bool shouldFinish;
+    private vec3 _lastDirection;
 
-    this(Player parent, Camera camera)  {
+    this(Player parent, Camera camera, PlayerChaseControl control)  {
         this.parent = parent;
         this.camera = camera;
+        this.control = control;
         this.spring = new Spring();
-        this.pushCount = flim(0.0, 0.0, 1);
         auto geom = SphereUV.create!GeometryN(RADIUS, T_CUT, P_CUT);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
-        this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
+        this.capsule = new CollisionCapsule(RADIUS, vec3(0), vec3(0));
+        this.entity = new Player.PlayerEntity(geom, mat, this.capsule);
         this.particleList = entity.getMesh().geom.vertices.map!(p => new SpringParticle(p.position)).array;
+        this.transform = new Transform;
+        this.wait = new Wait;
+        this.jump = new Jump;
+        this.fly = new Fly;
+        this.success = new Success;
+        this.fail = new Fail;
+        this.geom = new GeometricInfo;
     }
 
     //生成時にElasticSphereいないからやむなし
@@ -92,26 +98,26 @@ class SpringSphere : BaseSphere {
         assert(sphere is this.elasticSphere);
         assert(this.wallContact.isJust());
     } body {
-        this.initialSpringLength = 
-              this.elasticSphere.getParticleList.map!(p => p.position.y).maxElement
-            - this.elasticSphere.getParticleList.map!(p => p.position.y).minElement;
-        this.initialSmallRadius =
-            this.elasticSphere.getParticleList.map!(p => (p.position - this.elasticSphere.getCenter).xz.length).maxElement;
-        this.springLength = this.initialSpringLength;
-        this.smallRadius = this.initialSmallRadius;
-        this.spiral = 0;
-        this.largeRadius = 0;
-        this.phase = 0;
-        this.count = 0;
-        this.velocity = vec3(0);
-        TO_SPEED = 0.9;
-        this.axisDif = vec2(0);
-        this.baseAxis = this.axis = this.wallContact.get().dir;
-        auto v = this.baseAxis;
+        auto v = this.wallContact.get().dir;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.pos = this.wallContact.get().pos;
         this.entity.obj.rot = mat3(t, v, b);
+        auto length = 
+              this.elasticSphere.getParticleList.map!(p => p.position.dot(v)).maxElement
+            - this.elasticSphere.getParticleList.map!(p => p.position.dot(v)).minElement;
+        auto smallRadius =
+            this.elasticSphere.getParticleList.map!((p) {
+                auto r = p.position - this.elasticSphere.getCenter;
+                r -= dot(r, v) * v;
+                return r.length;
+            }).maxElement;
+        this.geom.init(length, smallRadius, v);
+        this.velocity = vec3(0);
+        this._lastDirection = sphere.lastDirection;
+        TO_SPEED = 0.9;
+        this.stepImpl = transform;
+        this.shouldFinish = false;
         parent.world.add(this.entity);
         this.wallContact = None!(ElasticSphere.WallContact);
 
@@ -119,99 +125,68 @@ class SpringSphere : BaseSphere {
     }
 
     override vec3 getCameraTarget() {
-        return this.entity.pos + this.entity.rot.column[1] * this.springLength / 2;
+        return this.entity.pos + this.entity.rot.column[1] * this.spring.length / 2;
+    }
+
+    override vec3 lastDirection() {
+        return this._lastDirection;
+    }
+
+    override void requestLookOver() {
+        auto dir2 = (this.getCameraTarget() - this.camera.pos).xz;
+        auto dir = vec3(dir2, dir2.length).xzy.normalize;
+        this.control.lookOver(dir);
     }
 
     override BaseSphere move() {
-        final switch (this.phase) {
-            case 0: //Transforming...
-                this.springLength.to(SHRINK_LENGTH);
-                this.spiral.to(MAX_SPIRAL);
-                this.largeRadius.to(0.5);
-                this.smallRadius.to(0.1);
-                if (abs(this.smallRadius - 0.1) < 0.001) {
-                    this.phase++;
-                }
-                break;
-            case 1: //Waiting...
-                this.spring.setLength(this.springLength);
-                this.spring.setVelocity(V0);
-                break;
-            case 2: //Jumping!!!
-                this.springLength = this.spring.getLength();
-                if (this.springLength > BASE_LENGTH) {
-                    this.velocity = this.spring.getVelocity() / 2 * this.entity.obj.rot.column[1];
-                    this.phase++;
-                }
-                break;
-            case 3:
-                if (this.count++ > 6) {
-                    this.phase++;
-                    TO_SPEED = 0.8;
-                }
-                this.springLength = this.spring.getLength();
-                //this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
-                this.entity.obj.pos += this.velocity * DELTA_TIME;
-                break;
-            case 4: //Flying!!!
-                this.velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
-                this.entity.obj.pos += this.velocity * DELTA_TIME;
-                this.springLength.to(this.initialSpringLength);
-                this.spiral.to(0);
-                this.largeRadius.to(0);
-                this.smallRadius.to(this.initialSmallRadius);
-                if (this.spiral < 0.01) {
-                    this.elasticSphere.initialize(this);
-                    this.parent.world.remove(this.entity);
-                    return this.elasticSphere;
-                }
-                break;
-            case 5: //Failed....
-                this.springLength.to(this.initialSpringLength);
-                this.spiral.to(0);
-                this.largeRadius.to(0);
-                this.smallRadius.to(this.initialSmallRadius);
-                if (this.spiral < 0.01) {
-                    this.elasticSphere.initialize(this);
-                    this.parent.world.remove(this.entity);
-                    return this.elasticSphere;
-                }
-                break;
-        }
-        this.spring.step();
+        this.stepImpl.step();
         foreach (p; this.particleList) {
             p.move();
         }
+        updateCapsule();
         updateGeometry();
+        if (this.shouldFinish) {
+            this.elasticSphere.initialize(this);
+            parent.world.remove(this.entity);
+            return this.elasticSphere;
+        }
         return this;
     }
 
     override BaseSphere onSpringJustRelease() {
-        if (this.phase == 1) {
-            this.phase = 2;
-        } else {
-            this.phase = 5;
-        }
+        this.stepImpl.onRelease();
         return this;
     }
 
     override BaseSphere onMovePress(vec2 a) {
-        this.axisDif.x.to(a.x);
-        this.axisDif.y.to(a.y);
-        this.axis = this.baseAxis + this.camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y);
-        auto v = this.axis;
+        if (this.control.isLooking) {
+            this.control.turn(a);
+            return this;
+        }
+        this.geom.axisDif.x.to(a.x);
+        this.geom.axisDif.y.to(a.y);
+        this.geom.updateAxis();
+        auto v = this.geom.axis;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.rot = mat3(t, v, b);
         return this;
     }
 
+    override void setCenter(vec3 center) {
+        this.entity.pos = center;
+    }
+
     vec3 getCenter() {
-        return this.entity.pos + this.entity.obj.rot.column[1] * this.springLength / 2;
+        return this.entity.pos + this.entity.obj.rot.column[1] * this.spring.length / 2;
     }
 
     vec3 getVelocity() {
         return this.velocity;
+    }
+
+    GeometricInfo getGeometricInfo() {
+        return this.geom;
     }
 
     private void updateGeometry() {
@@ -236,10 +211,23 @@ class SpringSphere : BaseSphere {
         geom.updateBuffer();
     }
 
+    private void updateCapsule() {
+        this.capsule.setStart(this.entity.pos + this.axis * RADIUS);
+        this.capsule.setEnd(this.entity.pos + this.axis * (this.spring.length - RADIUS));
+    }
+
+    private void transit(Step step) {
+        step.initialize();
+        this.stepImpl = step;
+    }
+
+    private void finish() {
+        this.shouldFinish = true;
+    }
+
     class SpringParticle {
         vec3 position; /* in World, used for Render */
         vec3 normal; /* in World */
-        CollisionCapsule capsule;
         private float theta, phi;
 
         this(vec3 p) {
@@ -250,16 +238,44 @@ class SpringSphere : BaseSphere {
         }
 
         void move() {
-            auto angleSpeed = PI * 2 * spiral;
+            auto angleSpeed = PI * 2 * geom.spiral;
             auto t = sin(this.phi) * .5 + .5;
             auto angle = t * angleSpeed;
-            auto h = t * springLength;
-            auto p = vec3(cos(angle) * largeRadius, h, sin(angle) * largeRadius);
-            auto v = vec3(-sin(angle) * angleSpeed, springLength, cos(angle) * angleSpeed).normalize;
+            auto h = t * geom.length;
+            auto p = vec3(cos(angle) * geom.largeRadius, h, sin(angle) * geom.largeRadius);
+            auto v = vec3(-sin(angle) * angleSpeed, geom.length, cos(angle) * angleSpeed).normalize;
             auto a = v.getOrtho;
             auto b = cross(a, v).normalize;
-            this.position = p + smallRadius * cos(this.phi) * (cos(this.theta) * a + sin(this.theta) * b);
+            this.position = p + geom.smallRadius * cos(this.phi) * (cos(this.theta) * a + sin(this.theta) * b);
             // normal = positionのtheta微分とphi微分の外積方向になるはず
+        }
+    }
+
+    class GeometricInfo {
+        float initialLength;
+        float initialSmallRadius;
+        float spiral;
+        float largeRadius;
+        float smallRadius;
+        vec3 baseAxis;
+        vec2 axisDif;
+        vec3 axis;
+
+        void init(float length, float smallRadius, vec3 axis) {
+            this.initialLength = spring.length = length;
+            this.initialSmallRadius = this.smallRadius = smallRadius;
+            this.spiral = 0;
+            this.largeRadius = 0;
+            this.baseAxis = axis;
+            this.axisDif = vec2(0);
+        }
+
+        void updateAxis() {
+            this.axis = normalize(this.baseAxis + camera.rot * vec3(this.axisDif.x, 0, this.axisDif.y));
+        }
+
+        ref float length() {
+            return spring.length;
         }
     }
 
@@ -276,10 +292,6 @@ class SpringSphere : BaseSphere {
             this.v = v;
         }
 
-        void setLength(float x) {
-            this.x = x;
-        }
-
         void step() {
             float d = this.x - BASE_LENGTH;
             float f = -K * d - C * v;
@@ -287,7 +299,7 @@ class SpringSphere : BaseSphere {
             this.x += this.v * DELTA_TIME;
         }
 
-        float getLength() {
+        ref float length() {
             return this.x;
         }
 
@@ -295,4 +307,98 @@ class SpringSphere : BaseSphere {
             return this.v;
         }
     }
+
+    private abstract class Step {
+        void initialize(){}
+        void onRelease(){}
+        abstract void step();
+    }
+
+    private class Transform : Step {
+        override void step() {
+            geom.length.to(SHRINK_LENGTH);
+            geom.spiral.to(MAX_SPIRAL);
+            geom.largeRadius.to(LARGE_RADIUS);
+            geom.smallRadius.to(SMALL_RADIUS);
+            if (abs(geom.smallRadius - SMALL_RADIUS) < 0.001) {
+                transit(wait);
+            }
+        }
+
+        override void onRelease() {
+            if (abs(geom.smallRadius - SMALL_RADIUS) < 0.1) {
+                transit(jump);
+            } else {
+                TO_SPEED = 0.8;
+                transit(fail);
+            }
+        }
+    }
+
+    private class Wait : Step {
+        override void step() {
+            spring.setVelocity(V0);
+        }
+        override void onRelease() {
+            transit(jump);
+        }
+    }
+
+    private class Jump : Step {
+        override void initialize() {
+            spring.setVelocity(V0);
+        }
+        override void step() {
+            spring.step();
+            if (spring.length > BASE_LENGTH) {
+                velocity = spring.getVelocity() / 2 * entity.obj.rot.column[1];
+                transit(fly);
+            }
+        }
+    }
+
+    private class Fly : Step {
+        private int count;
+        override void initialize() {
+            this.count = 6;
+        }
+        override void step() {
+            spring.step();
+            velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
+            entity.obj.pos += velocity * DELTA_TIME;
+
+            if (count --> 0) {
+                TO_SPEED = 0.8;
+                transit(success);
+            }
+        }
+    }
+
+    private class Success : Step {
+        override void step() {
+            velocity += GRAVITY * vec3(0,-1,0) * DELTA_TIME;
+            entity.obj.pos += velocity * DELTA_TIME;
+            geom.length.to(geom.initialLength);
+            geom.spiral.to(0);
+            geom.largeRadius.to(0);
+            geom.smallRadius.to(geom.initialSmallRadius);
+            if (geom.spiral < 0.01) {
+                finish();
+            }
+        }
+    }
+
+    private class Fail : Step {
+        override void step() {
+            geom.length.to(geom.initialLength);
+            geom.spiral.to(0);
+            geom.largeRadius.to(0);
+            geom.smallRadius.to(geom.initialSmallRadius);
+            if (geom.spiral < 0.01) {
+                finish();
+            }
+        }
+    }
+
+    alias geom this;
 }
