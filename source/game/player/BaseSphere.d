@@ -11,6 +11,7 @@ class BaseSphere {
     abstract void initialize(BaseSphere);
     abstract BaseSphere move();
     abstract vec3 getCameraTarget();
+    abstract vec3 lastDirection();
     abstract void setCenter(vec3);
     void requestLookOver(){}
     BaseSphere onDownPress(){return this;}

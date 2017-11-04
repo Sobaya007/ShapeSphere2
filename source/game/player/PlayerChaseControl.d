@@ -85,8 +85,8 @@ class PlayerChaseControl {
             this.camera = camera;
         }
 
-        Step init(vec3 dir) {
-            this.dir = dir;
+        Step init() {
+            this.dir = player.getLastDirection;
             this.count = 15;
             return this;
         }
@@ -96,6 +96,7 @@ class PlayerChaseControl {
             auto arrival = player.getCameraTarget() - r * dir;
             auto t = player.getCameraTarget;
             vel = (arrival - camera.pos) * 0.1;
+            vel.y = 0;
             camera.pos += vel;
             auto ay = t.y + 3;
             camera.pos.y = (camera.pos.y - ay) * 0.9 + ay;
@@ -147,10 +148,7 @@ class PlayerChaseControl {
     }
 
     void reset() {
-        auto mdir = this.player.getLastDirection();
-        if (mdir.isNone) return;
-        auto dir = mdir.get;
-        this.stepImpl = resetStep.init(dir);
+        this.stepImpl = resetStep.init();
     }
 
     void lookOver(vec3 dir) {

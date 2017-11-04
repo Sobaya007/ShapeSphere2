@@ -62,6 +62,7 @@ class SpringSphere : BaseSphere {
     private Step stepImpl;
     private Step transform, wait, jump, fly, success, fail;
     private bool shouldFinish;
+    private vec3 _lastDirection;
 
     this(Player parent, Camera camera, PlayerChaseControl control)  {
         this.parent = parent;
@@ -113,6 +114,7 @@ class SpringSphere : BaseSphere {
             }).maxElement;
         this.geom.init(length, smallRadius, v);
         this.velocity = vec3(0);
+        this._lastDirection = sphere.lastDirection;
         TO_SPEED = 0.9;
         this.stepImpl = transform;
         this.shouldFinish = false;
@@ -124,6 +126,10 @@ class SpringSphere : BaseSphere {
 
     override vec3 getCameraTarget() {
         return this.entity.pos + this.entity.rot.column[1] * this.spring.length / 2;
+    }
+
+    override vec3 lastDirection() {
+        return this._lastDirection;
     }
 
     override void requestLookOver() {

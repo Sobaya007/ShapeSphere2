@@ -51,6 +51,7 @@ class ElasticSphere : BaseSphere{
     private PlayerChaseControl control;
     private World world;
     private vec3 force;
+    private vec3 _lastDirection;
     private Observer!vec3 center;
     private Observer!vec3 lVel;
     private Observer!vec3 aVel;
@@ -83,6 +84,7 @@ class ElasticSphere : BaseSphere{
                 });
         this.aVel.capture(this.lVel);
         this.aVel.capture(this.center);
+        this._lastDirection = vec3(normalize((camera.pos - this.center).xz), 0).xzy;
         //隣を発見
         uint[2][] pairIndex;
         uint[2] makePair(uint a,uint b) {
@@ -217,6 +219,10 @@ class ElasticSphere : BaseSphere{
         return this.center;
     }
 
+    override vec3 lastDirection() {
+        return this._lastDirection;
+    }
+
     override void requestLookOver() {
         if (!this.ground) return;
         auto dir = (this.center - this.camera.pos);
@@ -308,6 +314,10 @@ class ElasticSphere : BaseSphere{
             p.force = this.force;
         }
         this.force = vec3(0);
+
+        if (this.lVel.length > 0.5) {
+            this._lastDirection = vec3(this.lVel.xz.normalize, 0).xzy;
+        }
 
         updateGeometry();
 

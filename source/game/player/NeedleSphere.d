@@ -37,6 +37,7 @@ class NeedleSphere : BaseSphere {
     private flim needleCount;
     private vec3 lVel;
     private vec3 aVel;
+    private vec3 _lastDirection;
 
     this(Player parent) {
         this.parent = parent; 
@@ -69,6 +70,7 @@ class NeedleSphere : BaseSphere {
         this.lVel = this.elasticSphere.getLinearVelocity();
         this.aVel = this.elasticSphere.getAngularVelocity();
         this.parent.world.add(this.entity);
+        this._lastDirection = vec3(this.lVel.xz.normalize, 0).xzy;
     }
 
     vec3 getCenter() {
@@ -99,6 +101,10 @@ class NeedleSphere : BaseSphere {
 
     override vec3 getCameraTarget() {
         return this.entity.pos;
+    }
+
+    override vec3 lastDirection() {
+        return this._lastDirection;
     }
 
     override BaseSphere onNeedlePress() {

@@ -113,13 +113,8 @@ class Player {
         return this.sphere.getCameraTarget;
     }
 
-    Maybe!vec3 getLastDirection() {
-        if (this.sphere !is this.elasticSphere) {
-            return None!vec3;
-        }
-        auto v = this.elasticSphere.getLinearVelocity;
-        if (v.length < 1e-2) return None!vec3;
-        return Just(normalize(v));
+    vec3 getLastDirection() {
+        return this.sphere.lastDirection();
     }
 
 }
