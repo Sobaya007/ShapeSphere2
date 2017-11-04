@@ -8,8 +8,8 @@ import std.stdio;
 
 void editorExample() {
 
-    Core.config.windowWidth  = 1600;
-    Core.config.windowHeight = 1200;
+    Core.config.windowWidth  = 1200;
+    Core.config.windowHeight = 900;
 
     auto core = Core();
     auto window = core.getWindow();
@@ -35,13 +35,13 @@ void editorExample() {
 
     auto spacer = new SpacerComponent(400, 300);
     auto label = new LabelComponent("D is 神"d, 50, vec4(0.6, 0.7, 0.8, 1.0));
-    auto button = new ButtonComponent(600, 50, "犯人は"d, 40);
+    auto button = new ButtonComponent(500, 50, "犯人は"d, 40);
 
     dstring[] ary = ["ONONONON!!!!", "アカーーーーン！！！！", "簡単すぎィィィ！！！！"];
-    auto dropDown = new DropDownComponent(600, 50, ary, 40, vec4(1, 1, 1, 1));
+    auto dropDown = new DropDownComponent(500, 50, ary, 40, vec4(1, 1, 1, 1));
     auto groupBox = new GroupBoxComponent(500, "バイ成ィ"d, new CheckBoxComponent(40));
 
-    auto textArea = new TextAreaComponent(600, 300, 30);
+    auto textArea = new TextAreaComponent(400, 300, 30);
     textArea.setClipboard(core.getClipboard);
 
     int t = 0;
