@@ -66,8 +66,6 @@ class GlfwWindow {
 
         this(string title, int width, int height) {
             this.title = title;
-            this.width = width;
-            this.height = height;
             this.resized = true; // for first resize callback
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
@@ -84,7 +82,11 @@ class GlfwWindow {
             glfwMakeContextCurrent(window);
 
             this.setTitle(title);
-            this.setSize(width, height);
+
+            //Actual window size might differ from given size.
+            glfwGetWindowSize(this.window, &width, &height);
+            this.width = width;
+            this.height = height;
 
             auto glver = DerelictGL3.reload();
             writeln("Version = ", glver);
