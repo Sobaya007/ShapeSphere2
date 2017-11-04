@@ -9,6 +9,7 @@ public {
     import editor.guiComponent.DropDownComponent;
     import editor.guiComponent.GroupBoxComponent;
     import editor.guiComponent.ComponentListComponent;
+    import editor.guiComponent.TextAreaComponent;
 
     import editor.guiComponent.material;
 }

@@ -21,9 +21,7 @@ public:
     this(
         float width,
         float height,
-        dstring text = ""d,
-        float fontSize = 0.0,
-        vec4 fontColor = vec4(0, 0, 0, 1)
+        LabelComponent label
     ) {
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, ButtonComponentMaterial)(geom);
@@ -34,15 +32,26 @@ public:
         entity.getMesh.mat.value = 0;
         entity.getMesh.mat.size = vec2(width, height);
 
-        _label = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
-        _label.x = width/2;
-        _label.y = -height/2;
-        _label.zIndex = 1;
-        _label.entity.setUserData(null);
-        entity.addChild(_label.entity);
+        _label = label;
+        label.x = width/2;
+        label.y = -height/2;
+        label.zIndex = 1;
+        label.entity.setUserData(null);
+        entity.addChild(label.entity);
 
         setTrigger({});
         super(entity);
+    }
+
+    this(
+        float width,
+        float height,
+        dstring text = ""d,
+        float fontSize = 0.0,
+        vec4 fontColor = vec4(0, 0, 0, 1)
+    ) {
+        LabelComponent label = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        this(width, height, label);
     }
 
     void setTrigger(void delegate() onTrigger) {

@@ -7,6 +7,7 @@ class LabelComponent : AGuiComponent {
 
 private:
     Label _label;
+    float _fontSize;
 
 public:
     this(Label label) {
@@ -23,12 +24,13 @@ public:
         float wrapWidth = 1e10
     ) {
 
-        auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256); // TODO
+        auto font = FontLoader.load(RESOURCE_ROOT ~ "meiryo.ttc", 256);
         auto label = new Label(font, fontSize);
         label.setColor(fontColor);
         label.setOrigin(originX, originY);
         label.setWrapWidth(wrapWidth);
         label.renderText(text);
+        _fontSize = fontSize;
 
         this(label);
     }
@@ -41,8 +43,16 @@ public:
         return _label.getHeight();
     }
 
+    float getFontSize() {
+        return _fontSize;
+    }
+
     void setText(dstring text) {
         _label.renderText(text);
+    }
+
+    Label getLabel() {
+        return _label;
     }
 
 }

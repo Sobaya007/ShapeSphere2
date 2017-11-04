@@ -89,6 +89,8 @@ class Timeline : IControllable {
             this.control(mouse);
         }
     }
+    void activeUpdate(Mouse2D mouse) {
+    }
 
     void translate(Mouse2D mouse) {
         mouse.getDif();
@@ -108,4 +110,10 @@ class Timeline : IControllable {
         if (button != MouseButton.Button1) return;
         this.control = null;
     }
+
+    override void onKeyPressed(KeyButton keyButton, bool shiftPressed, bool controlPressed) {
+    }
+    override void onKeyReleases(KeyButton keyButton, bool shiftPressed, bool controlPressed) {
+    }
+
 }

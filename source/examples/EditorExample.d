@@ -7,10 +7,14 @@ import editor.guiComponent;
 import std.stdio;
 
 void editorExample() {
+
+    Core.config.windowWidth  = 1200;
+    Core.config.windowHeight = 900;
+
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getScreen();
-    screen.setClearColor(vec4(0.2));
+    screen.setClearColor(vec4(0.1, 0.7, 0.8, 1.0));
     auto renderer = new Renderer();
     auto viewport = new AutomaticViewport(window);
     auto world = new World;
@@ -23,20 +27,22 @@ void editorExample() {
     float w = screen.getWidth;
     float h = screen.getHeight;
 
-    // [0, 800]✕[0, 600]
     auto camera = new OrthoCamera(w, h, -1, 1);
     camera.getObj.pos = vec3(w/2, h/2, 0);
     world.setCamera(camera);
 
-    auto control = new GuiControl(window, camera, world);
+    auto control = new GuiControl(window, camera, world, core.getKey());
 
     auto spacer = new SpacerComponent(400, 300);
     auto label = new LabelComponent("D is 神"d, 50, vec4(0.6, 0.7, 0.8, 1.0));
-    auto button = new ButtonComponent(300, 40, "犯人は"d, 25);
+    auto button = new ButtonComponent(500, 50, "犯人は"d, 40);
 
     dstring[] ary = ["ONONONON!!!!", "アカーーーーン！！！！", "簡単すぎィィィ！！！！"];
-    auto dropDown = new DropDownComponent(400, 40, ary, 25, vec4(1, 1, 1, 1));
-    auto groupBox = new GroupBoxComponent(200, "バイ成ィ"d, new CheckBoxComponent(40));
+    auto dropDown = new DropDownComponent(500, 50, ary, 40, vec4(1, 1, 1, 1));
+    auto groupBox = new GroupBoxComponent(500, "バイ成ィ"d, new CheckBoxComponent(40));
+
+    auto textArea = new TextAreaComponent(400, 300, 30);
+    textArea.setClipboard(core.getClipboard);
 
     int t = 0;
     button.setTrigger({
@@ -54,14 +60,16 @@ void editorExample() {
 
     auto leftComponent = new ComponentListComponent(
         ComponentListComponent.Direction.Vertical,
-        spacer, label, groupBox
+        spacer, label, groupBox, textArea
     );
     leftComponent.y = h;
     control.add(leftComponent);
 
     auto threeCheckBox = new ComponentListComponent(
         ComponentListComponent.Direction.Horizontal,
-        new CheckBoxComponent(20), new CheckBoxComponent(30), new CheckBoxComponent(40)
+        new CheckBoxComponent(20),
+        new CheckBoxComponent(30),
+        new CheckBoxComponent(40)
     );
     auto rightComponent = new ComponentListComponent(
         ComponentListComponent.Direction.Vertical,

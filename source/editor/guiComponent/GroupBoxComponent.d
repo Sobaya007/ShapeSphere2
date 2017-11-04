@@ -14,7 +14,7 @@ private:
     bool _isOpen = true;
 
     vec4 _borderColor = vec4(1, 1, 1, 1);
-    float _borderSize = 20;
+    float _borderSize = 30;
 
 public:
     this(
@@ -39,8 +39,10 @@ public:
 
         entity.addChild(_content.entity);
 
-        auto opener = new ButtonComponent( _borderSize*(name.length + 2), _borderSize, getShowText(), _borderSize*0.8, _borderColor);
-        opener.x = 10;
+        LabelComponent label = new LabelComponent(getShowText(), _borderSize*0.9, _borderColor, Label.OriginX.Center, Label.OriginY.Center);
+
+        auto opener = new ButtonComponent(label.width, _borderSize, label);
+        opener.x = _borderSize;
         opener.y = 0;
         opener.zIndex = 1;
         opener.setDarkColor(vec4(0.3, 0.3, 0.3, 0.5));

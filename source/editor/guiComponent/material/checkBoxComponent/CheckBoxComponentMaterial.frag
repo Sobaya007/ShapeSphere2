@@ -29,13 +29,14 @@ void main() {
 
     vec2 p = (uv - vec2(0.5))*2.0; // [-1, 1]✕[-1, 1]
     float t = 1e10;
+    float opacity = 1.0;
 
     {
         // 枠
         float power = 10.0;
         float d = pow(pow(p.x, power) + pow(p.y, power), 1.0/power);
-        d = abs(d - 0.9);
-        t = min(t, smoothstep(0.0, 0.1, d));
+        t = min(t, smoothstep(0.0, 0.1, abs(d - 0.9)));
+        opacity = smoothstep(0.0, 0.1, 0.9 - d);
     }
 
     if (isChecked) {
@@ -47,4 +48,5 @@ void main() {
     }
 
     fragColor = mix(foreColor, backColor, t);
+    fragColor.a *= opacity;
 }
