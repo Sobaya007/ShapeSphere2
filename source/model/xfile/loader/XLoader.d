@@ -40,12 +40,12 @@ public:
         normalRequired   ... trueなら、法線情報がないときにassertion
         uvRequired       ... trueなら、UV座標の情報がないときにassertion
     */
-    XEntity load(string path, bool materialRequired = true, bool normalRequired = true, bool uvRequired = true) {
+    XEntity load(ModelPath path, bool materialRequired = true, bool normalRequired = true, bool uvRequired = true) {
         this.materialRequired = materialRequired;
         this.normalRequired   = normalRequired;
         this.uvRequired       = uvRequired;
 
-        string src = readText(RESOURCE_ROOT ~ path);
+        string src = readText(path);
         XFrameNode root = this.parser.run(this.lexer.run(src));
         return makeEntity(root, mat4.identity);
     }

@@ -6,6 +6,7 @@ class SceneCallback {
     private string name;
     private SceneTransition transit;
     this(string name, SceneTransition transit) {
+        this.name = name;
         this.transit = transit;
     }
 

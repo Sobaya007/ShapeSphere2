@@ -1,11 +1,12 @@
 module sbylib.wrapper.freeimage.FreeImage;
 
 import derelict.freeimage.freeimage;
-import sbylib.setting;
+
+import sbylib.utils.Path;
 
 class FreeImage {
 
     static void init() {
-        DerelictFI.load(FREEIMAGE_DLL_PATH);
+        DerelictFI.load(DllPath("FreeImage.dll"));
     }
 }

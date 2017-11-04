@@ -14,11 +14,15 @@ mixin template SceneBasePack() {
     private SceneCallback[] callbacks;
 
     public static auto opCall(SceneCallback[] cbs...) {
-        return new typeof(this)(cbs);
+        auto res = new typeof(this)();
+        foreach (cb; cbs) {
+            res.addCallbacks(cb);
+        }
+        return res;
     }
 
-    this(SceneCallback[] callbacks...) {
-        this.callbacks = callbacks;
+    void addCallbacks(SceneCallback callbacks) {
+        this.callbacks ~= callbacks;
     }
 
     Maybe!SceneTransition opDispatch(string name)() {
@@ -28,7 +32,7 @@ mixin template SceneBasePack() {
             }
         }
         import std.format;
-        assert(false, name.format!"%s is not a callback name");
+        assert(false, name.format!"%s is not a callback name.");
     }
 
 }

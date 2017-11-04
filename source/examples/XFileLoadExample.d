@@ -19,7 +19,7 @@ void xFileLoadExample() {
 
     Camera camera = new PerspectiveCamera(
             window.getWidth() / window.getHeight(), /* Aspect Ratio   */
-            120, /* FOV (in angle) */
+            120.deg, /* FOV (in angle) */
             0.1, /* Near Clip      */
             100, /* Far Clip       */);
     camera.pos = vec3(0, 2, 15);
@@ -40,13 +40,13 @@ void xFileLoadExample() {
 
     XLoader xLoader = new XLoader;
 
-    Entity texCubeEntity = xLoader.load("model/texCube.x", true, true, true).buildEntity();
+    Entity texCubeEntity = xLoader.load(ModelPath("texCube.x"), true, true, true).buildEntity();
     texCubeEntity.obj.pos = vec3(-2, 3, 0);
 
-    Entity sphereEntity = xLoader.load("model/sphere.x", true, true, false).buildEntity();
+    Entity sphereEntity = xLoader.load(ModelPath("sphere.x"), true, true, false).buildEntity();
     sphereEntity.obj.pos = vec3(-4, 3, 0);
 
-    Entity parentEntity = xLoader.load("model/parent.x", true, true, false).buildEntity();
+    Entity parentEntity = xLoader.load(ModelPath("parent.x"), true, true, false).buildEntity();
     parentEntity.obj.pos = vec3(2, 2, 0);
 
 

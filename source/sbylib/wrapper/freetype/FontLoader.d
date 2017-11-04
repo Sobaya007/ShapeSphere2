@@ -1,7 +1,6 @@
 module sbylib.wrapper.freetype.FontLoader;
 
 import derelict.freetype.ft;
-import sbylib.setting;
 import sbylib.wrapper.freetype.Constants;
 import sbylib.wrapper.freetype.FreeType;
 import sbylib.wrapper.freetype.Font;

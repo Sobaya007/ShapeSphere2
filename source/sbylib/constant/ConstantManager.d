@@ -4,13 +4,13 @@ import std.file;
 import std.json;
 import std.algorithm;
 import std.array;
-import sbylib.setting;
 import sbylib.constant.Const;
 import sbylib.math.Vector;
+import sbylib.utils.Path;
 
 class ConstantManager {
 
-    enum PATH = RESOURCE_ROOT ~ "const.json";
+    enum PATH = ResourcePath("const.json");
 
     static Const[string] consts;
 

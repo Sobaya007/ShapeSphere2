@@ -5,7 +5,7 @@ import sbylib.math.Vector;
 import sbylib.math.Quaternion;
 import sbylib.utils.Lazy;
 import sbylib.wrapper.gl.Uniform;
-import sbylib.core.Entity;
+import sbylib.entity.Entity;
 
 class Object3D {
     Observed!vec3 _pos;

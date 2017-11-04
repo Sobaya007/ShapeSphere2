@@ -9,6 +9,7 @@ import sbylib.camera.Camera;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Quaternion;
+import sbylib.math.Angle;
 import sbylib.utils.Lazy;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
@@ -95,8 +96,8 @@ class CameraControl {
         }
         auto dif2 = this.mouse.getDif();
         if (dif2.length < 0.01) return;
-        auto rotX = mat3.axisAngle(this.camera.rot.column[0], -dif2.y);
-        auto rotY = mat3.axisAngle(this.camera.rot.column[1], dif2.x);
+        auto rotX = mat3.axisAngle(this.camera.rot.column[0], -dif2.y.rad);
+        auto rotY = mat3.axisAngle(this.camera.rot.column[1], dif2.x.rad);
         auto rot = abs(dif2.x) > abs(dif2.y) ? rotY : rotX;
         this.camera.rot = rot * this.camera.rot;
         auto focus = this.camera.pos + this.camera.rot.column[2] * this.z;

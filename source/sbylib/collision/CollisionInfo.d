@@ -1,6 +1,6 @@
 module sbylib.collision.CollisionInfo;
 
-import sbylib.core.Entity;
+import sbylib.entity.Entity;
 import sbylib.math.Vector;
 
 struct CollisionInfo {

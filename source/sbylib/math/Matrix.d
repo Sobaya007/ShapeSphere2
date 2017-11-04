@@ -8,6 +8,7 @@ import std.stdio;
 import std.traits;
 import std.format;
 
+
 //T型のUxV行列
 /*
    1 1 1 1
@@ -229,7 +230,7 @@ public:
         }
 
         static if (U == 3) {
-            static Matrix axisAngle(Vector!(T,3) v, T angle) {
+            static Matrix axisAngle(Vector!(T,3) v, Radian angle) {
                 auto c = cos(angle);
                 auto s = sin(angle);
                 Matrix result;
@@ -293,7 +294,7 @@ public:
             }
         } else static if (U == 4) {
 
-            static Matrix axisAngle(Vector!(T,3) v, T angle) {
+            static Matrix axisAngle(Vector!(T,3) v, Radian angle) {
                 auto c = cos(angle);
                 auto s = sin(angle);
                 Matrix result;

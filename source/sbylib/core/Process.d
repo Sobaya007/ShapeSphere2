@@ -1,7 +1,6 @@
 module sbylib.core.Process;
 
 import sbylib.utils.Logger;
-import sbylib.setting;
 
 class Process {
     private const void delegate(Process) func;

@@ -3,6 +3,7 @@ module sbylib.math.Quaternion;
 
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
+import sbylib.math.Angle;
 import std.math;
 import std.conv;
 /*Note:
@@ -185,18 +186,18 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         }
     }
 
-    static Quaternion!T axisAngle(Vector!(T,3) axis, T angle) @nogc {
+    static Quaternion!T axisAngle(Vector!(T,3) axis, Radian rad) @nogc {
         Quaternion!T result;
-        float s = sin(angle/2);
+        float s = sin(rad/2);
         result.x = axis.x * s;
         result.y = axis.y * s;
         result.z = axis.z * s;
-        result.w = cos(angle/2);
+        result.w = cos(rad/2);
         return result;
     }
 
     static Quaternion!T axisAngle(Vector!(T,3) a) @nogc {
-        T angle = sbylib.math.Vector.length(a);
+        auto angle = sbylib.math.Vector.length(a).rad;
         if (angle == 0) return Quaternion!T(0,0,0,1);
         return axisAngle(a / angle, angle);
     }
@@ -219,7 +220,7 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
                 return Quaternion!T(axis.x,axis.y,axis.z,0);
             }
         }
-        return axisAngle(v, c.acos);
+        return axisAngle(v, c.acos.rad);
     }
 }
 
@@ -240,12 +241,12 @@ Quaternion!T normalize(T)(Quaternion!T q) {
 }
 
 
-vec3 rotate(vec3 vec, vec3 axis, float angle) @nogc {
+vec3 rotate(vec3 vec, vec3 axis, Radian angle) @nogc {
     quat q = quat.axisAngle(axis, angle);
     return rotate(vec, q);
 }
 
-vec3 rotate(vec3 vec, vec3 center, vec3 axis, float angle) @nogc {
+vec3 rotate(vec3 vec, vec3 center, vec3 axis, Radian angle) @nogc {
     return rotate(vec-center, axis, angle) + center;
 }
 

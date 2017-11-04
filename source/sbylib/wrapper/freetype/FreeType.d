@@ -2,9 +2,10 @@ module sbylib.wrapper.freetype.FreeType;
 
 import derelict.freetype.ft;
 import derelict.util.exception;
-import sbylib.setting;
 
 import std.algorithm;
+
+import sbylib.utils.Path;
 
 private enum deadFunctions = [
     "FT_Stream_OpenBzip2",
@@ -26,7 +27,7 @@ class FreeType {
 
     public static void init() {
         DerelictFT.missingSymbolCallback = &missingSymFunc;
-        DerelictFT.load(FREETYPE_DLL_PATH);
+        DerelictFT.load(DllPath("freetype.dll"));
         assert(!FT_Init_FreeType(&library), "Failed to init freetype!");
     }
 }

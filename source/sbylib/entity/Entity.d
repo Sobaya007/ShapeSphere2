@@ -1,4 +1,4 @@
-module sbylib.core.Entity;
+module sbylib.entity.Entity;
 
 public {
     import sbylib.collision.CollisionEntry;

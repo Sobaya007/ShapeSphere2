@@ -2,7 +2,6 @@ module sbylib.wrapper.freetype.Font;
 
 import derelict.freetype.ft;
 import sbylib.wrapper.gl;
-import sbylib.setting;
 import std.string;
 import sbylib.wrapper.freetype.Constants;
 import sbylib.wrapper.freetype.LetterInfo;

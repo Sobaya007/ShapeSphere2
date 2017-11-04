@@ -8,7 +8,6 @@ import sbylib.constant.ConstantManager;
 import sbylib.input;
 import sbylib.shadertemplates;
 import sbylib.utils;
-import sbylib.setting;
 import sbylib.wrapper.al.AL;
 import sbylib.wrapper.gl.GL;
 import sbylib.wrapper.glfw.GLFW;

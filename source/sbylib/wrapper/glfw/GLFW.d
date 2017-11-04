@@ -1,7 +1,7 @@
 module sbylib.wrapper.glfw.GLFW;
 
 import derelict.glfw3.glfw3;
-import sbylib.setting;
+import sbylib.utils.Path;
 import std.stdio;
 
 class GLFW {
@@ -11,7 +11,7 @@ class GLFW {
     private this(){}
 
     public static void init() {
-        DerelictGLFW3.load(GLFW_DLL_PATH);
+        DerelictGLFW3.load(DllPath("glfw3.dll"));
         glfwSetErrorCallback(&errorCallback);
         assert(glfwInit(),"Failed to initialize GLFW");
     }

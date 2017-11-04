@@ -3,10 +3,11 @@ module sbylib.camera.PerspectiveCamera;
 import sbylib.camera.Camera;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.mesh.Object3D;
-import sbylib.utils.Lazy;
 import sbylib.math.Matrix;
 import sbylib.math.Vector;
-import sbylib.core.Entity;
+import sbylib.math.Angle;
+import sbylib.entity.Entity;
+import sbylib.utils.Lazy;
 import std.math;
 
 /*
@@ -17,16 +18,16 @@ import std.math;
 final class PerspectiveCamera : Camera {
 private:
     Observed!float aspectWperH;
-    Observed!float fovy;
+    Observed!Radian fovy;
     Observed!float nearZ;
     Observed!float farZ;
     Observer!umat4 _projMatrix;
 public:
     Entity entity;
 
-    this(float aspect, float fovy, float nearZ, float farZ) {
+    this(float aspect, Degree fovy, float nearZ, float farZ) {
         this.aspectWperH = new Observed!float(aspect);
-        this.fovy = new Observed!float(fovy * PI / 180);
+        this.fovy = new Observed!Radian(Radian(fovy));
         this.nearZ = new Observed!float(nearZ);
         this.farZ = new Observed!float(farZ);
         this.entity = new Entity();

@@ -31,7 +31,7 @@ class XMaterial {
             material.specular = this.specular;
             material.ambient = vec4(this.ambient, 1.0);
             material.power = this.power;
-            material.texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ getTextureFileName));
+            material.texture = Utils.generateTexture(ImageLoader.load(ImagePath(getTextureFileName)));
             return material;
         } else {
             PhongMaterial material = new PhongMaterial;

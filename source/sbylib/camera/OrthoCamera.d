@@ -7,7 +7,7 @@ public {
     import sbylib.utils.Lazy;
     import sbylib.math.Matrix;
     import sbylib.math.Vector;
-    import sbylib.core.Entity;
+    import sbylib.entity.Entity;
 }
 
 /*

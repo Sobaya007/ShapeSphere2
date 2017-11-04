@@ -4,7 +4,6 @@ import std.typecons, std.math;
 import std.typetuple;
 
 static import std.string;
-import sbylib.setting;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.character.Label;

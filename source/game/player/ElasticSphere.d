@@ -333,7 +333,7 @@ class ElasticSphere : BaseSphere{
         float len = axis.length;
         if (len > 0) {
             axis /= len;
-            float angle = dif.length / radius;
+            auto angle = rad(dif.length / radius);
             quat rot = quat.axisAngle(axis, angle);
             foreach (p; this.particleList) {
                 p.position = rotate(p.position-center, rot) + center;

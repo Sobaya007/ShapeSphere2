@@ -10,7 +10,7 @@ void guiExample() {
     auto viewport = new AutomaticViewport(window);
     auto world = new World;
     auto camera = new OrthoCamera(2,2,-1,1);
-    auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
+    auto font = FontLoader.load(FontPath("HGRPP1.TTC"), 256);
     auto control = new GuiControl(window, camera, world, core.getKey());
     auto timeline = new Timeline(font);
     screen.setClearColor(vec4(0.2));
