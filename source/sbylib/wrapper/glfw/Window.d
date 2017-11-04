@@ -23,6 +23,7 @@ class GlfwWindow {
         bool resized;
         string title;
         ResizeCallback[] resizeCallbacks;
+        bool[int] hasKeyPressed; // KeyButton -> bool
     }
     public {
 
@@ -66,8 +67,6 @@ class GlfwWindow {
 
         this(string title, int width, int height) {
             this.title = title;
-            this.width = width;
-            this.height = height;
             this.resized = true; // for first resize callback
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
@@ -83,8 +82,14 @@ class GlfwWindow {
             glfwSetWindowSizeCallback(this.window, &resizeCallback);
             glfwMakeContextCurrent(window);
 
+            glfwSetKeyCallback(this.window, &keyCallback);
+
             this.setTitle(title);
-            this.setSize(width, height);
+
+            //Actual window size might differ from given size.
+            glfwGetWindowSize(this.window, &width, &height);
+            this.width = width;
+            this.height = height;
 
             auto glver = DerelictGL3.reload();
             writeln("Version = ", glver);
@@ -94,7 +99,7 @@ class GlfwWindow {
         }
 
         bool getKey(KeyButton key) {
-            return isPressed(glfwGetKey(this.window, key));
+            return key in hasKeyPressed && hasKeyPressed[key];
         }
 
         bool getMouseButton(MouseButton button) {
@@ -146,4 +151,12 @@ private extern(C) void resizeCallback(GLFWwindow *window, int w, int h) nothrow 
     windows[window].width = w;
     windows[window].height = h;
     windows[window].resized = true;
+}
+
+private extern(C) void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) nothrow {
+    if (key == GLFW_KEY_UNKNOWN) {
+        windows[window].hasKeyPressed[-scancode] = action == GLFW_PRESS;
+    } else {
+        windows[window].hasKeyPressed[key] = action == GLFW_PRESS;
+    }
 }

@@ -98,6 +98,10 @@ class Label {
         return this.obj.pos + vec3(offsetX(this.originX,this.width) - offsetX(OriginX.Center,this.width), offsetY(this.originY) - offsetY(OriginY.Center), 0);
     }
 
+    Letter[] getLetters() {
+        return this.letters;
+    }
+
     struct RowInfo {
         Letter[] letters;
         float width;
