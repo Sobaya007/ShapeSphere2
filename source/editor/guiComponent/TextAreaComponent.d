@@ -131,6 +131,10 @@ public:
         if (keyButton == KeyButton.KeyV && controlPressed) {
             pasteText();
         }
+        if (keyButton == KeyButton.KeyX && controlPressed) {
+            copyText();
+            deleteSelectedRange();
+        }
 
     }
 
