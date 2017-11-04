@@ -70,7 +70,7 @@ class NeedleSphere : BaseSphere {
         this.lVel = this.elasticSphere.getLinearVelocity();
         this.aVel = this.elasticSphere.getAngularVelocity();
         this.parent.world.add(this.entity);
-        this._lastDirection = vec3(this.lVel.xz.normalize, 0).xzy;
+        this._lastDirection = sphere.lastDirection;
     }
 
     vec3 getCenter() {

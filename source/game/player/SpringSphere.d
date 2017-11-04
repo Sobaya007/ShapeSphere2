@@ -133,7 +133,9 @@ class SpringSphere : BaseSphere {
     }
 
     override void requestLookOver() {
-        this.control.lookOver(this.entity.rot.column[1]);
+        auto dir2 = (this.getCameraTarget() - this.camera.pos).xz;
+        auto dir = vec3(dir2, dir2.length).xzy.normalize;
+        this.control.lookOver(dir);
     }
 
     override BaseSphere move() {

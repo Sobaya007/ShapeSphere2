@@ -57,7 +57,6 @@ class StickCommand : ICommand {
     }
 
     override void replay(ref ubyte[] v) {
-        import std.stdio;
         this.action(vec2(decode(v[0]), decode(v[1])));
         v = v[2..$];
     }
