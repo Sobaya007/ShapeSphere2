@@ -57,7 +57,6 @@ class StickCommand : ICommand {
     }
 
     override void replay(ref ubyte[] v) {
-        import std.stdio;
         this.action(vec2(decode(v[0]), decode(v[1])));
         v = v[2..$];
     }
@@ -73,6 +72,7 @@ class StickCommand : ICommand {
     private static float decode(ubyte v) out(res) {
         assert(-1 <= res && res <= 1);
     } body {
+        if (v == 127) return 0; //これしないと入力がないときもきちゃう
         return (cast(float)v) / 255 * 2 - 1;
     }
 

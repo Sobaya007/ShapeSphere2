@@ -17,7 +17,7 @@ void gameMain(string[] args) {
     auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
 
     /* Camera Settings */
-    Camera camera = new PerspectiveCamera(1, 120, 0.1, 100);
+    Camera camera = new PerspectiveCamera(1, 60, 0.1, 100);
     camera.pos = vec3(3, 2, 9);
     camera.lookAt(vec3(0,2,0));
     world3d.setCamera(camera);
@@ -25,7 +25,7 @@ void gameMain(string[] args) {
 
     /* Player Settings */
     auto commandManager = getCommandManager(args);
-    Player player = new Player(core.getKey(), camera, world3d, commandManager);
+    Player player = new Player(core.getKey(), core.getJoyStick(), camera, world3d, commandManager);
     core.addProcess((proc) {
         player.step();
     }, "player update");
@@ -87,12 +87,11 @@ void gameMain(string[] args) {
     world3d.addPointLight(pointLight);
 
     /* Joy Stick Settings */
-    if (JoyStick.canUse(0)) {
-        auto joy = new JoyStick(0);
-        core.addProcess((proc) {
-            writeln(joy);
-        }, "test");
-    }
+    core.addProcess((proc) {
+        if (core.getJoyStick().canUse) {
+            //writeln(core.getJoyStick());
+        }
+    }, "joy state");
 
     /* Render */
     core.addProcess((proc) {

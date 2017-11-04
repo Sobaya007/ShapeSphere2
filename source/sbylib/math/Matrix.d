@@ -17,10 +17,16 @@ import std.format;
    */
 
 alias Matrix!(float, 2, 2) mat2;
-alias Matrix!(double, 2, 2) mat2d;
 alias Matrix!(float, 3, 3) mat3;
-alias Matrix!(double, 3, 3) mat3d;
 alias Matrix!(float, 4, 4) mat4;
+alias Matrix!(float, 2, 3) mat2x3;
+alias Matrix!(float, 3, 2) mat3x2;
+alias Matrix!(float, 2, 4) mat2x4;
+alias Matrix!(float, 4, 2) mat4x2;
+alias Matrix!(float, 3, 4) mat3x4;
+alias Matrix!(float, 4, 3) mat4x3;
+alias Matrix!(double, 2, 2) mat2d;
+alias Matrix!(double, 3, 3) mat3d;
 alias Matrix!(double, 4, 4) mat4d;
 
 struct Matrix(T, uint U, uint V) if (__traits(isArithmetic, T) && 1 <= U && U <= 4 && 1 <= V && V <= 4){

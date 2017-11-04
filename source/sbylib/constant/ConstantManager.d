@@ -10,7 +10,7 @@ import sbylib.math.Vector;
 
 class ConstantManager {
 
-    enum PATH = SOURCE_ROOT ~ "const.json";
+    enum PATH = RESOURCE_ROOT ~ "const.json";
 
     static Const[string] consts;
 
