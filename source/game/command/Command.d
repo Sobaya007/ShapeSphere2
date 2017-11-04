@@ -73,6 +73,7 @@ class StickCommand : ICommand {
     private static float decode(ubyte v) out(res) {
         assert(-1 <= res && res <= 1);
     } body {
+        if (v == 127) return 0; //これしないと入力がないときもきちゃう
         return (cast(float)v) / 255 * 2 - 1;
     }
 
