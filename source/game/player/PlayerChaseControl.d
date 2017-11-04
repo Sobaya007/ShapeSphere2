@@ -137,7 +137,7 @@ class PlayerChaseControl {
         override void turn(vec2 v) {
             auto xvec = normalize(cross(this.dir, vec3(0,1,0)));
             auto yvec = normalize(cross(this.dir, xvec));
-            this.dir += mat3x2(xvec, yvec) * v * 0.05;
+            this.dir += mat3x2(xvec, yvec) * v * 0.03;
             this.dir = normalize(this.dir);
             this.targetArrival = this.center + this.dir * RADIUS;
         }
