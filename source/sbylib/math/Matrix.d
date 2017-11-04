@@ -17,10 +17,16 @@ import std.format;
    */
 
 alias Matrix!(float, 2, 2) mat2;
-alias Matrix!(double, 2, 2) mat2d;
 alias Matrix!(float, 3, 3) mat3;
-alias Matrix!(double, 3, 3) mat3d;
 alias Matrix!(float, 4, 4) mat4;
+alias Matrix!(float, 2, 3) mat2x3;
+alias Matrix!(float, 3, 2) mat3x2;
+alias Matrix!(float, 2, 4) mat2x4;
+alias Matrix!(float, 4, 2) mat4x2;
+alias Matrix!(float, 3, 4) mat3x4;
+alias Matrix!(float, 4, 3) mat4x3;
+alias Matrix!(double, 2, 2) mat2d;
+alias Matrix!(double, 3, 3) mat3d;
 alias Matrix!(double, 4, 4) mat4d;
 
 struct Matrix(T, uint U, uint V) if (__traits(isArithmetic, T) && 1 <= U && U <= 4 && 1 <= V && V <= 4){
@@ -67,7 +73,11 @@ public:
         }
 
         Matrix!(Type,U,V) result;
-        mixin(format!q{result[i,j] = this[i,j] %s m[i,j]}(op));
+        foreach (i; 0..U) {
+            foreach (j; 0..V) {
+                mixin(format!q{result[i,j] = this[i,j] %s m[i,j];}(op));
+            }
+        }
         return result;
     }
 
@@ -79,7 +89,8 @@ public:
         }
         Matrix!(Type,U,Q) result;
         foreach (i; 0..U) {
-            foreach (j; 0..V) {
+            foreach (j; 0..Q) {
+                result[i,j] = 0;
                 foreach (k; 0..V) {
                     result[i,j] += this[i,k] * m[k,j];
                 }
@@ -152,8 +163,8 @@ public:
         return element[j+i*V] = value;
     }
 
-    T opIndexOpAssign(string op)(T value, size_t x, size_t y) {
-        mixin("return element[y*V+x] " ~ op ~ "= value;");
+    T opIndexOpAssign(string op)(T value, size_t i, size_t j) {
+        mixin("return element[j+i*V] " ~ op ~ "= value;");
     }
 
     T[U*V] array() inout {
@@ -312,7 +323,7 @@ public:
                 return Matrix(
                         2 / width, 0,          0,                  0,
                         0,         2 / height, 0,                  0,
-                        0,         0,          1 / (farZ - nearZ), nearZ / (nearZ - farZ),
+                        0,         0,          1 / (nearZ - farZ), nearZ / (nearZ - farZ),
                         0,         0,          0,                  1
                         );
             }
@@ -672,11 +683,11 @@ private static string getTranslationCode(uint U) {
     foreach (i; 0..U) {
         foreach (j; 0..U) {
             code ~= format!"result[%d,%d] = "(i,j);
-            if (i == j) 
+            if (i == j)
                 code ~= "1;";
-            else if (j == U-1) 
+            else if (j == U-1)
                 code ~= format!"vec[%d];"(i);
-            else 
+            else
                 code ~= "0;";
         }
     }

@@ -7,6 +7,7 @@ import sbylib.utils.Lazy;
 import sbylib.math.Matrix;
 import sbylib.math.Vector;
 import sbylib.core.Entity;
+import std.math;
 
 /*
    視錐台モデルを採用したカメラです。
@@ -25,7 +26,7 @@ public:
 
     this(float aspect, float fovy, float nearZ, float farZ) {
         this.aspectWperH = new Observed!float(aspect);
-        this.fovy = new Observed!float(fovy);
+        this.fovy = new Observed!float(fovy * PI / 180);
         this.nearZ = new Observed!float(nearZ);
         this.farZ = new Observed!float(farZ);
         this.entity = new Entity();

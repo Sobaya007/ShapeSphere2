@@ -92,14 +92,14 @@ class Entity {
         }
     }
 
-    void render() in {
+    void render(bool transparency) in {
         assert(this.world);
     } body {
-        if (this.mesh) {
+        if (this.mesh && this.mesh.mat.config.transparency == transparency) {
             this.mesh.render();
         }
         foreach (child; this.children) {
-            child.render();
+            child.render(transparency);
         }
     }
 
@@ -174,9 +174,7 @@ class Entity {
         }
     }
 
-    private void setParent(Entity entity) in {
-        assert(this.userData is null);
-    } body {
+    private void setParent(Entity entity) {
         this.parent = entity;
         this._obj.onSetParent(entity);
     }

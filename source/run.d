@@ -13,8 +13,10 @@ enum RunMode {
     Material,
     Mouse,
     Text,
+    Clipboard,
     Plot,
-    XFileLoad
+    XFileLoad,
+    Editor
 };
 
 void run(RunMode mode, string[] args) {
@@ -40,6 +42,9 @@ void run(RunMode mode, string[] args) {
     case RunMode.Text:
         textExample();
         break;
+    case RunMode.Clipboard:
+        clipboardExample();
+        break;
     case RunMode.Game:
         gameMain(args);
         break;
@@ -48,6 +53,9 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.XFileLoad:
         xFileLoadExample();
+        break;
+    case RunMode.Editor:
+        editorExample();
         break;
     }
 }

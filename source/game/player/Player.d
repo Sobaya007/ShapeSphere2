@@ -6,6 +6,8 @@ import game.player.ElasticSphere;
 import game.player.NeedleSphere;
 import game.player.SpringSphere;
 import game.player.PlayerMaterial;
+import game.player.Controler;
+import game.player.PlayerChaseControl;
 import sbylib;
 import std.algorithm, std.array;
 import std.math;
@@ -25,41 +27,40 @@ class Player {
     private ElasticSphere elasticSphere;
     private NeedleSphere needleSphere;
     private SpringSphere springSphere;
-    private Key key;
+    private Controler controler;
     package World world;
-    Camera camera;
-    flim pushCount;
-    CommandSpawner[] commandSpawners;
+    private Camera camera;
+    private PlayerChaseControl cameraControl;
 
-    this(Key key, Camera camera, World world) {
+    this(Key key, JoyStick joy, Camera camera, World world, ICommandManager commandManager) {
         this.world = world;
+        this.camera = camera;
+        this.cameraControl = new PlayerChaseControl(camera, this);
         this.floors = new Entity();
-        this.elasticSphere = new ElasticSphere(this);
+        this.elasticSphere = new ElasticSphere(this, camera, world, this.cameraControl);
         this.needleSphere = new NeedleSphere(this);
-        this.springSphere = new SpringSphere(this);
+        this.springSphere = new SpringSphere(this, camera, this.cameraControl);
         this.elasticSphere.constructor(this.needleSphere, this.springSphere);
         this.needleSphere.constructor(this.elasticSphere);
         this.springSphere.constructor(this.elasticSphere);
         this.sphere = this.elasticSphere;
-        this.key = key;
-        this.camera = camera;
-        this.pushCount = flim(0.0, 0.0, 1);
-        this.commandSpawners = [
-            new CommandSpawner(() => key.isPressed(KeyButton.Space), new Command(&this.onDownPress)),
-            new CommandSpawner(() => key.justReleased(KeyButton.Space), new Command(&this.onDownJustRelease)),
-            new CommandSpawner(() => key.isPressed(KeyButton.KeyX), new Command(&this.onNeedlePress)),
-            new CommandSpawner(() => key.isReleased(KeyButton.KeyX), new Command(&this.onNeedleRelease)),
-            new CommandSpawner(() => key.isPressed(KeyButton.KeyC), new Command(&this.onSpringPress)),
-            new CommandSpawner(() => key.justReleased(KeyButton.KeyC), new Command(&this.onSpringJustRelease)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Left), new Command(&this.onLeftPress)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Right), new Command(&this.onRightPress)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Up), new Command(&this.onForwardPress)),
-            new CommandSpawner(() => key.isPressed(KeyButton.Down), new Command(&this.onBackPress))];
-        this.world.add(sphere.getEntity());
+        this.controler = new Controler(key, joy);
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Down), &this.onDownPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.Down), &this.onDownJustRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Needle), &this.onNeedlePress));
+        commandManager.addCommand(new ButtonCommand(() => controler.isReleased(ControlerButton.Needle), &this.onNeedleRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Spring), &this.onSpringPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.Spring), &this.onSpringJustRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.justPressed(ControlerButton.CameraReset), &this.onCameraResetJustPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.LookOver), &this.onLookOverPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.LookOver), &this.onLookOverJustRelease));
+        commandManager.addCommand(new StickCommand(() => controler.getLeftStickValue.safeNormalize, &this.onMovePress));
+        commandManager.addCommand(new StickCommand(() => controler.getRightStickValue.safeNormalize, &this.onRotatePress));
     }
 
     void step() {
         this.sphere = this.sphere.move();
+        this.cameraControl.step();
     }
 
     void onDownPress() {
@@ -70,20 +71,13 @@ class Player {
         this.sphere = this.sphere.onDownJustRelease();
     }
 
-    void onLeftPress() {
-        this.sphere = this.sphere.onLeftPress();
+    void onMovePress(vec2 v) {
+        this.sphere = this.sphere.onMovePress(v);
     }
 
-    void onRightPress() {
-        this.sphere = this.sphere.onRightPress();
-    }
-
-    void onForwardPress() {
-        this.sphere = this.sphere.onForwardPress();
-    }
-
-    void onBackPress() {
-        this.sphere = this.sphere.onBackPress();
+    void onRotatePress(vec2 v) {
+        // なぜかyが死ぬ
+        this.cameraControl.turn(vec2(v.x,0));
     }
 
     void onNeedlePress() {
@@ -102,7 +96,25 @@ class Player {
         this.sphere = this.sphere.onSpringJustRelease();
     }
 
-    Entity getEntity() {
-        return this.sphere.getEntity();
+    void onCameraResetJustPress() {
+        this.cameraControl.reset();
     }
+
+    void onLookOverPress() {
+        if (this.cameraControl.isLooking) return;
+        this.sphere.requestLookOver();
+    }
+
+    void onLookOverJustRelease() {
+        this.cameraControl.stopLookOver();
+    }
+
+    vec3 getCameraTarget() {
+        return this.sphere.getCameraTarget;
+    }
+
+    vec3 getLastDirection() {
+        return this.sphere.lastDirection();
+    }
+
 }

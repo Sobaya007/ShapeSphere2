@@ -5,6 +5,7 @@ public import game.player.NeedleSphere;
 public import game.player.SpringSphere;
 import game.player.PlayerMaterial;
 import game.player.Player;
+import game.player.PlayerChaseControl;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -22,7 +23,7 @@ class ElasticSphere : BaseSphere{
         float MASS = 0.05;
         float FRICTION = 0.3;
         float ZETA = 0.5;
-        float OMEGA = 100;
+        float OMEGA = 110;
         float c = 2 * ZETA * OMEGA * MASS;
         float k = MASS * OMEGA * OMEGA;
         float GRAVITY = 100;
@@ -34,9 +35,11 @@ class ElasticSphere : BaseSphere{
         float BALOON_COEF = 20000;
         float DOWN_PUSH_FORCE = 600;
         float DOWN_PUSH_FORE_MIN = 800;
-        float SIDE_PUSH_FORCE = 10;
+        float NORMAL_SIDE_PUSH_FORCE = 10;
+        float AIR_SIDE_PUSH_FORCE = 10;
+        float SLOW_SIDE_PUSH_FORCE = 2;
+        float MAX_VELOCITY = 40;
     }
-
     private NeedleSphere needleSphere;
     private SpringSphere springSphere;
     private ElasticParticle[] particleList;
@@ -44,18 +47,29 @@ class ElasticSphere : BaseSphere{
     private Player.PlayerEntity entity;
     private flim pushCount;
     private Player parent;
+    private Camera camera;
+    private PlayerChaseControl control;
+    private World world;
     private vec3 force;
+    private vec3 _lastDirection;
     private Observer!vec3 center;
     private Observer!vec3 lVel;
     private Observer!vec3 aVel;
+    private bool ground;
 
-    this(Player parent)  {
+    this(Player parent, Camera camera, World world, PlayerChaseControl control)  {
         this.parent = parent;
+        this.camera = camera;
+        this.world = world;
+        this.control = control;
         this.pushCount = flim(0.0, 0.0, 1);
         this.force = vec3(0);
         auto geom = Sphere.create(ElasticSphere.DEFAULT_RADIUS, ElasticSphere.RECURSION_LEVEL);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
+        mat.config.depthWrite = false;
+        mat.config.faceMode = FaceMode.Front;
+        mat.config.transparency = true;
         this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
         this.particleList = entity.getMesh().geom.vertices.map!(p => new ElasticParticle(p.position)).array;
         this.center = new Observer!vec3(() => this.particleList.map!(p => p.position).sum / this.particleList.length, this.particleList.map!(p => cast(IObserved)p.position).array);
@@ -70,6 +84,7 @@ class ElasticSphere : BaseSphere{
                 });
         this.aVel.capture(this.lVel);
         this.aVel.capture(this.center);
+        this._lastDirection = vec3(normalize((camera.pos - this.center).xz), 0).xzy;
         //隣を発見
         uint[2][] pairIndex;
         uint[2] makePair(uint a,uint b) {
@@ -103,6 +118,7 @@ class ElasticSphere : BaseSphere{
             pair.p0.next ~= pair.p1;
             pair.p1.next ~= pair.p0;
         }
+        this.world.add(this.entity);
     }
 
     //生成時にNeedleSphereとかいないからやむなし
@@ -137,15 +153,28 @@ class ElasticSphere : BaseSphere{
 
     private void fromSpring() {
         parent.world.add(entity);
+        auto ginfo = this.springSphere.getGeometricInfo();
         auto arrivalCenter = this.springSphere.getCenter();
         auto currentCenter = this.center;
         auto dCenter = arrivalCenter - currentCenter;
+        auto height = this.particleList.map!(p => p.position.y).maxElement - this.particleList.map!(p => p.position.y).minElement;
+        auto yrate = ginfo.length / height;
         foreach (particle; this.particleList) {
             particle.position += dCenter;
+            particle.position.y -= arrivalCenter.y;
+            particle.position.y *= yrate;
+            particle.position.y += arrivalCenter.y;
         }
         this.entity.obj.pos += dCenter;
         foreach (particle; this.particleList) {
             particle.velocity = this.springSphere.getVelocity();
+        }
+    }
+
+    override void setCenter(vec3 center) {
+        auto d = center - this.getCenter;
+        foreach (particle; this.particleList) {
+            particle.position += d;
         }
     }
 
@@ -186,6 +215,22 @@ class ElasticSphere : BaseSphere{
         return Just(WallContact(colInfo.get.point, nearestPolygon.normal));
     }
 
+    override vec3 getCameraTarget() {
+        return this.center;
+    }
+
+    override vec3 lastDirection() {
+        return this._lastDirection;
+    }
+
+    override void requestLookOver() {
+        if (!this.ground) return;
+        auto dir = (this.center - this.camera.pos);
+        dir.y = 0;
+        dir = normalize(dir);
+        this.control.lookOver(dir);
+    }
+
     override BaseSphere onDownPress() {
         this.pushCount += 0.1;
         vec3 g = this.center;
@@ -206,38 +251,27 @@ class ElasticSphere : BaseSphere{
         this.pushCount = 0;
         return this;
     }
-    override BaseSphere onLeftPress() {
-        this.force -= this.parent.camera.rot.column[0].xyz;
-        return this;
-    }
-    override BaseSphere onRightPress() {
-        this.force += this.parent.camera.rot.column[0].xyz;
-        return this;
-    }
-    override BaseSphere onForwardPress() {
-        this.force -= this.parent.camera.rot.column[2].xyz;
-        return this;
-    }
-    override BaseSphere onBackPress() {
-        this.force += this.parent.camera.rot.column[2].xyz;
+
+    override BaseSphere onMovePress(vec2 v) {
+        if (this.control.isLooking) {
+            this.control.turn(v);
+            return this;
+        }
+        this.force += this.camera.rot * vec3(v.x, 0, v.y);
         return this;
     }
 
     override BaseSphere onNeedlePress() {
-        this.parent.world.remove(this.entity);
+        this.world.remove(this.entity);
         this.needleSphere.initialize(this);
         return this.needleSphere;
     }
 
     override BaseSphere onSpringPress() {
         if (!this.springSphere.canTransform()) return this;
-        this.parent.world.remove(this.entity);
+        this.world.remove(this.entity);
         this.springSphere.initialize(this);
         return this.springSphere;
-    }
-
-    override Player.PlayerEntity getEntity() {
-        return entity;
     }
 
     ElasticParticle[] getParticleList() {
@@ -265,6 +299,7 @@ class ElasticSphere : BaseSphere{
             }
         }
         float baloonForce = this.calcBaloonForce();
+        this.ground = false;
         foreach (ref particle; this.particleList) {
             particle.force += particle.normal * baloonForce;
             particle.force.y -= GRAVITY * MASS;
@@ -274,11 +309,15 @@ class ElasticSphere : BaseSphere{
             end(particle);
         }
         this.force.y = 0;
-        if (this.force.length > 0) this.force = normalize(this.force) * SIDE_PUSH_FORCE;
+        this.force *= calcSidePushForce();
         foreach (p; this.particleList) {
             p.force = this.force;
         }
         this.force = vec3(0);
+
+        if (this.lVel.xz.length > 0.5) {
+            this._lastDirection = vec3(this.lVel.xz.normalize, 0).xzy;
+        }
 
         updateGeometry();
 
@@ -327,7 +366,11 @@ class ElasticSphere : BaseSphere{
     }
 
     private float calcRadius() {
-        return this.particleList.map!(a => (a.position - center).length).sum / this.particleList.length;
+        float res = 0;
+        foreach (p; this.particleList) {
+            res += length(p.position - center);
+        }
+        return res / this.particleList.length;
     }
 
     private vec3 calcVelocity() {
@@ -348,9 +391,21 @@ class ElasticSphere : BaseSphere{
         return BALOON_COEF * area / (volume * this.particleList.length);
     }
 
+    private float calcSidePushForce() {
+        if (this.pushCount > 0) {
+            return SLOW_SIDE_PUSH_FORCE;
+        } else if (this.ground) {
+            return NORMAL_SIDE_PUSH_FORCE;
+        } else {
+            return AIR_SIDE_PUSH_FORCE;
+        }
+    }
+
     private void move(ElasticParticle particle) {
+        if (particle.velocity.length > MAX_VELOCITY) {
+            particle.velocity *= MAX_VELOCITY / particle.velocity.length;
+        }
         particle.position += particle.velocity * Player.TIME_STEP;
-        particle.isGround = false;
     }
 
     private void collision(ElasticParticle particle) {
@@ -366,7 +421,7 @@ class ElasticSphere : BaseSphere{
             if (depth < 0) continue;
             auto po = particle.velocity - dot(particle.velocity, floor.normal) * floor.normal;
             particle.velocity -= po * FRICTION;
-            particle.isGround = true;
+            this.ground = true;
             if (dot(particle.velocity, floor.normal) < 0) {
                 particle.velocity -= floor.normal * dot(floor.normal, particle.velocity) * 1;
             }
@@ -423,7 +478,6 @@ class ElasticSphere : BaseSphere{
         Observed!vec3 velocity;
         vec3 normal; /* in World */
         vec3 force;
-        bool isGround;
         bool isStinger;
         Entity entity;
         CollisionCapsule capsule;

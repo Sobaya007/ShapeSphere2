@@ -51,8 +51,6 @@ class AutomaticViewport : IViewport {
             this.y = y;
             this.w = w;
             this.h = h;
-            import std.stdio;
-            writeln(x, ", ", y, ", ", w, ", ", h);
         });
     }
 

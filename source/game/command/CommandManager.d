@@ -2,71 +2,93 @@ module game.command.CommandManager;
 
 import std.file, std.algorithm, std.range, std.array;
 import game.command.Command;
-import game.command.CommandSpawner;
 
-class CommandManager {
-    private Command[][] commands;
-    private CommandSpawner[] spawners;
+private ubyte CommandVersion = 1; //When you update format of command, you must change this value.
+
+interface ICommandManager {
+    void addCommand(ICommand);
+    void update();
+    void save();
+    bool isPlaying();
+}
+
+class PlayCommandManager : ICommandManager {
+    private ubyte[] history;
     private string writeFilePath;
-    private bool play;
+    private ICommand[] commands;
 
-    import std.stdio;
-
-    this(CommandSpawner[] spawners, string writeFilePath) {
-        this.spawners = spawners;
+    this(string writeFilePath) {
+        this.history = [CommandVersion];
         this.writeFilePath = writeFilePath;
     }
 
-    this(CommandSpawner[] spawners, string readFilePath, string writeFilePath) {
-        this(spawners, writeFilePath);
-        this.play = true;
-        this.commands = this.loadData(readFilePath);
+    override void addCommand(ICommand command) {
+        this.commands ~= command;
     }
 
-    void update() {
-        if (this.play) {
-            this.replay();
-        } else {
-            this.normalUpdate();
+    override void update() {
+        foreach (cmd; this.commands) {
+            cmd.act();
+            this.history ~= cmd.value;
         }
     }
 
-    void save() {
-        auto original = this.spawners.map!(s => s.getCommand()).array;
-        auto data = this.commands.map!(cs => cs.map!(c => cast(byte)original.countUntil(c)).array).join(cast(byte)-1);
-        std.file.write(this.writeFilePath, data);
+    override void save() {
+        std.file.write(this.writeFilePath, this.history);
     }
 
-    bool isPlaying() {
-        return this.play;
+    override bool isPlaying() {
+        return false;
     }
 
-    private void normalUpdate() {
-        Command[] commands;
-        foreach (spawner; this.spawners) {
-            if (auto command = spawner.spawn()) {
-                command.act();
-                commands ~= command;
+}
+
+class ReplayCommandManager : ICommandManager {
+    private ICommand[] commands;
+    private ubyte[] inputHistory;
+    private ubyte[] outputHistory;
+    private string writeFilePath;
+    private bool playing;
+
+    this(string readFilePath, string writeFilePath) {
+        this.writeFilePath = writeFilePath;
+        this.inputHistory = this.loadData(readFilePath);
+        this.outputHistory = [CommandVersion];
+        this.playing = true;
+    }
+
+    override void addCommand(ICommand command) {
+        this.commands ~= command;
+    }
+
+    override void update() {
+        if (this.playing) {
+            foreach (cmd; this.commands) {
+                cmd.replay(this.inputHistory);
+                this.outputHistory ~= cmd.value;
+            }
+            if (this.inputHistory.length == 0) this.playing = false;
+        } else {
+            foreach (cmd; this.commands) {
+                cmd.act();
+                this.outputHistory ~= cmd.value;
             }
         }
-        this.commands ~= commands;
     }
 
-    private void replay() {
-        if (this.commands.length == 0) {
-            this.play = false;
-            this.normalUpdate();
-            return;
-        }
-        foreach (command; this.commands[0]) {
-            command.act();
-        }
-        this.commands = this.commands[1..$];
+    override void save() {
+        std.file.write(this.writeFilePath, this.outputHistory);
     }
 
-    private Command[][] loadData(string path) {
-        auto original = this.spawners.map!(s => s.getCommand()).array;
-        byte[] data = cast(byte[])std.file.read(path);
-        return data.split(cast(byte)-1).map!(bs => bs.map!(b => original[b]).array).array;
+    override bool isPlaying() {
+        return this.playing;
+    }
+
+
+    private ubyte[] loadData(string path) {
+        auto rowData = cast(ubyte[])std.file.read(path);
+        auto versionData = rowData[0];
+        assert(versionData == CommandVersion);
+        return rowData[1..$];
     }
 }
