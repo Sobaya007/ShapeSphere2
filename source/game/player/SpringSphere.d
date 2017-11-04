@@ -159,6 +159,10 @@ class SpringSphere : BaseSphere {
     }
 
     override BaseSphere onMovePress(vec2 a) {
+        if (this.control.isLooking) {
+            this.control.turn(a);
+            return this;
+        }
         this.geom.axisDif.x.to(a.x);
         this.geom.axisDif.y.to(a.y);
         this.geom.updateAxis();
