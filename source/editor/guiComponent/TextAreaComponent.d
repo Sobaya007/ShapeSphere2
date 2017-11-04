@@ -192,7 +192,6 @@ private:
             c => getSelectedText().apply!(
                 (selectedText) {
                     c.set(selectedText);
-                    clearSelectedRange();
                 }
             )
         );
