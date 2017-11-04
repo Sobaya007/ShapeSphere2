@@ -315,7 +315,7 @@ class ElasticSphere : BaseSphere{
         }
         this.force = vec3(0);
 
-        if (this.lVel.length > 0.5) {
+        if (this.lVel.xz.length > 0.5) {
             this._lastDirection = vec3(this.lVel.xz.normalize, 0).xzy;
         }
 
@@ -366,7 +366,11 @@ class ElasticSphere : BaseSphere{
     }
 
     private float calcRadius() {
-        return this.particleList.map!(a => (a.position - center).length).sum / this.particleList.length;
+        float res = 0;
+        foreach (p; this.particleList) {
+            res += length(p.position - center);
+        }
+        return res / this.particleList.length;
     }
 
     private vec3 calcVelocity() {
