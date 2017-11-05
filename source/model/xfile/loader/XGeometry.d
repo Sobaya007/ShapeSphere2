@@ -8,7 +8,7 @@ class XGeometry {
     vec2[] uvs;
 
     VertexNT[] buildVertices() {
-        int num = this.positions.length;
+        auto num = this.positions.length;
         VertexNT[] vertices = new VertexNT[num];
         foreach(i; 0..num) {
             vertices[i] = new VertexNT(

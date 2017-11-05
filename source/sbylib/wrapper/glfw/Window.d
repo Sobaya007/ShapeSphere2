@@ -7,6 +7,7 @@ import std.string, std.stdio, std.algorithm;
 import sbylib.math.Vector;
 import sbylib.wrapper.glfw.Constants;
 import sbylib.wrapper.gl.Functions;
+import sbylib.wrapper.gl.GL;
 
 /*
    GLFW準拠のウインドウのクラスです
@@ -69,7 +70,7 @@ class GlfwWindow {
             this.title = title;
             this.resized = true; // for first resize callback
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,1);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
@@ -91,9 +92,9 @@ class GlfwWindow {
             this.width = width;
             this.height = height;
 
-            auto glver = DerelictGL3.reload();
-            writeln("Version = ", glver);
-            assert(glver > GLVersion.gl33, "OpenGL version is too low");
+            GL.glVersion = DerelictGL3.reload();
+            writeln("Version = ", GL.glVersion);
+            assert(GL.glVersion > GLVersion.gl30, "OpenGL version is too low");
 
             windows[this.window] = this;
         }

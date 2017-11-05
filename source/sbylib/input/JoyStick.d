@@ -39,7 +39,7 @@ class JoyStick {
 
     package(sbylib) this() {
         foreach (i; 0..sticks.length) {
-            sticks[i] = new GlfwJoyStick(GlfwJoyStick.MIN_JOY + i);
+            sticks[i] = new GlfwJoyStick(GlfwJoyStick.MIN_JOY + cast(int)i);
         }
         foreach (button; EnumMembers!(JoyButton)) {
             this.before[button] = this.buttons[button] = false;
