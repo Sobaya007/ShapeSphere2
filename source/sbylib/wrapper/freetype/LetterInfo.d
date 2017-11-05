@@ -8,7 +8,7 @@ import sbylib.wrapper.freetype.Constants;
 
 class LetterInfo {
     Texture texture;
-    uint width, height;
+    ulong width, height;
 
     this(FT_GlyphSlotRec* glyph, FT_Size_Metrics sz, FontType fontType) {
         // ベースラインを考慮してTexture込めるようにします
@@ -23,14 +23,14 @@ class LetterInfo {
         // buffer width := met.advance
         // buffer height:= maxHeight
 
-        int bearingX = met.horiBearingX/64;
-        int bearingY = met.horiBearingY/64;
-        int width = met.width/64;
-        int height = met.height/64;
+        auto bearingX = met.horiBearingX/64;
+        auto bearingY = met.horiBearingY/64;
+        auto width = met.width/64;
+        auto height = met.height/64;
 
-        int baseLineHeight = sz.ascender / 64;
-        int maxWidth = met.horiAdvance/64;
-        int maxHeight = (sz.ascender - sz.descender) / 64;
+        auto baseLineHeight = sz.ascender / 64;
+        auto maxWidth = met.horiAdvance/64;
+        auto maxHeight = (sz.ascender - sz.descender) / 64;
 
         auto bm = glyph.bitmap;
 
@@ -52,7 +52,7 @@ class LetterInfo {
         }
 
         GlFunction.setPixelUnpackAlign(1);
-        auto texture = new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.R, maxWidth, maxHeight, ImageFormat.R, buffer.ptr);
+        auto texture = new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.R, cast(uint)maxWidth, cast(uint)maxHeight, ImageFormat.R, buffer.ptr);
         GlFunction.setPixelUnpackAlign(4);
 
         texture.setWrapS(TextureWrap.ClampToEdge);

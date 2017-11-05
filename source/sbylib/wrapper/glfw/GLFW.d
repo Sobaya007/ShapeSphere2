@@ -11,7 +11,12 @@ class GLFW {
     private this(){}
 
     public static void init() {
-        DerelictGLFW3.load(DllPath("glfw3.dll"));
+        version (Windows) {
+            DerelictGLFW3.load(GLFW_DLL_PATH);
+        }
+        version (OSX) {
+            DerelictGLFW3.load();
+        }
         glfwSetErrorCallback(&errorCallback);
         assert(glfwInit(),"Failed to initialize GLFW");
     }
@@ -26,7 +31,8 @@ class GLFW {
     }
 
     private extern(C) void errorCallback(int error, const(char)* description) nothrow {
-        printf("description: %.*s\n", description);
-        assert(false, "GLFW error");
+        printf("error code: %x\n", error);
+        printf("description: %s\n", description);
+        //assert(false, "GLFW error");
     }
 }

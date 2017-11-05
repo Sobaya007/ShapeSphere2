@@ -1,5 +1,7 @@
 module sbylib.animation.Animation;
 
+import sbylib.entity.Entity;
+
 alias Ease = float function(float);
 alias EntityOperator = void function(Entity);
 
@@ -26,7 +28,7 @@ interface IAnimation {
     void eval(uint frame);
 }
 
-struct Animation(T) : IAnimation {
+class Animation(T) : IAnimation {
 
     private Entity entity;
     private EntityOperator operator;

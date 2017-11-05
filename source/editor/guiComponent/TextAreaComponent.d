@@ -174,9 +174,9 @@ private:
 
     void goRightEnd(bool shiftPressed) {
         if (shiftPressed) {
-            _rightIndex = _text.length;
+            _rightIndex = cast(int)_text.length;
         } else {
-            _leftIndex = _selectedIndex = _rightIndex = _text.length;
+            _leftIndex = _selectedIndex = _rightIndex = cast(int)_text.length;
         }
         refreshCover();
     }
@@ -214,7 +214,7 @@ private:
 
     void selectAll() {
         _selectedIndex = _leftIndex = 0;
-        _rightIndex = _text.length;
+        _rightIndex = cast(int)_text.length;
         refreshCover();
     }
 
@@ -228,7 +228,7 @@ private:
     void insertText(dstring str) {
         deleteSelectedRange();
         _text.insertInPlace(_leftIndex, str);
-        _leftIndex = _selectedIndex = _rightIndex = _rightIndex + str.length;
+        _leftIndex = _selectedIndex = _rightIndex = cast(int)(_rightIndex + str.length);
         refreshText();
     }
 

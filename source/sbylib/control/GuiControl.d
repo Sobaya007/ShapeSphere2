@@ -29,6 +29,9 @@ class GuiControl {
     private IControllable[] controllables;
     private Maybe!IControllable selectedControllable = None!IControllable;
 
+    private Maybe!KeyButton lastPressedKeyButton = None!KeyButton;
+    private int lastPressedKeyCount = 0;
+
     this(Window window, OrthoCamera camera, World world, Key key) {
         this.ray = new CollisionRay();
         this.mouse = new Mouse2D(window, camera);
@@ -79,6 +82,7 @@ private:
         bool controlPressed = this.key.isPressed(KeyButton.LeftControl) || this.key.isPressed(KeyButton.RightControl);
         foreach (button; EnumMembers!KeyButton) {
             if (this.key.justPressed(button)) {
+                refreshLastPressedKey(button);
                 this.selectedControllable.apply!(
                     c => c.onKeyPressed(button, shiftPressed, controlPressed)
                 );
@@ -89,6 +93,24 @@ private:
                 );
             }
         }
+        this.lastPressedKeyButton.apply!(
+            (button) {
+                if (this.key.isPressed(button)) {
+                    this.lastPressedKeyCount++;
+                } else {
+                    clearLastPressedKey();
+                }
+            }
+        );
+        this.lastPressedKeyButton.apply!(
+            (button) {
+                if (hasJustPressed()) {
+                    this.selectedControllable.apply!(
+                        c => c.onKeyPressed(button, shiftPressed, controlPressed)
+                    );
+                }
+            }
+        );
     }
 
     void updateControllables() {
@@ -111,5 +133,23 @@ private:
             }
             return cast(IControllable)entity.getUserData;
         });
+    }
+
+    private void refreshLastPressedKey(KeyButton key) {
+        this.lastPressedKeyButton = Just(key);
+        this.lastPressedKeyCount = 0;
+    }
+
+    private void clearLastPressedKey() {
+        this.lastPressedKeyButton = None!KeyButton;
+        this.lastPressedKeyCount = 0;
+    }
+
+    // Keyを長押ししているときにjustKeyPressedをtrueにするか？
+    private bool hasJustPressed() {
+        int minimum = 30;
+        int duration = 5;
+        int count = this.lastPressedKeyCount;
+        return count >= minimum && count%duration == 0;
     }
 }

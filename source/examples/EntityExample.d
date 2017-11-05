@@ -25,7 +25,7 @@ void entityExample() {
     auto image = ImageEntity(ImagePath("uv.png"), 0.5, 0.5);
     auto text = TextEntity("aiueo", 0.5);
 
-    text.pos.xy = vec2(0,-0.2);
+    text.pos = vec3(0,-0.2,0);
 
     world.setCamera(camera);
     world.add(image);

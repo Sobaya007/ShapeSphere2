@@ -26,8 +26,14 @@ class FreeType {
     private this(){}
 
     public static void init() {
-        DerelictFT.missingSymbolCallback = &missingSymFunc;
-        DerelictFT.load(DllPath("freetype.dll"));
+        import std.stdio;
+        version (Windows) {
+            DerelictFT.missingSymbolCallback = &missingSymFunc;
+            DerelictFT.load(FREETYPE_DLL_PATH);
+        }
+        version (OSX) {
+            DerelictFT.load();
+        }
         assert(!FT_Init_FreeType(&library), "Failed to init freetype!");
     }
 }
