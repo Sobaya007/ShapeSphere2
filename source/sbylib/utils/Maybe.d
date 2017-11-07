@@ -1,6 +1,11 @@
 module sbylib.utils.Maybe;
 
+import std.traits;
+
 struct Maybe(T) {
+
+    alias Type = T;
+
     private T value;
     private bool _none = true;
 
@@ -28,10 +33,14 @@ struct Maybe(T) {
     }
 }
 
-auto fmap(alias fun, T)(Maybe!T m) {
-    import std.traits;
-    if (m.isNone) return None!(ReturnType!fun);
+Maybe!S fmap(alias fun, T, S = ReturnType!fun)(Maybe!T m) {
+    if (m.isNone) return None!S;
     return Just(fun(m.get));
+}
+
+Maybe!S fmapAnd(alias fun, T, S = ReturnType!fun.Type)(Maybe!T m) {
+    if (m.isNone) return None!S;
+    return fun(m.get);
 }
 
 void apply(alias fun, T)(Maybe!T m) {

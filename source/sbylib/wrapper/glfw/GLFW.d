@@ -33,6 +33,6 @@ class GLFW {
     private extern(C) void errorCallback(int error, const(char)* description) nothrow {
         printf("error code: %x\n", error);
         printf("description: %s\n", description);
-        //assert(false, "GLFW error");
+        assert(false, "GLFW error");
     }
 }

@@ -6,65 +6,6 @@ import game.command;
 import game.scene;
 import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex;
 
-void setGameTransition() {
-    //アニメーション情報をどこまで詳細に載せるか
-    //具体的に見えるものは後。
-    //とりあえず遷移図を記す。
-    with (SceneManager) {
-        define(
-            LogoAnimation(
-                onFinish(
-                    move!OpeningAnimation
-                )
-            ),
-            OpeningAnimation(
-                onFinish(
-                    move!Title
-                )
-             ),
-            Title(
-                onStable( //落ちつくってなに
-                    over!(Select!(
-                        NewGame,
-                        LoadGame,
-                        Exit
-                    ))
-                )
-            ),
-            NewGame(
-                onYes(
-                    move!OpeningMovie(
-                        onFinish(
-                            move!OpeningStage(
-                                onFinish(
-                                    move!Stage //現在の状態をみていいかんじのステージに飛ぶ
-                                )
-                            )
-                        )
-                    )
-                ),
-                onNo(
-                    pop
-                )
-            ),
-            LoadGame(
-                onYes(
-                    move!Stage
-                ),
-                onNo(
-                    pop
-                )
-            ),
-            Exit(
-                onNo(
-                    pop
-                )
-            ),
-        );
-        launch!(LogoAnimation);
-    }
-}
-
 void gameMain(string[] args) {
     /* Core Settings */
     auto core = Core();
@@ -176,8 +117,6 @@ void gameMain(string[] args) {
         }
         if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
     }, "po");
-
-    //setGameTransition();
 
     core.start();
 }

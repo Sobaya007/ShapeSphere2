@@ -1,18 +1,21 @@
 module sbylib.animation.Animation;
 
 import sbylib.entity.Entity;
+import sbylib.math;
+import sbylib.animation.Ease;
 
-alias Ease = float function(float);
-alias EntityOperator = void function(Entity);
+AnimSetting!T setting(T)(T start, T end, uint period, EaseFunc ease) {
+    return AnimSetting!T(start, end, period, ease);
+}
 
-struct FrameEvaluator(T) {
+struct AnimSetting(T) {
 
     private T start;
     private T end;
     private uint period;
-    private Ease ease;
+    private EaseFunc ease;
 
-    this(T start, T end, uint period, Ease ease) {
+    this(T start, T end, uint period, EaseFunc ease) {
         this.start = start;
         this.end = end;
         this.period = period;
@@ -25,26 +28,34 @@ struct FrameEvaluator(T) {
 }
 
 interface IAnimation {
-    void eval(uint frame);
+    void eval(uint);
+    bool hasFinished(uint);
 }
 
 class Animation(T) : IAnimation {
 
-    private Entity entity;
-    private EntityOperator operator;
-    private FrameEvaluator!T evaluator;
+    alias Operator = void delegate(T);
 
+    private Operator operator;
+    private AnimSetting!T setting;
 
-    this(Entity entity, EntityOperator operator, FrameEvaluator!T evaluator) {
-        this.entity = entity;
+    this(Operator operator, AnimSetting!T setting) {
         this.operator = operator;
-        this.evaluator = evaluator;
+        this.setting = setting;
     }
 
-    void eval(uint frame) {
-        operartor(entity, evaluator.eval(frame));
+    override void eval(uint frame) {
+        operator(setting.eval(frame));
+    }
+
+    override bool hasFinished(uint frame) {
+        return frame > this.setting.period;
     }
 }
 
-IAnimation rotate(T)(Entity entity, FrameEvaluator!T evaluator) {
+IAnimation rotate(Entity entity, AnimSetting!Radian evaluator) {
+    auto e = entity;
+    return new Animation!Radian((rad) {
+        e.rot = mat3.axisAngle(vec3(0,0,1), rad);
+    }, evaluator);
 }

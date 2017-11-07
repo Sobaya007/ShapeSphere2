@@ -7,8 +7,4 @@ import sbylib;
 class OpeningAnimation : SceneBase {
 
     mixin SceneBasePack;
-
-    override Maybe!SceneTransition step() {
-        return this.finish();
-    }
 }

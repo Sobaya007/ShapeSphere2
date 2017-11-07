@@ -126,6 +126,12 @@ class Core {
         }, name);
     }
 
+    Process addProcess(const void function() func, string name) {
+        return this.addProcess((Process proc) {
+            func();
+        }, name);
+    }
+
     //メインループ
     private void mainLoop() {
         this.fpsBalancer.loop({

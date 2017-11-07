@@ -11,13 +11,17 @@ interface SceneTransition {
 class MoveTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneClass)) {
 
     override void opCall(ref SceneBase[] scenes) {
-        scenes = [SceneManager.find!SceneClass.get];
+        auto newScene = SceneManager.find!SceneClass.get;
+        newScene.initialize();
+        scenes = [newScene];
     }
 }
 
 class OverTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneClass)) { 
     override void opCall(ref SceneBase[] scenes) {
-        scenes ~= SceneManager.find!SceneClass.get;
+        auto newScene = SceneManager.find!SceneClass.get;
+        newScene.initialize();
+        scenes ~= newScene;
     }
 }
 

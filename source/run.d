@@ -17,7 +17,8 @@ enum RunMode {
     Plot,
     XFileLoad,
     Editor,
-    Entity
+    Entity,
+    Scene
 };
 
 void run(RunMode mode, string[] args) {
@@ -60,6 +61,9 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Entity:
         entityExample();
+        break;
+    case RunMode.Scene:
+        sceneExample();
         break;
     }
 }

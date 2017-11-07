@@ -9,6 +9,6 @@ class OpeningStage : SceneBase {
     mixin SceneBasePack;
 
     override Maybe!SceneTransition step() {
-        return this.finish();
+        return Just(this.finish());
     }
 }

@@ -17,6 +17,10 @@ struct Degree {
         return Degree(mixin(op ~ "deg"));
     }
 
+    Degree opBinary(string op)(float v) @nogc {
+        return Degree(mixin("deg " ~ op ~ " v"));
+    }
+
     alias deg this;
 }
 
@@ -33,6 +37,10 @@ struct Radian {
 
     Radian opUnary(string op)() @nogc {
         return Radian(mixin(op ~ "rad"));
+    }
+
+    Radian opBinary(string op)(float v) @nogc {
+        return Radian(mixin("rad " ~ op ~ " v"));
     }
 
     alias rad this;

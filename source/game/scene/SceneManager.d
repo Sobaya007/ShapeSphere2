@@ -17,9 +17,8 @@ static:
         import std.algorithm;
         import std.array;
         currentScene = scenes.filter!(s => cast(SceneClass)s !is null).array;
-        Core().addProcess(delegate() {
-            run();
-        }, "SceneManager.run");
+        currentScene.each!(scene => scene.initialize());
+        Core().addProcess(&this.run, "SceneManager.run");
     }
 
     void run() {
