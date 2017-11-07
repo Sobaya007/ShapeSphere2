@@ -33,12 +33,16 @@ class PopTransition : SceneTransition {
 }
 
 SceneTransition move(SceneClass)(SceneCallback[] callbacks...) if (is(SceneClass : SceneBase)) {
-    SceneManager.define(SceneClass(callbacks));
+    if (callbacks.length > 0) {
+        SceneManager.define(SceneClass(callbacks));
+    }
     return new MoveTransition!SceneClass;
 }
 
 SceneTransition over(SceneClass)(SceneCallback[] callbacks...) if (is(SceneClass : SceneBase)) {
-    SceneManager.define(SceneClass(callbacks));
+    if (callbacks.length > 0) {
+        SceneManager.define(SceneClass(callbacks));
+    }
     return new OverTransition!SceneClass;
 }
 

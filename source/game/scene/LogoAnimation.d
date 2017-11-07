@@ -1,6 +1,5 @@
 module game.scene.LogoAnimation;
 
-import game.scene.Animation;
 import game.scene.SceneBase;
 import game.scene.SceneTransition;
 import sbylib;
@@ -9,29 +8,34 @@ class LogoAnimation : SceneBase {
 
     mixin SceneBasePack;
 
-    private Process process;
-    private Entity image;
-
     this() {
-        this.image = ImageEntity(ImagePath("uv.png"), 0.2, 0.2);
+        auto image = ImageEntity(ImagePath("uv.png"), 0.2, 0.2);
         super(
             new ThroughAnimationSet([
                 fade(
                     setting(
-                        vec4(0),
-                        vec4(1),
-                        10,
-                        Ease.identity
+                        vec4(0,0,0,1),
+                        vec4(0,0,0,0),
+                        60,
+                        Ease.linear
                     )
                 ),
-                this.image.rotate(
+                image.rotate(
                     setting(
                         Radian(0.deg),
-                        Radian(720.deg),
-                        600,
-                        Ease.identity
+                        Radian(360.deg),
+                        60,
+                        Ease.easeInOut
                     )
-                )
+                ),
+                fade(
+                    setting(
+                        vec4(0,0,0,0),
+                        vec4(0,0,0,1),
+                        60,
+                        Ease.linear
+                    )
+                ),
             ])
         );
         addEntity(image);

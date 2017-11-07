@@ -7,4 +7,11 @@ import sbylib;
 class OpeningAnimation : SceneBase {
 
     mixin SceneBasePack;
+
+    this() {
+        super(
+            new ThroughAnimationSet([
+            ])
+        );
+    }
 }

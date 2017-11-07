@@ -1,4 +1,4 @@
-module game.scene.Animation;
+module game.scene.AnimationSet;
 
 import game.scene.SceneTransition;
 import game.scene.SceneCallback;
@@ -35,10 +35,11 @@ class ThroughAnimationSet : AnimationSet {
         if (this.idx.isNone) return Just(scene.finish());
         auto anim = this.animations[this.idx.get];
         anim.eval(this.frame);
+        this.frame++;
         if (anim.hasFinished(this.frame)) {
             this.idx = this.getAnimationIndex(this.idx.get + 1);
+            this.frame = 0;
         }
-        this.frame++;
         return None!SceneTransition;
     }
 
@@ -73,10 +74,11 @@ class LoopAnimationSet : AnimationSet {
         }
         auto anim = this.animations[this.idx.get];
         anim.eval(this.frame);
+        this.frame++;
         if (anim.hasFinished(this.frame)) {
             this.idx = this.getAnimationIndex(this.idx.get);
+            this.frame = 0;
         }
-        this.frame++;
         return None!SceneTransition;
     }
 
@@ -108,10 +110,11 @@ class WaitAnimationSet : AnimationSet {
         if (this.idx.isNone) return None!SceneTransition;
         auto anim = this.animations[this.idx.get];
         anim.eval(this.frame);
+        this.frame++;
         if (anim.hasFinished(this.frame)) {
             this.idx = this.getAnimationIndex(this.idx.get);
+            this.frame = 0;
         }
-        this.frame++;
         return None!SceneTransition;
     }
 

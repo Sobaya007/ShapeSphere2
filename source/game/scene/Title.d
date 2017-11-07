@@ -8,7 +8,20 @@ class Title : SceneBase {
 
     mixin SceneBasePack;
 
-    override Maybe!SceneTransition step() {
-        return Just(this.finish());
+    this() {
+        auto text = TextEntity("うんこ"d, 0.2);
+        super(
+            new LoopAnimationSet([
+                text.rotate(
+                    setting(
+                        Radian(0.deg),
+                        Radian(360.deg),
+                        60,
+                        Ease.linear
+                    )
+                )
+            ])
+        );
+        addEntity(text);
     }
 }

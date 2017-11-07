@@ -2,7 +2,7 @@ module game.scene.SceneBase;
 
 import game.scene.SceneTransition;
 import game.scene.SceneCallback;
-import game.scene.Animation;
+public import game.scene.AnimationSet;
 import sbylib;
 
 
@@ -20,6 +20,7 @@ class SceneBase {
     this() {
         this.fadeRect = ColorEntity(2,2);
         this.fadeRect.getMesh().mat.color = vec4(0);
+        this.fadeRect.getMesh().mat.config.transparency = true;
         this.fadeRect.pos.z = 1;
 
         auto window = Core().getWindow();
@@ -30,6 +31,8 @@ class SceneBase {
         this.viewport = new AutomaticViewport(window);
 
         this.world.setCamera(this.camera);
+
+        this.addEntity(this.fadeRect);
     }
 
     this(AnimationSet animationSet) {
@@ -63,7 +66,7 @@ class SceneBase {
             }
         }
         import std.format;
-        assert(false, name.format!"%s is not a callback name.");
+        assert(false, format!"%s's %s is not a callback name."(typeid(this),name));
     }
 
     IAnimation fade(AnimSetting!vec4 setting) {
@@ -80,7 +83,6 @@ class SceneBase {
 
 mixin template SceneBasePack() {
 
-    import game.scene.Animation;
     import game.scene.SceneCallback;
     public static auto opCall(SceneCallback[] cbs...) {
         auto res = new typeof(this)();

@@ -25,10 +25,13 @@ static:
         Maybe!SceneTransition tr;
         foreach (s; currentScene) {
             tr = s.step();
+            //import std.stdio;
+            //writeln(typeid(s));
         }
 
         if (tr.isNone) return;
         tr.get()(currentScene);
+
     }
 
     Maybe!SceneBase find(SceneClass)() if (is(SceneClass : SceneBase)) {

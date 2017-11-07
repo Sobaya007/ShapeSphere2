@@ -55,7 +55,7 @@ class Animation(T) : IAnimation {
 
 IAnimation rotate(Entity entity, AnimSetting!Radian evaluator) {
     auto e = entity;
-    return new Animation!Radian((rad) {
+    return new Animation!Radian((Radian rad) {
         e.rot = mat3.axisAngle(vec3(0,0,1), rad);
     }, evaluator);
 }
