@@ -29,7 +29,7 @@ class FreeType {
         import std.stdio;
         version (Windows) {
             DerelictFT.missingSymbolCallback = &missingSymFunc;
-            DerelictFT.load(FREETYPE_DLL_PATH);
+            DerelictFT.load(DllPath("freetype.dll"));
         }
         version (OSX) {
             DerelictFT.load();

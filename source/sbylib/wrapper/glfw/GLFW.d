@@ -12,7 +12,7 @@ class GLFW {
 
     public static void init() {
         version (Windows) {
-            DerelictGLFW3.load(GLFW_DLL_PATH);
+            DerelictGLFW3.load(DllPath("glfw3.dll"));
         }
         version (OSX) {
             DerelictGLFW3.load();

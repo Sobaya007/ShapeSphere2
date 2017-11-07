@@ -8,7 +8,7 @@ class FreeImage {
 
     static void init() {
         version (Windows) {
-            DerelictFI.load(FREEIMAGE_DLL_PATH);
+            DerelictFI.load(DllPath("FreeImage.dll"));
         }
         version (OSX) {
             DerelictFI.load();
