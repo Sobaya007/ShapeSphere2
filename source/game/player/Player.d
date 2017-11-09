@@ -32,7 +32,7 @@ class Player {
     private Camera camera;
     private PlayerChaseControl cameraControl;
 
-    this(Key key, JoyStick joy, Camera camera, World world, ICommandManager commandManager) {
+    this(Camera camera, World world, ICommandManager commandManager) {
         this.world = world;
         this.camera = camera;
         this.cameraControl = new PlayerChaseControl(camera, this);
@@ -44,16 +44,16 @@ class Player {
         this.needleSphere.constructor(this.elasticSphere);
         this.springSphere.constructor(this.elasticSphere);
         this.sphere = this.elasticSphere;
-        this.controler = new Controler(key, joy);
-        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Down), &this.onDownPress));
-        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.Down), &this.onDownJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Needle), &this.onNeedlePress));
-        commandManager.addCommand(new ButtonCommand(() => controler.isReleased(ControlerButton.Needle), &this.onNeedleRelease));
-        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.Spring), &this.onSpringPress));
-        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.Spring), &this.onSpringJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => controler.justPressed(ControlerButton.CameraReset), &this.onCameraResetJustPress));
-        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(ControlerButton.LookOver), &this.onLookOverPress));
-        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(ControlerButton.LookOver), &this.onLookOverJustRelease));
+        this.controler = Controler();
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(CButton.Press), &this.onDownPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(CButton.Down), &this.onDownJustRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(CButton.Needle), &this.onNeedlePress));
+        commandManager.addCommand(new ButtonCommand(() => controler.isReleased(CButton.Needle), &this.onNeedleRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(CButton.Spring), &this.onSpringPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(CButton.Spring), &this.onSpringJustRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.justPressed(CButton.CameraReset), &this.onCameraResetJustPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.isPressed(CButton.LookOver), &this.onLookOverPress));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(CButton.LookOver), &this.onLookOverJustRelease));
         commandManager.addCommand(new StickCommand(() => controler.getLeftStickValue.safeNormalize, &this.onMovePress));
         commandManager.addCommand(new StickCommand(() => controler.getRightStickValue.safeNormalize, &this.onRotatePress));
     }

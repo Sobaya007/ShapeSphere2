@@ -8,7 +8,4 @@ class OpeningMovie : SceneBase {
 
     mixin SceneBasePack;
 
-    override Maybe!SceneTransition step() {
-        return Just(this.finish());
-    }
 }

@@ -19,7 +19,7 @@ struct Maybe(T) {
     }
 
     T get() in {
-        assert(!_none);
+        assert(!_none, "this is none");
     } body {
         return this.value;
     }
@@ -55,6 +55,18 @@ Maybe!T Just(T)(T v) {
 
 Maybe!T None(T)() {
     return Maybe!T(true);
+}
+
+Maybe!T wrap(T)(T value) {
+    static if (__traits(compiles, "value is null")) {
+        if (value is null) {
+            return None!T;
+        } else {
+            return Just(value);
+        }
+    } else {
+        return Just(value);
+    }
 }
 
 unittest {

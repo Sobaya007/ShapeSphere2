@@ -2,35 +2,13 @@ module game.scene.SceneCallback;
 
 import game.scene.SceneTransition;
 
-class SceneCallback {
-    private string name;
-    private SceneTransition transit;
-    this(string name, SceneTransition transit) {
-        this.name = name;
-        this.transit = transit;
-    }
+alias FinishCallback = SceneTransition delegate();
+alias SelectCallback = SceneTransition delegate(size_t);
 
-    SceneTransition opCall() {
-        return this.transit;
-    }
-
-    string getName() {
-        return this.name;
-    }
+FinishCallback onFinish(SceneTransition transit) {
+    return () => transit;
 }
 
-SceneCallback onFinish(SceneTransition transit) {
-    return new SceneCallback("finish", transit);
-}
-
-SceneCallback onStable(SceneTransition transit) {
-    return new SceneCallback("stable", transit);
-}
-
-SceneCallback onYes(SceneTransition transit) {
-    return new SceneCallback("yes", transit);
-}
-
-SceneCallback onNo(SceneTransition transit) {
-    return new SceneCallback("no", transit);
+SelectCallback onSelect(SceneTransition[] transit...) {
+    return idx => transit[idx];
 }

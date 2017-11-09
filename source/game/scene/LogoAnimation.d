@@ -2,6 +2,7 @@ module game.scene.LogoAnimation;
 
 import game.scene.SceneBase;
 import game.scene.SceneTransition;
+import game.scene.AnimationManager;
 import sbylib;
 
 class LogoAnimation : SceneBase {
@@ -10,8 +11,9 @@ class LogoAnimation : SceneBase {
 
     this() {
         auto image = ImageEntity(ImagePath("uv.png"), 0.2, 0.2);
-        super(
-            new ThroughAnimationSet([
+        super();
+        AnimationManager().startAnimation(
+            sequence([
                 fade(
                     setting(
                         vec4(0,0,0,1),
@@ -36,7 +38,8 @@ class LogoAnimation : SceneBase {
                         Ease.linear
                     )
                 ),
-            ])
+            ]),
+            &this.finish
         );
         addEntity(image);
     }

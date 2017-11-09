@@ -2,25 +2,30 @@ module game.scene.SceneBase;
 
 import game.scene.SceneTransition;
 import game.scene.SceneCallback;
-public import game.scene.AnimationSet;
 import sbylib;
 
 
 class SceneBase {
 
-    private SceneCallback[] callbacks;
+    enum State {Waiting, Running, Finished};
+
+    protected Maybe!FinishCallback _finish;
+    protected Maybe!SelectCallback _select;
     private EntityTemp!(GeometryRect, ColorMaterial) fadeRect;
-    private Maybe!AnimationSet animationSet;
     private World world;
     private Camera camera;
     private Renderer renderer;
     private Screen screen;
     private IViewport viewport;
+    private State state;
+    public Maybe!SceneTransition transition;
 
     this() {
+        this.state = State.Waiting;
         this.fadeRect = ColorEntity(2,2);
         this.fadeRect.getMesh().mat.color = vec4(0);
         this.fadeRect.getMesh().mat.config.transparency = true;
+        this.fadeRect.getMesh().mat.config.depthWrite = false;
         this.fadeRect.pos.z = 1;
 
         auto window = Core().getWindow();
@@ -35,14 +40,9 @@ class SceneBase {
         this.addEntity(this.fadeRect);
     }
 
-    this(AnimationSet animationSet) {
-        this.animationSet = Just(animationSet);
-        animationSet.setScene(this);
-        this();
-    }
-
     void initialize() {
-        this.animationSet.apply!(set => set.initialize());
+        this.state = State.Running;
+        this.transition = None!SceneTransition;
     }
 
     void render() {
@@ -50,23 +50,18 @@ class SceneBase {
         this.renderer.render(this.world, this.screen, this.viewport);
     }
 
-    Maybe!SceneTransition step() {
+    void step() {
         this.render();
-        return animationSet.fmapAnd!((AnimationSet set) => set.step());
     }
 
-    void addCallbacks(SceneCallback callbacks) {
-        this.callbacks ~= callbacks;
+    void finish() {
+        this.transition = Just(this._finish.get()());
+        this.state = State.Finished;
     }
 
-    SceneTransition opDispatch(string name)() {
-        foreach (cb; this.callbacks) {
-            if (cb.getName() == name) {
-                return cb();
-            }
-        }
-        import std.format;
-        assert(false, format!"%s's %s is not a callback name."(typeid(this),name));
+    void select(size_t idx) {
+        this.transition = Just(this._select.get()(idx));
+        this.state = State.Finished;
     }
 
     IAnimation fade(AnimSetting!vec4 setting) {
@@ -84,11 +79,15 @@ class SceneBase {
 mixin template SceneBasePack() {
 
     import game.scene.SceneCallback;
-    public static auto opCall(SceneCallback[] cbs...) {
+    public static auto opCall(FinishCallback finish) {
         auto res = new typeof(this)();
-        foreach (cb; cbs) {
-            res.addCallbacks(cb);
-        }
+        res._finish = Just(finish);
+        return res;
+    }
+
+    public static auto opCall(SelectCallback select) {
+        auto res = new typeof(this)();
+        res._select = Just(select);
         return res;
     }
 }

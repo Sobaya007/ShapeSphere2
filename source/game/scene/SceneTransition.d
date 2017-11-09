@@ -19,7 +19,7 @@ class MoveTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneClas
 
 class OverTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneClass)) { 
     override void opCall(ref SceneBase[] scenes) {
-        auto newScene = SceneManager.find!SceneClass.get;
+        auto newScene = SceneManager.find!SceneClass;
         newScene.initialize();
         scenes ~= newScene;
     }
@@ -32,18 +32,17 @@ class PopTransition : SceneTransition {
     }
 }
 
-SceneTransition move(SceneClass)(SceneCallback[] callbacks...) if (is(SceneClass : SceneBase)) {
-    if (callbacks.length > 0) {
-        SceneManager.define(SceneClass(callbacks));
-    }
+SceneTransition move(SceneClass)() if (is(SceneClass : SceneBase)) {
     return new MoveTransition!SceneClass;
 }
 
-SceneTransition over(SceneClass)(SceneCallback[] callbacks...) if (is(SceneClass : SceneBase)) {
-    if (callbacks.length > 0) {
-        SceneManager.define(SceneClass(callbacks));
-    }
+SceneTransition over(SceneClass)() if (is(SceneClass : SceneBase)) {
     return new OverTransition!SceneClass;
+}
+
+SceneTransition move(SceneClass)(FinishCallback callback) if (is(SceneClass : SceneBase)) {
+    SceneManager.define(SceneClass(callback));
+    return new MoveTransition!SceneClass;
 }
 
 SceneTransition pop() {

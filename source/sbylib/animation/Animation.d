@@ -3,6 +3,7 @@ module sbylib.animation.Animation;
 import sbylib.entity.Entity;
 import sbylib.math;
 import sbylib.animation.Ease;
+import std.algorithm;
 
 AnimSetting!T setting(T)(T start, T end, uint period, EaseFunc ease) {
     return AnimSetting!T(start, end, period, ease);
@@ -22,14 +23,17 @@ struct AnimSetting(T) {
         this.ease = ease;
     }
 
-    T eval(uint frame) {
+    T eval(uint frame) in {
+        assert(0 <= frame && frame <= period);
+    } body {
         return start + (end - start) * ease(cast(float)frame / period);
     }
 }
 
 interface IAnimation {
+    void initialize();
     void eval(uint);
-    bool hasFinished(uint);
+    uint getPeriod();
 }
 
 class Animation(T) : IAnimation {
@@ -44,12 +48,70 @@ class Animation(T) : IAnimation {
         this.setting = setting;
     }
 
+    override void initialize() {
+        this.eval(0);
+    }
+
     override void eval(uint frame) {
         operator(setting.eval(frame));
     }
 
-    override bool hasFinished(uint frame) {
-        return frame > this.setting.period;
+    override uint getPeriod() {
+        return this.setting.period;
+    }
+}
+
+class MultiAnimation : IAnimation {
+
+    private IAnimation[] animations;
+
+    this(IAnimation[] animations) {
+        this.animations = animations;
+    }
+
+    override void initialize() {
+        foreach (anim; this.animations) {
+            anim.initialize();
+        }
+    }
+
+    override void eval(uint frame) {
+        foreach (anim; this.animations) {
+            anim.eval(frame);
+        }
+    }
+
+    override uint getPeriod() {
+        return this.animations.map!(a => a.getPeriod).maxElement;
+    }
+}
+
+class SequenceAnimation : IAnimation {
+    private IAnimation[] animations;
+
+    this(IAnimation[] animations) {
+        this.animations = animations;
+    }
+
+    override void initialize() {
+        foreach (anim; this.animations) {
+            anim.initialize();
+        }
+    }
+
+    override void eval(uint frame) {
+        foreach (anim; this.animations) {
+            if (frame <= anim.getPeriod) {
+                anim.eval(frame);
+                return;
+            } else {
+                frame -= anim.getPeriod;
+            }
+        }
+    }
+
+    override uint getPeriod() {
+        return this.animations.map!(a => a.getPeriod).sum;
     }
 }
 
@@ -58,4 +120,12 @@ IAnimation rotate(Entity entity, AnimSetting!Radian evaluator) {
     return new Animation!Radian((Radian rad) {
         e.rot = mat3.axisAngle(vec3(0,0,1), rad);
     }, evaluator);
+}
+
+IAnimation multi(IAnimation[] animations) {
+    return new MultiAnimation(animations);
+}
+
+IAnimation sequence(IAnimation[] animations) {
+    return new SequenceAnimation(animations);
 }

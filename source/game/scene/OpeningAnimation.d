@@ -9,9 +9,6 @@ class OpeningAnimation : SceneBase {
     mixin SceneBasePack;
 
     this() {
-        super(
-            new ThroughAnimationSet([
-            ])
-        );
+        super();
     }
 }

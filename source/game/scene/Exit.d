@@ -8,7 +8,4 @@ class Exit : SceneBase {
 
     mixin SceneBasePack;
 
-    override Maybe!SceneTransition step() {
-        return Just(this.finish());
-   }
 }

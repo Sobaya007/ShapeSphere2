@@ -90,6 +90,16 @@ struct Array(T) {
         this._length = len;
     }
 
+    void filter(alias po)() {
+        auto len = 0;
+        foreach (i; 0..this._length) {
+            auto a = this[i];
+            if (!po(a)) continue;
+            this[len++] = this[i];
+        }
+        this._length = len;
+    }
+
     private void incLength(size_t _length) out {
         assert(this.ptr);
     } body {

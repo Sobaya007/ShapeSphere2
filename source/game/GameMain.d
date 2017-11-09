@@ -26,7 +26,7 @@ void gameMain(string[] args) {
 
     /* Player Settings */
     auto commandManager = getCommandManager(args);
-    Player player = new Player(core.getKey(), core.getJoyStick(), camera, world3d, commandManager);
+    Player player = new Player(camera, world3d, commandManager);
     core.addProcess((proc) {
         player.step();
     }, "player update");

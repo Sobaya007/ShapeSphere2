@@ -20,6 +20,8 @@ void sceneExample() {
         }
     }, "po");
 
+    core.addProcess(&AnimationManager().step, "Animation Manager");
+
     setGameTransition();
 
     core.start();
@@ -29,11 +31,13 @@ void setGameTransition() {
     //アニメーション情報をどこまで詳細に載せるか
     //具体的に見えるものは後。
     //とりあえず遷移図を記す。
+    import std.traits;
     with (SceneManager) {
         define(
             LogoAnimation(
                 onFinish(
-                    move!OpeningAnimation
+                    move!Title
+                    //move!OpeningAnimation
                 )
             ),
             OpeningAnimation(
@@ -42,16 +46,13 @@ void setGameTransition() {
                 )
              ),
             Title(
-                onStable( //落ちつくってなに
-                    over!(Select!(
-                        NewGame,
-                        LoadGame,
-                        Exit
-                    ))
+                onSelect(
+                    move!StartNewGame,
+                    move!SelectSaveData,
                 )
             ),
-            NewGame(
-                onYes(
+            StartNewGame( //たぶん読み込み画面とか
+                onFinish(
                     move!OpeningMovie(
                         onFinish(
                             move!OpeningStage(
@@ -61,25 +62,15 @@ void setGameTransition() {
                             )
                         )
                     )
-                ),
-                onNo(
-                    pop
                 )
             ),
-            LoadGame(
-                onYes(
+            SelectSaveData(
+                onFinish(
                     move!Stage
-                ),
-                onNo(
-                    pop
-                )
-            ),
-            Exit(
-                onNo(
-                    pop
                 )
             ),
         );
-        launch!(LogoAnimation);
+        launch!(Title);
+        //launch!(LogoAnimation);
     }
 }

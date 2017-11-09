@@ -7,8 +7,4 @@ import sbylib;
 class Stage : SceneBase {
 
     mixin SceneBasePack;
-
-    override Maybe!SceneTransition step() {
-        return Just(this.finish());
-    }
 }

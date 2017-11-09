@@ -24,9 +24,9 @@ static:
     void run() {
         Maybe!SceneTransition tr;
         foreach (s; currentScene) {
-            tr = s.step();
-            //import std.stdio;
-            //writeln(typeid(s));
+            s.step();
+            if (tr.isJust) continue;
+            tr = s.transition;
         }
 
         if (tr.isNone) return;

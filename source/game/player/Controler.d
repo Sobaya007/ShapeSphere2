@@ -3,14 +3,18 @@ module game.player.Controler;
 import sbylib;
 import std.math;
 
-enum ControlerButton {
-    Down,
+enum CButton {
+    Press,
     Needle,
     Spring,
     CameraLeft,
     CameraRight,
     CameraReset,
-    LookOver
+    LookOver,
+    Left,
+    Right,
+    Up,
+    Down
 }
 
 class Controler {
@@ -31,25 +35,36 @@ class Controler {
 
     private Key key;
     private JoyStick joy;
-    private Button[ControlerButton] buttons;
+    private Button[CButton] buttons;
     private Stick leftStick;
     private Stick rightStick;
 
-    this(Key key, JoyStick joy) {
-        this.key = key;
-        this.joy = joy;
-        this.buttons[ControlerButton.Down] = Button(KeyButton.Space, JoyButton.B);
-        this.buttons[ControlerButton.Needle] = Button(KeyButton.KeyX, JoyButton.X);
-        this.buttons[ControlerButton.Spring] = Button(KeyButton.KeyC, JoyButton.Y);
-        this.buttons[ControlerButton.CameraLeft] = Button(KeyButton.KeyQ, JoyButton.L1);
-        this.buttons[ControlerButton.CameraRight] = Button(KeyButton.KeyE, JoyButton.R1);
-        this.buttons[ControlerButton.CameraReset] = Button(KeyButton.KeyZ, JoyButton.R3);
-        this.buttons[ControlerButton.LookOver] = Button(KeyButton.KeyR, JoyButton.L2);
+    private static Controler instance;
+    public static Controler opCall() {
+        if (instance is null)
+            return instance = new Controler();
+        return instance;
+    }
+
+    private this() {
+        this.key = Core().getKey();
+        this.joy = Core().getJoyStick();
+        this.buttons[CButton.Press] = Button(KeyButton.Space, JoyButton.B);
+        this.buttons[CButton.Needle] = Button(KeyButton.KeyX, JoyButton.X);
+        this.buttons[CButton.Spring] = Button(KeyButton.KeyC, JoyButton.Y);
+        this.buttons[CButton.CameraLeft] = Button(KeyButton.KeyQ, JoyButton.L1);
+        this.buttons[CButton.CameraRight] = Button(KeyButton.KeyE, JoyButton.R1);
+        this.buttons[CButton.CameraReset] = Button(KeyButton.KeyZ, JoyButton.R3);
+        this.buttons[CButton.LookOver] = Button(KeyButton.KeyR, JoyButton.L2);
+        this.buttons[CButton.Left] = Button(KeyButton.Left, JoyButton.Left);
+        this.buttons[CButton.Right] = Button(KeyButton.Right, JoyButton.Right);
+        this.buttons[CButton.Up] = Button(KeyButton.Up, JoyButton.Up);
+        this.buttons[CButton.Down] = Button(KeyButton.Down, JoyButton.Down);
         this.leftStick = Stick(KeyButton.Left, KeyButton.Right, KeyButton.Up, KeyButton.Down, JoyAxis.LeftX, JoyAxis.LeftY);
         this.rightStick = Stick(KeyButton.KeyA, KeyButton.KeyD, KeyButton.KeyW, KeyButton.KeyS, JoyAxis.RightX, JoyAxis.RightY);
     }
 
-    bool isPressed(ControlerButton b) {
+    bool isPressed(CButton b) {
         if (this.joy.canUse) {
             return this.joy.isPressed(this.buttons[b].joyButton);
         } else {
@@ -57,7 +72,7 @@ class Controler {
         }
     }
 
-    bool isReleased(ControlerButton b) {
+    bool isReleased(CButton b) {
         if (this.joy.canUse) {
             return this.joy.isReleased(this.buttons[b].joyButton);
         } else {
@@ -65,7 +80,7 @@ class Controler {
         }
     }
 
-    bool justPressed(ControlerButton b) {
+    bool justPressed(CButton b) {
         if (this.joy.canUse) {
             return this.joy.justPressed(this.buttons[b].joyButton);
         } else {
@@ -73,7 +88,7 @@ class Controler {
         }
     }
 
-    bool justReleased(ControlerButton b) {
+    bool justReleased(CButton b) {
         if (this.joy.canUse) {
             return this.joy.justReleased(this.buttons[b].joyButton);
         } else {
