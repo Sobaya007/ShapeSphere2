@@ -149,6 +149,7 @@ class ElasticSphere : BaseSphere{
         foreach (particle; this.particleList) {
             particle.velocity = needleSphere.calcVelocity(particle.position);
         }
+        this.pushCount = 0;
     }
 
     private void fromSpring() {
@@ -169,6 +170,7 @@ class ElasticSphere : BaseSphere{
         foreach (particle; this.particleList) {
             particle.velocity = this.springSphere.getVelocity();
         }
+        this.pushCount = 0;
     }
 
     override void setCenter(vec3 center) {
