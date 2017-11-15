@@ -11,18 +11,78 @@ class Title : SceneBase {
 
     mixin SceneBasePack;
 
-    private Label[] selections;
+    private Selection[] selections;
     private uint selector;
+    private AnimationProcedure mainAnimation;
+
+    struct Selection {
+        private Label label;
+        private vec2 basePos;
+        private Maybe!AnimationProcedure animation;
+        this(dstring text, vec2 basePos) {
+            this.label = TextEntity(text, 0.15, Label.OriginX.Right, Label.OriginY.Center);
+            this.basePos = basePos;
+            this.label.pos.xy = basePos;
+            this.label.setColor(vec4(0));
+        }
+
+        void selected() {
+            this.animation = Just(AnimationManager().startAnimation(
+                multi([
+                    this.label.translate(
+                        setting(
+                            this.label.pos.xy,
+                            basePos - vec2(0.05,0),
+                            30,
+                            Ease.easeInOut
+                        )
+                    ),
+                    this.label.color(
+                        setting(
+                            this.label.getColor,
+                            vec4(1),
+                            30,
+                            Ease.linear
+                        )
+                    )
+                ])
+            ));
+        }
+
+        void unselected() {
+            if (this.animation.isJust) {
+                this.animation.get.finish();
+            }
+            this.animation = Just(AnimationManager().startAnimation(
+                multi([
+                    this.label.translate(
+                        setting(
+                            this.label.pos.xy,
+                            basePos,
+                            30,
+                            Ease.easeInOut
+                        )
+                    ),
+                    this.label.color(
+                        setting(
+                            this.label.getColor,
+                            vec4(0.5),
+                            30,
+                            Ease.linear
+                        )
+                    )
+                ])
+            ));
+        }
+    }
 
     this() {
         auto text = TextEntity("タイトル"d, 0.4);
-        auto newGame = TextEntity("New Game", 0.2, Label.OriginX.Right, Label.OriginY.Center);
-        auto loadGame = TextEntity("Load Game", 0.2, Label.OriginX.Right, Label.OriginY.Center);
-        newGame.pos.xy = vec2(1,-0.3);
-        loadGame.pos.xy = vec2(0.9,-0.5);
+        auto newGame = Selection("New Game"d, vec2(0.9, -0.6));
+        auto loadGame = Selection("Load Game"d, vec2(0.85, -0.75));
         selections = [newGame, loadGame];
         super();
-        AnimationManager().startAnimation(
+        this.mainAnimation = AnimationManager().startAnimation(
             sequence([
                 fade(
                     setting(
@@ -41,7 +101,7 @@ class Title : SceneBase {
                     )
                 ),
                 multi(selections.map!(s =>
-                    s.color(
+                    s.label.color(
                         setting(
                             vec4(0),
                             vec4(0.5),
@@ -49,28 +109,51 @@ class Title : SceneBase {
                             Ease.linear
                         )
                     )).array
-                )
+                ),
+                multi([
+                    this.selections[0].label.translate(
+                        setting(
+                            this.selections[0].label.pos.xy,
+                            this.selections[0].basePos - vec2(0.05,0),
+                            30,
+                            Ease.easeInOut
+                        )
+                    ),
+                    this.selections[0].label.color(
+                        setting(
+                            vec4(0),
+                            vec4(1),
+                            30,
+                            Ease.linear
+                        )
+                    )
+                ])
             ])
         );
         addEntity(text);
         foreach (s; this.selections) {
-            addEntity(s);
+            addEntity(s.label);
         }
     }
 
     override void step() {
+        super.step();
+        if (!this.mainAnimation.hasFinished) return;
         if (Controler().justPressed(CButton.Up)) {
             this.changeSelector(-1);
         }
         if (Controler().justPressed(CButton.Down)) {
             this.changeSelector(+1);
         }
-        super.step();
+        if (Controler().justPressed(CButton.Decide)) {
+            this.select(this.selector);
+        }
     }
 
     void changeSelector(int d) {
-        if (this.selector == 0) return;
-        if (this.selector == this.selections.length-1) return;
-        this.selector += d;
+        if (this.selector+d == -1) return;
+        if (this.selector+d == this.selections.length) return;
+        this.selections[this.selector].unselected();
+        this.selections[this.selector+=d].selected();
     }
 }

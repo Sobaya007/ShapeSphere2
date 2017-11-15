@@ -31,7 +31,6 @@ static:
 
         if (tr.isNone) return;
         tr.get()(currentScene);
-
     }
 
     Maybe!SceneBase find(SceneClass)() if (is(SceneClass : SceneBase)) {

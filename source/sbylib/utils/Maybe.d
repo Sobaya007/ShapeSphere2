@@ -49,7 +49,11 @@ void apply(alias fun, T)(Maybe!T m) {
     }
 }
 
-Maybe!T Just(T)(T v) {
+Maybe!T Just(T)(T v) in {
+    static if (__traits(compiles, "v is null")) {
+        assert(v !is null);
+    }
+} body {
     return Maybe!T(v);
 }
 

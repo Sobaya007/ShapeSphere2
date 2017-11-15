@@ -14,7 +14,9 @@ enum CButton {
     Left,
     Right,
     Up,
-    Down
+    Down,
+    Decide,
+    Cancel
 }
 
 class Controler {
@@ -60,6 +62,8 @@ class Controler {
         this.buttons[CButton.Right] = Button(KeyButton.Right, JoyButton.Right);
         this.buttons[CButton.Up] = Button(KeyButton.Up, JoyButton.Up);
         this.buttons[CButton.Down] = Button(KeyButton.Down, JoyButton.Down);
+        this.buttons[CButton.Decide] = Button(KeyButton.Enter, JoyButton.A);
+        this.buttons[CButton.Cancel] = Button(KeyButton.BackSpace, JoyButton.B);
         this.leftStick = Stick(KeyButton.Left, KeyButton.Right, KeyButton.Up, KeyButton.Down, JoyAxis.LeftX, JoyAxis.LeftY);
         this.rightStick = Stick(KeyButton.KeyA, KeyButton.KeyD, KeyButton.KeyW, KeyButton.KeyS, JoyAxis.RightX, JoyAxis.RightY);
     }

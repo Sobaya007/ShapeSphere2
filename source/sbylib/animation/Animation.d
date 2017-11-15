@@ -31,7 +31,6 @@ struct AnimSetting(T) {
 }
 
 interface IAnimation {
-    void initialize();
     void eval(uint);
     uint getPeriod();
 }
@@ -46,10 +45,6 @@ class Animation(T) : IAnimation {
     this(Operator operator, AnimSetting!T setting) {
         this.operator = operator;
         this.setting = setting;
-    }
-
-    override void initialize() {
-        this.eval(0);
     }
 
     override void eval(uint frame) {
@@ -67,12 +62,6 @@ class MultiAnimation : IAnimation {
 
     this(IAnimation[] animations) {
         this.animations = animations;
-    }
-
-    override void initialize() {
-        foreach (anim; this.animations) {
-            anim.initialize();
-        }
     }
 
     override void eval(uint frame) {
@@ -93,12 +82,6 @@ class SequenceAnimation : IAnimation {
         this.animations = animations;
     }
 
-    override void initialize() {
-        foreach (anim; this.animations) {
-            anim.initialize();
-        }
-    }
-
     override void eval(uint frame) {
         foreach (anim; this.animations) {
             if (frame <= anim.getPeriod) {
@@ -113,6 +96,13 @@ class SequenceAnimation : IAnimation {
     override uint getPeriod() {
         return this.animations.map!(a => a.getPeriod).sum;
     }
+}
+
+IAnimation translate(Entity entity, AnimSetting!vec2 evaluator) {
+    auto e = entity;
+    return new Animation!vec2((vec2 tr) {
+        e.pos.xy = tr;
+    }, evaluator);
 }
 
 IAnimation rotate(Entity entity, AnimSetting!Radian evaluator) {
