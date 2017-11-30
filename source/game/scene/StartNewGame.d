@@ -8,4 +8,7 @@ class StartNewGame : SceneBase {
 
     mixin SceneBasePack;
 
+    this() {
+        super();
+    }
 }

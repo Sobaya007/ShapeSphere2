@@ -5,6 +5,7 @@ import game.scene.SceneBase;
 import game.scene.SceneTransition;
 import game.scene.AnimationManager;
 import game.player.Controler;
+import game.scene.Dialog;
 import sbylib;
 
 class Title : SceneBase {
@@ -13,7 +14,6 @@ class Title : SceneBase {
 
     private Selection[] selections;
     private uint selector;
-    private AnimationProcedure mainAnimation;
 
     struct Selection {
         private Label label;
@@ -22,7 +22,7 @@ class Title : SceneBase {
         this(dstring text, vec2 basePos) {
             this.label = TextEntity(text, 0.15, Label.OriginX.Right, Label.OriginY.Center);
             this.basePos = basePos;
-            this.label.pos.xy = basePos;
+            this.label.pos = vec3(basePos, 0);
             this.label.setColor(vec4(0));
         }
 
@@ -33,7 +33,7 @@ class Title : SceneBase {
                         setting(
                             this.label.pos.xy,
                             basePos - vec2(0.05,0),
-                            30,
+                            10,
                             Ease.easeInOut
                         )
                     ),
@@ -41,7 +41,7 @@ class Title : SceneBase {
                         setting(
                             this.label.getColor,
                             vec4(1),
-                            30,
+                            10,
                             Ease.linear
                         )
                     )
@@ -59,7 +59,7 @@ class Title : SceneBase {
                         setting(
                             this.label.pos.xy,
                             basePos,
-                            30,
+                            10,
                             Ease.easeInOut
                         )
                     ),
@@ -67,7 +67,7 @@ class Title : SceneBase {
                         setting(
                             this.label.getColor,
                             vec4(0.5),
-                            30,
+                            10,
                             Ease.linear
                         )
                     )
@@ -82,7 +82,7 @@ class Title : SceneBase {
         auto loadGame = Selection("Load Game"d, vec2(0.85, -0.75));
         selections = [newGame, loadGame];
         super();
-        this.mainAnimation = AnimationManager().startAnimation(
+        AnimationManager().startAnimation(
             sequence([
                 fade(
                     setting(
@@ -115,39 +115,38 @@ class Title : SceneBase {
                         setting(
                             this.selections[0].label.pos.xy,
                             this.selections[0].basePos - vec2(0.05,0),
-                            30,
+                            10,
                             Ease.easeInOut
                         )
                     ),
                     this.selections[0].label.color(
                         setting(
-                            vec4(0),
+                            vec4(0.5),
                             vec4(1),
-                            30,
+                            10,
                             Ease.linear
                         )
                     )
                 ])
             ])
-        );
+        ).onFinish({
+            addEvent(() => Controler().justPressed(CButton.Up), {
+                this.changeSelector(-1);
+            });
+            addEvent(() => Controler().justPressed(CButton.Down), {
+                this.changeSelector(+1);
+            });
+            addEvent(() => Controler().justPressed(CButton.Decide), {
+                pushEvents();
+            });
+        });
         addEntity(text);
         foreach (s; this.selections) {
             addEntity(s.label);
         }
-    }
-
-    override void step() {
-        super.step();
-        if (!this.mainAnimation.hasFinished) return;
-        if (Controler().justPressed(CButton.Up)) {
-            this.changeSelector(-1);
-        }
-        if (Controler().justPressed(CButton.Down)) {
-            this.changeSelector(+1);
-        }
-        if (Controler().justPressed(CButton.Decide)) {
-            this.select(this.selector);
-        }
+        /*
+        */
+        addEntity(new Dialog("po"));
     }
 
     void changeSelector(int d) {

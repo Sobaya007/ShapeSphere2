@@ -32,7 +32,7 @@ class Material {
         uint textureUnit = 0;
         import std.stdio;
         foreach (uni; uniforms) {
-            //writeln(getUniform());
+            //writeln(uni);
             uni.apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }

@@ -19,8 +19,8 @@ class AnimationManager {
         this.procedures = Array!AnimationProcedure(0);
     }
 
-    AnimationProcedure startAnimation(IAnimation anim, void delegate() onFinish = null) {
-        auto proc = new AnimationProcedure(anim, onFinish);
+    AnimationProcedure startAnimation(IAnimation anim) {
+        auto proc = new AnimationProcedure(anim);
         this.procedures ~= proc;
         return proc;
     }
@@ -38,12 +38,15 @@ class AnimationProcedure {
     private IAnimation animation;
  
     private SceneBase scene;
-    private Maybe!(void delegate()) onFinish;
+    private Maybe!(void delegate()) finishCallback = None!(void delegate());
 
-    this(IAnimation animation, void delegate() onFinish) {
+    this(IAnimation animation) {
         this.animation = animation;
         this.frame = 0;
-        this.onFinish = wrap(onFinish);
+    }
+
+    void onFinish(void delegate() finishCallback) {
+        this.finishCallback = wrap(finishCallback);
     }
 
     void step() {
@@ -51,7 +54,7 @@ class AnimationProcedure {
         this.animation.eval(this.frame);
         this.frame++;
         if (this.hasFinished) {
-            this.onFinish.apply!(f => f());
+            this.finishCallback.apply!(f => f());
         }
     }
 

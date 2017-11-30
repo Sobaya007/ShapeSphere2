@@ -6,13 +6,13 @@ import sbylib.material.ColorMaterial;
 import sbylib.math.Vector;
 
 EntityTemp!(GeometryRect, ColorMaterial) ColorEntity(
+        vec4 color,
         float width,
         float height) {
     auto geom = Rect.create(width, height);
     auto mat = new ColorMaterial;
+    mat.color = color;
     auto entity = new EntityTemp!(GeometryRect, ColorMaterial)(geom, mat);
-
-    mat.color = vec4(1);
 
     return entity;
 }

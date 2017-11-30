@@ -59,6 +59,16 @@ static:
         glDisable(cap);
     }
 
+    void depthTest(bool depthTest) out {
+        checkError();
+    } body {
+        if (depthTest) {
+            enable(Capability.DepthTest);
+        } else {
+            disable(Capability.DepthTest);
+        }
+    }
+
     void depthWrite(bool depthWrite) out {
         checkError();
     } body {

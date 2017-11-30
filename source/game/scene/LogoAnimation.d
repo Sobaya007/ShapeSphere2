@@ -39,8 +39,7 @@ class LogoAnimation : SceneBase {
                     )
                 ),
             ]),
-            &this.finish
-        );
+        ).onFinish(&this.finish);
         addEntity(image);
     }
 }

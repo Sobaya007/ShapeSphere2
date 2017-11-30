@@ -20,10 +20,15 @@ class SceneBase {
     private State state;
     public Maybe!SceneTransition transition;
 
+    struct Event {
+        bool delegate() trigger;
+        void delegate() content;
+    }
+    Event[][] events;
+
     this() {
         this.state = State.Waiting;
-        this.fadeRect = ColorEntity(2,2);
-        this.fadeRect.getMesh().mat.color = vec4(0);
+        this.fadeRect = ColorEntity(vec4(0), 2,2);
         this.fadeRect.getMesh().mat.config.transparency = true;
         this.fadeRect.getMesh().mat.config.depthWrite = false;
         this.fadeRect.pos.z = 1;
@@ -38,6 +43,8 @@ class SceneBase {
         this.world.setCamera(this.camera);
 
         this.addEntity(this.fadeRect);
+
+        this.events.length = 1;
     }
 
     void initialize() {
@@ -52,6 +59,11 @@ class SceneBase {
 
     void step() {
         this.render();
+        foreach (event; this.events[0]) {
+            if (event.trigger()) {
+                event.content();
+            }
+        }
     }
 
     void finish() {
@@ -72,6 +84,18 @@ class SceneBase {
 
     void addEntity(Entity entity) {
         this.world.add(entity);
+    }
+
+    void addEvent(bool delegate() trigger, void delegate() content) {
+        this.events[0] ~= Event(trigger, content);
+    }
+
+    void pushEvents() {
+        this.events = [] ~ this.events;
+    }
+
+    void popEvents() {
+        this.events = this.events[1..$];
     }
 
 }

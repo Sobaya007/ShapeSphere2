@@ -13,7 +13,7 @@ class RenderConfig {
     StencilWrite sfail, dpfail, pass;
     BlendFactor srcFactor, dstFactor;
     BlendEquation blendEquation;
-    bool depthWrite;
+    bool depthWrite, depthTest;
     bool transparency;
 
     this() {
@@ -30,6 +30,7 @@ class RenderConfig {
         this.dstFactor = BlendFactor.OneMinusSrcAlpha;
         this.blendEquation = BlendEquation.Add;
         this.depthWrite = true;
+        this.depthTest = true;
         this.transparency = false;
     }
 
@@ -40,5 +41,6 @@ class RenderConfig {
         GlFunction.blendFunc(this.srcFactor, this.dstFactor);
         GlFunction.blendEquation(this.blendEquation);
         GlFunction.depthWrite(this.depthWrite);
+        GlFunction.depthTest(this.depthTest);
     }
 }

@@ -101,7 +101,7 @@ class SequenceAnimation : IAnimation {
 IAnimation translate(Entity entity, AnimSetting!vec2 evaluator) {
     auto e = entity;
     return new Animation!vec2((vec2 tr) {
-        e.pos.xy = tr;
+        e.pos = vec3(tr, 0);
     }, evaluator);
 }
 
