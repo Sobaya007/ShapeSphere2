@@ -9,9 +9,14 @@ class LogoAnimation : SceneBase {
 
     mixin SceneBasePack;
 
+    private Entity image;
     this() {
-        auto image = ImageEntity(ImagePath("uv.png"), 0.2, 0.2);
+        this.image = ImageEntity(ImagePath("uv.png"), 0.2, 0.2);
         super();
+        addEntity(image);
+    }
+
+    override void initialize() {
         AnimationManager().startAnimation(
             sequence([
                 fade(
@@ -40,6 +45,5 @@ class LogoAnimation : SceneBase {
                 ),
             ]),
         ).onFinish(&this.finish);
-        addEntity(image);
     }
 }
