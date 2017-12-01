@@ -16,7 +16,7 @@ void mouseExample() {
     auto viewport = new AutomaticViewport(window);
     auto world = new World;
     auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
-    auto mouse = new Mouse(window);
+    auto mouse = new ViewportMouse(viewport);
     auto polyEntity = new PlaneEntity(Plane.create());
     polyEntity.createCollisionPolygon();
     polyEntity.obj.rot = mat3.rotFromTo(vec3(0,1,0), vec3(0,0,1));

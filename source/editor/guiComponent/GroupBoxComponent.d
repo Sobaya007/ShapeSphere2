@@ -68,7 +68,7 @@ public:
         return _content.height * _content.entity.obj.scale.y + 2*_borderSize;
     }
 
-    override void update(Mouse2D mouse) {
+    override void update(ViewportMouse mouse) {
         move();
         _opener.update(mouse);
         _content.update(mouse);

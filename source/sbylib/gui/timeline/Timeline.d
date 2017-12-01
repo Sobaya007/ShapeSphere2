@@ -17,7 +17,7 @@ class Timeline : IControllable {
     private float time;
     private int lastWritten;
     private bool firstFlag, secondFlag;
-    private void delegate(Mouse2D) control;
+    private void delegate(ViewportMouse) control;
     private float[] values;
     private Label maxLabel;
     private Label minLabel;
@@ -84,15 +84,15 @@ class Timeline : IControllable {
         this.maxLabel.renderText(format!"%.3f"d(max));
     }
 
-    void update(Mouse2D mouse) {
+    void update(ViewportMouse mouse) {
         if (this.control) {
             this.control(mouse);
         }
     }
-    void activeUpdate(Mouse2D mouse) {
+    void activeUpdate(ViewportMouse mouse) {
     }
 
-    void translate(Mouse2D mouse) {
+    void translate(ViewportMouse mouse) {
         mouse.getDif();
         this.root.obj.pos += vec3(mouse.getDif(), 0);
     }

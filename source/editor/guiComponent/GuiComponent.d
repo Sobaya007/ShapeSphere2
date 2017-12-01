@@ -74,7 +74,7 @@ public:
     override void onMouseReleased(MouseButton mouseButton, bool isCollided) {}
     override void onKeyPressed(KeyButton keyButton, bool shiftPressed, bool controlPressed) {}
     override void onKeyReleases(KeyButton keyButton, bool shiftPressed, bool controlPressed) {}
-    override void update(Mouse2D mouse) {}
-    override void activeUpdate(Mouse2D mouse) {}
+    override void update(ViewportMouse mouse) {}
+    override void activeUpdate(ViewportMouse mouse) {}
 
 }

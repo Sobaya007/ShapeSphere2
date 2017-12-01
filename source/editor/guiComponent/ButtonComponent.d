@@ -96,7 +96,7 @@ public:
         }
     }
 
-    override void update(Mouse2D mouse) {
+    override void update(ViewportMouse mouse) {
         import std.math, std.algorithm;
         int t = _duration/2;
         float y = (t-_frameCount)^^2/cast(float)t^^2;

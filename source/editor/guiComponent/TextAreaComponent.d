@@ -92,10 +92,10 @@ public:
         refreshText();
     }
 
-    override void update(Mouse2D mouse) {
+    override void update(ViewportMouse mouse) {
         updateCover();
     }
-    override void activeUpdate(Mouse2D mouse) {
+    override void activeUpdate(ViewportMouse mouse) {
         _coverAnimationFrameCount++;
     }
 

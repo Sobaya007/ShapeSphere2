@@ -11,7 +11,7 @@ void guiExample() {
     auto world = new World;
     auto camera = new OrthoCamera(2,2,-1,1);
     auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
-    auto control = new GuiControl(window, camera, world, core.getKey());
+    auto control = new GuiControl(window, camera, viewport, world, core.getKey());
     auto timeline = new Timeline(font);
     screen.setClearColor(vec4(0.2));
     auto fpsCounter = new FpsCounter!100;

@@ -37,7 +37,7 @@ void plotMain() {
         renderer.render(world, screen, viewport);
     };
 
-    auto mouse = new Mouse(window);
+    auto mouse = new ViewportMouse(viewport);
     auto mouseMove = delegate (Process proc) {
         if (mouse.isPressed(MouseButton.Button1)) {
             camera.width  -= mouse.getDif().x * 0.001;
