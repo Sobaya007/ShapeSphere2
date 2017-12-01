@@ -3,12 +3,13 @@ module game.scene.SceneTransition;
 import game.scene.SceneBase;
 import game.scene.SceneCallback;
 import game.scene.SceneManager;
+import std.stdio;
 
 interface SceneTransition {
     void opCall(ref SceneBase[]);
 }
 
-class MoveTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneClass)) {
+class MoveTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneBase)) {
 
     override void opCall(ref SceneBase[] scenes) {
         auto newScene = SceneManager.find!SceneClass.get;
@@ -17,9 +18,9 @@ class MoveTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneClas
     }
 }
 
-class OverTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneClass)) { 
+class OverTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneBase)) { 
     override void opCall(ref SceneBase[] scenes) {
-        auto newScene = SceneManager.find!SceneClass;
+        auto newScene = SceneManager.find!SceneClass.get;
         newScene.initialize();
         scenes ~= newScene;
     }
@@ -40,9 +41,16 @@ SceneTransition over(SceneClass)() if (is(SceneClass : SceneBase)) {
     return new OverTransition!SceneClass;
 }
 
-SceneTransition move(SceneClass)(FinishCallback callback) if (is(SceneClass : SceneBase)) {
-    SceneManager.define(SceneClass(callback));
+SceneTransition move(SceneClass,Callbacks...)(Callbacks callbacks) 
+    if (is(SceneClass : SceneBase)) {
+    SceneManager.define(SceneClass(callbacks));
     return new MoveTransition!SceneClass;
+}
+
+SceneTransition over(SceneClass,Callbacks...)(Callbacks callbacks) 
+    if (is(SceneClass : SceneBase)) {
+    SceneManager.define(SceneClass(callbacks));
+    return new OverTransition!SceneClass;
 }
 
 SceneTransition pop() {

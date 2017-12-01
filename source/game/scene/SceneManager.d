@@ -3,6 +3,7 @@ module game.scene.SceneManager;
 import game.scene.SceneBase;
 import game.scene.SceneTransition;
 import sbylib;
+import std.stdio;
 
 class SceneManager {
 static:
@@ -23,10 +24,11 @@ static:
 
     void run() {
         Maybe!SceneTransition tr;
-        foreach (s; currentScene) {
-            s.step();
+        currentScene[0].clear();
+        foreach (i, s; currentScene) {
+            s.step(i == currentScene.length-1);
             if (tr.isJust) continue;
-            tr = s.transition;
+            tr = s.transition.take();
         }
 
         if (tr.isNone) return;

@@ -9,6 +9,6 @@ FinishCallback onFinish(SceneTransition transit) {
     return () => transit;
 }
 
-SelectCallback onSelect(SceneTransition[] transit...) {
+SelectCallback onSelect(SceneTransition[] transit) {
     return idx => transit[idx];
 }

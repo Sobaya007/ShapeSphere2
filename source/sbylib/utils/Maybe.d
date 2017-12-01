@@ -24,6 +24,14 @@ struct Maybe(T) {
         return this.value;
     }
 
+    Maybe!T take() {
+        if (this.isJust) {
+            this._none = true;
+            return Just(value);
+        }
+        return None!T;
+    }
+
     bool isJust() {
         return !_none;
     }
@@ -46,6 +54,14 @@ Maybe!S fmapAnd(alias fun, T, S = ReturnType!fun.Type)(Maybe!T m) {
 void apply(alias fun, T)(Maybe!T m) {
     if (m.isJust) {
         fun(m.get);
+    }
+}
+
+auto match(alias funJust, alias funNone, T)(Maybe!T m) {
+    if (m.isJust) {
+        return funJust(m.get);
+    } else {
+        return funNone();
     }
 }
 

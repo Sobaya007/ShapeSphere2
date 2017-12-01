@@ -13,7 +13,7 @@ class Title : SceneBase {
     mixin SceneBasePack;
 
     private Selection[] selections;
-    private uint selector;
+    private uint selector = 0;
 
     struct Selection {
         private Label label;
@@ -137,16 +137,13 @@ class Title : SceneBase {
                 this.changeSelector(+1);
             });
             addEvent(() => Controler().justPressed(CButton.Decide), {
-                pushEvents();
+                this.select(this.selector);
             });
         });
         addEntity(text);
         foreach (s; this.selections) {
             addEntity(s.label);
         }
-        /*
-        */
-        addEntity(new Dialog("po"));
     }
 
     void changeSelector(int d) {

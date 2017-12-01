@@ -20,5 +20,7 @@ Entity ImageEntity(
 
     mat.texture = image;
 
+    //mat.config.depthWrite = false;
+
     return entity;
 }

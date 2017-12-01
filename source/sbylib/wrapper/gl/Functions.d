@@ -24,6 +24,7 @@ static:
     void clear(ClearMode[] mode...) out {
         checkError();
     } body {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(reduce!((a,b)=>a|b)(mode));
     }
 

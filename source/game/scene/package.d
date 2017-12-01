@@ -2,6 +2,7 @@ module game.scene;
 
 public:
 import game.scene.AnimationManager;
+import game.scene.Dialog;
 import game.scene.Exit;
 import game.scene.SelectSaveData;
 import game.scene.LogoAnimation;

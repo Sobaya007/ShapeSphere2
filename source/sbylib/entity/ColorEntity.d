@@ -12,6 +12,8 @@ EntityTemp!(GeometryRect, ColorMaterial) ColorEntity(
     auto geom = Rect.create(width, height);
     auto mat = new ColorMaterial;
     mat.color = color;
+    mat.config.transparency = true;
+    mat.config.depthWrite = false;
     auto entity = new EntityTemp!(GeometryRect, ColorMaterial)(geom, mat);
 
     return entity;

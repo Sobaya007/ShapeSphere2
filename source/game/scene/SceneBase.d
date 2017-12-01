@@ -3,7 +3,7 @@ module game.scene.SceneBase;
 import game.scene.SceneTransition;
 import game.scene.SceneCallback;
 import sbylib;
-
+import std.stdio;
 
 class SceneBase {
 
@@ -24,7 +24,7 @@ class SceneBase {
         bool delegate() trigger;
         void delegate() content;
     }
-    Event[][] events;
+    Event[] events;
 
     this() {
         this.state = State.Waiting;
@@ -43,8 +43,6 @@ class SceneBase {
         this.world.setCamera(this.camera);
 
         this.addEntity(this.fadeRect);
-
-        this.events.length = 1;
     }
 
     void initialize() {
@@ -52,26 +50,38 @@ class SceneBase {
         this.transition = None!SceneTransition;
     }
 
-    void render() {
+    void clear() {
         this.screen.clear(ClearMode.Color, ClearMode.Depth);
+    }
+
+    void render() {
         this.renderer.render(this.world, this.screen, this.viewport);
     }
 
-    void step() {
+    void step(bool isTop) {
         this.render();
-        foreach (event; this.events[0]) {
-            if (event.trigger()) {
-                event.content();
+        if (isTop) {
+            foreach (event; this.events) {
+                if (event.trigger()) {
+                    event.content();
+                }
             }
         }
     }
 
-    void finish() {
+    void finish() in {
+        import std.format;
+        assert(this._finish.isJust, format!"%s don't have 'finish'"(typeid(this)));
+    } body {
         this.transition = Just(this._finish.get()());
         this.state = State.Finished;
     }
 
-    void select(size_t idx) {
+    void select(size_t idx) in {
+        import std.format;
+        //assert(this._select.isJust, format!"%s don't have 'select'"(typeid(this)));
+    } body {
+        import std.stdio;
         this.transition = Just(this._select.get()(idx));
         this.state = State.Finished;
     }
@@ -87,15 +97,7 @@ class SceneBase {
     }
 
     void addEvent(bool delegate() trigger, void delegate() content) {
-        this.events[0] ~= Event(trigger, content);
-    }
-
-    void pushEvents() {
-        this.events = [] ~ this.events;
-    }
-
-    void popEvents() {
-        this.events = this.events[1..$];
+        this.events ~= Event(trigger, content);
     }
 
 }

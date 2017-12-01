@@ -8,6 +8,7 @@ import sbylib.wrapper.gl.RenderBuffer;
 import sbylib.wrapper.gl.Texture;
 
 import std.algorithm;
+import std.stdio;
 
 interface IRenderTarget {
     void renderBegin();

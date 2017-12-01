@@ -37,19 +37,28 @@ void setGameTransition() {
             LogoAnimation(
                 onFinish(
                     move!Title
-                    //move!OpeningAnimation
                 )
             ),
             OpeningAnimation(
                 onFinish(
                     move!Title
                 )
-             ),
+            ),
             Title(
-                onSelect(
-                    move!StartNewGame,
-                    move!SelectSaveData,
-                )
+                onSelect([
+                    over!(Dialog!"Test2")(
+                        onSelect([
+                            move!StartNewGame,
+                            pop
+                        ])
+                    ),
+                    over!(Dialog!"Test2")(
+                        onSelect([
+                            move!SelectSaveData,
+                            pop
+                        ])
+                    )
+                ])
             ),
             StartNewGame( //たぶん読み込み画面とか
                 onFinish(
