@@ -79,7 +79,7 @@ void setGameTransition() {
                 )
             ),
         );
-        launch!(Title);
-        //launch!(LogoAnimation);
+        //launch!(Title);
+        launch!(LogoAnimation);
     }
 }
