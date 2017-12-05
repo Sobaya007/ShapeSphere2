@@ -1,7 +1,7 @@
 module game.scene.Dialog;
 
 import game.scene.SceneBase;
-import game.player.Controler;
+import game.player.Controller;
 import sbylib;
 
 class Dialog(dstring explainMessage) : SceneBase {
@@ -32,9 +32,9 @@ class Dialog(dstring explainMessage) : SceneBase {
 
         addEntity(main);
 
-        addEvent(() => Controler().justPressed(CButton.Left), {changeSelector(-1);});
-        addEvent(() => Controler().justPressed(CButton.Right), {changeSelector(+1);});
-        addEvent(() => Controler().justPressed(CButton.Decide), {
+        addEvent(() => Controller().justPressed(CButton.Left), {changeSelector(-1);});
+        addEvent(() => Controller().justPressed(CButton.Right), {changeSelector(+1);});
+        addEvent(() => Controller().justPressed(CButton.Decide), {
             if (!this.hasSelectorMoved) return;
             this.select(this.selector);
         });

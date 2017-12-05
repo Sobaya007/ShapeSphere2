@@ -1,4 +1,4 @@
-module game.player.Controler;
+module game.player.Controller;
 
 import sbylib;
 import std.math;
@@ -19,7 +19,7 @@ enum CButton {
     Cancel
 }
 
-class Controler {
+class Controller {
 
     struct Button {
         KeyButton keyButton;
@@ -41,10 +41,10 @@ class Controler {
     private Stick leftStick;
     private Stick rightStick;
 
-    private static Controler instance;
-    public static Controler opCall() {
+    private static Controller instance;
+    public static Controller opCall() {
         if (instance is null)
-            return instance = new Controler();
+            return instance = new Controller();
         return instance;
     }
 

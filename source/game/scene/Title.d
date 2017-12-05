@@ -2,7 +2,7 @@ module game.scene.Title;
 
 import std.algorithm, std.array;
 import game.scene.SceneBase;
-import game.player.Controler;
+import game.player.Controller;
 import game.scene.Dialog;
 import sbylib;
 
@@ -75,13 +75,13 @@ class Title : SceneBase {
                 ])
             ])
         ).onFinish({
-            addEvent(() => Controler().justPressed(CButton.Up), {
+            addEvent(() => Controller().justPressed(CButton.Up), {
                 this.changeSelector(-1);
             });
-            addEvent(() => Controler().justPressed(CButton.Down), {
+            addEvent(() => Controller().justPressed(CButton.Down), {
                 this.changeSelector(+1);
             });
-            addEvent(() => Controler().justPressed(CButton.Decide), {
+            addEvent(() => Controller().justPressed(CButton.Decide), {
                 this.select(this.selector);
             });
         });
