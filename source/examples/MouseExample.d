@@ -15,7 +15,7 @@ void mouseExample() {
     auto renderer = new Renderer();
     auto viewport = new AutomaticViewport(window);
     auto world = new World;
-    auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
+    auto camera =  new PerspectiveCamera(1, 120.deg, 0.1, 100);
     auto mouse = new ViewportMouse(viewport);
     auto polyEntity = new PlaneEntity(Plane.create());
     polyEntity.createCollisionPolygon();

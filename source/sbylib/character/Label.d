@@ -21,7 +21,7 @@ class Label {
 
     Entity entity;
     private Letter[] letters;
-    private vec4 color;
+    private vec4 _color;
     private Font font;
     private OriginX originX;
     private OriginY originY;
@@ -36,20 +36,22 @@ class Label {
         this.originY = OriginY.Center;
         this.wrapWidth = 1145141919.810;
         this.size = size;
-        this.color = vec4(0,0,0,1);
+        this._color = vec4(0,0,0,1);
         this.entity = new Entity;
     }
 
-    void setColor(vec4 color) {
-        this.color = color;
+    void setColor(vec4 _color) {
+        this._color = _color;
         foreach (l; this.letters) {
             auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
-            mat.color = color;
+            mat.color = _color;
+            mat.config.transparency = true;//mat.color.a != 1;
+            mat.config.depthWrite = false;
         }
     }
 
     vec4 getColor() {
-        return this.color;
+        return this._color;
     }
 
     void setSize(float size) {
@@ -90,7 +92,7 @@ class Label {
             this.entity.addChild(l.getEntity());
             this.letters ~= l;
         }
-        this.setColor(this.color);
+        this.setColor(this._color);
         this.lineUp();
     }
 

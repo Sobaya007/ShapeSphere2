@@ -1,7 +1,6 @@
 module sbylib.core.Process;
 
 import sbylib.utils.Logger;
-import sbylib.setting;
 
 class Process {
     private const void delegate(Process) func;
@@ -31,6 +30,6 @@ class Process {
         this._isAlive = false;
     }
 
-    bool isAlive() {return this.isAlive;}
+    bool isAlive() {return this._isAlive;}
     uint getFrame() {return this.frame;}
 }

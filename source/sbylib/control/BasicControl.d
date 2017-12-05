@@ -5,6 +5,7 @@ import sbylib.wrapper.glfw.Window;
 import sbylib.input.ViewportMouse;
 import sbylib.mesh.Object3D;
 import sbylib.camera.Camera;
+import sbylib.math.Angle;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Quaternion;
@@ -82,7 +83,7 @@ class BasicControl {
         if (dif2.length < 0.01) return;
         auto axisV = cross(vec3(dif2.x, dif2.y, 0), vec3(0,0,1));
         auto axisW = (this.camera.getObj().worldMatrix.get() * vec4(axisV, 0)).xyz;
-        auto rot = mat3.axisAngle(normalize(axisW), length(axisW));
+        auto rot = mat3.axisAngle(normalize(axisW), length(axisW).rad);
         this.entity.obj.rot = rot * this.entity.obj.rot;
     }
 }

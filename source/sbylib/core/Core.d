@@ -8,7 +8,6 @@ import sbylib.constant.ConstantManager;
 import sbylib.input;
 import sbylib.shadertemplates;
 import sbylib.utils;
-import sbylib.setting;
 import sbylib.wrapper.al.AL;
 import sbylib.wrapper.gl.GL;
 import sbylib.wrapper.glfw.GLFW;
@@ -127,13 +126,19 @@ class Core {
         }, name);
     }
 
+    Process addProcess(const void function() func, string name) {
+        return this.addProcess((Process proc) {
+            func();
+        }, name);
+    }
+
     //メインループ
     private void mainLoop() {
         this.fpsBalancer.loop({
             this.key.update();
             this.mouse.update();
             this.joy.update();
-            this.processes.filter!("a.step");
+            this.processes.filter!(proc => proc.step());
             this.window.swapBuffers();
             this.window.pollEvents();
             stdout.flush();

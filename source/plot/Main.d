@@ -23,7 +23,7 @@ void plotMain() {
     camera.getObj().pos = vec3(+0.5, +0.5, 0);
     world.setCamera(camera);
 
-    auto dataset = new DataSet(TIME_LOG_PATH);
+    auto dataset = new DataSet(TimeLogger.TIME_LOG_PATH);
 
     foreach (key, value; dataset.lineMesh) {
         world.add(value);

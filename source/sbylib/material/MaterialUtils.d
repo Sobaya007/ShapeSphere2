@@ -3,7 +3,6 @@ module sbylib.material.MaterialUtils;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Program;
-import sbylib.setting;
 import sbylib.material.glsl.GlslUtils;
 import sbylib.material.glsl.Ast;
 import std.file;
@@ -13,8 +12,9 @@ class MaterialUtils {
     private this(){}
 
     static {
+        /*
         const(Shader) createShaderFromPath(string path, ShaderType type) {
-            path = ROOT_PATH ~ path;
+            //path = ROOT_PATH ~ path;
             auto source = readText(path);
             return new Shader(source, type);
         }
@@ -29,6 +29,7 @@ class MaterialUtils {
             }
             return new Program(shaders);
         }
+        */
     }
 
     mixin template declare(string file = __FILE__) {

@@ -73,19 +73,20 @@ struct Array(T) {
         assert(this.valid, invalidMessage);
     } body {
         int result = 0;
-        foreach (i; 0..this._length) {
-            result = dg(this[i]);
+        auto pos = 0;
+        while (pos < this._length) {
+            result = dg(this[pos]);
+            pos++;
             if (result) break;
         }
         return result;
     }
 
-    void filter(string po)() {
+    void filter(bool function(T) cond)() {
         auto len = 0;
-        foreach (i; 0..this._length) {
-            auto a = this[i];
-            if (!mixin(po)) continue;
-            this[len++] = this[i];
+        foreach (a; this) {
+            if (!cond(a)) continue;
+            this[len++] = a;
         }
         this._length = len;
     }

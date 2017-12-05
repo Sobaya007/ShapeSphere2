@@ -1,6 +1,6 @@
 module sbylib.render.Screen;
 
-import std.algorithm;
+import std.algorithm, std.stdio;
 import sbylib.render.RenderTarget;
 import sbylib.math.Vector;
 import sbylib.core.Window;

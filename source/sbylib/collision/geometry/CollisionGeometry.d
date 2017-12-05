@@ -1,7 +1,7 @@
 module sbylib.collision.geometry.CollisionGeometry;
 
 public {
-    import sbylib.core.Entity;
+    import sbylib.entity.Entity;
 }
 
 interface CollisionGeometry {

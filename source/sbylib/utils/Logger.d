@@ -3,11 +3,14 @@ module sbylib.utils.Logger;
 import std.file;
 import std.datetime.stopwatch;
 import std.experimental.logger;
-import sbylib.setting;
+
+import sbylib.utils.Path;
 
 private FileLogger timeLogger;
 
 class TimeLogger {
+
+    enum TIME_LOG_PATH = GeneralPath("time.log");
 
     private string name;
     private string ext;

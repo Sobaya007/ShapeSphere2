@@ -2,9 +2,10 @@ module sbylib.wrapper.freetype.FreeType;
 
 import derelict.freetype.ft;
 import derelict.util.exception;
-import sbylib.setting;
 
 import std.algorithm;
+
+import sbylib.utils.Path;
 
 private enum deadFunctions = [
     "FT_Stream_OpenBzip2",
@@ -28,7 +29,7 @@ class FreeType {
         import std.stdio;
         version (Windows) {
             DerelictFT.missingSymbolCallback = &missingSymFunc;
-            DerelictFT.load(FREETYPE_DLL_PATH);
+            DerelictFT.load(DllPath("freetype.dll"));
         }
         version (OSX) {
             DerelictFT.load();

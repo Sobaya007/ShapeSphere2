@@ -31,7 +31,7 @@ class DataSet {
             if (name !in this.datas) this.datas[name] = new Data[0];
             this.datas[name] ~= po;
         }
-        Font font = FontLoader.load(RESOURCE_ROOT ~ "consola.ttf", 64);
+        Font font = FontLoader.load(FontPath("consola.ttf"), 64);
 
         float baseY = 0.9;
         vec3[] colors = [vec3(1,0,0), vec3(0,1,0),vec3(0,0,1), vec3(1,1,0), vec3(1,0,1), vec3(0,1,1), vec3(1,1,1) ];

@@ -1,6 +1,6 @@
 module sbylib.input.JoyStick;
 
-import sbylib.input, sbylib.setting, sbylib.wrapper.glfw;
+import sbylib.input, sbylib.wrapper.glfw;
 import std.stdio, std.conv, std.format, std.range, std.algorithm, std.array, std.traits;
 
 //常に使用できるなかで一番若いものを取り扱うことにする。

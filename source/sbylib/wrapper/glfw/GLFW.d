@@ -1,7 +1,7 @@
 module sbylib.wrapper.glfw.GLFW;
 
 import derelict.glfw3.glfw3;
-import sbylib.setting;
+import sbylib.utils.Path;
 import std.stdio;
 
 class GLFW {
@@ -12,7 +12,7 @@ class GLFW {
 
     public static void init() {
         version (Windows) {
-            DerelictGLFW3.load(GLFW_DLL_PATH);
+            DerelictGLFW3.load(DllPath("glfw3.dll"));
         }
         version (OSX) {
             DerelictGLFW3.load();
@@ -33,6 +33,6 @@ class GLFW {
     private extern(C) void errorCallback(int error, const(char)* description) nothrow {
         printf("error code: %x\n", error);
         printf("description: %s\n", description);
-        //assert(false, "GLFW error");
+        assert(false, "GLFW error");
     }
 }

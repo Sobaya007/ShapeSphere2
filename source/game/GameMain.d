@@ -3,6 +3,7 @@ module game.GameMain;
 import sbylib;
 import game.player;
 import game.command;
+import game.scene;
 import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex;
 
 void gameMain(string[] args) {
@@ -14,10 +15,10 @@ void gameMain(string[] args) {
     auto viewport = new AutomaticViewport(window);
     auto world2d = new World;
     auto world3d = new World;
-    auto texture = Utils.generateTexture(ImageLoader.load(RESOURCE_ROOT ~ "uv.png"));
+    auto texture = Utils.generateTexture(ImageLoader.load(ImagePath("uv.png")));
 
     /* Camera Settings */
-    Camera camera = new PerspectiveCamera(1, 60, 0.1, 100);
+    Camera camera = new PerspectiveCamera(1, 60.deg, 0.1, 100);
     camera.pos = vec3(3, 2, 9);
     camera.lookAt(vec3(0,2,0));
     world3d.setCamera(camera);
@@ -25,7 +26,7 @@ void gameMain(string[] args) {
 
     /* Player Settings */
     auto commandManager = getCommandManager(args);
-    Player player = new Player(core.getKey(), core.getJoyStick(), camera, world3d, commandManager);
+    Player player = new Player(camera, world3d, commandManager);
     core.addProcess((proc) {
         player.step();
     }, "player update");
@@ -33,7 +34,7 @@ void gameMain(string[] args) {
 
     /* Label Settings */
     if (commandManager.isPlaying()) {
-        auto font = FontLoader.load(RESOURCE_ROOT ~ "HGRPP1.TTC", 256);
+        auto font = FontLoader.load(FontPath("HGRPP1.TTC"), 256);
         auto label = new Label(font, 0.1);
         label.setOrigin(Label.OriginX.Right, Label.OriginY.Top);
         label.pos = vec3(1,1,0);

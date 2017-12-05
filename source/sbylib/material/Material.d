@@ -32,7 +32,7 @@ class Material {
         uint textureUnit = 0;
         import std.stdio;
         foreach (uni; uniforms) {
-            //writeln(getUniform());
+            //writeln(uni);
             uni.apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
@@ -48,7 +48,6 @@ class MaterialTemp(UniformKeeper) : Material {
     import sbylib.wrapper.gl.Constants;
     import sbylib.material.glsl.GlslUtils;
     import sbylib.material.glsl.Ast;
-    import sbylib.setting;
     import std.file;
 
     alias Keeper = UniformKeeper;

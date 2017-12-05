@@ -16,7 +16,9 @@ enum RunMode {
     Clipboard,
     Plot,
     XFileLoad,
-    Editor
+    Editor,
+    Entity,
+    Scene
 };
 
 void run(RunMode mode, string[] args) {
@@ -56,6 +58,12 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Editor:
         editorExample();
+        break;
+    case RunMode.Entity:
+        entityExample();
+        break;
+    case RunMode.Scene:
+        sceneExample();
         break;
     }
 }

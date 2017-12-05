@@ -16,7 +16,7 @@ void materialExample() {
     auto renderer = new Renderer();
     auto viewport = new AutomaticViewport(window);
     auto world = new World;
-    auto camera =  new PerspectiveCamera(1, 120, 0.1, 100);
+    auto camera =  new PerspectiveCamera(1, 120.deg, 0.1, 100);
     auto polyEntity = new PlaneEntity(Plane.create(10,10));
 
     auto render = delegate (Process proc) {

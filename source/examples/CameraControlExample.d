@@ -17,7 +17,7 @@ void cameraControlExample() {
 
     Camera camera = new PerspectiveCamera(
             window.getWidth() / window.getHeight(), /* Aspect Ratio   */
-            120, /* FOV (in angle) */
+            120.deg, /* FOV (in angle) */
             0.1, /* Near Clip      */
             100, /* Far Clip       */);
     camera.pos = vec3(3, 2, 9);

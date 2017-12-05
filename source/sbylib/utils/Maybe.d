@@ -1,6 +1,11 @@
 module sbylib.utils.Maybe;
 
+import std.traits;
+
 struct Maybe(T) {
+
+    alias Type = T;
+
     private T value;
     private bool _none = true;
 
@@ -14,9 +19,17 @@ struct Maybe(T) {
     }
 
     T get() in {
-        assert(!_none);
+        assert(!_none, "this is none");
     } body {
         return this.value;
+    }
+
+    Maybe!T take() {
+        if (this.isJust) {
+            this._none = true;
+            return Just(value);
+        }
+        return None!T;
     }
 
     bool isJust() {
@@ -28,10 +41,14 @@ struct Maybe(T) {
     }
 }
 
-auto fmap(alias fun, T)(Maybe!T m) {
-    import std.traits;
-    if (m.isNone) return None!(ReturnType!fun);
+Maybe!S fmap(alias fun, T, S = ReturnType!fun)(Maybe!T m) {
+    if (m.isNone) return None!S;
     return Just(fun(m.get));
+}
+
+Maybe!S fmapAnd(alias fun, T, S = ReturnType!fun.Type)(Maybe!T m) {
+    if (m.isNone) return None!S;
+    return fun(m.get);
 }
 
 void apply(alias fun, T)(Maybe!T m) {
@@ -40,12 +57,36 @@ void apply(alias fun, T)(Maybe!T m) {
     }
 }
 
-Maybe!T Just(T)(T v) {
+auto match(alias funJust, alias funNone, T)(Maybe!T m) {
+    if (m.isJust) {
+        return funJust(m.get);
+    } else {
+        return funNone();
+    }
+}
+
+Maybe!T Just(T)(T v) in {
+    static if (is(T == class) || is(T == function) || is(T == delegate) || isArray!(T)) {
+        assert(v !is null);
+    }
+} body {
     return Maybe!T(v);
 }
 
 Maybe!T None(T)() {
     return Maybe!T(true);
+}
+
+Maybe!T wrap(T)(T value) {
+    static if (__traits(compiles, "value is null")) {
+        if (value is null) {
+            return None!T;
+        } else {
+            return Just(value);
+        }
+    } else {
+        return Just(value);
+    }
 }
 
 unittest {

@@ -23,7 +23,7 @@ void clipboardExample() {
     float size = 1.8;
 
     // label
-    auto font = FontLoader.load(RESOURCE_ROOT ~ "meiryo.ttc", 256);
+    auto font = FontLoader.load(FontPath("meiryo.ttc"), 256);
     auto label = new Label(font, 0.2);
     label.setOrigin(Label.OriginX.Center, Label.OriginY.Center);
     label.entity.obj.pos = vec3(0);

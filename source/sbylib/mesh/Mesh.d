@@ -8,7 +8,7 @@ import std.traits;
 public {
     import sbylib.geometry.Geometry;
     import sbylib.material.Material;
-    import sbylib.core.Entity;
+    import sbylib.entity.Entity;
     import sbylib.core.World;
     import sbylib.material.glsl.UniformDemand;
 }

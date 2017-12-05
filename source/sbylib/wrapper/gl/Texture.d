@@ -7,7 +7,6 @@ import std.stdio, std.string, std.conv;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.freeimage.Image;
-import sbylib.setting;
 
 class Texture {
 

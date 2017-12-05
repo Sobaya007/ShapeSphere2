@@ -24,6 +24,7 @@ static:
     void clear(ClearMode[] mode...) out {
         checkError();
     } body {
+        if (mode.canFind(ClearMode.Depth)) glDepthMask(true); //これしないとDepthをClearできない
         glClear(reduce!((a,b)=>a|b)(mode));
     }
 
@@ -57,6 +58,16 @@ static:
         checkError();
     } body {
         glDisable(cap);
+    }
+
+    void depthTest(bool depthTest) out {
+        checkError();
+    } body {
+        if (depthTest) {
+            enable(Capability.DepthTest);
+        } else {
+            disable(Capability.DepthTest);
+        }
     }
 
     void depthWrite(bool depthWrite) out {
