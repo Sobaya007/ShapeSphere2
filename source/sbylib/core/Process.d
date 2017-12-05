@@ -30,6 +30,6 @@ class Process {
         this._isAlive = false;
     }
 
-    bool isAlive() {return this.isAlive;}
+    bool isAlive() {return this._isAlive;}
     uint getFrame() {return this.frame;}
 }

@@ -62,13 +62,9 @@ void setGameTransition() {
             ),
             StartNewGame( //たぶん読み込み画面とか
                 onFinish(
-                    move!OpeningMovie(
+                    move!OpeningStage(
                         onFinish(
-                            move!OpeningStage(
-                                onFinish(
-                                    move!Stage //現在の状態をみていいかんじのステージに飛ぶ
-                                )
-                            )
+                            move!Stage //現在の状態をみていいかんじのステージに飛ぶ
                         )
                     )
                 )
@@ -79,7 +75,8 @@ void setGameTransition() {
                 )
             ),
         );
-        //launch!(Title);
-        launch!(LogoAnimation);
+        launch!(Title);
+        //launch!(LogoAnimation);
+        //launch!OpeningStage;
     }
 }

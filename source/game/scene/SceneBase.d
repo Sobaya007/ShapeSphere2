@@ -12,8 +12,8 @@ class SceneBase {
     protected Maybe!FinishCallback _finish;
     protected Maybe!SelectCallback _select;
     private EntityTemp!(GeometryRect, ColorMaterial) fadeRect;
-    private World world;
-    private Camera camera;
+    protected World world;
+    protected Camera camera;
     private Renderer renderer;
     private Screen screen;
     private IViewport viewport;
@@ -27,6 +27,10 @@ class SceneBase {
     Event[] events;
 
     this() {
+        this(new OrthoCamera(2, 2, -1, 1));
+    }
+
+    this(Camera camera) {
         this.state = State.Waiting;
         this.fadeRect = ColorEntity(vec4(0), 2,2);
         this.fadeRect.getMesh().mat.config.transparency = true;
@@ -35,7 +39,7 @@ class SceneBase {
 
         auto window = Core().getWindow();
         this.world = new World;
-        this.camera = new OrthoCamera(2,2,-1,1);
+        this.camera = camera;
         this.renderer = new Renderer;
         this.screen = window.getScreen;
         this.viewport = new AutomaticViewport(window);

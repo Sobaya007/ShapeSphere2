@@ -9,6 +9,58 @@ class Dialog(dstring explainMessage) : SceneBase {
 
     mixin SceneBasePack;
 
+    private Label explain;
+    private Selection[2] selections;
+    private bool hasSelectorMoved;
+    private uint selector;
+    Entity main;
+
+    this() {
+        super();
+        this.main = ColorEntity(vec4(1,1,1,0.5), 1.5, 1.5);
+
+        this.explain = TextEntity(explainMessage, 0.3, Label.OriginX.Center, Label.OriginY.Top);
+        this.explain.pos = vec3(0, 0.8, 0);
+        this.main.addChild(this.explain);
+
+        this.selections = [
+            Selection("YES", vec2(-0.4, -0.2), vec3(1, 0.5, 0.5)),
+            Selection("NO",  vec2(+0.4, -0.2), vec3(0.5, 0.5, 1)),
+        ];
+
+        this.selections[0].label.setColor(vec4(1,0.5,0.5,1) * 0.5);
+        this.selections[1].label.setColor(vec4(0.5,0.5,1,1) * 0.5);
+
+        this.main.addChild(this.selections[0].label);
+        this.main.addChild(this.selections[1].label);
+
+        addEntity(main);
+
+        addEvent(() => Controler().justPressed(CButton.Left), {changeSelector(-1);});
+        addEvent(() => Controler().justPressed(CButton.Right), {changeSelector(+1);});
+        addEvent(() => Controler().justPressed(CButton.Decide), {
+            if (!this.hasSelectorMoved) return;
+            this.select(this.selector);
+        });
+    }
+
+    override void initialize() {
+        this.hasSelectorMoved = false;
+        this.selector = 0;
+    }
+
+    void changeSelector(int d) {
+        if (!this.hasSelectorMoved) {
+            this.hasSelectorMoved = true;
+            this.selections[this.selector].selected();
+            return;
+        }
+        if (this.selector+d == -1) return;
+        if (this.selector+d == this.selections.length) return;
+        this.selections[this.selector].unselected();
+        this.selections[this.selector+=d].selected();
+    }
+
     struct Selection {
         private Label label;
         private vec3 color;
@@ -49,42 +101,5 @@ class Dialog(dstring explainMessage) : SceneBase {
                 )
             ));
         }
-    }
-
-    private Label explain;
-    private Selection[2] selections;
-    private uint selector;
-    Entity main;
-
-    this() {
-        super();
-        this.main = ColorEntity(vec4(1,1,1,0.5), 1.5, 1.5);
-
-        this.explain = TextEntity(explainMessage, 0.3, Label.OriginX.Center, Label.OriginY.Top);
-        this.explain.pos = vec3(0, 0.8, 0);
-        this.main.addChild(this.explain);
-
-        this.selections = [
-            Selection("YES", vec2(-0.4, -0.2), vec3(1, 0.5, 0.5)),
-            Selection("NO",  vec2(+0.4, -0.2), vec3(0.5, 0.5, 1)),
-        ];
-
-        this.selections[1].label.setColor(vec4(0.5,0.5,1,1) * 0.5);
-
-        this.main.addChild(this.selections[0].label);
-        this.main.addChild(this.selections[1].label);
-
-        addEntity(main);
-
-        addEvent(() => Controler().justPressed(CButton.Left), {changeSelector(-1);});
-        addEvent(() => Controler().justPressed(CButton.Right), {changeSelector(+1);});
-        addEvent(() => Controler().justPressed(CButton.Decide), () => this.select(this.selector));
-    }
-
-    void changeSelector(int d) {
-        if (this.selector+d == -1) return;
-        if (this.selector+d == this.selections.length) return;
-        this.selections[this.selector].unselected();
-        this.selections[this.selector+=d].selected();
     }
 }

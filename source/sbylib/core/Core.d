@@ -138,7 +138,7 @@ class Core {
             this.key.update();
             this.mouse.update();
             this.joy.update();
-            this.processes.filter!("a.step");
+            this.processes.filter!(proc => proc.step());
             this.window.swapBuffers();
             this.window.pollEvents();
             stdout.flush();
