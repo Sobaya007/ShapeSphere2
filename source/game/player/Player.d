@@ -46,7 +46,7 @@ class Player {
         this.sphere = this.elasticSphere;
         this.controler = Controler();
         commandManager.addCommand(new ButtonCommand(() => controler.isPressed(CButton.Press), &this.onDownPress));
-        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(CButton.Down), &this.onDownJustRelease));
+        commandManager.addCommand(new ButtonCommand(() => controler.justReleased(CButton.Press), &this.onDownJustRelease));
         commandManager.addCommand(new ButtonCommand(() => controler.isPressed(CButton.Needle), &this.onNeedlePress));
         commandManager.addCommand(new ButtonCommand(() => controler.isReleased(CButton.Needle), &this.onNeedleRelease));
         commandManager.addCommand(new ButtonCommand(() => controler.isPressed(CButton.Spring), &this.onSpringPress));
