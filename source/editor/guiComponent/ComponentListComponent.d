@@ -46,7 +46,7 @@ public:
             : _components.map!"a.height".fold!max(0f);
     }
 
-    override void update(Mouse2D mouse) {
+    override void update(ViewportMouse mouse) {
         _components.each!(
             component => component.update(mouse)
         );

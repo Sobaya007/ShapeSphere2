@@ -31,7 +31,7 @@ void editorExample() {
     camera.getObj.pos = vec3(w/2, h/2, 0);
     world.setCamera(camera);
 
-    auto control = new GuiControl(window, camera, world, core.getKey());
+    auto control = new GuiControl(window, camera, viewport, world, core.getKey());
 
     auto spacer = new SpacerComponent(400, 300);
     auto label = new LabelComponent("D is 神"d, 50, vec4(0.6, 0.7, 0.8, 1.0));

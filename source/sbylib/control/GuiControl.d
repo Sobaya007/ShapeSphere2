@@ -3,7 +3,7 @@ module sbylib.control.GuiControl;
 import sbylib.wrapper.glfw.Constants;
 import sbylib.core.Window;
 import sbylib.input.Key;
-import sbylib.input.Mouse2D;
+import sbylib.input.ViewportMouse;
 import sbylib.mesh.Object3D;
 import sbylib.camera.Camera;
 import sbylib.camera.OrthoCamera;
@@ -17,12 +17,13 @@ import sbylib.utils.Functions;
 import sbylib.core.World;
 import sbylib.core.Process;
 import sbylib.control.IControllable;
+import sbylib.render.Viewport;
 
 class GuiControl {
 
-    private Mouse2D mouse;
+    private ViewportMouse mouse;
     private Key key;
-    private IControllable[MouseButton] colEntry;
+    private Maybe!IControllable[MouseButton] colEntry;
     private World world;
     private CollisionRay ray;
     private OrthoCamera camera;
@@ -32,12 +33,17 @@ class GuiControl {
     private Maybe!KeyButton lastPressedKeyButton = None!KeyButton;
     private int lastPressedKeyCount = 0;
 
-    this(Window window, OrthoCamera camera, World world, Key key) {
+    this(Window window, OrthoCamera camera, IViewport viewport, World world, Key key) {
         this.ray = new CollisionRay();
-        this.mouse = new Mouse2D(window, camera);
+        this.mouse = new ViewportMouse(viewport);
         this.world = world;
         this.camera = camera;
         this.key = key;
+
+        import std.traits;
+        foreach (button; EnumMembers!MouseButton) {
+            colEntry[button] = None!IControllable;
+        }
     }
 
     void update(Process proc) {
@@ -53,26 +59,23 @@ class GuiControl {
 
 private:
     void updateMouse() {
-        this.mouse.update();
         if (this.mouse.justPressed()) {
-            getCollidedControllable()
-                .apply!((IControllable controllable) {
-                this.colEntry[this.mouse.justPressedButton()] = controllable;
+            getCollidedControllable().apply!((IControllable controllable) {
+                this.colEntry[this.mouse.justPressedButton()] = Just(controllable);
                 controllable.onMousePressed(this.mouse.justPressedButton());
             });
             this.selectedControllable = None!IControllable;
         }
         if (this.mouse.justReleased()) {
             auto mouseButton = this.mouse.justReleasedButton();
-            if (mouseButton in this.colEntry && this.colEntry[mouseButton] !is null) {
-                getCollidedControllable()
-                    .apply!((IControllable controllable) {
-                    this.colEntry[mouseButton].onMouseReleased(mouseButton, controllable is this.colEntry[mouseButton]);
-                    this.selectedControllable = Just(controllable);
+            getCollidedControllable().apply!((IControllable a) {
+                this.colEntry[mouseButton].apply!((IControllable b) {
+                    b.onMouseReleased(mouseButton, a is b);
                 });
-            }
+                this.selectedControllable = Just(a);
+            });
 
-            this.colEntry[mouseButton] = null;
+            this.colEntry[mouseButton] = None!IControllable;
         }
     }
 

@@ -2,7 +2,7 @@ module sbylib.control.BasicControl;
 
 import sbylib.wrapper.glfw.Constants;
 import sbylib.wrapper.glfw.Window;
-import sbylib.input.Mouse;
+import sbylib.input.ViewportMouse;
 import sbylib.mesh.Object3D;
 import sbylib.camera.Camera;
 import sbylib.math.Angle;
@@ -20,7 +20,7 @@ class BasicControl {
 
     enum Mode {None, Translate, Rotate}
 
-    private Mouse mouse;
+    private ViewportMouse mouse;
     private Entity entity;
     private World world;
     private CollisionRay ray;
@@ -28,7 +28,7 @@ class BasicControl {
     private Mode mode;
     private float z;
 
-    this(Mouse mouse, World world, Camera camera) {
+    this(ViewportMouse mouse, World world, Camera camera) {
         this.ray = new CollisionRay();
         this.mouse = mouse;
         this.world = world;
@@ -37,7 +37,6 @@ class BasicControl {
     }
 
     void update() {
-        this.mouse.update();
         final switch(this.mode) {
         case Mode.None:
             this.none();
