@@ -1,8 +1,8 @@
-module game.scene.SceneTransition;
+module game.scene.manager.SceneTransition;
 
 import game.scene.SceneBase;
-import game.scene.SceneCallback;
-import game.scene.SceneManager;
+import game.scene.manager.SceneCallback;
+import game.scene.manager.SceneManager;
 import std.stdio;
 
 interface SceneTransition {

@@ -1,7 +1,6 @@
 module game.scene.Dialog;
 
 import game.scene.SceneBase;
-import game.scene.AnimationManager;
 import game.player.Controler;
 import sbylib;
 
@@ -28,9 +27,6 @@ class Dialog(dstring explainMessage) : SceneBase {
             Selection("NO",  vec2(+0.4, -0.2), vec3(0.5, 0.5, 1)),
         ];
 
-        this.selections[0].label.setColor(vec4(1,0.5,0.5,1) * 0.5);
-        this.selections[1].label.setColor(vec4(0.5,0.5,1,1) * 0.5);
-
         this.main.addChild(this.selections[0].label);
         this.main.addChild(this.selections[1].label);
 
@@ -47,18 +43,20 @@ class Dialog(dstring explainMessage) : SceneBase {
     override void initialize() {
         this.hasSelectorMoved = false;
         this.selector = 0;
+
+        this.selections[0].label.setColor(vec4(1,0.5,0.5,1) * 0.5);
+        this.selections[1].label.setColor(vec4(0.5,0.5,1,1) * 0.5);
     }
 
     void changeSelector(int d) {
-        if (!this.hasSelectorMoved) {
-            this.hasSelectorMoved = true;
-            this.selections[this.selector].selected();
-            return;
+        if (hasSelectorMoved) {
+            this.selections[this.selector].unselect();
         }
-        if (this.selector+d == -1) return;
-        if (this.selector+d == this.selections.length) return;
-        this.selections[this.selector].unselected();
-        this.selections[this.selector+=d].selected();
+        this.selector += d;
+        if (this.selector == -1) this.selector = 0;
+        if (this.selector == this.selections.length) this.selector = this.selections.length-1;
+        this.selections[this.selector].select();
+        this.hasSelectorMoved = true;
     }
 
     struct Selection {
@@ -73,7 +71,7 @@ class Dialog(dstring explainMessage) : SceneBase {
             this.label.setColor(vec4(color, 1));
         }
 
-        void selected() {
+        void select() {
             this.animation = Just(AnimationManager().startAnimation(
                 this.label.color(
                     setting(
@@ -86,7 +84,7 @@ class Dialog(dstring explainMessage) : SceneBase {
             ));
         }
 
-        void unselected() {
+        void unselect() {
             if (this.animation.isJust) {
                 this.animation.get.finish();
             }

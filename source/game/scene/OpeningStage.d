@@ -1,7 +1,6 @@
 module game.scene.OpeningStage;
 
 import game.scene.SceneBase;
-import game.scene.SceneTransition;
 import game.GameMain;
 import game.player.Player;
 import sbylib;

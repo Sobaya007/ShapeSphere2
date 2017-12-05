@@ -1,7 +1,6 @@
 module game.scene.SceneBase;
 
-import game.scene.SceneTransition;
-import game.scene.SceneCallback;
+public import game.scene.manager;
 import sbylib;
 import std.stdio;
 
@@ -108,7 +107,7 @@ class SceneBase {
 
 mixin template SceneBasePack() {
 
-    import game.scene.SceneCallback;
+    import game.scene.manager.SceneCallback;
     public static auto opCall(FinishCallback finish) {
         auto res = new typeof(this)();
         res._finish = Just(finish);

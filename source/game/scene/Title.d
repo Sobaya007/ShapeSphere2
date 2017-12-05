@@ -2,8 +2,6 @@ module game.scene.Title;
 
 import std.algorithm, std.array;
 import game.scene.SceneBase;
-import game.scene.SceneTransition;
-import game.scene.AnimationManager;
 import game.player.Controler;
 import game.scene.Dialog;
 import sbylib;
@@ -92,8 +90,8 @@ class Title : SceneBase {
     void changeSelector(int d) {
         if (this.selector+d == -1) return;
         if (this.selector+d == this.selections.length) return;
-        this.selections[this.selector].unselected();
-        this.selections[this.selector+=d].selected();
+        this.selections[this.selector].unselect();
+        this.selections[this.selector+=d].select();
     }
 
     struct Selection {
@@ -107,7 +105,7 @@ class Title : SceneBase {
             this.label.setColor(vec4(0));
         }
 
-        void selected() {
+        void select() {
             this.animation = Just(AnimationManager().startAnimation(
                 multi([
                     this.label.translate(
@@ -130,7 +128,7 @@ class Title : SceneBase {
             ));
         }
 
-        void unselected() {
+        void unselect() {
             if (this.animation.isJust) {
                 this.animation.get.finish();
             }

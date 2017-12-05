@@ -1,7 +1,7 @@
-module game.scene.SceneManager;
+module game.scene.manager.SceneManager;
 
 import game.scene.SceneBase;
-import game.scene.SceneTransition;
+import game.scene.manager.SceneTransition;
 import sbylib;
 import std.stdio;
 

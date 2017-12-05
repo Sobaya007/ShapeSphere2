@@ -1,8 +1,6 @@
 module game.scene.LogoAnimation;
 
 import game.scene.SceneBase;
-import game.scene.SceneTransition;
-import game.scene.AnimationManager;
 import sbylib;
 
 class LogoAnimation : SceneBase {

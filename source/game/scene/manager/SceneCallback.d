@@ -1,6 +1,6 @@
-module game.scene.SceneCallback;
+module game.scene.manager.SceneCallback;
 
-import game.scene.SceneTransition;
+import game.scene.manager.SceneTransition;
 
 alias FinishCallback = SceneTransition delegate();
 alias SelectCallback = SceneTransition delegate(size_t);

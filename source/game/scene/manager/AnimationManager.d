@@ -1,7 +1,7 @@
-module game.scene.AnimationManager;
+module game.scene.manager.AnimationManager;
 
-import game.scene.SceneTransition;
-import game.scene.SceneCallback;
+import game.scene.manager.SceneTransition;
+import game.scene.manager.SceneCallback;
 import game.scene.SceneBase;
 import sbylib;
 
