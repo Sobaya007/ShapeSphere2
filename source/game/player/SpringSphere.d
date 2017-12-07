@@ -20,7 +20,6 @@ private void to(ref float value, float arrival) {
 
 class SpringSphere : BaseSphere {
 
-
     static immutable {
         alias TIME_STEP = Player.TIME_STEP;
         float GRAVITY = 20;
@@ -55,7 +54,7 @@ class SpringSphere : BaseSphere {
     private Camera camera;
     private Player parent;
     private PlayerChaseControl control;
-    private Maybe!(ElasticSphere.WallContact) wallContact;
+    private Maybe!(ElasticSphere2.WallContact) wallContact;
     private Spring spring;
     private GeometricInfo geom;
     private vec3 velocity;
@@ -119,7 +118,7 @@ class SpringSphere : BaseSphere {
         this.stepImpl = transform;
         this.shouldFinish = false;
         parent.world.add(this.entity);
-        this.wallContact = None!(ElasticSphere.WallContact);
+        this.wallContact = None!(ElasticSphere2.WallContact);
 
         this.move();
     }
