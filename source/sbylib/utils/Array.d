@@ -4,6 +4,7 @@ module sbylib.utils.Array;
 import core.stdc.stdlib;
 import core.memory;
 import std.string;
+import std.format;
 
 struct Array(T) {
     private T* ptr;
@@ -48,7 +49,8 @@ struct Array(T) {
     }
 
     ref T opIndex(size_t idx) in {
-        assert(0 <= idx && idx < this._length, "Out of Range");
+        assert(0 <= idx, format!"index must not be negative. index is%d."(idx));
+        assert(idx < length, format!"index must be less than %d. index is%d."(this.length, idx));
         assert(valid, invalidMessage);
     } body {
         return this.ptr[idx];
@@ -108,3 +110,30 @@ struct Array(T) {
         return _length;
     }
 }
+
+void sort(alias lessThan, T)(Array!T array) {
+    sort!(lessThan, T)(array, 0, array.length);
+}
+
+private void sort(alias lessThan, T)(Array!T array, size_t _begin, size_t _end) {
+    long begin = _begin;
+    long end = _end;
+    if (begin >= end) return;
+    auto pivot = array[(begin+end)/2];
+    auto left = begin;
+    assert(end != 0);
+    auto right = end-1;
+    while (true) {
+        while (lessThan(array[left],pivot)) left++;
+        while (lessThan(pivot,array[right])) right--;
+        auto tmp = array[left];
+        if (left >= right) break;
+        array[left] = array[right];
+        array[right] = tmp;
+        left++;
+        right--;
+    }
+    sort!(lessThan, T)(array, 0, left-1);
+    sort!(lessThan, T)(array, right+1, end);
+}
+

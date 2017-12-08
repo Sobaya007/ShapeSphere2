@@ -77,12 +77,18 @@ class World {
     }
 
     void render() {
-        foreach (r; this.entities) {
-            r.render(false);
+        auto notTransparents = Array!Entity(0);
+        auto transparents = Array!Entity(0);
+        scope (exit) {
+            notTransparents.destroy();
+            transparents.destroy();
         }
         foreach (r; this.entities) {
-            r.render(true);
+            r.collect!(mesh => mesh.mat.config.transparency == true)(transparents, notTransparents);
         }
+        notTransparents.each!(e => e.render());
+        transparents.sort!((a,b) => a.pos.z < b.pos.z);
+        transparents.each!(e => e.render());
     }
 
     Lazy!Uniform getUniform(UniformDemand demand) {

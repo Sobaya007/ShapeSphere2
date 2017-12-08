@@ -134,20 +134,10 @@ class ElasticSphere : BaseSphere{
 
     override BaseSphere onDownPress() {
         this.pushCount += 0.1;
-        vec3 g = this.getCenter;
-        auto lower = this.calcLower();
-        auto upper = this.calcUpper();
-        foreach (p; this.elasticSphere2.getParticleList) {
-            //下向きの力
-            auto len = (p.position - g).xz.length;
-            auto t = (p.position.y - lower) / (upper - lower);
-            float power = DOWN_PUSH_FORCE / pow(len + 0.6, 2.5);
-            power = min(DOWN_PUSH_FORE_MIN, power);
-            power *= t;
-            p.force.y -= power * this.pushCount;
-        }
+        this.elasticSphere2.push(DOWN_PUSH_FORCE * pushCount * vec3(0,-1,0), DOWN_PUSH_FORE_MIN);
         return this;
     }
+
     override BaseSphere onDownJustRelease() {
         this.pushCount = 0;
         return this;
@@ -190,14 +180,6 @@ class ElasticSphere : BaseSphere{
         }
 
         return this;
-    }
-
-    float calcLower() {
-        return this.elasticSphere2.getParticleList.map!(p => p.position.y).reduce!min;
-    }
-
-    float calcUpper() {
-        return this.elasticSphere2.getParticleList.map!(p => p.position.y).reduce!max;
     }
 
     private float calcSidePushForce() {

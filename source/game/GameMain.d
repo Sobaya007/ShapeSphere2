@@ -2,6 +2,7 @@ module game.GameMain;
 
 import sbylib;
 import game.player;
+import game.player.Character;
 import game.command;
 import game.scene;
 import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex;
@@ -27,8 +28,10 @@ void gameMain(string[] args) {
     /* Player Settings */
     auto commandManager = getCommandManager(args);
     Player player = new Player(camera, world3d, commandManager);
+    auto character = new Character(world3d);
     core.addProcess((proc) {
         player.step();
+        character.step();
     }, "player update");
     core.addProcess(&commandManager.update, "command update");
 
@@ -77,6 +80,8 @@ void gameMain(string[] args) {
         world3d.add(e1);
         player.floors.addChild(e0);
         player.floors.addChild(e1);
+        character.floors.addChild(e0);
+        character.floors.addChild(e1);
     };
     makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
     makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);

@@ -92,14 +92,35 @@ class Entity {
         }
     }
 
-    void render(bool transparency) in {
-        assert(this.world);
-    } body {
-        if (this.mesh && this.mesh.mat.config.transparency == transparency) {
-            this.mesh.render();
+    /*
+    void collect(bool function(Mesh) cond)(ref Array!Entity result) {
+        if (this.mesh && cond(this.mesh)) {
+            result ~= this;
         }
         foreach (child; this.children) {
-            child.render(transparency);
+            child.collect!(cond)(result);
+        }
+    }
+    */
+
+    void collect(bool function(Mesh) cond)(ref Array!Entity trueResult, ref Array!Entity falseResult) {
+        if (this.mesh) {
+            if (cond(this.mesh)) {
+                trueResult ~= this;
+            } else {
+                falseResult ~= this;
+            }
+        }
+        foreach (child; this.children) {
+            child.collect!(cond)(trueResult, falseResult);
+        }
+    }
+
+    void render() in {
+        assert(this.world);
+    } body {
+        if (this.mesh) {
+            this.mesh.render();
         }
     }
 
@@ -110,7 +131,7 @@ class Entity {
         }
     }
 
-    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) {
+    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) { 
         if (colEntry is null) return;
         if (this.getCollisionEntry()) {
             auto info = this.getCollisionEntry().collide(colEntry);

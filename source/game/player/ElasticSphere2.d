@@ -187,6 +187,25 @@ class ElasticSphere2 {
         updateGeometry();
     }
 
+    void push(vec3 forceVector, float maxPower) {
+        auto force = forceVector.length;
+        auto n = forceVector / force;
+        vec3 g = this.getCenter;
+        auto minv = this.calcMin(-n);
+        auto maxv = this.calcMax(-n);
+        foreach (p; this.particleList) {
+            //下向きの力
+            auto v = p.position - g;
+            v -= dot(v, n) * n;
+            auto len = v.length;
+            auto t = (p.position.dot(-n) - minv) / (maxv - minv);
+            float power = force / pow(len + 0.6, 2.5);
+            power = min(maxPower, power);
+            power *= t;
+            p.force += power * n;
+        }
+    }
+
     private void rotateParticles(vec3 center) {
         //移動量から強引に回転させる
         auto radius = this.calcRadius();
@@ -240,12 +259,12 @@ class ElasticSphere2 {
         return this.particleList.map!(a => a.velocity).sum / this.particleList.length;
     }
 
-    float calcLower() {
-        return this.particleList.map!(p => p.position.y).reduce!min;
+    float calcMin(vec3 n) {
+        return this.particleList.map!(p => p.position.dot(n)).reduce!min;
     }
 
-    float calcUpper() {
-        return this.particleList.map!(p => p.position.y).reduce!max;
+    float calcMax(vec3 n) {
+        return this.particleList.map!(p => p.position.dot(n)).reduce!max;
     }
 
     private float calcBaloonForce() {
