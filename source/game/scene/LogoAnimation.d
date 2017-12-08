@@ -3,7 +3,7 @@ module game.scene.LogoAnimation;
 import game.scene.SceneBase;
 import sbylib;
 
-class LogoAnimation : SceneBase {
+class LogoAnimation : SceneProtoType {
 
     mixin SceneBasePack;
 

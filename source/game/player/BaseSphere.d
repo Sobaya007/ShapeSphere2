@@ -1,7 +1,6 @@
 module game.player.BaseSphere;
 
 import game.player.Player;
-import game.player.PlayerChaseControl;
 import sbylib;
 import std.algorithm;
 import std.range;

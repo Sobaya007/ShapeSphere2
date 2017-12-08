@@ -5,7 +5,7 @@ import std.algorithm, std.array;
 import std.math;
 import game.scene;
 
-void sceneExample() {
+void sceneExample(string[] args) {
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getScreen();
@@ -22,12 +22,13 @@ void sceneExample() {
 
     core.addProcess(&AnimationManager().step, "Animation Manager");
 
-    setGameTransition();
+    setGameTransition(args);
 
     core.start();
 }
 
-void setGameTransition() {
+void setGameTransition(string[] args) {
+    GameMainScene.args = args;
     //アニメーション情報をどこまで詳細に載せるか
     //具体的に見えるものは後。
     //とりあえず遷移図を記す。
@@ -39,7 +40,7 @@ void setGameTransition() {
                     move!Title
                 )
             ),
-            OpeningAnimation(
+            OpeningMovie(
                 onFinish(
                     move!Title
                 )
@@ -62,7 +63,7 @@ void setGameTransition() {
             ),
             StartNewGame( //たぶん読み込み画面とか
                 onFinish(
-                    move!OpeningStage(
+                    move!GameMainScene(
                         onFinish(
                             move!Stage //現在の状態をみていいかんじのステージに飛ぶ
                         )

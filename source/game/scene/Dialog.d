@@ -4,7 +4,7 @@ import game.scene.SceneBase;
 import game.player.Controller;
 import sbylib;
 
-class Dialog(dstring explainMessage) : SceneBase {
+class Dialog(dstring explainMessage) : SceneProtoType {
 
     mixin SceneBasePack;
 

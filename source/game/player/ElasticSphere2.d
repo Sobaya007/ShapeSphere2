@@ -1,11 +1,7 @@
 module game.player.ElasticSphere2;
 
-public import game.player.BaseSphere;
-public import game.player.NeedleSphere;
-public import game.player.SpringSphere;
-import game.player.PlayerMaterial;
 import game.player.Player;
-import game.player.PlayerChaseControl;
+import game.player.PlayerMaterial;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -37,23 +33,28 @@ class ElasticSphere2 {
     }
     private ElasticParticle[] particleList;
     private ElasticPair[] pairList;
-    Player.PlayerEntity entity;
+    private GeometrySphere geom;
+    Entity entity;
     vec3 force;
     private Observer!vec3 center;
     private Observer!vec3 lVel;
     private Observer!vec3 aVel;
     bool ground;
 
-    this()  {
-        this.force = vec3(0);
-        auto geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
+    this() {
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
         mat.config.depthWrite = false;
         mat.config.faceMode = FaceMode.Front;
         mat.config.transparency = true;
-        this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
-        this.particleList = entity.getMesh().geom.vertices.map!(p => new ElasticParticle(p.position)).array;
+        this(mat);
+    }
+
+    this(Material mat)  {
+        this.force = vec3(0);
+        this.geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
+        this.entity = new Entity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
+        this.particleList = geom.vertices.map!(p => new ElasticParticle(p.position)).array;
         this.center = new Observer!vec3(() => this.particleList.map!(p => p.position).sum / this.particleList.length, this.particleList.map!(p => cast(IObserved)p.position).array);
         this.lVel = new Observer!vec3(() => this.particleList.map!(p => p.velocity).sum / this.particleList.length,
                 this.particleList.map!(p => cast(IObserved)p.velocity).array);
@@ -227,7 +228,7 @@ class ElasticSphere2 {
     private float calcVolume() {
         float volume = 0;
         auto center = this.entity.obj.pos;
-        foreach (face; this.entity.getMesh().geom.faces) {
+        foreach (face; geom.faces) {
             auto a = this.particleList[face.indexList[0]].position - center;
             auto b = this.particleList[face.indexList[1]].position - center;
             auto c = this.particleList[face.indexList[2]].position - center;
@@ -238,7 +239,7 @@ class ElasticSphere2 {
 
     private float calcArea() {
         float area = 0;
-        foreach (face; this.entity.getMesh().geom.faces) {
+        foreach (face; geom.faces) {
             auto a = this.particleList[face.indexList[0]].position;
             auto b = this.particleList[face.indexList[1]].position;
             auto c = this.particleList[face.indexList[2]].position;
@@ -308,7 +309,6 @@ class ElasticSphere2 {
     }
 
     private void updateGeometry() {
-        auto geom = this.entity.getMesh().geom;
         auto vs = geom.vertices;
         foreach (ref v; vs) {
             v.normal = vec3(0);

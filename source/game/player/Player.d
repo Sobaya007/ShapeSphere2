@@ -7,7 +7,7 @@ import game.player.NeedleSphere;
 import game.player.SpringSphere;
 import game.player.PlayerMaterial;
 import game.player.Controller;
-import game.player.PlayerChaseControl;
+import game.camera.PlayerChaseCamera;
 import sbylib;
 import std.algorithm, std.array;
 import std.math;
@@ -29,17 +29,15 @@ class Player {
     private SpringSphere springSphere;
     private Controller controller;
     package World world;
-    private Camera camera;
-    private PlayerChaseControl cameraControl;
+    private PlayerChaseCamera camera;
 
     this(Camera camera, World world, ICommandManager commandManager) {
         this.world = world;
-        this.camera = camera;
-        this.cameraControl = new PlayerChaseControl(camera, this);
+        this.camera = new PlayerChaseCamera(camera, this);
         this.floors = new Entity();
-        this.elasticSphere = new ElasticSphere(this, camera, world, this.cameraControl);
+        this.elasticSphere = new ElasticSphere(this, this.camera);
         this.needleSphere = new NeedleSphere(this);
-        this.springSphere = new SpringSphere(this, camera, this.cameraControl);
+        this.springSphere = new SpringSphere(this, this.camera);
         this.elasticSphere.constructor(this.needleSphere, this.springSphere);
         this.needleSphere.constructor(this.elasticSphere);
         this.springSphere.constructor(this.elasticSphere);
@@ -54,13 +52,14 @@ class Player {
         commandManager.addCommand(new ButtonCommand(() => controller.justPressed(CButton.CameraReset), &this.onCameraResetJustPress));
         commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.LookOver), &this.onLookOverPress));
         commandManager.addCommand(new ButtonCommand(() => controller.justReleased(CButton.LookOver), &this.onLookOverJustRelease));
+        commandManager.addCommand(new ButtonCommand(() => controller.justPressed(CButton.Decide), &this.onDecisideJustPressed));
         commandManager.addCommand(new StickCommand(() => controller.getLeftStickValue.safeNormalize, &this.onMovePress));
         commandManager.addCommand(new StickCommand(() => controller.getRightStickValue.safeNormalize, &this.onRotatePress));
     }
 
     void step() {
         this.sphere = this.sphere.move();
-        this.cameraControl.step();
+        this.camera.step();
     }
 
     void onDownPress() {
@@ -77,7 +76,7 @@ class Player {
 
     void onRotatePress(vec2 v) {
         // なぜかyが死ぬ
-        this.cameraControl.turn(vec2(v.x,0));
+        this.camera.turn(vec2(v.x,0));
     }
 
     void onNeedlePress() {
@@ -97,16 +96,19 @@ class Player {
     }
 
     void onCameraResetJustPress() {
-        this.cameraControl.reset();
+        this.camera.reset();
     }
 
     void onLookOverPress() {
-        if (this.cameraControl.isLooking) return;
+        if (this.camera.isLooking) return;
         this.sphere.requestLookOver();
     }
 
     void onLookOverJustRelease() {
-        this.cameraControl.stopLookOver();
+        this.camera.stopLookOver();
+    }
+
+    void onDecisideJustPressed() {
     }
 
     vec3 getCameraTarget() {

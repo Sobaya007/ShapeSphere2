@@ -6,7 +6,7 @@ public import game.player.SpringSphere;
 public import game.player.ElasticSphere2;
 import game.player.PlayerMaterial;
 import game.player.Player;
-import game.player.PlayerChaseControl;
+import game.camera.PlayerChaseCamera;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -28,19 +28,15 @@ class ElasticSphere : BaseSphere{
     private SpringSphere springSphere;
     private flim pushCount;
     private Player parent;
-    private Camera camera;
-    private PlayerChaseControl control;
-    private World world;
+    private PlayerChaseCamera camera;
     private vec3 _lastDirection;
 
-    this(Player parent, Camera camera, World world, PlayerChaseControl control)  {
+    this(Player parent, PlayerChaseCamera camera)  {
         this.parent = parent;
         this.camera = camera;
-        this.world = world;
-        this.control = control;
         this.pushCount = flim(0.0, 0.0, 1);
         this.elasticSphere2 = new ElasticSphere2();
-        this.world.add(this.elasticSphere2.entity);
+        this.parent.world.add(this.elasticSphere2.entity);
         this._lastDirection = vec3(normalize((camera.pos - this.getCenter).xz), 0).xzy;
     }
 
@@ -129,7 +125,7 @@ class ElasticSphere : BaseSphere{
         auto dir = (this.getCenter - this.camera.pos);
         dir.y = 0;
         dir = normalize(dir);
-        this.control.lookOver(dir);
+        this.camera.lookOver(dir);
     }
 
     override BaseSphere onDownPress() {
@@ -144,8 +140,8 @@ class ElasticSphere : BaseSphere{
     }
 
     override BaseSphere onMovePress(vec2 v) {
-        if (this.control.isLooking) {
-            this.control.turn(v);
+        if (this.camera.isLooking) {
+            this.camera.turn(v);
             return this;
         }
         this.elasticSphere2.force += this.camera.rot * vec3(v.x, 0, v.y);
@@ -153,14 +149,14 @@ class ElasticSphere : BaseSphere{
     }
 
     override BaseSphere onNeedlePress() {
-        this.world.remove(this.elasticSphere2.entity);
+        this.parent.world.remove(this.elasticSphere2.entity);
         this.needleSphere.initialize(this);
         return this.needleSphere;
     }
 
     override BaseSphere onSpringPress() {
         if (!this.springSphere.canTransform()) return this;
-        this.world.remove(this.elasticSphere2.entity);
+        this.parent.world.remove(this.elasticSphere2.entity);
         this.springSphere.initialize(this);
         return this.springSphere;
     }

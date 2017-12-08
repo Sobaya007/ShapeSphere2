@@ -3,7 +3,7 @@ module game.scene.StartNewGame;
 import game.scene.SceneBase;
 import sbylib;
 
-class StartNewGame : SceneBase {
+class StartNewGame : SceneProtoType {
 
     mixin SceneBasePack;
 

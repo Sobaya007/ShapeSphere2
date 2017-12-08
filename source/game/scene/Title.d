@@ -6,7 +6,7 @@ import game.player.Controller;
 import game.scene.Dialog;
 import sbylib;
 
-class Title : SceneBase {
+class Title : SceneProtoType {
 
     mixin SceneBasePack;
 

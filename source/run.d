@@ -63,7 +63,7 @@ void run(RunMode mode, string[] args) {
         entityExample();
         break;
     case RunMode.Scene:
-        sceneExample();
+        sceneExample(args);
         break;
     }
 }

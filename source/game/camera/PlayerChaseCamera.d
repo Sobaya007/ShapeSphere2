@@ -1,9 +1,9 @@
-module game.player.PlayerChaseControl;
+module game.camera.PlayerChaseCamera;
 
 import sbylib;
 import game.player.Player;
 
-class PlayerChaseControl {
+class PlayerChaseCamera {
 
     private interface Step {
         Step step();
@@ -12,7 +12,7 @@ class PlayerChaseControl {
 
     private static float TURN_SPEED = 2;
 
-    private Camera camera;
+    Camera camera;  alias camera this;
     private Player player;
     private vec3 vel;
     private Maybe!vec3 arrival;

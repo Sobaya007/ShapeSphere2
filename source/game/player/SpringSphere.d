@@ -4,7 +4,7 @@ public import game.player.BaseSphere;
 public import game.player.ElasticSphere;
 public import game.player.NeedleSphere;
 import game.player.PlayerMaterial;
-import game.player.PlayerChaseControl;
+import game.camera.PlayerChaseCamera;
 import game.player.Player;
 import sbylib;
 import std.algorithm;
@@ -51,9 +51,8 @@ class SpringSphere : BaseSphere {
     private Player.PlayerEntity entity;
     private CollisionCapsule capsule;
     private ElasticSphere elasticSphere;
-    private Camera camera;
     private Player parent;
-    private PlayerChaseControl control;
+    private PlayerChaseCamera camera;
     private Maybe!(ElasticSphere2.WallContact) wallContact;
     private Spring spring;
     private GeometricInfo geom;
@@ -63,10 +62,9 @@ class SpringSphere : BaseSphere {
     private bool shouldFinish;
     private vec3 _lastDirection;
 
-    this(Player parent, Camera camera, PlayerChaseControl control)  {
+    this(Player parent, PlayerChaseCamera camera)  {
         this.parent = parent;
         this.camera = camera;
-        this.control = control;
         this.spring = new Spring();
         auto geom = SphereUV.create!GeometryN(RADIUS, T_CUT, P_CUT);
         auto mat = new Player.Mat();
@@ -134,7 +132,7 @@ class SpringSphere : BaseSphere {
     override void requestLookOver() {
         auto dir2 = (this.getCameraTarget() - this.camera.pos).xz;
         auto dir = vec3(dir2, dir2.length).xzy.normalize;
-        this.control.lookOver(dir);
+        this.camera.lookOver(dir);
     }
 
     override BaseSphere move() {
@@ -158,8 +156,8 @@ class SpringSphere : BaseSphere {
     }
 
     override BaseSphere onMovePress(vec2 a) {
-        if (this.control.isLooking) {
-            this.control.turn(a);
+        if (this.camera.isLooking) {
+            this.camera.turn(a);
             return this;
         }
         this.geom.axisDif.x.to(a.x);
