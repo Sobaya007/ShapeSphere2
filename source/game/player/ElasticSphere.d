@@ -61,12 +61,12 @@ class ElasticSphere : BaseSphere{
         auto arrivalCenter = needleSphere.getCenter();
         auto currentCenter = this.getCenter;
         auto dCenter = arrivalCenter - currentCenter;
-        foreach (particle; this.elasticSphere2.getParticleList) {
-            particle.position += dCenter;
-        }
         this.elasticSphere2.entity.obj.pos += dCenter;
         foreach (particle; this.elasticSphere2.getParticleList) {
+            particle.position += dCenter;
             particle.velocity = needleSphere.calcVelocity(particle.position);
+            particle.capsule.setStart(particle.position);
+            particle.capsule.setEnd(particle.position);
         }
         this.pushCount = 0;
     }

@@ -61,24 +61,28 @@ class CollisionEntry {
     }
 
     public static Maybe!CollisionInfo collide(CollisionCapsule capsule1, CollisionCapsule capsule2) {
-        if (segDistance(capsule1.start, capsule1.end, capsule2.start, capsule2.end) <= capsule1.radius + capsule2.radius) {
-            return Just(CollisionInfo(capsule1.getOwner(), capsule2.getOwner()));
+        auto v = segseg(capsule1.start, capsule1.end, capsule2.start, capsule2.end);
+        if (v.length <= capsule1.radius + capsule2.radius) {
+            return Just(CollisionInfo(capsule1.getOwner(), capsule2.getOwner(), capsule1.radius + capsule2.radius - v.length, v.normalize));
         }
         return None!CollisionInfo;
     }
 
     public static Maybe!CollisionInfo collide(CollisionCapsule capsule, CollisionPolygon polygon) {
-        if (polySegDistance(capsule.start, capsule.end, polygon.positions[0], polygon.positions[1], polygon.positions[2], polygon.normal) <= capsule.radius) {
-            return Just(CollisionInfo(capsule.getOwner(), polygon.getOwner()));
+        auto r = segPoly(capsule.start, capsule.end, polygon.positions[0], polygon.positions[1], polygon.positions[2], polygon.normal);
+        if (r.dist <= capsule.radius) {
+            auto depth = fmax(dot(polygon.positions[0] - capsule.start, polygon.normal), dot(polygon.positions[0] - capsule.end, polygon.normal)) + capsule.radius;
+            return Just(CollisionInfo(capsule.getOwner(), polygon.getOwner(), depth, r.pushVector));
         }
         return None!CollisionInfo;
     }
 
     public static Maybe!CollisionInfo collide(CollisionPolygon polygon1, CollisionPolygon polygon2) {
-        if (polygonDetection(polygon1, polygon2)) {
-            return Just(CollisionInfo(polygon1.getOwner(), polygon2.getOwner()));
-        }
-        return None!CollisionInfo;
+        assert(false);
+        //if (polygonDetection(polygon1, polygon2)) {
+        //    return Just(CollisionInfo(polygon1.getOwner(), polygon2.getOwner()));
+        //}
+        //return None!CollisionInfo;
     }
 
     public static Maybe!CollisionInfoRay collide(CollisionCapsule capsule, CollisionRay ray) {
@@ -120,7 +124,21 @@ class CollisionEntry {
                            val > max ? max :
                            val;
 
-    private static float segDistance(vec3 s1, vec3 e1, vec3 s2, vec3 e2) {
+    private static vec3 segseg(vec3 s1, vec3 e1, vec3 s2, vec3 e2) {
+        if (s1 == e1) {
+            if (s2 == e2) {
+                // point & point
+                return s1 - s2;
+            } else {
+                // point & line
+                return -segPoint(s2, e2 - s2, s1);
+            }
+        } else {
+            if (s2 == e2) {
+                // point & line
+                return segPoint(s1, e1 - s1, s2);
+            }
+        }
         vec3 v1 = normalize(e1 - s1);
         vec3 v2 = normalize(e2 - s2);
         float d1 = dot(s2 - s1, v1);
@@ -136,50 +154,82 @@ class CollisionEntry {
                     // line & line
                     vec3 p1 = s1 + t1 * v1;
                     vec3 p2 = s2 + t2 * v2;
-                    return length(p1 - p2);
+                    return p1 - p2;
                 } else {
                     // line & point
                     t2 = clamp(t2, 0, 1);
                     vec3 p2 = s2 + t2 * v2;
-                    return segPointDistance(s1, v1, p2);
+                    return segPoint(s1, v1, p2);
                 }
             } else {
                 if (0 <= t2 && t2 <= 1) {
                     // line & point
                     t1 = clamp(t1, 0, 1);
                     vec3 p1 = s1 + t1 * v1;
-                    return segPointDistance(s2, v2, p1);
+                    return -segPoint(s2, v2, p1);
                 } else {
+                    // point & point
                     t1 = clamp(t1, 0, 1);
                     t2 = clamp(t2, 0, 1);
                     vec3 p1 = s1 + t1 * v1;
                     vec3 p2 = s2 + t2 * v2;
-                    return length(p1 - p2);
+                    return p1 - p2;
                 }
             }
         }
         // parallel
-        return length(s1 - s2);
+        vec3 v = s1 - s2;
+        v -= dot(v, v1) * v1;
+        return v;
     }
 
-    private static float segPointDistance(vec3 s, vec3 v, vec3 p) {
-        v = normalize(v);
-        float t = dot(p - s, v);
-        return length(s + t * v - p);
+    private static vec3 segPoint(vec3 s, vec3 v, vec3 p) {
+        auto l = v.length;
+        v /= l;
+        auto ps = p - s;
+        float t = dot(ps, v);
+        t = clamp(t, 0, l);
+        return s + t * v - p;
     }
 
-    private static float polySegDistance(vec3 s, vec3 e, vec3 p0, vec3 p1, vec3 p2, vec3 n) {
-        import std.algorithm;
-        import std.stdio;
+    struct PolySegResult {
+        float dist;
+        vec3 pushVector;
+    }
+
+    private static PolySegResult segPoly(vec3 s, vec3 e, vec3 p0, vec3 p1, vec3 p2, vec3 n) {
+        // 平行でないとき
+        //   線分が完全にポリゴン(平面)の片側に寄っている場合
+        //     線分の端点が面領域に入っているとき
+        //       1. 線分の端点とポリゴンの垂線ベクトル
+        //     線分の端点が面領域に入っていないとき
+        //       2. 辺と端点との最接近ベクトル
+        //   線分が平面の両側に存在している場合
+        //     線分がポリゴンを貫いているとき
+        //       3. 0ベクトル(線分がポリゴンを貫いている)
+        //     線分がポリゴンの横を通っているとき
+        //       4. 辺と線分との最接近ベクトル
+        // 平行なとき, 線分が点になっているとき
+        //   線分が完全にポリゴンの面領域に収まっているとき
+        //     5. 線分のどこかの点とポリゴンの垂線ベクトル
+        //   線分がポリゴンの面領域からはみ出ているとき
+        //     6. 辺と線分との最接近ベクトル
+
+        // 距離が正のとき、つまり線分がポリゴンを貫いていないときはめり込み解消ベクトル=最小距離ベクトルになるが、
+        // 貫いているときはめりこみ解消ベクトルは異なる
+        // このとき、ベクトルの候補は
+        //   1. ポリゴンの法線
+        //   2. 辺と線分の外積
+        // なお、返り値の法線は必ずポリゴンの表方向にしか押し出さないとする
+
         vec3 v = e - s;
-        float dist = min(
-                segDistance(s, e, p0, p1),
-                segDistance(s, e, p1, p2),
-                segDistance(s, e, p2, p0));
         float denom = dot(v, n);
+
+        alias min = (a, b) => a.lengthSq < b.lengthSq ? a : b;
+
+        import std.stdio;
         if (denom != 0) {
             float t1 = dot(p0 - s, n) / denom;
-            // point & polygon
             t1 = clamp(t1, 0, 1);
             vec3 p = s + t1 * v;
             auto s0 = dot(n, cross(p1 - p0, p0 - p));
@@ -187,29 +237,44 @@ class CollisionEntry {
             auto s2 = dot(n, cross(p0 - p2, p2 - p));
             if (s0 > 0 && s1 > 0 && s2 > 0
                 || s0 < 0 && s1 < 0 && s2 < 0) {
-                vec3 pn = p - n * dot(p-p0, n);
-                dist = min(dist, abs(dot(p - p0, n)));
+                if (t1 == 0 || t1 == 1) {
+                    // 線分が片側に寄っているとき
+                    // 1
+                    auto dist = abs(dot(p0 - p, n));
+                    return PolySegResult(dist, n);
+                } else {
+                    // 3
+                    return PolySegResult(0, n);
+                }
+            } else {
+                // 2, 4
+                vec3 r = segseg(s, e, p0, p1);
+                r = min(r, segseg(s, e, p1, p2));
+                r = min(r, segseg(s, e, p2, p0));
+                return PolySegResult(r.length, r.safeNormalize);
             }
         } else {
             auto s0 = dot(n, cross(p1 - p0, p0 - s));
             auto s1 = dot(n, cross(p2 - p1, p1 - s));
             auto s2 = dot(n, cross(p0 - p2, p2 - s));
-            if (s0 > 0 && s1 > 0 && s2 > 0
-                || s0 < 0 && s1 < 0 && s2 < 0) {
-                vec3 pn = s - n * dot(s-p0, n);
-                dist = min(dist, abs(dot(s - p0, n)));
+            auto e0 = dot(n, cross(p1 - p0, p0 - e));
+            auto e1 = dot(n, cross(p2 - p1, p1 - e));
+            auto e2 = dot(n, cross(p0 - p2, p2 - e));
+            auto sInFaceRegion = s0 > 0 && s1 > 0 && s2 > 0 || s0 < 0 && s1 < 0 && s2 < 0;
+            auto eInFaceRegion = e0 > 0 && e1 > 0 && e2 > 0 || e0 < 0 && e1 < 0 && e2 < 0;
+            if (sInFaceRegion && eInFaceRegion) {
+                //ポリゴンは凸形状なので、端点が両方とも面領域に入っていれば全体が面領域に入っている
+                // 5
+                auto dist = abs(dot(p0 - s, n));
+                return PolySegResult(dist, n);
             } else {
-                s0 = dot(n, cross(p1 - p0, p0 - e));
-                s1 = dot(n, cross(p2 - p1, p1 - e));
-                s2 = dot(n, cross(p0 - p2, p2 - e));
-                if (s0 > 0 && s1 > 0 && s2 > 0
-                     || s0 < 0 && s1 < 0 && s2 < 0) {
-                    vec3 pn = s - n * dot(s-p0, n);
-                    dist = min(dist, abs(dot(s - p0, n)));
-                }
+                // 6
+                vec3 r = segseg(s, e, p0, p1);
+                r = min(r, segseg(s, e, p1, p2));
+                r = min(r, segseg(s, e, p2, p0));
+                return PolySegResult(r.length, r.safeNormalize);
             }
         }
-        return dist;
     }
 
     private static bool polygonDetection(CollisionPolygon poly1, CollisionPolygon poly2) {
@@ -305,14 +370,14 @@ class CollisionEntry {
                     // line & point
                     t2 = clamp(t2, 0, 1);
                     vec3 p2 = s2 + t2 * v2;
-                    return segPointDistance(s1, v1, p2);
+                    return segPoint(s1, v1, p2).length;
                 }
             } else {
                 if (0 <= t2 && t2 <= 1) {
                     // line & point
                     t1 = clamp(t1, 0, 1);
                     vec3 p1 = s1 + t1 * v1;
-                    return segPointDistance(s2, v2, p1);
+                    return segPoint(s2, v2, p1).length;
                 } else {
                     t1 = clamp(t1, 0, 1);
                     t2 = clamp(t2, 0, 1);

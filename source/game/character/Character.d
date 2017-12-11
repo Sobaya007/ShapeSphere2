@@ -15,13 +15,12 @@ class Character {
     enum SIDE_PUSH_FORCE = 10;
     enum TIME_STEP = 0.02;
 
-    Entity floors;
+    Entity[] floors;
     private ElasticSphere2 elasticSphere;
-    private Entity sphere;
+    Entity sphere;
     private int count;
 
     this(World world) {
-        this.floors = new Entity();
         {
             auto mat = new CharacterMaterial();
             mat.config.transparency = true;
@@ -34,7 +33,7 @@ class Character {
         {
             auto mat = new ColorMaterial;
             mat.color = vec4(1,0.5, 0.5, 0.5);
-            this.sphere = new Entity(Sphere.create(3, 3), mat);
+            this.sphere = new Entity(Sphere.create(1.2, 3), mat, new CollisionCapsule(1.2, vec3(0), vec3(0)));
             mat.config.polygonMode = PolygonMode.Line;
             this.elasticSphere.entity.addChild(sphere);
         }

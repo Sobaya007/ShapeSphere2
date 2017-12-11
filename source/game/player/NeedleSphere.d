@@ -17,7 +17,8 @@ class NeedleSphere : BaseSphere {
         float MAX_RADIUS = 1.5f;
         float DEFAULT_RADIUS = 1.0f;
         float MIN_RADIUS = 0.7f;
-        float ALLOWED_PENETRATION = 0.5f;
+        float ALLOWED_PENETRATION = 0.4f;
+        float MAX_PENETRATION = MAX_RADIUS * 0.2;
         float SEPARATION_COEF = 1f / Player.TIME_STEP;
         float RESTITUTION_RATE = 0.3f;
         float MASS = 1.0f;
@@ -124,7 +125,7 @@ class NeedleSphere : BaseSphere {
     private void collision() {
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
-        this.parent.floors.collide(colInfos, this.entity);
+        this.parent.floors.each!(floor => floor.collide(colInfos, this.entity));
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
         foreach (colInfo; colInfos) {
@@ -243,15 +244,7 @@ class NeedleSphere : BaseSphere {
 
         this(CollisionInfo info, NeedleSphere sphere) {
             this.sphere = sphere;
-            auto geom = info.entity.getCollisionEntry().getGeometry();
-            auto geom2 = info.entity2.getCollisionEntry().getGeometry();
-            assert(cast(CollisionPolygon)geom !is null
-                    || cast(CollisionPolygon)geom2 !is null);
-            auto polygon = cast(CollisionPolygon)geom;
-            if (polygon is null) {
-                polygon = cast(CollisionPolygon)geom2;
-            }
-            this.normal = polygon.normal;
+            this.normal = info.getPushVector(sphere.entity);
             this.normalTotalImpulse = 0;
             this.tanTotalImpulse = 0;
             this.binTotalImpulse = 0;
@@ -291,9 +284,10 @@ class NeedleSphere : BaseSphere {
             //    nvel = 0;
             //}
 
-            auto penetration = dot(this.normal, polygon.positions[0] - colPoint) - ALLOWED_PENETRATION; //ちょっと甘くする
-            auto restitutionVelocity = -RESTITUTION_RATE * relativeColPointVelNormal;
+            auto penetration = info.getDepth - ALLOWED_PENETRATION; //ちょっと甘くする
+            penetration = min(penetration, MAX_PENETRATION); //大きく埋まりすぎていると吹っ飛ぶ
             auto separationVelocity = penetration * SEPARATION_COEF;
+            auto restitutionVelocity = -RESTITUTION_RATE * relativeColPointVelNormal;
             this.targetNormalLinearVelocity = max(restitutionVelocity, separationVelocity);
         }
 

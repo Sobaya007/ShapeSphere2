@@ -128,29 +128,26 @@ class ElasticSphere2 {
 
         this(vec3 pos, vec3 dir) { this.pos = pos; this.dir = dir;}
     }
-    Maybe!WallContact getWallContact(Entity floors) {
-        static CollisionRay ray;
-        if (ray is null)
-            ray = new CollisionRay;
-        if (floors.getChildNum() == 0) return None!WallContact;
-        auto floor = floors.getChildren[0];
-        ray.start = this.center;
-        auto polygon = cast(CollisionPolygon)floor.getCollisionEntry.getGeometry;
-        assert(polygon !is null);
-        ray.dir = -polygon.normal;
-        auto colInfo = floors.rayCast(ray);
-        if (colInfo.isNone) return None!WallContact;
-        auto nearestParticle = this.getNearestParticle(colInfo.get.point);
-        if (length(nearestParticle.position - colInfo.get.point) > 0.2) return None!WallContact;
-        auto nearestPolygon = cast(CollisionPolygon)colInfo.get.entity.getCollisionEntry.getGeometry;
-        return Just(WallContact(colInfo.get.point, nearestPolygon.normal));
+    Maybe!WallContact getWallContact(Entity[] floors) {
+        auto colInfos = Array!CollisionInfo(0);
+        floors.each!(floor => floor.collide(colInfos, this.entity));
+        scope (exit) {
+            colInfos.destroy();
+        }
+        foreach (info; colInfos) {
+            if (cast(CollisionPolygon)info.getOther(this.entity).getCollisionEntry().getGeometry() is null) continue;
+            auto n = info.getPushVector(this.entity);
+            auto nearestParticle = this.getNearestParticle(this.center - n * 114514);
+            return Just(WallContact(nearestParticle.position, n));
+        }
+        return None!WallContact;
     }
 
     ElasticParticle[] getParticleList() {
         return this.particleList;
     }
 
-    void move(Entity floors) {
+    void move(Entity[] floors) {
         vec3 g = this.center;
 
         this.rotateParticles(g);
@@ -279,26 +276,27 @@ class ElasticSphere2 {
             particle.velocity *= MAX_VELOCITY / particle.velocity.length;
         }
         particle.position += particle.velocity * Player.TIME_STEP;
+        particle.capsule.setEnd(particle.capsule.start);
+        particle.capsule.setStart(particle.position);
     }
 
-    private void collision(ElasticParticle particle, Entity floors) {
+    private void collision(ElasticParticle particle, Entity[] floors) {
         auto colInfos = Array!CollisionInfo(0);
-        floors.collide(colInfos, particle.entity);
+        floors.each!(floor => floor.collide(colInfos, particle.entity));
         scope (exit) {
             colInfos.destroy();
         }
         foreach (colInfo; colInfos) {
-            auto floor = cast(CollisionPolygon)colInfo.entity.getCollisionEntry.getGeometry;
-            if (floor is null) floor = cast(CollisionPolygon)colInfo.entity2.getCollisionEntry.getGeometry;
-            float depth = -(particle.position - floor.positions[0]).dot(floor.normal);
+            auto n = colInfo.getPushVector(particle.entity);
+            auto depth = colInfo.getDepth();
             if (depth < 0) continue;
-            auto po = particle.velocity - dot(particle.velocity, floor.normal) * floor.normal;
+            auto po = particle.velocity - dot(particle.velocity, n) * n;
             particle.velocity -= po * FRICTION;
             this.ground = true;
-            if (dot(particle.velocity, floor.normal) < 0) {
-                particle.velocity -= floor.normal * dot(floor.normal, particle.velocity) * 1;
+            if (dot(particle.velocity, n) < 0) {
+                particle.velocity -= n * dot(n, particle.velocity) * 1;
             }
-            particle.position += floor.normal * depth;
+            particle.position += n * depth;
         }
     }
 

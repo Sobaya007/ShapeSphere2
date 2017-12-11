@@ -112,17 +112,15 @@ struct Array(T) {
 }
 
 void sort(alias lessThan, T)(Array!T array) {
-    sort!(lessThan, T)(array, 0, array.length);
+    sort!(lessThan, T)(array, 0, array.length-1);
 }
 
-private void sort(alias lessThan, T)(Array!T array, size_t _begin, size_t _end) {
-    long begin = _begin;
-    long end = _end;
+private void sort(alias lessThan, T)(Array!T array, long begin, long end) {
     if (begin >= end) return;
     auto pivot = array[(begin+end)/2];
     auto left = begin;
     assert(end != 0);
-    auto right = end-1;
+    auto right = end;
     while (true) {
         while (lessThan(array[left],pivot)) left++;
         while (lessThan(pivot,array[right])) right--;

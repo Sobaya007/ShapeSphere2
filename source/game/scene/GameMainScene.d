@@ -15,7 +15,7 @@ class GameMainScene : SceneBase {
 
     private World world2d, world3d;
 
-    override void initialize() {
+    override void initialize() { 
         /* Core Settings */
         auto core = Core();
         auto window = core.getWindow();
@@ -36,6 +36,7 @@ class GameMainScene : SceneBase {
         auto commandManager = getCommandManager(args);
         Player player = new Player(camera, world3d, commandManager);
         auto character = new Character(world3d);
+        player.floors ~= character.sphere;
         core.addProcess((proc) {
             player.step();
             character.step();
@@ -52,9 +53,9 @@ class GameMainScene : SceneBase {
             label.renderText("REPLAYING...");
             world2d.add(label);
             core.addProcess((proc) {
-               if (commandManager.isPlaying()) return;
-               label.renderText("STOPPED");
-               proc.kill();
+                if (commandManager.isPlaying()) return;
+                label.renderText("STOPPED");
+                proc.kill();
             }, "label update");
         }
 
@@ -66,8 +67,8 @@ class GameMainScene : SceneBase {
         /* Polygon(Floor) Settings */
         auto makePolygon = (vec3[4] p) {
             auto polygons = [
-                new CollisionPolygon([p[0], p[1], p[2]]),
-                    new CollisionPolygon([p[0], p[2], p[3]])];
+            new CollisionPolygon([p[0], p[1], p[2]]),
+                new CollisionPolygon([p[0], p[2], p[3]])];
             auto mat = new CheckerMaterial!(NormalMaterial, UvMaterial);
             mat.size = 0.118;
             auto geom0 = polygons[0].createGeometry();
@@ -85,10 +86,10 @@ class GameMainScene : SceneBase {
             Entity e1 = new Entity(geom1, mat, polygons[1]);
             world3d.add(e0);
             world3d.add(e1);
-            player.floors.addChild(e0);
-            player.floors.addChild(e1);
-            character.floors.addChild(e0);
-            character.floors.addChild(e1);
+            player.floors ~= e0;
+            player.floors ~= e1;
+            character.floors ~= e0;
+            character.floors ~= e1;
         };
         makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
         makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);
@@ -101,25 +102,25 @@ class GameMainScene : SceneBase {
 
         /* Joy Stick Settings */
         core.addProcess((proc) {
-           if (core.getJoyStick().canUse) {
-           //writeln(core.getJoyStick());
-           }
+            if (core.getJoyStick().canUse) {
+                //writeln(core.getJoyStick());
+            }
         }, "joy state");
 
         /* FPS Observe */
         auto fpsCounter = new FpsCounter!100();
         core.addProcess((proc) {
-           fpsCounter.update();
-           core.getWindow().setTitle(format!"FPS[%d]"(fpsCounter.getFPS()));
+            fpsCounter.update();
+            core.getWindow().setTitle(format!"FPS[%d]"(fpsCounter.getFPS()));
         }, "fps update");
 
         /* Key Input */
         core.addProcess((proc) {
-           if (core.getKey[KeyButton.Escape]) {
+            if (core.getKey[KeyButton.Escape]) {
                 commandManager.save();
                 core.end();
-           }
-           if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
+            }
+            if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
         }, "po");
     }
 

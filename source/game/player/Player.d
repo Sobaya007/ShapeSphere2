@@ -22,7 +22,7 @@ class Player {
     enum SIDE_PUSH_FORCE = 10;
     enum TIME_STEP = 0.02;
 
-    Entity floors;
+    Entity[] floors;
     private BaseSphere sphere;
     private ElasticSphere elasticSphere;
     private NeedleSphere needleSphere;
@@ -34,7 +34,6 @@ class Player {
     this(Camera camera, World world, ICommandManager commandManager) {
         this.world = world;
         this.camera = new PlayerChaseCamera(camera, this);
-        this.floors = new Entity();
         this.elasticSphere = new ElasticSphere(this, this.camera);
         this.needleSphere = new NeedleSphere(this);
         this.springSphere = new SpringSphere(this, this.camera);
