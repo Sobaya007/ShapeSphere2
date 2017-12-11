@@ -3,6 +3,7 @@ module examples.EditorExample;
 import sbylib;
 
 import editor.guiComponent;
+import editor.viewport;
 
 import std.stdio;
 
@@ -14,9 +15,10 @@ void editorExample() {
     auto core = Core();
     auto window = core.getWindow();
     auto screen = window.getScreen();
-    screen.setClearColor(vec4(0.1, 0.7, 0.8, 1.0));
+    screen.setClearColor(vec4(0.3, 0.3, 0.3, 1.0));
     auto renderer = new Renderer();
-    auto viewport = new AutomaticViewport(window);
+    auto camera = new OrthoCamera(1, 1, -1, 1);
+    auto viewport = new PaneViewport(window, camera, 0, 0, 1, 1);
     auto world = new World;
 
     auto render = delegate (Process proc) {
@@ -27,7 +29,7 @@ void editorExample() {
     float w = screen.getWidth;
     float h = screen.getHeight;
 
-    auto camera = new OrthoCamera(w, h, -1, 1);
+
     camera.getObj.pos = vec3(w/2, h/2, 0);
     world.setCamera(camera);
 
