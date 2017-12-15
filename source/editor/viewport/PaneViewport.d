@@ -4,38 +4,34 @@ import sbylib;
 
 class PaneViewport : IViewport {
 
-    private uint x, y, width, height;
+    private int x, y;
+    private uint width, height;
     private float rateX, rateY, rateWidth, rateHeight;
     private Window window;
     private OrthoCamera camera;
 
     // @param rateX, rateY, rateWidth, rateHeight: windowの大きさに対する割合
-    this(Window window, OrthoCamera camera, float rateX, float rateY, float rateWidth, float rateHeight) in {
-        assert(0 <= rateX      && rateX      <= 1);
-        assert(0 <= rateY      && rateY      <= 1);
-        assert(0 <= rateWidth  && rateWidth  <= 1);
-        assert(0 <= rateHeight && rateHeight <= 1);
+    this(Window window, OrthoCamera camera, int x, int y, uint width, uint height) in {
+
     } body {
 
         this.window = window;
         this.camera = camera;
-        this.rateX = rateX;
-        this.rateY = rateY;
-        this.rateWidth = rateWidth;
-        this.rateHeight = rateHeight;
 
-        float windowWidth  = cast(float)this.window.getWidth();
-        this.width = cast(uint) (windowWidth  * this.rateWidth);
+        this.width = width;
         this.camera.width  = this.width;
-        this.x = cast(uint) (windowWidth * this.rateX);
+        this.x = x;
 
-        float initWindowHeight = cast(float)this.window.getHeight();
-        this.height = cast(uint) (initWindowHeight * this.rateHeight);
+        this.height = height;
         this.camera.height = this.height;
 
+        int initWindowHeight = this.window.getHeight();
+        int initY = y;
+
         this.window.addResizeCallback(() {
-            float windowHeight = cast(float)this.window.getHeight();
-            this.y = cast(uint) (initWindowHeight * this.rateY - initWindowHeight + windowHeight);
+            import std.conv;
+            int windowHeight = this.window.getHeight();
+            this.y = initY + windowHeight - initWindowHeight;
             this.camera.getObj.pos = vec3(this.width/2, this.height/2, 0);
         });
     }
@@ -44,10 +40,10 @@ class PaneViewport : IViewport {
         GlFunction.setViewport(x, y, width, height);
     }
 
-    override uint getX() {
+    override int getX() {
         return this.x;
     }
-    override uint getY() {
+    override int getY() {
         return this.y;
     }
     override uint getWidth() {
