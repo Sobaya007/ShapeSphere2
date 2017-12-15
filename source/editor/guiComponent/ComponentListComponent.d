@@ -21,7 +21,7 @@ public:
         GuiComponent[] components...
     ) {
         _direction = direction;
-        _components = components;
+        _components = components.dup;
 
         Entity root = new Entity;
         vec2 acc = vec2(0);
