@@ -4,10 +4,12 @@ public import game.player.BaseSphere;
 public import game.player.NeedleSphere;
 public import game.player.SpringSphere;
 public import game.player.ElasticSphere2;
+import game.Game;
 import game.player.PlayerMaterial;
 import game.player.Player;
 import game.character.Character;
 import game.camera.CameraController;
+import game.entity.Message;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -37,12 +39,13 @@ class ElasticSphere : BaseSphere {
         this.camera = camera;
         this.pushCount = flim(0.0, 0.0, 1);
         this.elasticSphere2 = new ElasticSphere2();
-        this.parent.world.add(this.elasticSphere2.entity);
+        this.elasticSphere2.entity.setUserData(parent);
+        Game.getWorld3D().add(this.elasticSphere2.entity);
         this._lastDirection = vec3(normalize((camera.pos - this.getCenter).xz), 0).xzy;
     }
 
     void initialize(NeedleSphere needleSphere) {
-        this.parent.world.add(this.elasticSphere2.entity);
+        Game.getWorld3D().add(this.elasticSphere2.entity);
         auto arrivalCenter = needleSphere.getCenter();
         auto currentCenter = this.getCenter;
         auto dCenter = arrivalCenter - currentCenter;
@@ -57,7 +60,7 @@ class ElasticSphere : BaseSphere {
     }
 
     void initialize(SpringSphere springSphere) {
-        parent.world.add(elasticSphere2.entity);
+        Game.getWorld3D().add(elasticSphere2.entity);
         auto ginfo = springSphere.getGeometricInfo();
         auto arrivalCenter = springSphere.getCenter();
         auto currentCenter = this.getCenter;
@@ -131,14 +134,14 @@ class ElasticSphere : BaseSphere {
     }
 
     override void onNeedlePress() {
-        this.parent.world.remove(this.elasticSphere2.entity);
+        this.elasticSphere2.entity.remove();
         auto needle = parent.transit!NeedleSphere;
         needle.initialize(this);
     }
 
     override void onSpringPress() {
         if (this.getWallContact().isNone) return;
-        this.parent.world.remove(this.elasticSphere2.entity);
+        this.elasticSphere2.entity.remove();
         auto springSphere = parent.transit!SpringSphere;
         springSphere.initialize(this);
     }
@@ -146,13 +149,19 @@ class ElasticSphere : BaseSphere {
     override void onDecisideJustPressed() {
         auto info = Array!CollisionInfoByQuery(0);
         scope(exit) info.destroy();
-        parent.world.queryCollide(info, this.elasticSphere2.entity);
+        Game.getWorld3D().queryCollide(info, this.elasticSphere2.entity);
         auto charas = info.map!(colInfo => colInfo.entity.getUserData.fmapAnd!((Variant data) {
             return wrap(data.peek!(Character));
         })).filter!(chara => chara.isJust).map!(chara => chara.get);
         if (charas.empty) return;
         auto chara = charas.front();
         camera.focus(chara.elasticSphere.entity);
+        chara.talk(&this.onReturnFromMessage);
+    }
+
+    private void onReturnFromMessage() {
+        Game.getCommandManager().setReceiver(this);
+        this.camera.chase();
     }
 
     ElasticSphere2.ElasticParticle[] getParticleList() {

@@ -31,7 +31,7 @@ struct CollisionInfo {
     Entity getOther(Entity me) {
         if (me is _entity) return _entity2;
         if (me is _entity2) return _entity;
-        assert(false);
+        assert(false, _entity.getName() ~ " " ~ _entity2.getName() ~ " " ~ me.getName());
     }
 
     vec3 getPushVector(Entity me) {

@@ -11,7 +11,7 @@ class ChaseBehavior : CameraController.Behavior {
     }
 
     override void step() {
-        target += (player.getCameraTarget - target) * 0.9;
+        target += (player.getCameraTarget - target) * 0.2;
         auto v = camera.getObj().pos - target;
         auto dp = v.length - defaultLength;
         auto dy = v.y;
@@ -21,7 +21,7 @@ class ChaseBehavior : CameraController.Behavior {
         auto cobj = camera.getObj();
         cobj.pos += vel;
         auto ay = target.y + 3;
-        cobj.pos.y = (cobj.pos.y - ay) * 0.9 + ay;
+        cobj.pos.y += (ay - cobj.pos.y) * 0.9;
         cobj.lookAt(target);
     }
 

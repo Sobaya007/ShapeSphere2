@@ -1,6 +1,7 @@
 module game.player.NeedleSphere;
 
 public import game.player.BaseSphere;
+import game.Game;
 import game.player.ElasticSphere;
 import game.player.PlayerMaterial;
 import game.player.Player;
@@ -65,7 +66,7 @@ class NeedleSphere : BaseSphere {
         this.entity.obj.pos = elasticSphere.getCenter();
         this.lVel = elasticSphere.getLinearVelocity();
         this.aVel = elasticSphere.getAngularVelocity();
-        this.parent.world.add(this.entity);
+        Game.getWorld3D().add(this.entity);
         this._lastDirection = elasticSphere.lastDirection;
     }
 
@@ -107,7 +108,7 @@ class NeedleSphere : BaseSphere {
     }
     override void onNeedleRelease(){
         if (this.needleCount == 0) {
-            this.parent.world.remove(this.entity);
+            this.entity.remove();
             auto elasticSphere = parent.transit!ElasticSphere;
             elasticSphere.initialize(this);
             return;

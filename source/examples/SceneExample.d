@@ -4,6 +4,7 @@ import sbylib;
 import std.algorithm, std.array;
 import std.math;
 import game.scene;
+import game.Game;
 
 void sceneExample(string[] args) {
     auto core = Core();
@@ -28,7 +29,7 @@ void sceneExample(string[] args) {
 }
 
 void setGameTransition(string[] args) {
-    GameMainScene.args = args;
+    Game.initialize(args);
     //アニメーション情報をどこまで詳細に載せるか
     //具体的に見えるものは後。
     //とりあえず遷移図を記す。

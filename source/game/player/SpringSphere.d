@@ -3,6 +3,7 @@ module game.player.SpringSphere;
 public import game.player.BaseSphere;
 public import game.player.ElasticSphere;
 public import game.player.NeedleSphere;
+import game.Game;
 import game.player.PlayerMaterial;
 import game.camera.CameraController;
 import game.player.Player;
@@ -105,7 +106,7 @@ class SpringSphere : BaseSphere {
         TO_SPEED = 0.9;
         this.stepImpl = transform;
         this.shouldFinish = false;
-        parent.world.add(this.entity);
+        Game.getWorld3D().add(this.entity);
         this.wallContact = None!(ElasticSphere2.WallContact);
 
         this.move();
@@ -133,7 +134,7 @@ class SpringSphere : BaseSphere {
         updateCapsule();
         updateGeometry();
         if (this.shouldFinish) {
-            parent.world.remove(this.entity);
+            this.entity.remove();
             auto elasticSphere = parent.transit!(ElasticSphere);
             elasticSphere.initialize(this);
         }

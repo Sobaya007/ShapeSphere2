@@ -9,12 +9,10 @@ class FocusBehavior : CameraController.Behavior {
 
     private Object3D obj;
     private vec3 dir;
-    private int count;
 
     void initialize(Object3D obj, vec3 dir) {
         this.obj = obj;
         this.dir = dir;
-        this.count = 0;
         this.dir = normalize(player.getCenter - obj.pos);
         this.dir.y = 0.3;
         this.dir = normalize(this.dir);
@@ -28,11 +26,6 @@ class FocusBehavior : CameraController.Behavior {
         auto cobj = camera.getObj();
         cobj.pos += vel;
         cobj.lookAt(target);
-
-        if (count++ > 100) {
-            auto reset = controller.transit!(ResetBehavior);
-            reset.initialize();
-        }
     }
 
     override void turn(vec2 value) {}

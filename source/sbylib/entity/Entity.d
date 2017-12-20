@@ -17,9 +17,12 @@ class Entity {
     private Entity[] children;
     private Object3D _obj;
     private Maybe!Variant userData;
+    private string name;
+    bool visible;
 
     this(){
         this._obj = new Object3D(this);
+        this.visible = true;
     }
 
     this(Geometry geom, Material mat) {
@@ -52,6 +55,14 @@ class Entity {
 
     World getWorld() {
         return this.world;
+    }
+
+    string getName() {
+        return this.name;
+    }
+
+    void setName(string name) {
+        this.name = name;
     }
 
     void setWorld(World world) in {
@@ -124,6 +135,7 @@ class Entity {
     void render() in {
         assert(this.world);
     } body {
+        if (!this.visible) return;
         if (this.mesh) {
             this.mesh.render();
         }

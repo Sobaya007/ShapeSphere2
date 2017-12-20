@@ -4,15 +4,12 @@ import game.player;
 import game.character;
 import game.command;
 import game.scene;
-import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex;
+import game.Game;
+import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex, std.typecons;
 
 class GameMainScene : SceneBase {
 
-    static string[] args;
-
     mixin SceneBasePack;
-
-    private World world2d, world3d;
 
     override void initialize() {
         /* Core Settings */
@@ -20,8 +17,8 @@ class GameMainScene : SceneBase {
         auto window = core.getWindow();
         auto screen = window.getScreen();
         this.viewport = new AutomaticViewport(window);
-        this.world2d = new World;
-        this.world3d = new World;
+        auto world2d = Game.getWorld2D();
+        auto world3d = Game.getWorld3D();
         auto texture = Utils.generateTexture(ImageLoader.load(ImagePath("uv.png")));
 
         /* Camera Settings */
@@ -32,18 +29,30 @@ class GameMainScene : SceneBase {
         world2d.setCamera(new OrthoCamera(2,2,-1,1));
 
         /* Player Settings */
-        auto commandManager = getCommandManager(args);
-        Player player = new Player(camera, world3d, commandManager);
-        auto character = new Character(world3d);
-        player.floors ~= character.sphere;
+        Game.initializePlayer(camera);
+        auto player = Game.getPlayer();
+        Game.getCommandManager().setReceiver(player);
+        auto po = [
+            tuple("そばやさんってかっこいいよね"d, vec3(0,1, 6)),
+            tuple("最近街ではそばやさんって人が人気なんだ"d, vec3(10,1, 4)),
+            tuple("そばやさん...イケメンだよなぁ..."d, vec3(-14,1, 10)),
+            tuple("キャーそばやさんよー！抱いてー！！"d, vec3(4,1, -6)),
+        ];
+        Character[] characters;
+        foreach (pair; po) {
+            auto chara = new Character(world3d, pair[0]);
+            chara.setCenter(pair[1]);
+            characters ~= chara;
+        }
+        characters.each!(character => player.floors ~= character.collisionArea);
         core.addProcess((proc) {
             player.step();
-            character.step();
+            characters.each!(character => character.step());
         }, "player update");
-        core.addProcess(&commandManager.update, "command update");
+        core.addProcess(&Game.update, "game update");
 
         /* Label Settings */
-        if (commandManager.isPlaying()) {
+        if (Game.getCommandManager().isPlaying()) {
             auto font = FontLoader.load(FontPath("HGRPP1.TTC"), 256);
             auto label = new Label(font, 0.1);
             label.setOrigin(Label.OriginX.Right, Label.OriginY.Top);
@@ -52,23 +61,11 @@ class GameMainScene : SceneBase {
             label.renderText("REPLAYING...");
             world2d.add(label);
             core.addProcess((proc) {
-                if (commandManager.isPlaying()) return;
+                if (Game.getCommandManager().isPlaying()) return;
                 label.renderText("STOPPED");
                 proc.kill();
             }, "label update");
         }
-
-        import game.entity.Message;
-        auto msg = new Message("テスト");
-        world2d.add(msg);
-
-        int msgCnt = 0;
-        core.addProcess((proc) {
-            if (msgCnt++ > 100) {
-                msg.setMessage("彼女ほしいわかるよぉ");
-                proc.kill();
-            }
-        }, "message update");
 
         /* Compass Settings */
         auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));
@@ -99,11 +96,17 @@ class GameMainScene : SceneBase {
             world3d.add(e1);
             player.floors ~= e0;
             player.floors ~= e1;
-            character.floors ~= e0;
-            character.floors ~= e1;
+            foreach (character; characters) {
+                character.floors ~= e0;
+                character.floors ~= e1;
+            }
         };
         makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
         makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);
+
+        foreach (character; characters) {
+            character.initialize();
+        }
 
         /* Light Settings */
         PointLight pointLight;
@@ -128,7 +131,7 @@ class GameMainScene : SceneBase {
         /* Key Input */
         core.addProcess((proc) {
             if (core.getKey[KeyButton.Escape]) {
-                commandManager.save();
+                Game.getCommandManager().save();
                 core.end();
             }
             if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
@@ -136,35 +139,8 @@ class GameMainScene : SceneBase {
     }
 
     override void render() {
-        renderer.render(world3d, screen, viewport);
+        renderer.render(Game.getWorld3D(), screen, viewport);
         screen.clear(ClearMode.Depth);
-        renderer.render(world2d, screen, viewport);
-    }
-
-    private ICommandManager getCommandManager(string[] args) {
-        string replayDataPath;
-        string historyDataPath;
-        getopt(args, "replay", &replayDataPath, "history", &historyDataPath);
-
-        if (!historyDataPath || replayDataPath == "latest") {
-            if (!exists("history")) {
-                mkdir("history");
-            }
-            auto r = regex("replay(0|([1-9][0-9]*)).history");
-            auto entries = dirEntries("history", SpanMode.shallow)
-                .filter!(a => a.name.baseName.matchAll(r));
-            auto names = entries.map!(a => a.name.baseName[6..$-8]).array;
-            auto max = names.length == 0 ? -1 : names.to!(int[]).maxElement;
-            std.stdio.writeln("max = ", max);
-            if (!historyDataPath) {
-                historyDataPath = format!"history/replay%d.history"(max+1);
-            }
-            if (replayDataPath == "latest") {
-                replayDataPath = format!"history/replay%d.history"(max);
-            }
-        }
-
-        if (replayDataPath) return new ReplayCommandManager(replayDataPath, historyDataPath);
-        return new PlayCommandManager(historyDataPath);
+        renderer.render(Game.getWorld2D(), screen, viewport);
     }
 }

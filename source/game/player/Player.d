@@ -8,10 +8,11 @@ import game.player.SpringSphere;
 import game.player.PlayerMaterial;
 import game.player.Controller;
 import game.camera.CameraController;
+import game.command.CommandManager;
 import sbylib;
 import std.algorithm, std.array, std.math, std.meta;
 
-class Player {
+class Player : CommandReceiver {
 
     alias SphereTypes = AliasSeq!(ElasticSphere, NeedleSphere, SpringSphere);
 
@@ -26,31 +27,28 @@ class Player {
     Entity[] floors;
     private BaseSphere sphere;
     private BaseSphere[] spheres;
-    private Controller controller;
-    package World world;
     private CameraController camera;
 
-    this(Camera camera, World world, ICommandManager commandManager) {
-        this.world = world;
+    this(Camera camera) {
         this.camera = new CameraController(camera, this);
         static foreach (SphereType; SphereTypes) {
             this.spheres ~= new SphereType(this, this.camera);
         }
         transit!(ElasticSphere);
         this.camera.initialize();
-        this.controller = Controller();
-        commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Press), &this.onDownPress));
-        commandManager.addCommand(new ButtonCommand(() => controller.justReleased(CButton.Press), &this.onDownJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Needle), &this.onNeedlePress));
-        commandManager.addCommand(new ButtonCommand(() => controller.isReleased(CButton.Needle), &this.onNeedleRelease));
-        commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Spring), &this.onSpringPress));
-        commandManager.addCommand(new ButtonCommand(() => controller.justReleased(CButton.Spring), &this.onSpringJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => controller.justPressed(CButton.CameraReset), &this.onCameraResetJustPress));
-        commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.LookOver), &this.onLookOverPress));
-        commandManager.addCommand(new ButtonCommand(() => controller.justReleased(CButton.LookOver), &this.onLookOverJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => controller.justPressed(CButton.Decide), &this.onDecisideJustPressed));
-        commandManager.addCommand(new StickCommand(() => controller.getLeftStickValue.safeNormalize, &this.onMovePress));
-        commandManager.addCommand(new StickCommand(() => controller.getRightStickValue.safeNormalize, &this.onRotatePress));
+        auto controller = Controller();
+        this.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Press), &this.onDownPress));
+        this.addCommand(new ButtonCommand(() => controller.justReleased(CButton.Press), &this.onDownJustRelease));
+        this.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Needle), &this.onNeedlePress));
+        this.addCommand(new ButtonCommand(() => controller.isReleased(CButton.Needle), &this.onNeedleRelease));
+        this.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Spring), &this.onSpringPress));
+        this.addCommand(new ButtonCommand(() => controller.justReleased(CButton.Spring), &this.onSpringJustRelease));
+        this.addCommand(new ButtonCommand(() => controller.justPressed(CButton.CameraReset), &this.onCameraResetJustPress));
+        this.addCommand(new ButtonCommand(() => controller.isPressed(CButton.LookOver), &this.onLookOverPress));
+        this.addCommand(new ButtonCommand(() => controller.justReleased(CButton.LookOver), &this.onLookOverJustRelease));
+        this.addCommand(new ButtonCommand(() => controller.justPressed(CButton.Decide), &this.onDecisideJustPressed));
+        this.addCommand(new StickCommand(() => controller.getLeftStickValue.safeNormalize, &this.onMovePress));
+        this.addCommand(new StickCommand(() => controller.getRightStickValue.safeNormalize, &this.onRotatePress));
     }
 
     void step() {

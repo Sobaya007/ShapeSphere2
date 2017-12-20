@@ -67,6 +67,11 @@ class CameraController {
         this.behavior.turn(value);
     }
 
+    void chase() {
+        transit!(ChaseBehavior);
+        // don't call initialize
+    }
+
     void reset() {
         auto reset = transit!(ResetBehavior);
         reset.initialize();

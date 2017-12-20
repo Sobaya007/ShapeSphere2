@@ -2,6 +2,7 @@ module game.GameMain;
 
 import sbylib;
 import game.scene;
+import game.Game;
 
 void gameMain(string[] args) {
     auto core = Core();
@@ -26,7 +27,7 @@ void gameMain(string[] args) {
 }
 
 void setGameTransition(string[] args) {
-    GameMainScene.args = args;
+    Game.initialize(args);
     with (SceneManager) {
         define(
             GameMainScene(

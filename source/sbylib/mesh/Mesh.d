@@ -32,7 +32,6 @@ class Mesh {
         assert(this.geom);
         assert(this.mat);
     } body{
-        if (!this.mat.config.visible) return;
         this.mat.set(this.getUniforms);
         this.geom.render(this.vao);
     }

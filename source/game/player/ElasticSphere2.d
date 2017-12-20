@@ -54,6 +54,7 @@ class ElasticSphere2 {
         this.force = vec3(0);
         this.geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         this.entity = new Entity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
+        this.entity.setName("ElasticSphere");
         this.particleList = geom.vertices.map!(p => new ElasticParticle(p.position)).array;
         this.center = new Observer!vec3(() => this.particleList.map!(p => p.position).sum / this.particleList.length, this.particleList.map!(p => cast(IObserved)p.position).array);
         this.lVel = new Observer!vec3(() => this.particleList.map!(p => p.velocity).sum / this.particleList.length,
