@@ -6,6 +6,7 @@ public {
     import sbylib.mesh.Object3D;
     import sbylib.utils.Array;
     import sbylib.utils.Maybe;
+    import std.variant;
 }
 
 class Entity {
@@ -15,7 +16,7 @@ class Entity {
     private Entity parent;
     private Entity[] children;
     private Object3D _obj;
-    private void* userData;
+    private Maybe!Variant userData;
 
     this(){
         this._obj = new Object3D(this);
@@ -49,6 +50,10 @@ class Entity {
         return this._obj;
     }
 
+    World getWorld() {
+        return this.world;
+    }
+
     void setWorld(World world) in {
         assert(world);
     } body {
@@ -59,14 +64,14 @@ class Entity {
         }
     }
 
-    void* getUserData() {
+    Maybe!Variant getUserData() {
         return this.userData;
     }
 
-    void setUserData(void* userData) in {
+    void setUserData(T)(T userData) in {
         assert(this.parent is null);
     } body {
-        this.userData = userData;
+        this.userData = wrap(Variant(userData));
     }
 
     void clearChildren() {
@@ -187,6 +192,10 @@ class Entity {
 
     Entity[] getChildren() {
         return this.children;
+    }
+
+    void remove() {
+        this.world.remove(this);
     }
 
     private void onSetWorld(World world) {

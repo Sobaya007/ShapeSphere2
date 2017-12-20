@@ -41,6 +41,12 @@ struct CollisionInfo {
     }
 }
 
+struct CollisionInfoByQuery {
+    Entity entity;
+    float depth;
+    vec3 pushVector; //標準化したベクトルとする。depthをかけた状態で保存すると、depth = 0のときに情報が壊れる
+}
+
 struct CollisionInfoRay {
     private Entity _entity;
     private CollisionRay _ray;

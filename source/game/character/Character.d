@@ -16,7 +16,7 @@ class Character {
     enum TIME_STEP = 0.02;
 
     Entity[] floors;
-    private ElasticSphere2 elasticSphere;
+    ElasticSphere2 elasticSphere;
     Entity sphere;
     private int count;
 
@@ -37,6 +37,7 @@ class Character {
             mat.config.polygonMode = PolygonMode.Line;
             this.elasticSphere.entity.addChild(sphere);
         }
+        elasticSphere.entity.setUserData(this);
     }
 
     void step() {

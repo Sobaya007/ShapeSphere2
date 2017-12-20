@@ -6,7 +6,8 @@ public import game.player.SpringSphere;
 public import game.player.ElasticSphere2;
 import game.player.PlayerMaterial;
 import game.player.Player;
-import game.camera.PlayerChaseCamera;
+import game.character.Character;
+import game.camera.CameraController;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -14,7 +15,7 @@ import std.math;
 import std.stdio;
 import std.typecons;
 
-class ElasticSphere : BaseSphere{
+class ElasticSphere : BaseSphere {
 
     private static immutable {
         float DOWN_PUSH_FORCE = 600;
@@ -24,14 +25,14 @@ class ElasticSphere : BaseSphere{
         float SLOW_SIDE_PUSH_FORCE = 2;
     }
     private ElasticSphere2 elasticSphere2;
-    private NeedleSphere needleSphere;
-    private SpringSphere springSphere;
     private flim pushCount;
     private Player parent;
-    private PlayerChaseCamera camera;
+    private CameraController camera;
     private vec3 _lastDirection;
 
-    this(Player parent, PlayerChaseCamera camera)  {
+    alias parent this;
+
+    this(Player parent, CameraController camera)  {
         this.parent = parent;
         this.camera = camera;
         this.pushCount = flim(0.0, 0.0, 1);
@@ -40,23 +41,7 @@ class ElasticSphere : BaseSphere{
         this._lastDirection = vec3(normalize((camera.pos - this.getCenter).xz), 0).xzy;
     }
 
-    //生成時にNeedleSphereとかいないからやむなし
-    void constructor(NeedleSphere needleSphere, SpringSphere springSphere) {
-        this.needleSphere = needleSphere;
-        this.springSphere = springSphere;
-    }
-
-    override void initialize(BaseSphere sphere) {
-        if (sphere is this.needleSphere) {
-            this.fromNeedle();
-        } else if (sphere is this.springSphere) {
-            this.fromSpring();
-        } else {
-            assert(false);
-        }
-    }
-
-    private void fromNeedle() {
+    void initialize(NeedleSphere needleSphere) {
         this.parent.world.add(this.elasticSphere2.entity);
         auto arrivalCenter = needleSphere.getCenter();
         auto currentCenter = this.getCenter;
@@ -71,10 +56,10 @@ class ElasticSphere : BaseSphere{
         this.pushCount = 0;
     }
 
-    private void fromSpring() {
+    void initialize(SpringSphere springSphere) {
         parent.world.add(elasticSphere2.entity);
-        auto ginfo = this.springSphere.getGeometricInfo();
-        auto arrivalCenter = this.springSphere.getCenter();
+        auto ginfo = springSphere.getGeometricInfo();
+        auto arrivalCenter = springSphere.getCenter();
         auto currentCenter = this.getCenter;
         auto dCenter = arrivalCenter - currentCenter;
         auto height = this.elasticSphere2.getParticleList.map!(p => p.position.y).maxElement - this.elasticSphere2.getParticleList.map!(p => p.position.y).minElement;
@@ -87,7 +72,7 @@ class ElasticSphere : BaseSphere{
         }
         this.elasticSphere2.entity.obj.pos += dCenter;
         foreach (particle; this.elasticSphere2.getParticleList) {
-            particle.velocity = this.springSphere.getVelocity();
+            particle.velocity = springSphere.getVelocity();
         }
         this.pushCount = 0;
     }
@@ -96,7 +81,7 @@ class ElasticSphere : BaseSphere{
         elasticSphere2.setCenter(center);
     }
 
-    vec3 getCenter() {
+    override vec3 getCenter() {
         return elasticSphere2.getCenter();
     }
 
@@ -128,44 +113,53 @@ class ElasticSphere : BaseSphere{
         this.camera.lookOver(dir);
     }
 
-    override BaseSphere onDownPress() {
+    override void onDownPress() {
         this.pushCount += 0.1;
         this.elasticSphere2.push(DOWN_PUSH_FORCE * pushCount * vec3(0,-1,0), DOWN_PUSH_FORE_MIN);
-        return this;
     }
 
-    override BaseSphere onDownJustRelease() {
+    override void onDownJustRelease() {
         this.pushCount = 0;
-        return this;
     }
 
-    override BaseSphere onMovePress(vec2 v) {
+    override void onMovePress(vec2 v) {
         if (this.camera.isLooking) {
             this.camera.turn(v);
-            return this;
+            return;
         }
         this.elasticSphere2.force += this.camera.rot * vec3(v.x, 0, v.y);
-        return this;
     }
 
-    override BaseSphere onNeedlePress() {
+    override void onNeedlePress() {
         this.parent.world.remove(this.elasticSphere2.entity);
-        this.needleSphere.initialize(this);
-        return this.needleSphere;
+        auto needle = parent.transit!NeedleSphere;
+        needle.initialize(this);
     }
 
-    override BaseSphere onSpringPress() {
-        if (!this.springSphere.canTransform()) return this;
+    override void onSpringPress() {
+        if (this.getWallContact().isNone) return;
         this.parent.world.remove(this.elasticSphere2.entity);
-        this.springSphere.initialize(this);
-        return this.springSphere;
+        auto springSphere = parent.transit!SpringSphere;
+        springSphere.initialize(this);
+    }
+
+    override void onDecisideJustPressed() {
+        auto info = Array!CollisionInfoByQuery(0);
+        scope(exit) info.destroy();
+        parent.world.queryCollide(info, this.elasticSphere2.entity);
+        auto charas = info.map!(colInfo => colInfo.entity.getUserData.fmapAnd!((Variant data) {
+            return wrap(data.peek!(Character));
+        })).filter!(chara => chara.isJust).map!(chara => chara.get);
+        if (charas.empty) return;
+        auto chara = charas.front();
+        camera.focus(chara.elasticSphere.entity);
     }
 
     ElasticSphere2.ElasticParticle[] getParticleList() {
         return this.elasticSphere2.getParticleList;
     }
 
-    override BaseSphere move() {
+    override void move() {
 
         this.elasticSphere2.force *= calcSidePushForce();
 
@@ -174,8 +168,6 @@ class ElasticSphere : BaseSphere{
         if (this.getLinearVelocity.xz.length > 0.5) {
             this._lastDirection = vec3(this.getLinearVelocity.xz.normalize, 0).xzy;
         }
-
-        return this;
     }
 
     private float calcSidePushForce() {

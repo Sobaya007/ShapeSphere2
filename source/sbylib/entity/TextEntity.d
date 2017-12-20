@@ -12,7 +12,7 @@ import sbylib.utils.Path;
 private Font font;
 
 Label TextEntity(dstring text, float height, Label.OriginX originX = Label.OriginX.Center, Label.OriginY originY = Label.OriginY.Center) {
-    if (font is null) font = FontLoader.load(FontPath("meiryo.ttc"), 256);
+    if (font is null) font = FontLoader.load(FontPath("WaonJoyo-R.otf"), 256);
     auto label = new Label(font, height);
     label.setOrigin(originX, originY);
     label.renderText(text);

@@ -5,9 +5,11 @@ import core.stdc.stdlib;
 import core.memory;
 import std.string;
 import std.format;
+import sbylib.utils.Maybe;
 
 struct Array(T) {
     private T* ptr;
+    private size_t offset;
     private size_t _length;
     private size_t realLength;
     private bool valid;
@@ -25,7 +27,9 @@ struct Array(T) {
         GC.addRange(this.ptr, size);
     }
 
-    void destroy() {
+    void destroy() in {
+        assert(this.valid, invalidMessage);
+    } body {
         GC.removeRange(cast(void*)this.ptr);
         free(cast(void*)this.ptr);
         this.valid = false;
@@ -49,11 +53,11 @@ struct Array(T) {
     }
 
     ref T opIndex(size_t idx) in {
-        assert(0 <= idx, format!"index must not be negative. index is%d."(idx));
-        assert(idx < length, format!"index must be less than %d. index is%d."(this.length, idx));
+        assert(0 <= idx, format!"index must not be negative. index is %d."(idx));
+        assert(idx < length, format!"index must be less than %d. index is %d."(this.length, idx));
         assert(valid, invalidMessage);
     } body {
-        return this.ptr[idx];
+        return this.ptr[idx+offset];
     }
 
     bool empty() {
@@ -61,12 +65,12 @@ struct Array(T) {
     }
 
     T front() {
-        return this.ptr[0];
+        return this[0];
     }
 
     T popFront() {
-        auto res = this.ptr[0];
-        this.ptr = &this.ptr[1];
+        auto res = this[0];
+        this.offset++;
         this._length--;
         return res;
     }
@@ -91,6 +95,13 @@ struct Array(T) {
             this[len++] = a;
         }
         this._length = len;
+    }
+
+    Maybe!T find(bool function(T) cond)() {
+        foreach (a; this) {
+            if (cond(a)) return Just(a);
+        }
+        return None!T;
     }
 
     private void incLength(size_t _length) out {

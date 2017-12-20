@@ -104,9 +104,16 @@ class World {
         }
     }
 
-    void calcCollide(ref Array!CollisionInfo result, Entity colEntry) {
+    void queryCollide(ref Array!CollisionInfoByQuery result, Entity colEntry) {
+        auto po = Array!CollisionInfo(0);
+        scope(exit) po.destroy();
         foreach (entity; this.entities) {
-            entity.collide(result, colEntry);
+            entity.collide(po, colEntry);
+        }
+        while (!po.empty) {
+            auto colInfo = po.front();
+            result ~= CollisionInfoByQuery(colInfo.getOther(colEntry), colInfo.getDepth(), colInfo.getPushVector(colEntry));
+            po.popFront();
         }
     }
 

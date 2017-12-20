@@ -1,5 +1,4 @@
-module game.scene.GameMainScene;
-
+module game.scene.GameMainScene; 
 import sbylib;
 import game.player;
 import game.character;
@@ -15,7 +14,7 @@ class GameMainScene : SceneBase {
 
     private World world2d, world3d;
 
-    override void initialize() { 
+    override void initialize() {
         /* Core Settings */
         auto core = Core();
         auto window = core.getWindow();
@@ -58,6 +57,18 @@ class GameMainScene : SceneBase {
                 proc.kill();
             }, "label update");
         }
+
+        import game.entity.Message;
+        auto msg = new Message("テスト");
+        world2d.add(msg);
+
+        int msgCnt = 0;
+        core.addProcess((proc) {
+            if (msgCnt++ > 100) {
+                msg.setMessage("彼女ほしいわかるよぉ");
+                proc.kill();
+            }
+        }, "message update");
 
         /* Compass Settings */
         auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));

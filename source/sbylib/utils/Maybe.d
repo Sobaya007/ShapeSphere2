@@ -18,6 +18,26 @@ struct Maybe(T) {
         this._none = none;
     }
 
+    auto opDispatch(string fn, Args...)(lazy Args args) {
+        static if(args.length == 0) {
+            alias F = typeof(mixin("value." ~ fn));
+            static if(isCallable!F)
+                enum MethodCall = "value." ~ fn ~ "()";
+            else // property access
+                enum MethodCall = "value." ~ fn;
+        } else {
+            enum MethodCall = "value." ~ fn ~ "(args)";
+        }
+        alias R = typeof(mixin(MethodCall));
+        static if(is(R == void)) {
+            if (this.isNone) return;
+            mixin(MethodCall ~ ';');
+        } else {
+            if (this.isNone) return None!R;
+            return Just(mixin(MethodCall));
+        }
+    }
+
     T get() in {
         assert(!_none, "this is none");
     } body {
@@ -44,6 +64,11 @@ struct Maybe(T) {
 Maybe!S fmap(alias fun, T, S = ReturnType!fun)(Maybe!T m) {
     if (m.isNone) return None!S;
     return Just(fun(m.get));
+}
+
+T getOrElse(T)(Maybe!T m, T defaultValue) {
+    if (m.isNone) return defaultValue;
+    return m.get;
 }
 
 Maybe!S fmapAnd(alias fun, T, S = ReturnType!fun.Type)(Maybe!T m) {
@@ -77,8 +102,15 @@ Maybe!T None(T)() {
     return Maybe!T(true);
 }
 
-Maybe!T wrap(T)(T value) {
-    static if (__traits(compiles, "value is null")) {
+auto wrap(T)(T value) {
+
+    static if (isPointer!T) {
+        if (value is null) {
+            return None!(PointerTarget!T);
+        } else {
+            return Just(*value);
+        }
+    } else static if (is(typeof({bool po = value is null;}))) {
         if (value is null) {
             return None!T;
         } else {

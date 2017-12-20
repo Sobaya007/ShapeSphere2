@@ -4,6 +4,7 @@ public import game.player.BaseSphere;
 import game.player.ElasticSphere;
 import game.player.PlayerMaterial;
 import game.player.Player;
+import game.camera.CameraController;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -31,7 +32,6 @@ class NeedleSphere : BaseSphere {
         float MAX_VELOCITY = 40;
     }
 
-    private ElasticSphere elasticSphere;
     private NeedleParticle[] particleList;
     private Player.PlayerEntity entity;
     private Player parent;
@@ -40,9 +40,10 @@ class NeedleSphere : BaseSphere {
     private vec3 aVel;
     private vec3 _lastDirection;
 
-    this(Player parent) {
+    alias parent this;
+
+    this(Player parent, CameraController camera) {
         this.parent = parent; 
-        this.elasticSphere = elasticSphere;
         this.needleCount = flim(0,0,1);
         auto geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         auto mat = new Player.Mat();
@@ -59,22 +60,16 @@ class NeedleSphere : BaseSphere {
         }
     }
 
-    //生成時にElasticSphereいないからやむなし
-    void constructor(ElasticSphere elasticSphere) {
-        this.elasticSphere = elasticSphere;
-    }
-
-    override void initialize(BaseSphere sphere) {
-        assert(sphere is this.elasticSphere);
+    void initialize(ElasticSphere elasticSphere) {
         this.needleCount = 0;
-        this.entity.obj.pos = this.elasticSphere.getCenter();
-        this.lVel = this.elasticSphere.getLinearVelocity();
-        this.aVel = this.elasticSphere.getAngularVelocity();
+        this.entity.obj.pos = elasticSphere.getCenter();
+        this.lVel = elasticSphere.getLinearVelocity();
+        this.aVel = elasticSphere.getAngularVelocity();
         this.parent.world.add(this.entity);
-        this._lastDirection = sphere.lastDirection;
+        this._lastDirection = elasticSphere.lastDirection;
     }
 
-    vec3 getCenter() {
+    override vec3 getCenter() {
         return this.entity.obj.pos;
     }
 
@@ -82,7 +77,7 @@ class NeedleSphere : BaseSphere {
         this.entity.pos = center;
     }
 
-    override BaseSphere move() {
+    override void move() {
         this.lVel.y -= GRAVITY * Player.TIME_STEP;
         this.lVel -= AIR_REGISTANCE * this.lVel * Player.TIME_STEP / MASS;
         if (this.lVel.length > MAX_VELOCITY) this.lVel *= MAX_VELOCITY / this.lVel.length;
@@ -97,7 +92,6 @@ class NeedleSphere : BaseSphere {
             particle.move();
         }
         updateGeometry();
-        return this;
     }
 
     override vec3 getCameraTarget() {
@@ -108,18 +102,17 @@ class NeedleSphere : BaseSphere {
         return this._lastDirection;
     }
 
-    override BaseSphere onNeedlePress() {
+    override void onNeedlePress() {
         this.needleCount += 0.08;
-        return this;
     }
-    override BaseSphere onNeedleRelease(){
+    override void onNeedleRelease(){
         if (this.needleCount == 0) {
             this.parent.world.remove(this.entity);
-            this.elasticSphere.initialize(this);
-            return this.elasticSphere;
+            auto elasticSphere = parent.transit!ElasticSphere;
+            elasticSphere.initialize(this);
+            return;
         }
         this.needleCount -= 0.05;
-        return this;
     }
 
     private void collision() {

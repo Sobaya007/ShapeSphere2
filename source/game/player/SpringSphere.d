@@ -4,7 +4,7 @@ public import game.player.BaseSphere;
 public import game.player.ElasticSphere;
 public import game.player.NeedleSphere;
 import game.player.PlayerMaterial;
-import game.camera.PlayerChaseCamera;
+import game.camera.CameraController;
 import game.player.Player;
 import sbylib;
 import std.algorithm;
@@ -50,9 +50,8 @@ class SpringSphere : BaseSphere {
     private SpringParticle[] particleList;
     private Player.PlayerEntity entity;
     private CollisionCapsule capsule;
-    private ElasticSphere elasticSphere;
     private Player parent;
-    private PlayerChaseCamera camera;
+    private CameraController camera;
     private Maybe!(ElasticSphere2.WallContact) wallContact;
     private Spring spring;
     private GeometricInfo geom;
@@ -62,7 +61,9 @@ class SpringSphere : BaseSphere {
     private bool shouldFinish;
     private vec3 _lastDirection;
 
-    this(Player parent, PlayerChaseCamera camera)  {
+    alias parent this;
+
+    this(Player parent, CameraController camera)  {
         this.parent = parent;
         this.camera = camera;
         this.spring = new Spring();
@@ -81,37 +82,26 @@ class SpringSphere : BaseSphere {
         this.geom = new GeometricInfo;
     }
 
-    //生成時にElasticSphereいないからやむなし
-    void constructor(ElasticSphere elasticSphere) {
-        this.elasticSphere = elasticSphere;
-    }
-
-    bool canTransform() {
-        this.wallContact = this.elasticSphere.getWallContact;
-        return this.wallContact.isJust();
-    }
-
-    override void initialize(BaseSphere sphere) in {
-        assert(sphere is this.elasticSphere);
-        assert(this.wallContact.isJust());
-    } body {
+    void initialize(ElasticSphere elasticSphere) {
+        this.wallContact = elasticSphere.getWallContact();
+        assert(this.wallContact.isJust);
         auto v = this.wallContact.get().dir;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.pos = this.wallContact.get().pos;
         this.entity.obj.rot = mat3(t, v, b);
         auto length = 
-              this.elasticSphere.getParticleList.map!(p => p.position.dot(v)).maxElement
-            - this.elasticSphere.getParticleList.map!(p => p.position.dot(v)).minElement;
+              elasticSphere.getParticleList.map!(p => p.position.dot(v)).maxElement
+            - elasticSphere.getParticleList.map!(p => p.position.dot(v)).minElement;
         auto smallRadius =
-            this.elasticSphere.getParticleList.map!((p) {
-                auto r = p.position - this.elasticSphere.getCenter;
+            elasticSphere.getParticleList.map!((p) {
+                auto r = p.position - elasticSphere.getCenter;
                 r -= dot(r, v) * v;
                 return r.length;
             }).maxElement;
         this.geom.init(length, smallRadius, v);
         this.velocity = vec3(0);
-        this._lastDirection = sphere.lastDirection;
+        this._lastDirection = elasticSphere.lastDirection;
         TO_SPEED = 0.9;
         this.stepImpl = transform;
         this.shouldFinish = false;
@@ -135,7 +125,7 @@ class SpringSphere : BaseSphere {
         this.camera.lookOver(dir);
     }
 
-    override BaseSphere move() {
+    override void move() {
         this.stepImpl.step();
         foreach (p; this.particleList) {
             p.move();
@@ -143,22 +133,20 @@ class SpringSphere : BaseSphere {
         updateCapsule();
         updateGeometry();
         if (this.shouldFinish) {
-            this.elasticSphere.initialize(this);
             parent.world.remove(this.entity);
-            return this.elasticSphere;
+            auto elasticSphere = parent.transit!(ElasticSphere);
+            elasticSphere.initialize(this);
         }
-        return this;
     }
 
-    override BaseSphere onSpringJustRelease() {
+    override void onSpringJustRelease() {
         this.stepImpl.onRelease();
-        return this;
     }
 
-    override BaseSphere onMovePress(vec2 a) {
+    override void onMovePress(vec2 a) {
         if (this.camera.isLooking) {
             this.camera.turn(a);
-            return this;
+            return;
         }
         this.geom.axisDif.x.to(a.x);
         this.geom.axisDif.y.to(a.y);
@@ -167,14 +155,13 @@ class SpringSphere : BaseSphere {
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
         this.entity.obj.rot = mat3(t, v, b);
-        return this;
     }
 
     override void setCenter(vec3 center) {
         this.entity.pos = center;
     }
 
-    vec3 getCenter() {
+    override vec3 getCenter() {
         return this.entity.pos + this.entity.obj.rot.column[1] * this.spring.length / 2;
     }
 
@@ -209,8 +196,8 @@ class SpringSphere : BaseSphere {
     }
 
     private void updateCapsule() {
-        this.capsule.setStart(this.entity.pos + this.axis * RADIUS);
-        this.capsule.setEnd(this.entity.pos + this.axis * (this.spring.length - RADIUS));
+        this.capsule.setStart(this.entity.pos + geom.axis * RADIUS);
+        this.capsule.setEnd(this.entity.pos + geom.axis * (this.spring.length - RADIUS));
     }
 
     private void transit(Step step) {
@@ -396,6 +383,4 @@ class SpringSphere : BaseSphere {
             }
         }
     }
-
-    alias geom this;
 }
