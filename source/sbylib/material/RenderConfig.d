@@ -15,6 +15,7 @@ class RenderConfig {
     BlendEquation blendEquation;
     bool depthWrite, depthTest;
     bool transparency;
+    bool visible;
 
     this() {
         this.depthFunc = TestFunc.Less;
@@ -32,6 +33,7 @@ class RenderConfig {
         this.depthWrite = true;
         this.depthTest = true;
         this.transparency = false;
+        this.visible = true;
     }
 
     void set() {
