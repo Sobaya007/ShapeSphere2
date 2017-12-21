@@ -41,6 +41,19 @@ class Entity {
         this.colEntry = new CollisionEntry(colGeom, this);
     }
 
+    ~this() {
+        this.destroy();
+    }
+
+    void destroy() {
+        if (this.mesh) {
+            this.mesh.destroy();
+        }
+        foreach (child; this.children) {
+            child.destroy();
+        }
+    }
+
     CollisionEntry getCollisionEntry() {
         return this.colEntry;
     }

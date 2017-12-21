@@ -73,7 +73,8 @@ class Character {
     }
 
     void talk(void delegate() onFinish) {
-        auto message = new Message(this.serif, onFinish);
+        auto message = Game.getMessge();
+        message.setMessage(this.serif, onFinish);
         Game.getWorld2D().add(message);
         Game.getCommandManager().setReceiver(message);
     }

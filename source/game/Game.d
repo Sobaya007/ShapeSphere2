@@ -2,6 +2,7 @@ module game.Game;
 
 import game.command;
 import game.player;
+import game.entity.Message;
 import sbylib;
 import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv;
 
@@ -14,10 +15,13 @@ static:
 
     private Player player;
 
+    private Message message;
+
     void initialize(string[] args) {
         this.commandManager = selectCommandManager(args);
         this.world2d = new World;
         this.world3d = new World;
+        this.message = new Message;
     }
 
     void initializePlayer(Camera camera) in {
@@ -42,6 +46,10 @@ static:
         assert(this.player !is null);
     } body {
         return this.player;
+    }
+
+    Message getMessge() {
+        return this.message;
     }
 
     void update() {

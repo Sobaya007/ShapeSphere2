@@ -15,18 +15,29 @@ class VertexArray {
 
     immutable uint id;
 
+    private bool alive;
+
     this() out {
         GlFunction.checkError();
     } body {
         uint vao;
         glGenVertexArrays(1, &vao);
         this.id = vao;
+        this.alive = true;
+        import std.stdio;
+        writeln("create: ", this.id);
     }
 
-    ~this() out {
+    ~this() {
+        this.destroy();
+    }
+
+    void destroy() out {
         GlFunction.checkError();
     } body {
         glDeleteVertexArrays(1, &this.id);
+        import std.stdio;
+        writeln("destroy: ", this.id);
     }
 
     void bind() const out {
