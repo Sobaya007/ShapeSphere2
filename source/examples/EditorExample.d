@@ -11,17 +11,23 @@ import std.stdio;
 
 void editorExample() {
 
-    Core.config.windowWidth  = 1200;
+    Core.config.windowWidth  = 1500;
     Core.config.windowHeight = 900;
 
     auto core = Core();
+    auto screen = core.getWindow().getScreen();
+    core.addProcess((){
+        screen.clear(ClearMode.Color, ClearMode.Depth);
+    }, "clear");
 
-    Pane pane = new TestPane(0, 0, 1200, 900);
+    Pane pane = new TestPane(300, 0, 1200, 900);
+    Pane hierarchyPane = new HierarchyPane();
+    Pane viewerPane = new ViewerPane(0, 0, 0, 0);
 
     core.start();
 }
 
-class TestPane : Pane {
+class TestPane : GuiPane {
     this(int x, int y, int width, int height) {
         super(x, y, width, height);
     }
@@ -57,6 +63,7 @@ protected:
             t += 50;
             control.add(a);
         });
+
 
         auto leftComponent = new ComponentListComponent(
             ComponentListComponent.Direction.Vertical,

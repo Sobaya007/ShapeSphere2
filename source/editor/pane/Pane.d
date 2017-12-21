@@ -5,8 +5,10 @@ import sbylib;
 import editor.guiComponent;
 import editor.viewport;
 
+interface Pane {
+}
 
-abstract class Pane {
+abstract class GuiPane : Pane {
 
 private:
     int x;
@@ -35,7 +37,6 @@ public:
 
         auto renderer = new Renderer();
         auto render = delegate (Process proc) {
-            screen.clear(ClearMode.Color, ClearMode.Depth);
             renderer.render(world, screen, viewport);
         };
 
