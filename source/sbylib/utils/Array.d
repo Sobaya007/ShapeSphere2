@@ -123,10 +123,11 @@ struct Array(T) {
 }
 
 void sort(alias lessThan, T)(Array!T array) {
+    if (array.length == 0) return;
     sort!(lessThan, T)(array, 0, array.length-1);
 }
 
-private void sort(alias lessThan, T)(Array!T array, long begin, long end) {
+private void sort(alias lessThan, T)(Array!T array, size_t begin, size_t end) {
     if (begin >= end) return;
     auto pivot = array[(begin+end)/2];
     auto left = begin;
@@ -134,7 +135,7 @@ private void sort(alias lessThan, T)(Array!T array, long begin, long end) {
     auto right = end;
     while (true) {
         while (lessThan(array[left],pivot)) left++;
-        while (lessThan(pivot,array[right])) right--;
+        while (0 < right && lessThan(pivot,array[right])) right--;
         auto tmp = array[left];
         if (left >= right) break;
         array[left] = array[right];
@@ -142,7 +143,7 @@ private void sort(alias lessThan, T)(Array!T array, long begin, long end) {
         left++;
         right--;
     }
-    sort!(lessThan, T)(array, 0, left-1);
+    if (left > 0) sort!(lessThan, T)(array, 0, left-1);
     sort!(lessThan, T)(array, right+1, end);
 }
 
