@@ -10,9 +10,11 @@ import editor.pane;
 import std.stdio;
 
 void editorExample() {
+    const WINDOW_WIDTH = 1500;
+    const WINDOW_HEIGHT = 900;
 
-    Core.config.windowWidth  = 1500;
-    Core.config.windowHeight = 900;
+    Core.config.windowWidth  = WINDOW_WIDTH;
+    Core.config.windowHeight = WINDOW_HEIGHT;
 
     auto core = Core();
     auto screen = core.getWindow().getScreen();
@@ -20,9 +22,9 @@ void editorExample() {
         screen.clear(ClearMode.Color, ClearMode.Depth);
     }, "clear");
 
-    Pane pane = new TestPane(300, 0, 1200, 900);
+    Pane pane = new TestPane(900, 0, 600, WINDOW_HEIGHT);
     Pane hierarchyPane = new HierarchyPane();
-    Pane viewerPane = new ViewerPane(0, 0, 0, 0);
+    Pane viewerPane = new ViewerPane(300, 0, 600, WINDOW_HEIGHT);
 
     core.start();
 }

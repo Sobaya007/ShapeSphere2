@@ -92,11 +92,11 @@ public:
         refreshText();
     }
 
-    override void update(ViewportMouse mouse) {
+    override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
         updateCover();
-    }
-    override void activeUpdate(ViewportMouse mouse) {
-        _coverAnimationFrameCount++;
+        if (activeControllable.isJust && activeControllable.get is this) {
+            _coverAnimationFrameCount++;
+        }
     }
 
     override void onKeyPressed(KeyButton keyButton, bool shiftPressed, bool controlPressed) {

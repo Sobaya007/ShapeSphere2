@@ -45,10 +45,10 @@ public:
         return _mainNode.height + _nodes.map!"a.height".sum;
     }
 
-    override void update(ViewportMouse mouse) {
-        _mainNode.update(mouse);
+    override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
+        _mainNode.update(mouse, activeControllable);
         _nodes.each!(
-            node => node.update(mouse)
+            node => node.update(mouse, activeControllable)
         );
     }
 
@@ -144,7 +144,7 @@ public:
         }
     }
 
-    override void update(ViewportMouse mouse) {
+    override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
         import std.math, std.algorithm;
         int t = _duration/2;
         float y = (t-_frameCount)^^2/cast(float)t^^2;
@@ -253,7 +253,7 @@ public:
         }
     }
 
-    override void update(ViewportMouse mouse) {
+    override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
         import std.math, std.algorithm;
         int t = _duration/2;
         float y = (t-_frameCount)^^2/cast(float)t^^2;

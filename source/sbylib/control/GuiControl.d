@@ -118,11 +118,12 @@ private:
 
     void updateControllables() {
         foreach (controllable; this.controllables) {
-            controllable.update(this.mouse);
+            bool isActive = this.selectedControllable.isJust && cast(void *)this.selectedControllable.get == cast(void *)controllable;
+            controllable.update(
+                this.mouse,
+                this.selectedControllable
+            );
         }
-        this.selectedControllable.apply!(
-            c => c.activeUpdate(this.mouse)
-        );
     }
 
     Maybe!IControllable getCollidedControllable() {

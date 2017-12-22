@@ -68,10 +68,10 @@ public:
         return _content.height * _content.entity.obj.scale.y + 2*_borderSize;
     }
 
-    override void update(ViewportMouse mouse) {
+    override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
         move();
-        _opener.update(mouse);
-        _content.update(mouse);
+        _opener.update(mouse, activeControllable);
+        _content.update(mouse, activeControllable);
     }
 
     private void move() {

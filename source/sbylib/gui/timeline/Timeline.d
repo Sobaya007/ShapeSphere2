@@ -84,12 +84,10 @@ class Timeline : IControllable {
         this.maxLabel.renderText(format!"%.3f"d(max));
     }
 
-    void update(ViewportMouse mouse) {
+    override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
         if (this.control) {
             this.control(mouse);
         }
-    }
-    void activeUpdate(ViewportMouse mouse) {
     }
 
     void translate(ViewportMouse mouse) {

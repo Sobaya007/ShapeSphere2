@@ -10,6 +10,7 @@ public {
     import editor.guiComponent.GroupBoxComponent;
     import editor.guiComponent.ComponentListComponent;
     import editor.guiComponent.TextAreaComponent;
+    import editor.guiComponent.ViewerComponent;
 
     import editor.guiComponent.material;
 }

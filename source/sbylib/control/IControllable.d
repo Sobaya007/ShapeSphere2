@@ -12,6 +12,5 @@ interface IControllable {
     void onMouseReleased(MouseButton mouseButton, bool isCollided);
     void onKeyPressed(KeyButton keyButton, bool shiftPressed, bool controlPressed);
     void onKeyReleases(KeyButton keyButton, bool shiftPressed, bool controlPressed);
-    void update(ViewportMouse mouse);
-    void activeUpdate(ViewportMouse mouse);
+    void update(ViewportMouse mouse, Maybe!IControllable activeControllable);
 }

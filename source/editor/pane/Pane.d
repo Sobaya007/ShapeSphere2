@@ -6,23 +6,27 @@ import editor.guiComponent;
 import editor.viewport;
 
 interface Pane {
+    int x() @property;
+    int y() @property;
+    uint width() @property;
+    uint height() @property;
 }
 
 abstract class GuiPane : Pane {
 
-private:
-    int x;
-    int y;
-    uint width;
-    uint height;
+protected:
+    int _x;
+    int _y;
+    uint _width;
+    uint _height;
 
 public:
 
     this(int x, int y, uint width, uint height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        _x = x;
+        _y = y;
+        _width = width;
+        _height = height;
 
         Core core = Core();
 
@@ -42,10 +46,27 @@ public:
 
         auto control = new GuiControl(window, camera, viewport, world, core.getKey());
 
-        createContent(control);
-
         core.addProcess(render, "render");
         core.addProcess(&control.update, "control");
+
+        createContent(control);
+
+    }
+
+    override int x() @property {
+        return _x;
+    }
+
+    override int y() @property {
+        return _y;
+    }
+
+    override uint width() @property {
+        return _width;
+    }
+
+    override uint height() @property {
+        return _height;
     }
 
 protected:
