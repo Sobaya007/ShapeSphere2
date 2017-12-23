@@ -40,14 +40,14 @@ void xFileLoadExample() {
 
     XLoader xLoader = new XLoader;
 
-    Entity texCubeEntity = xLoader.load(ModelPath("texCube.x"), true, true, true).buildEntity();
+    Entity texCubeEntity = xLoader.load(ModelPath("test.x"), true, true, true).buildEntity();
     texCubeEntity.obj.pos = vec3(-2, 3, 0);
 
-    Entity sphereEntity = xLoader.load(ModelPath("sphere.x"), true, true, false).buildEntity();
-    sphereEntity.obj.pos = vec3(-4, 3, 0);
+    //Entity sphereEntity = xLoader.load(ModelPath("sphere.x"), true, true, false).buildEntity();
+    //sphereEntity.obj.pos = vec3(-4, 3, 0);
 
-    Entity parentEntity = xLoader.load(ModelPath("parent.x"), true, true, false).buildEntity();
-    parentEntity.obj.pos = vec3(2, 2, 0);
+    //Entity parentEntity = xLoader.load(ModelPath("parent.x"), true, true, false).buildEntity();
+    //parentEntity.obj.pos = vec3(2, 2, 0);
 
 
     // auto boxGeom = Box.create(10, 10, 10); /* width, height, depth */
@@ -72,8 +72,8 @@ void xFileLoadExample() {
     world.setCamera(camera);
     world.add(planeEntity);
     world.add(texCubeEntity);
-    world.add(sphereEntity);
-    world.add(parentEntity);
+    //world.add(sphereEntity);
+    //world.add(parentEntity);
     // world.add(boxEntity);
     core.addProcess(renderToScreen, "render");
     core.addProcess(&control.update, "update");

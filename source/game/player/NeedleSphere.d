@@ -1,6 +1,7 @@
 module game.player.NeedleSphere;
 
 public import game.player.BaseSphere;
+import game.Map;
 import game.Game;
 import game.player.ElasticSphere;
 import game.player.PlayerMaterial;
@@ -119,7 +120,7 @@ class NeedleSphere : BaseSphere {
     private void collision() {
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
-        this.parent.floors.each!(floor => floor.collide(colInfos, this.entity));
+        Game.getMap().getPolygon().collide(colInfos, this.entity);
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
         foreach (colInfo; colInfos) {

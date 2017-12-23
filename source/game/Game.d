@@ -1,7 +1,8 @@
 module game.Game;
 
-import game.command;
-import game.player;
+public import game.command;
+public import game.player;
+public import game.Map;
 import sbylib;
 import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv;
 
@@ -14,6 +15,8 @@ static:
 
     private Player player;
 
+    private Map map;
+
     void initialize(string[] args) {
         this.commandManager = selectCommandManager(args);
         this.world2d = new World;
@@ -24,6 +27,12 @@ static:
         assert(this.player is null);
     } body {
         this.player = new Player(camera);
+    }
+
+    void initializeMap(Map map) in {
+        assert(this.map is null);
+    } body {
+        this.map = map;
     }
 
     ICommandManager getCommandManager() {
@@ -42,6 +51,12 @@ static:
         assert(this.player !is null);
     } body {
         return this.player;
+    }
+
+    Map getMap() in {
+        assert(this.map !is null);
+    } body {
+        return this.map;
     }
 
     void update() {

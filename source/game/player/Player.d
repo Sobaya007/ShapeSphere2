@@ -24,10 +24,10 @@ class Player : CommandReceiver {
     enum SIDE_PUSH_FORCE = 10;
     enum TIME_STEP = 0.02;
 
-    Entity[] floors;
     private BaseSphere sphere;
     private BaseSphere[] spheres;
     private CameraController camera;
+    Entity[] collisionEntities;
 
     this(Camera camera) {
         this.camera = new CameraController(camera, this);

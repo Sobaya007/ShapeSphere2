@@ -49,7 +49,7 @@ class Character {
 
     void initialize() {
         foreach (i; 0..2) {
-            elasticSphere.move(floors);
+            elasticSphere.move([]);
         }
     }
 
@@ -66,7 +66,7 @@ class Character {
 
         count++;
 
-        this.elasticSphere.move(floors);
+        this.elasticSphere.move([]);
         if (c < 10) {
             this.elasticSphere.push(vec3(0,-200,0), 10000);
         }

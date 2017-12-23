@@ -5,6 +5,7 @@ public import game.player.NeedleSphere;
 public import game.player.SpringSphere;
 public import game.player.ElasticSphere2;
 import game.Game;
+import game.Map;
 import game.player.PlayerMaterial;
 import game.player.Player;
 import game.character.Character;
@@ -97,7 +98,7 @@ class ElasticSphere : BaseSphere {
     }
 
     Maybe!(ElasticSphere2.WallContact) getWallContact() {
-        return this.elasticSphere2.getWallContact(parent.floors);
+        return this.elasticSphere2.getWallContact();
     }
 
     override vec3 getCameraTarget() {
@@ -172,7 +173,7 @@ class ElasticSphere : BaseSphere {
 
         this.elasticSphere2.force *= calcSidePushForce();
 
-        this.elasticSphere2.move(parent.floors);
+        this.elasticSphere2.move(parent.collisionEntities);
 
         if (this.getLinearVelocity.xz.length > 0.5) {
             this._lastDirection = vec3(this.getLinearVelocity.xz.normalize, 0).xzy;

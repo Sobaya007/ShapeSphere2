@@ -1,5 +1,7 @@
 module game.player.ElasticSphere2;
 
+import game.Map;
+import game.Game;
 import game.player.Player;
 import game.player.PlayerMaterial;
 import sbylib;
@@ -129,9 +131,9 @@ class ElasticSphere2 {
 
         this(vec3 pos, vec3 dir) { this.pos = pos; this.dir = dir;}
     }
-    Maybe!WallContact getWallContact(Entity[] floors) {
+    Maybe!WallContact getWallContact() {
         auto colInfos = Array!CollisionInfo(0);
-        floors.each!(floor => floor.collide(colInfos, this.entity));
+        Game.getMap().getPolygon().collide(colInfos, this.entity);
         scope (exit) {
             colInfos.destroy();
         }
@@ -148,7 +150,7 @@ class ElasticSphere2 {
         return this.particleList;
     }
 
-    void move(Entity[] floors) {
+    void move(Entity[] collisionEntities) {
         vec3 g = this.center;
 
         this.rotateParticles(g);
@@ -174,7 +176,7 @@ class ElasticSphere2 {
             particle.force.y -= GRAVITY * MASS;
             particle.velocity += particle.force * FORCE_COEF;
             move(particle);
-            collision(particle, floors);
+            collision(particle, collisionEntities);
             end(particle);
         }
         this.force.y = 0;
@@ -281,9 +283,12 @@ class ElasticSphere2 {
         particle.capsule.setStart(particle.position);
     }
 
-    private void collision(ElasticParticle particle, Entity[] floors) {
+    private void collision(ElasticParticle particle, Entity[] collisionEntities) {
         auto colInfos = Array!CollisionInfo(0);
-        floors.each!(floor => floor.collide(colInfos, particle.entity));
+        Game.getMap().getPolygon().collide(colInfos, particle.entity);
+        foreach (entity; collisionEntities) {
+            entity.collide(colInfos, particle.entity);
+        }
         scope (exit) {
             colInfos.destroy();
         }
