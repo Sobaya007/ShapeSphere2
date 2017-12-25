@@ -142,7 +142,7 @@ class Utils {
                 auto viewStart = Utils.projToView(vec3(screenPos, 0), camera);
                 auto viewEnd = Utils.projToView(vec3(screenPos, 1), camera);
 
-                auto viewInv = camera.getObj().worldMatrix;
+                auto viewInv = camera.worldMatrix;
                 auto viewInv3 = viewInv.toMatrix3;
 
                 ray.start = (viewInv * vec4(viewStart, 1)).xyz;

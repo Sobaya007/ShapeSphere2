@@ -24,8 +24,8 @@ void materialExample() {
         renderer.render(world, screen, viewport);
     };
 
-    camera.getObj().pos = vec3(1,2,4);
-    camera.getObj().lookAt(vec3(0));
+    camera.pos = vec3(1,2,4);
+    camera.lookAt(vec3(0));
     world.setCamera(camera);
     world.add(polyEntity);
     screen.setClearColor(vec4(0.2));

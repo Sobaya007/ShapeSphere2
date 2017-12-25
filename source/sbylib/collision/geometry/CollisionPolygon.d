@@ -42,7 +42,7 @@ class CollisionPolygon : CollisionGeometry {
             }(i);
         }
         this.normal = new Lazy!vec3(
-            () => (this.owner.obj.worldMatrix * vec4(this._normal, 0)).xyz,
+            () => normalize((this.owner.obj.worldMatrix * vec4(this._normal, 0)).xyz),
             this.owner.obj.worldMatrix
         );
     }

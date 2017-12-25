@@ -45,18 +45,16 @@ class GameMainScene : SceneBase {
             chara.setCenter(pair[1]);
             characters ~= chara;
         }
-        //characters.each!(character => player.floors ~= character.collisionArea);
+        characters.each!(character => player.collisionEntities ~= character.collisionArea);
         core.addProcess((proc) {
             player.step();
             characters.each!(character => character.step());
         }, "player update");
         core.addProcess(&Game.update, "game update");
 
-        auto loader = new XLoader();
-        world3d.add(loader.load(ModelPath("test.x")).buildEntity());
 
         auto map = new Map;
-        map.testStage();
+        map.testStage2();
         Game.initializeMap(map);
 
         /* Label Settings */

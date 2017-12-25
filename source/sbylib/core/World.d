@@ -28,7 +28,7 @@ class World {
     this() {
         this.camera = new Observed!Camera;
         this.viewMatrix = new Observer!umat4((ref umat4 mat) {
-            mat.value = this.camera.getObj().viewMatrix;
+            mat.value = this.camera.getEntity().viewMatrix;
         }, new umat4("viewMatrix"));
         this.projMatrix = new Observer!umat4((ref umat4 mat) {
             mat.value = this.camera.projMatrix;
@@ -47,11 +47,11 @@ class World {
 
     void setCamera(Camera camera) {
         if (this.camera.get()) {
-            this.viewMatrix.release(this.camera.getObj().viewMatrix);
+            this.viewMatrix.release(this.camera.getEntity().viewMatrix);
             this.projMatrix.release(this.camera.projMatrix);
         }
         this.camera = camera;
-        this.viewMatrix.capture(this.camera.getObj().viewMatrix);
+        this.viewMatrix.capture(this.camera.getEntity().viewMatrix);
         this.projMatrix.capture(this.camera.projMatrix);
     }
 
@@ -87,7 +87,7 @@ class World {
             r.collect!(mesh => mesh.mat.config.transparency == true)(transparents, notTransparents);
         }
         notTransparents.each!(e => e.render());
-        transparents.sort!((a,b) => dot(camera.getObj.pos - a.pos, a.pos) < dot(camera.getObj.pos - b.pos, b.pos));
+        transparents.sort!((a,b) => dot(camera.getEntity().pos - a.pos, a.pos) < dot(camera.getEntity().pos - b.pos, b.pos));
         transparents.each!(e => e.render());
     }
 

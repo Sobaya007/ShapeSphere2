@@ -1,5 +1,4 @@
-module sbylib.mesh.Mesh;
-
+module sbylib.mesh.Mesh; 
 import sbylib.camera.Camera;
 import sbylib.wrapper.gl.VertexArray;
 import sbylib.collision.CollisionEntry;
@@ -19,6 +18,10 @@ class Mesh {
     private VertexArray vao;
     private Lazy!Uniform[string] getUniforms;
     private Entity owner;
+
+    invariant {
+        assert(geom !is null);
+    }
 
     this(Geometry geom, Material mat, Entity owner) {
         this.geom = geom;

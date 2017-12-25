@@ -129,9 +129,9 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
         CollisionPolygon[] colPolygons;
         foreach (i, face; this.faces) {
             auto poly = new CollisionPolygon(
-                    this.vertices[face.indexList[0]].position,
+                    this.vertices[face.indexList[2]].position,
                     this.vertices[face.indexList[1]].position,
-                    this.vertices[face.indexList[2]].position);
+                    this.vertices[face.indexList[0]].position);
             colPolygons ~= poly;
         }
         return colPolygons;

@@ -2,6 +2,7 @@ module game.Map;
 
 import sbylib;
 import game.Game;
+import model.xfile.loader;
 
 class Map {
     private Entity polygons;
@@ -39,6 +40,14 @@ class Map {
         };
         makePolygon([vec3(20,0,-20),vec3(20,0,60), vec3(-20, 0, +60), vec3(-20, 0, -20)]);
         makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);
+    }
+
+    void testStage2() {
+        auto loader = new XLoader();
+        auto model = loader.load(ModelPath("test.x")).buildEntity();
+        model.createCollisionPolygon();
+        model.scale = vec3(3);
+        this.polygons.addChild(model);
     }
 
     Entity getPolygon() {

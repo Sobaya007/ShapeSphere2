@@ -1,6 +1,8 @@
 module sbylib.utils.Maybe;
 
 import std.traits;
+import std.format;
+import std.conv;
 
 struct Maybe(T) {
 
@@ -58,6 +60,11 @@ struct Maybe(T) {
 
     bool isNone() {
         return _none;
+    }
+
+    string toString() {
+        if (this.isJust) return format!"Some(%s)"(this.value.to!string);
+        return "None";
     }
 }
 

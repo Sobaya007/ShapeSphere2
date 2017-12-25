@@ -42,8 +42,8 @@ void mouseExample() {
         polyEntity.getMesh().mat.condition = colInfo.get.entity.getRootParent() is polyEntity;
         capEntity.getMesh().mat.condition  = colInfo.get.entity.getRootParent() is capEntity;
     };
-    camera.getObj().pos.z = 4;
-    camera.getObj().lookAt(vec3(0));
+    camera.pos.z = 4;
+    camera.lookAt(vec3(0));
     world.setCamera(camera);
     world.add(polyEntity);
     world.add(capEntity);

@@ -138,7 +138,6 @@ class ElasticSphere2 {
             colInfos.destroy();
         }
         foreach (info; colInfos) {
-            if (cast(CollisionPolygon)info.getOther(this.entity).getCollisionEntry().getGeometry() is null) continue;
             auto n = info.getPushVector(this.entity);
             auto nearestParticle = this.getNearestParticle(this.center - n * 114514);
             return Just(WallContact(nearestParticle.position, n));

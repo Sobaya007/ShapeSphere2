@@ -26,5 +26,4 @@ void main() {
 
     // texture
     fragColor = texture(tex, uv);
-    //fragColor = vec4(n * 0.5 + 0.5, 1);
 }

@@ -20,8 +20,8 @@ void basicExample() {
             120.deg, /* FOV (in angle) */
             0.1, /* Near Clip      */
             100, /* Far Clip       */);
-    camera.getObj().pos = vec3(3, 2, 9);
-    camera.getObj().lookAt(vec3(0,2,0));
+    camera.pos = vec3(3, 2, 9);
+    camera.lookAt(vec3(0,2,0));
 
     auto planeGeom = Plane.create(100, 100); /* width, height */
 

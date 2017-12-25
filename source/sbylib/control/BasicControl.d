@@ -57,7 +57,7 @@ class BasicControl {
         this.entity = colInfo.get.entity.getRootParent();
         if (this.mouse.justPressed(MouseButton.Button1)) {
             this.mode = Mode.Translate;
-            this.z = -(colInfo.get.point - this.camera.getObj().pos).dot(this.camera.getObj().worldMatrix.column[2].xyz);
+            this.z = -(colInfo.get.point - this.camera.pos).dot(this.camera.worldMatrix.column[2].xyz);
         }
         if (this.mouse.justPressed(MouseButton.Button2)) {
             this.mode = Mode.Rotate;
@@ -71,7 +71,7 @@ class BasicControl {
         }
         auto dif2 = mouse.getDif();
         dif2 *= vec2(this.z) / vec2(this.camera.projMatrix[0,0], this.camera.projMatrix[1,1]);
-        this.entity.obj.pos += this.camera.getObj().worldMatrix.toMatrix3() * vec3(dif2, 0);
+        this.entity.obj.pos += this.camera.worldMatrix.toMatrix3() * vec3(dif2, 0);
     }
 
     private void rotate() {
@@ -82,7 +82,7 @@ class BasicControl {
         auto dif2 = this.mouse.getDif();
         if (dif2.length < 0.01) return;
         auto axisV = cross(vec3(dif2.x, dif2.y, 0), vec3(0,0,1));
-        auto axisW = (this.camera.getObj().worldMatrix.get() * vec4(axisV, 0)).xyz;
+        auto axisW = (this.camera.worldMatrix.get() * vec4(axisV, 0)).xyz;
         auto rot = mat3.axisAngle(normalize(axisW), length(axisW).rad);
         this.entity.obj.rot = rot * this.entity.obj.rot;
     }

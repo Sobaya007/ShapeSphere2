@@ -22,10 +22,9 @@ class FocusBehavior : CameraController.Behavior {
     override void step() {
         target += (obj.pos - target) * 0.1;
         auto arrival = this.obj.pos + this.dir * defaultLength;
-        vel = (arrival - camera.getObj.pos) * 0.1;
-        auto cobj = camera.getObj();
-        cobj.pos += vel;
-        cobj.lookAt(target);
+        vel = (arrival - camera.pos) * 0.1;
+        camera.pos += vel;
+        camera.lookAt(target);
     }
 
     override void turn(vec2 value) {}

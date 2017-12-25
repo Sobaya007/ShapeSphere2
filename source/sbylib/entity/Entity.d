@@ -8,10 +8,11 @@ public {
     import sbylib.utils.Maybe;
     import std.variant;
 }
+import std.algorithm;
 
 class Entity {
-    private Mesh mesh;
-    private CollisionEntry colEntry;
+    private Maybe!Mesh mesh;
+    private Maybe!CollisionEntry colEntry;
     private World world;
     private Entity parent;
     private Entity[] children;
@@ -32,21 +33,21 @@ class Entity {
 
     this(CollisionGeometry colGeom) {
         this();
-        this.colEntry = new CollisionEntry(colGeom, this);
+        this.colEntry = Just(new CollisionEntry(colGeom, this));
     }
 
     this(Geometry geom, Material mat, CollisionGeometry colGeom) {
         this();
         this.setMesh(new Mesh(geom, mat, this));
-        this.colEntry = new CollisionEntry(colGeom, this);
+        this.colEntry = Just(new CollisionEntry(colGeom, this));
     }
 
     CollisionEntry getCollisionEntry() {
-        return this.colEntry;
+        return this.colEntry.get();
     }
 
     Mesh getMesh() {
-        return this.mesh;
+        return this.mesh.get();
     }
 
     inout(Object3D) obj() @property inout {
@@ -99,12 +100,10 @@ class Entity {
         entity.setWorld(world);
     }
 
-    void createCollisionPolygon() in {
-        assert(this.getMesh() !is null);
-    } body {
-        foreach (polygon; this.getMesh().geom.createCollisionPolygons()) {
-            auto entity = new Entity(polygon);
-            this.addChild(entity);
+    void createCollisionPolygon() {
+        this.mesh.geom.apply!(g => g.createCollisionPolygons().each!(po => addChild(new Entity(po))));
+        foreach(child; this.children) {
+            child.createCollisionPolygon();
         }
     }
 
@@ -120,8 +119,8 @@ class Entity {
     */
 
     void collect(bool function(Mesh) cond)(ref Array!Entity trueResult, ref Array!Entity falseResult) {
-        if (this.mesh) {
-            if (cond(this.mesh)) {
+        if (this.mesh.isJust) {
+            if (cond(this.mesh.get)) {
                 trueResult ~= this;
             } else {
                 falseResult ~= this;
@@ -136,20 +135,21 @@ class Entity {
         assert(this.world);
     } body {
         if (!this.visible) return;
-        if (this.mesh) {
-            this.mesh.render();
-        }
+        this.mesh.render();
     }
 
     void collide(ref Array!CollisionInfo result, Entity entity) {
-        entity.collide(result, this.getCollisionEntry());
+        if (this.colEntry.isJust) {
+            entity.collide(result, this.colEntry.get);
+        }
         foreach (child; this.children) {
             child.collide(result, entity);
         }
     }
 
-    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) { 
-        if (colEntry is null) return;
+    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) in {
+        assert(colEntry !is null);
+    } body { 
         if (this.getCollisionEntry()) {
             auto info = this.getCollisionEntry().collide(colEntry);
             if (info.isJust) {
@@ -211,9 +211,7 @@ class Entity {
     }
 
     private void onSetWorld(World world) {
-        if (this.mesh) {
-            this.mesh.onSetWorld(world);
-        }
+        this.mesh.onSetWorld(world);
     }
 
     private void setParent(Entity entity) {
@@ -224,15 +222,9 @@ class Entity {
     private void setMesh(Mesh mesh) in {
         assert(mesh.getOwner() == this);
     } body {
-        this.mesh = mesh;
+        this.mesh = Just(mesh);
         if (this.world is null) return;
         this.mesh.onSetWorld(this.world);
-    }
-
-    private void setCollisionEntry(CollisionEntry colEntry) in {
-        assert(colEntry.getOwner() == this);
-    } body {
-        this.colEntry = colEntry;
     }
 
     alias obj this;
