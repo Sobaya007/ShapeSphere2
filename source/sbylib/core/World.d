@@ -2,6 +2,7 @@ module sbylib.core.World;
 
 import sbylib.mesh.Mesh;
 import sbylib.camera.Camera;
+import sbylib.utils.Change;
 import sbylib.utils.Lazy;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Uniform;
@@ -19,40 +20,25 @@ import std.algorithm;
 
 class World {
     private Entity[] entities;
-    private Observed!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
-    private Observer!umat4 viewMatrix;
-    private Observer!umat4 projMatrix;
-    private Observer!(UniformBuffer!PointLightBlock) pointLightBlockBuffer;
-    private Observed!(PointLightBlock) pointLightBlock;
+    private ChangeObserved!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
+    private PointLightBlock pointLightBlock;
+    private UniformBuffer!PointLightBlock pointLightBlockBuffer;
 
     this() {
-        this.camera = new Observed!Camera;
-        this.viewMatrix = new Observer!umat4((ref umat4 mat) {
-            mat.value = this.camera.getEntity().viewMatrix;
-        }, new umat4("viewMatrix"));
-        this.projMatrix = new Observer!umat4((ref umat4 mat) {
-            mat.value = this.camera.projMatrix;
-        }, new umat4("projMatrix"));
-        this.pointLightBlock = new Observed!PointLightBlock;
-        auto uni = new UniformBuffer!PointLightBlock("PointLightBlock");
-        uni.sendData(this.pointLightBlock.get(), BufferUsage.Dynamic);
-        this.pointLightBlockBuffer = new Observer!(UniformBuffer!PointLightBlock)((ref UniformBuffer!PointLightBlock uni) {
-            PointLightBlock* buffer = uni.map(BufferAccess.Write);
-            buffer.num = this.pointLightBlock.num;
-            buffer.lights = this.pointLightBlock.lights;
-            uni.unmap();
-        }, uni);
-        this.pointLightBlockBuffer.capture(this.pointLightBlock);
+        this.pointLightBlockBuffer = new UniformBuffer!PointLightBlock("PointLightBlock");
+        this.pointLightBlockBuffer.sendData(this.pointLightBlock, BufferUsage.Dynamic);
+    }
+
+    private UniformBuffer!PointLightBlock getPointLightBlockBuffer() {
+        PointLightBlock* buffer = this.pointLightBlockBuffer.map(BufferAccess.Write);
+        buffer.num = this.pointLightBlock.num;
+        buffer.lights = this.pointLightBlock.lights;
+        this.pointLightBlockBuffer.unmap();
+        return this.pointLightBlockBuffer;
     }
 
     void setCamera(Camera camera) {
-        if (this.camera.get()) {
-            this.viewMatrix.release(this.camera.getEntity().viewMatrix);
-            this.projMatrix.release(this.camera.projMatrix);
-        }
         this.camera = camera;
-        this.viewMatrix.capture(this.camera.getEntity().viewMatrix);
-        this.projMatrix.capture(this.camera.projMatrix);
     }
 
     void add(T)(T[] rs...) 
@@ -87,18 +73,18 @@ class World {
             r.collect!(mesh => mesh.mat.config.transparency == true)(transparents, notTransparents);
         }
         notTransparents.each!(e => e.render());
-        transparents.sort!((a,b) => dot(camera.getEntity().pos - a.pos, a.pos) < dot(camera.getEntity().pos - b.pos, b.pos));
+        transparents.sort!((a,b) => dot(camera.pos - a.pos, a.pos) < dot(camera.pos - b.pos, b.pos));
         transparents.each!(e => e.render());
     }
 
-    Lazy!Uniform getUniform(UniformDemand demand) {
+    const(Uniform) delegate() getUniform(UniformDemand demand) {
         switch (demand) {
         case UniformDemand.View:
-            return this.viewMatrix.getLazy!Uniform;
+            return () => this.camera.viewMatrix;
         case UniformDemand.Proj:
-            return this.projMatrix.getLazy!Uniform;
+            return () => this.camera.projMatrix;
         case UniformDemand.Light:
-            return this.pointLightBlockBuffer.getLazy!Uniform;
+            return () => this.getPointLightBlockBuffer;
         default:
             assert(false);
         }

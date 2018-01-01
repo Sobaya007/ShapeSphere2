@@ -38,9 +38,16 @@ class ElasticSphere2 {
     private GeometrySphere geom;
     Entity entity;
     vec3 force;
-    private Observer!vec3 center;
-    private Observer!vec3 lVel;
-    private Observer!vec3 aVel;
+    private Depends!((const vec3[] positions) => sum(positions) / positions.length) center;
+    private Depends!((const vec3[] vels) => sum(vels) / vels.length) lVel;
+    private Depends!((const vec3 center, const vec3 lVel, const vec3[] positions, const vec3[] vels) {
+        return sum(zip(positions, vels).map!((t) {
+            auto r = t[0] - center;
+            auto v = t[1] - lVel;
+            return cross(r, v) / lengthSq(r);
+        })) / positions.length;
+    }) aVel;
+    private ChangeObservedArray!vec3 positions, velocities;
     bool ground;
 
     this() {
@@ -52,24 +59,19 @@ class ElasticSphere2 {
         this(mat);
     }
 
-    this(Material mat)  {
+    this(Material mat) {
         this.force = vec3(0);
         this.geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         this.entity = new Entity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
         this.entity.setName("ElasticSphere");
         this.particleList = geom.vertices.map!(p => new ElasticParticle(p.position)).array;
-        this.center = new Observer!vec3(() => this.particleList.map!(p => p.position).sum / this.particleList.length, this.particleList.map!(p => cast(IObserved)p.position).array);
-        this.lVel = new Observer!vec3(() => this.particleList.map!(p => p.velocity).sum / this.particleList.length,
-                this.particleList.map!(p => cast(IObserved)p.velocity).array);
-        this.aVel = new Observer!vec3(() {
-                return this.particleList.map!((p) {
-                        auto r = p.position - this.center;
-                        auto v = p.velocity - this.lVel;
-                        return cross(r, v) / lengthSq(r);
-                        }).sum / this.particleList.length;
-                });
-        this.aVel.capture(this.lVel);
-        this.aVel.capture(this.center);
+        auto p = this.particleList.map!(p => &p.position).array;
+        auto v = this.particleList.map!(p => &p.velocity).array;
+        this.positions = ChangeObservedArray!vec3(p);
+        this.velocities = ChangeObservedArray!vec3(v);
+        this.center.depends(positions);
+        this.lVel.depends(velocities);
+        this.aVel.depends(this.center, this.lVel, positions, velocities);
         //隣を発見
         uint[2][] pairIndex;
         uint[2] makePair(uint a,uint b) {
@@ -226,7 +228,7 @@ class ElasticSphere2 {
 
     private float calcVolume() {
         float volume = 0;
-        auto center = this.entity.obj.pos;
+        vec3 center = this.entity.obj.pos;
         foreach (face; geom.faces) {
             auto a = this.particleList[face.indexList[0]].position - center;
             auto b = this.particleList[face.indexList[1]].position - center;
@@ -239,9 +241,9 @@ class ElasticSphere2 {
     private float calcArea() {
         float area = 0;
         foreach (face; geom.faces) {
-            auto a = this.particleList[face.indexList[0]].position;
-            auto b = this.particleList[face.indexList[1]].position;
-            auto c = this.particleList[face.indexList[2]].position;
+            vec3 a = this.particleList[face.indexList[0]].position;
+            vec3 b = this.particleList[face.indexList[1]].position;
+            vec3 c = this.particleList[face.indexList[2]].position;
             area += length(cross(a - b, a - c));
         }
         return area / 2;
@@ -256,7 +258,7 @@ class ElasticSphere2 {
     }
 
     private vec3 calcVelocity() {
-        return this.particleList.map!(a => a.velocity).sum / this.particleList.length;
+        return this.particleList.map!(a => cast(vec3)a.velocity).sum / this.particleList.length;
     }
 
     float calcMin(vec3 n) {
@@ -327,7 +329,7 @@ class ElasticSphere2 {
         foreach (i,v; vs) {
             auto p = this.particleList[i];
             v.normal = safeNormalize(v.normal);
-            v.position = (this.entity.obj.viewMatrix * vec4(p.position, 1)).xyz;
+            v.position = (this.entity.obj.viewMatrix * vec4(p.position.get, 1)).xyz;
         }
         geom.updateBuffer();
     }
@@ -349,8 +351,8 @@ class ElasticSphere2 {
     }
 
     class ElasticParticle {
-        Observed!vec3 position; /* in World, used for Render */
-        Observed!vec3 velocity;
+        ChangeObserved!vec3 position; /* in World, used for Render */
+        ChangeObserved!vec3 velocity;
         vec3 normal; /* in World */
         vec3 force;
         bool isStinger;
@@ -359,9 +361,9 @@ class ElasticSphere2 {
         ElasticParticle[] next;
 
         this(vec3 p) {
-            this.position = new Observed!vec3(p);
+            this.position = p;
             this.normal = normalize(p);
-            this.velocity = new Observed!vec3(vec3(0));
+            this.velocity = vec3(0);
             this.force = vec3(0,0,0);
             this.capsule = new CollisionCapsule(0.1, this.position, this.position);
             this.entity = new Entity(this.capsule);

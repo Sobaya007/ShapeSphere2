@@ -25,7 +25,7 @@ class Material {
         this.config = new RenderConfig();
     }
 
-    final void set(Lazy!(Uniform)[string] uniforms) {
+    final void set(const(Uniform) delegate()[] uniforms) {
         this.config.set();
         this.shader.use();
         uint uniformBlockPoint = 0;
@@ -33,7 +33,7 @@ class Material {
         import std.stdio;
         foreach (uni; uniforms) {
             //writeln(uni);
-            uni.apply(this.shader, uniformBlockPoint, textureUnit);
+            uni().apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
 

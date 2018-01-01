@@ -66,7 +66,7 @@ body {
         return result;
     }
 
-    Vector opBinaryRight(string op)(T t) {
+    Vector opBinaryRight(string op)(T t) const {
         Vector!(T, S) result;
         mixin("result.elements[] = t" ~ op ~ "elements[];");
         return result;
@@ -78,19 +78,21 @@ body {
         return result;
     }
 
-    void opOpAssign(string op)(Vector v) //=============================ベクトルに対する代入算術演算子
+    Vector opOpAssign(string op)(Vector v) //=============================ベクトルに対する代入算術演算子
 in {
         assert(v.elements.length == S);
     }
 body {
         mixin("elements[] " ~ op ~"= v.elements[];");
+        return this;
     }
 
-    void opOpAssign(string op)(T e) { //================================スカラーに対する代入算術演算子
+    Vector opOpAssign(string op)(T e) { //================================スカラーに対する代入算術演算子
         mixin("elements[] " ~ op ~"= e;");
+        return this;
     }
 
-    T opIndex(int idx) const { //=========================================添字演算子
+    T opIndex(size_t idx) const { //=========================================添字演算子
         return this.elements[idx];
     }
 
@@ -106,42 +108,42 @@ body {
         return elements;
     }
 
-    ref auto opDispatch(string s, Args...)(Args args)
+    ref auto opDispatch(string s)() inout
     if (s.all!(a => countUntil("xyzw", a) != -1)
                  || s.all!(a => countUntil("rgba", a) != -1)){
         enum isXYZW = s.all!(a => countUntil("xyzw", a) != -1);
         enum isRGBA = s.all!(a => countUntil("rgba", a) != -1);
+        static assert(isXYZW || isRGBA);
         enum propertyString = isXYZW ? "xyzw" : isRGBA ? "rgba" : "";
-        static assert(propertyString.length > 0);
-        static if(Args.length == 0) {
-            //getter
-            static if(s.length == 1) {
-                enum xyzwPos = countUntil(propertyString, s);
-                return elements[xyzwPos];
-            } else {
-                enum index = s.map!(a => countUntil(propertyString, a)).array;
-                Vector!(T, s.length) result;
-                foreach (i,idx; index) {
-                    result[i] = elements[idx];
-                }
-                return result;
-            }
-        } else static if (Args.length == 1) {
-            //setter
-            alias val = args[0];
-            static if(s.length == 1) {
-                enum xyzwPos = countUntil(propertyString, s);
-                return this[xyzwPos] = val;
-            } else {
-                static assert(s.length == val.array.length);
-                enum index = s.map!(a => countUntil(propertyString, a)).array;
-                foreach (i,idx; index) {
-                    this[idx] = val[i];
-                }
-                return val;
-            }
+        static if(s.length == 1) {
+            enum xyzwPos = countUntil(propertyString, s);
+            return elements[xyzwPos];
         } else {
-            static assert(false);
+            enum index = s.map!(a => countUntil(propertyString, a)).array;
+            Vector!(T, s.length) result;
+            foreach (i,idx; index) {
+                result[i] = elements[idx];
+            }
+            return result;
+        }
+    }
+
+    ref auto opDispatch(string s, ArgType)(ArgType val)
+    if (s.all!(a => countUntil("xyzw", a) != -1)
+                 || s.all!(a => countUntil("rgba", a) != -1)){
+        enum isXYZW = s.all!(a => countUntil("xyzw", a) != -1);
+        enum isRGBA = s.all!(a => countUntil("rgba", a) != -1);
+        static assert(isXYZW || isRGBA);
+        enum propertyString = isXYZW ? "xyzw" : isRGBA ? "rgba" : "";
+        static if(s.length == 1) {
+            enum xyzwPos = countUntil(propertyString, s);
+            return this[xyzwPos] = val;
+        } else {
+            enum index = s.map!(a => countUntil(propertyString, a)).array;
+            foreach (i,idx; index) {
+                this[idx] = val[i];
+            }
+            return val;
         }
     }
 

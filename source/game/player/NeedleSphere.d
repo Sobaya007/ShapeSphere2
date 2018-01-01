@@ -139,12 +139,12 @@ class NeedleSphere : BaseSphere {
     }
 
     private float calcRadius() {
-        auto center = this.entity.obj.pos;
+        vec3 center = this.entity.obj.pos;
         return this.particleList.map!(a => (a.position - center).length).sum / this.particleList.length;
     }
 
     private void rotateParticles() {
-        auto center = this.entity.obj.pos;
+        vec3 center = this.entity.obj.pos;
         auto radius = this.calcRadius();
         quat rot = quat.axisAngle(this.aVel * Player.TIME_STEP);
         foreach (p; this.particleList) {
@@ -245,7 +245,7 @@ class NeedleSphere : BaseSphere {
             this.binTotalImpulse = 0;
 
             //tangentベクトルは物体間の相対速度から法線成分を抜いた方向
-            auto center = sphere.entity.obj.pos;
+            vec3 center = sphere.entity.obj.pos;
             auto colPoint = center - MAX_RADIUS * this.normal;
             auto colPointVel = sphere.calcVelocity(colPoint);
             auto relativeColPointVel = colPointVel;

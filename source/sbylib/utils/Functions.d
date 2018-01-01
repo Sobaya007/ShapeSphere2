@@ -90,7 +90,8 @@ class Utils {
                 }
                 vcm /= vNum;
                 auto diagonal = mat3.diagonalizeForRealSym(vcm);
-                auto base = 3.iota.map!(a => diagonal.column(a).normalize).array;
+                import std.algorithm, std.range, std.array;
+                auto base = 3.iota.map!(a => diagonal.column[a].normalize).array;
                 return base;
             }
 
@@ -142,7 +143,7 @@ class Utils {
                 auto viewStart = Utils.projToView(vec3(screenPos, 0), camera);
                 auto viewEnd = Utils.projToView(vec3(screenPos, 1), camera);
 
-                auto viewInv = camera.worldMatrix;
+                mat4 viewInv = camera.worldMatrix;
                 auto viewInv3 = viewInv.toMatrix3;
 
                 ray.start = (viewInv * vec4(viewStart, 1)).xyz;

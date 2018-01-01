@@ -66,7 +66,7 @@ class ElasticSphere : BaseSphere {
         auto arrivalCenter = springSphere.getCenter();
         auto currentCenter = this.getCenter;
         auto dCenter = arrivalCenter - currentCenter;
-        auto height = this.elasticSphere2.getParticleList.map!(p => p.position.y).maxElement - this.elasticSphere2.getParticleList.map!(p => p.position.y).minElement;
+        auto height = this.elasticSphere2.getParticleList.map!(p => cast(float)p.position.y).maxElement - this.elasticSphere2.getParticleList.map!(p => cast(float)p.position.y).minElement;
         auto yrate = ginfo.length / height;
         foreach (particle; this.elasticSphere2.getParticleList) {
             particle.position += dCenter;

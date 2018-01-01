@@ -93,7 +93,9 @@ class Entity {
         this.children = null;
     }
 
-    void addChild(Entity entity) {
+    void addChild(Entity entity) in {
+        assert(entity !is null);
+    } body {
         this.children ~= entity;
         entity.setParent(this);
         if (this.world is null) return;
@@ -151,10 +153,7 @@ class Entity {
         assert(colEntry !is null);
     } body { 
         if (this.getCollisionEntry()) {
-            auto info = this.getCollisionEntry().collide(colEntry);
-            if (info.isJust) {
-                result ~= info.get;
-            }
+            this.getCollisionEntry().collide(result, colEntry);
         }
         foreach (child; this.children) {
             child.collide(result, colEntry);

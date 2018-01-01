@@ -133,7 +133,7 @@ public:
 
     void opOpAssign(string op)(T s) {
         static if (op == "*" || op == "/") {
-            mixin(getOpAssignMSCode(op, U));
+            mixin(getOpAssignMSCode(op, U, V));
         } else {
             static assert(false);
         }
@@ -172,7 +172,7 @@ public:
         return element;
     }
 
-    Vector!(T,U)[V] column() {
+    Vector!(T,U)[V] column() const {
         Vector!(T,U)[V] result;
         mixin(getColumnCode(U,V));
         return result;
@@ -338,7 +338,23 @@ public:
                         );
             }
 
-            Matrix!(T,3,3) toMatrix3() {
+            static Matrix makeTRS(Vector!(T,3) pos, Matrix!(T,3,3) rot, Vector!(T, 3) scale) {
+                return Matrix(
+                        scale.x * rot[0,0], scale.y * rot[0,1], scale.z * rot[0,2], pos.x,
+                        scale.x * rot[1,0], scale.y * rot[1,1], scale.z * rot[1,2], pos.y,
+                        scale.x * rot[2,0], scale.y * rot[2,1], scale.z * rot[2,2], pos.z,
+                        0,0,0, 1);
+            }
+            static Matrix makeInvertTRS(Vector!(T,3) pos, Matrix!(T,3,3) rot, Vector!(T, 3) scale) {
+                auto column = rot.column;
+                return Matrix(
+                        rot[0,0] / scale.x, rot[1,0] / scale.x, rot[2,0] / scale.x, -dot(column[0], pos) / scale.x,
+                        rot[0,1] / scale.y, rot[1,1] / scale.y, rot[2,1] / scale.y, -dot(column[1], pos) / scale.y,
+                        rot[0,2] / scale.z, rot[1,2] / scale.z, rot[2,2] / scale.z, -dot(column[2], pos) / scale.z,
+                        0,0,0, 1);
+            }
+
+            Matrix!(T,3,3) toMatrix3() const {
                 return Matrix!(T,3,3)(element[0..3],element[4..7],element[8..11]);
             }
 

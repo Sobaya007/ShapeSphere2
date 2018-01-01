@@ -6,6 +6,7 @@ import sbylib.math.Matrix;
 public {
     import sbylib.collision.geometry.CollisionCapsule;
     import sbylib.collision.geometry.CollisionPolygon;
+    import sbylib.collision.geometry.CollisionBVH;
     import sbylib.collision.geometry.CollisionRay;
     import sbylib.collision.geometry.CollisionGeometry;
     import sbylib.collision.CollisionInfo;
@@ -30,25 +31,8 @@ class CollisionEntry {
         return this.owner;
     }
 
-    Maybe!CollisionInfo collide(CollisionEntry collidable) {
-        if (auto cap = cast(CollisionCapsule)this.geom) {
-            if (auto cap2 = cast(CollisionCapsule)collidable.geom) {
-                return collide(cap, cap2);
-            } else if (auto pol = cast(CollisionPolygon)collidable.geom) {
-                return collide(cap, pol);
-            } else {
-                assert(false);
-            }
-        } else if (auto pol = cast(CollisionPolygon)this.geom) {
-            if (auto cap = cast(CollisionCapsule)collidable.geom) {
-                return collide(cap, pol);
-            } else if (auto pol2 = cast(CollisionPolygon)collidable.geom) {
-                return collide(pol, pol2);
-            } else {
-                assert(false);
-            }
-        }
-        assert(false);
+    void collide(ref Array!CollisionInfo result, CollisionEntry collidable) {
+        collide(result, this.geom, collidable.geom);
     }
 
     Maybe!CollisionInfoRay collide(CollisionRay ray) {
@@ -58,6 +42,47 @@ class CollisionEntry {
             return collide(pol, ray);
         }
         assert(false);
+    }
+
+    public static void collide(ref Array!CollisionInfo result, CollisionGeometry geom, CollisionGeometry geom2) {
+        void add(Maybe!CollisionInfo info) {
+            if (info.isNone) return;
+            result ~= info.get;
+        }
+
+        if (auto cap = cast(CollisionCapsule)geom) {
+            if (auto cap2 = cast(CollisionCapsule)geom2) {
+                add(collide(cap, cap2));
+            } else if (auto pol = cast(CollisionPolygon)geom2) {
+                add(collide(cap, pol));
+            } else if (auto bvh = cast(CollisionBVH)geom2) {
+                bvh.collide(result, cap);
+            } else {
+                assert(false);
+            }
+        } else if (auto pol = cast(CollisionPolygon)geom) {
+            if (auto cap = cast(CollisionCapsule)geom2) {
+                add(collide(cap, pol));
+            } else if (auto pol2 = cast(CollisionPolygon)geom2) {
+                add(collide(pol, pol2));
+            } else if (auto bvh = cast(CollisionBVH)geom2) {
+                bvh.collide(result, pol);
+            } else {
+                assert(false);
+            }
+        } else if (auto bvh = cast(CollisionBVH)geom) {
+            if (auto cap = cast(CollisionCapsule)geom2) {
+                bvh.collide(result, cap);
+            } else if (auto pol = cast(CollisionPolygon)geom2) {
+                bvh.collide(result, pol);
+            } else if (auto bvh2 = cast(CollisionBVH)geom2) {
+                bvh.collide(result, bvh2);
+            } else {
+                assert(false);
+            }
+        } else {
+            assert(false);
+        }
     }
 
     public static Maybe!CollisionInfo collide(CollisionCapsule capsule1, CollisionCapsule capsule2) {
@@ -130,7 +155,7 @@ class CollisionEntry {
                            val > max ? max :
                            val;
 
-    private static vec3 segseg(vec3 s1, vec3 e1, vec3 s2, vec3 e2) {
+    private static vec3 segseg(const vec3 s1, const vec3 e1, const vec3 s2, const vec3 e2) {
         if (s1 == e1) {
             if (s2 == e2) {
                 // point & point
@@ -203,7 +228,7 @@ class CollisionEntry {
         vec3 pushVector;
     }
 
-    private static PolySegResult segPoly(vec3 s, vec3 e, vec3 p0, vec3 p1, vec3 p2, vec3 n) {
+    private static PolySegResult segPoly(const vec3 s, const vec3 e, const vec3 p0, const vec3 p1, const vec3 p2, const vec3 n) {
         // 平行でないとき
         //   線分が完全にポリゴン(平面)の片側に寄っている場合
         //     線分の端点が面領域に入っているとき

@@ -36,14 +36,12 @@ class Character {
             this.elasticSphere.setCenter(vec3(2, 10, 2));
             world.add(elasticSphere.entity);
         }
-        {
-            this.collisionArea = new Entity(new CollisionCapsule(1.2, vec3(0), vec3(0)));
-            this.collisionArea.setName("Character's Collision Area");
-            this.activeArea = new Entity(new CollisionCapsule(2, vec3(0), vec3(0)));
-            this.activeArea.setName("Character's Active Area");
-            this.elasticSphere.entity.addChild(collisionArea);
-            this.elasticSphere.entity.addChild(activeArea);
-        }
+        this.collisionArea = new Entity(new CollisionCapsule(1.2, vec3(0), vec3(0)));
+        this.collisionArea.setName("Character's Collision Area");
+        this.activeArea = new Entity(new CollisionCapsule(2, vec3(0), vec3(0)));
+        this.activeArea.setName("Character's Active Area");
+        this.elasticSphere.entity.addChild(collisionArea);
+        this.elasticSphere.entity.addChild(activeArea);
         elasticSphere.entity.setUserData(this);
     }
 

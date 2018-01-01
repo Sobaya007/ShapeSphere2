@@ -78,7 +78,7 @@ public:
         float a = 0.5;
         vec3 target = _isOpen ? vec3(1) : vec3(0);
         _content.entity.obj.scale = a*target + (1 - a)*_content.entity.obj.scale;
-        (cast(GroupBoxComponentMaterial)entity.getMesh.mat).contentScale = _content.entity.obj.scale.get.x;
+        (cast(GroupBoxComponentMaterial)entity.getMesh.mat).contentScale = _content.entity.obj.scale.x;
     }
 
     private dstring getShowText() {

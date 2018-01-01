@@ -281,7 +281,7 @@ private:
             auto entity = new EntityTemp!(GeometryRect, TextAreaComponentCoverMaterial)(geom);
             entity.getMesh.mat.color = _coverColor;
             entity.getMesh.mat.opacity = getCoverOpacity();
-            entity.obj.pos = letter.getEntity.obj.pos;
+            entity.obj.pos = letter.getEntity.pos.get();
             _coverEntity.addChild(entity);
         }
         {
@@ -292,7 +292,7 @@ private:
                 .fold!"b"(0f);
             float y = letters
                 .take(_selectedIndex)
-                .map!"a.getEntity.obj.pos.y"
+                .map!"cast(float)a.getEntity.obj.pos.y"
                 .fold!"b"(-_label.getFontSize/2);
             auto geom = Rect.create(2, _label.getFontSize, Rect.OriginX.Left, Rect.OriginY.Center);
             auto entity = new EntityTemp!(GeometryRect, TextAreaComponentCoverMaterial)(geom);
