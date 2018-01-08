@@ -19,10 +19,10 @@ public:
         float width,
         float height,
         dstring[] textList,
-        float fontSize = 0.0,
-        vec4 fontColor = vec4(0, 0, 0, 1)
+        float fontSize = 0.0
     ) {
         Entity root = new Entity;
+        vec4 fontColor = vec4(0, 0, 0, 1);
 
         _mainNode = new MainNodeComponent(width, height, ""d, fontSize, fontColor, this);
         _mainNode.zIndex = 1;
@@ -92,9 +92,9 @@ private:
     DropDownComponent _owner;
     LabelComponent _labelComponent;
 
-    const vec4 _darkColor = vec4(0.1, 0.1, 0.1, 1.0);
-    const vec4 _lightColor = vec4(0.9, 0.0, 0.0, 1.0);
-    const vec4 _borderColor = vec4(0.6, 0.6, 0.6, 1.0);
+    const vec4 _darkColor = vec4(0.3, 0.3, 0.3, 1.0);
+    const vec4 _lightColor = vec4(0.95, 0.95, 0.95, 1.0);
+    const vec4 _borderColor = vec4(0.4, 0.4, 0.4, 1.0);
     const float _borderSize = 5.0;
 
     const int _duration = 20;
@@ -125,6 +125,7 @@ public:
         _labelComponent.y = -height/2;
         _labelComponent.zIndex = 1;
         _labelComponent.entity.setUserData(null);
+        _labelComponent.setFontColor(fontColor);
         entity.addChild(_labelComponent.entity);
 
         super(entity);
@@ -177,9 +178,9 @@ private:
     const dstring _text;
     const float _bottomY;
 
-    const vec4 _darkColor = vec4(0.1, 0.1, 0.1, 1.0);
-    const vec4 _lightColor = vec4(0.0, 0.0, 0.9, 1.0);
-    const vec4 _borderColor = vec4(0.6, 0.6, 0.6, 1.0);
+    const vec4 _darkColor = vec4(0.3, 0.3, 0.3, 1.0);
+    const vec4 _lightColor = vec4(0.9, 0.9, 0.9, 1.0);
+    const vec4 _borderColor = vec4(0.4, 0.4, 0.4, 1.0);
     const float _borderSize = 5.0;
 
     const int _duration = 20;

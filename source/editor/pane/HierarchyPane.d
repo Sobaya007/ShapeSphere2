@@ -22,7 +22,7 @@ protected:
 
         float w = 1200;
         float h = 900;
-        auto dropDown = new DropDownComponent(300, 40, ["aaaa", "bbbb"], 40, vec4(1, 1, 1, 1));
+        auto dropDown = new DropDownComponent(300, 40, ["aaaa", "bbbb"], 35);
         dropDown.x = 0;
         dropDown.y = h;
         control.add(dropDown);

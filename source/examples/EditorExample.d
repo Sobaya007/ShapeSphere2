@@ -46,7 +46,7 @@ protected:
         auto button = new ButtonComponent(500, 50, "犯人は"d, 40);
 
         dstring[] ary = ["ONONONON!!!!", "アカーーーーン！！！！", "簡単すぎィィィ！！！！"];
-        auto dropDown = new DropDownComponent(500, 50, ary, 40, vec4(1, 1, 1, 1));
+        auto dropDown = new DropDownComponent(500, 50, ary, 35);
         auto groupBox = new GroupBoxComponent(500, "バイ成ィ"d, new CheckBoxComponent(40));
 
         auto textArea = new TextAreaComponent(400, 300, 30);
