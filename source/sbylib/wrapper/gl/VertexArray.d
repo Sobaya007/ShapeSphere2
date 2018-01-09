@@ -24,8 +24,6 @@ class VertexArray {
         glGenVertexArrays(1, &vao);
         this.id = vao;
         this.alive = true;
-        import std.stdio;
-        writeln("create: ", this.id);
     }
 
     ~this() {
@@ -36,8 +34,6 @@ class VertexArray {
         GlFunction.checkError();
     } body {
         glDeleteVertexArrays(1, &this.id);
-        import std.stdio;
-        writeln("destroy: ", this.id);
     }
 
     void bind() const out {
