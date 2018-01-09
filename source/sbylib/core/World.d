@@ -67,9 +67,11 @@ class World {
     void remove(T)(T[] rs...) 
     if (isAssignable!(Entity, T)) in {
     } body{
+        auto len = this.entities.length;
         foreach (r; rs) {
             this.entities = this.entities.remove!(e => e == r); //TODO: やばそう？
         }
+        assert(len == rs.length + this.entities.length);
     }
 
     void addPointLight(PointLight pointLight) {
@@ -77,12 +79,18 @@ class World {
     }
 
     void render() {
-        foreach (r; this.entities) {
-            r.render(false);
+        auto notTransparents = Array!Entity(0);
+        auto transparents = Array!Entity(0);
+        scope (exit) {
+            notTransparents.destroy();
+            transparents.destroy();
         }
         foreach (r; this.entities) {
-            r.render(true);
+            r.collect!(mesh => mesh.mat.config.transparency == true)(transparents, notTransparents);
         }
+        notTransparents.each!(e => e.render());
+        transparents.sort!((a,b) => dot(camera.getObj.pos - a.pos, a.pos) < dot(camera.getObj.pos - b.pos, b.pos));
+        transparents.each!(e => e.render());
     }
 
     Lazy!Uniform getUniform(UniformDemand demand) {
@@ -98,9 +106,16 @@ class World {
         }
     }
 
-    void calcCollide(ref Array!CollisionInfo result, Entity colEntry) {
+    void queryCollide(ref Array!CollisionInfoByQuery result, Entity colEntry) {
+        auto po = Array!CollisionInfo(0);
+        scope(exit) po.destroy();
         foreach (entity; this.entities) {
-            entity.collide(result, colEntry);
+            entity.collide(po, colEntry);
+        }
+        while (!po.empty) {
+            auto colInfo = po.front();
+            result ~= CollisionInfoByQuery(colInfo.getOther(colEntry), colInfo.getDepth(), colInfo.getPushVector(colEntry));
+            po.popFront();
         }
     }
 

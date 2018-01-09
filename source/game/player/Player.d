@@ -7,12 +7,14 @@ import game.player.NeedleSphere;
 import game.player.SpringSphere;
 import game.player.PlayerMaterial;
 import game.player.Controller;
-import game.player.PlayerChaseControl;
+import game.camera.CameraController;
+import game.command.CommandManager;
 import sbylib;
-import std.algorithm, std.array;
-import std.math;
+import std.algorithm, std.array, std.math, std.meta;
 
-class Player {
+class Player : CommandReceiver {
+
+    alias SphereTypes = AliasSeq!(ElasticSphere, NeedleSphere, SpringSphere);
 
     alias Mat = ConditionalMaterial!(LambertMaterial, PlayerMaterial);
     alias PlayerEntity = EntityTemp!(GeometryN, Mat);
@@ -22,91 +24,96 @@ class Player {
     enum SIDE_PUSH_FORCE = 10;
     enum TIME_STEP = 0.02;
 
-    Entity floors;
+    Entity[] floors;
     private BaseSphere sphere;
-    private ElasticSphere elasticSphere;
-    private NeedleSphere needleSphere;
-    private SpringSphere springSphere;
-    private Controller controller;
-    package World world;
-    private Camera camera;
-    private PlayerChaseControl cameraControl;
+    private BaseSphere[] spheres;
+    private CameraController camera;
 
-    this(Camera camera, World world, ICommandManager commandManager) {
-        this.world = world;
-        this.camera = camera;
-        this.cameraControl = new PlayerChaseControl(camera, this);
-        this.floors = new Entity();
-        this.elasticSphere = new ElasticSphere(this, camera, world, this.cameraControl);
-        this.needleSphere = new NeedleSphere(this);
-        this.springSphere = new SpringSphere(this, camera, this.cameraControl);
-        this.elasticSphere.constructor(this.needleSphere, this.springSphere);
-        this.needleSphere.constructor(this.elasticSphere);
-        this.springSphere.constructor(this.elasticSphere);
-        this.sphere = this.elasticSphere;
-        this.controller = Controller();
-        commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Press), &this.onDownPress));
-        commandManager.addCommand(new ButtonCommand(() => controller.justReleased(CButton.Press), &this.onDownJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Needle), &this.onNeedlePress));
-        commandManager.addCommand(new ButtonCommand(() => controller.isReleased(CButton.Needle), &this.onNeedleRelease));
-        commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Spring), &this.onSpringPress));
-        commandManager.addCommand(new ButtonCommand(() => controller.justReleased(CButton.Spring), &this.onSpringJustRelease));
-        commandManager.addCommand(new ButtonCommand(() => controller.justPressed(CButton.CameraReset), &this.onCameraResetJustPress));
-        commandManager.addCommand(new ButtonCommand(() => controller.isPressed(CButton.LookOver), &this.onLookOverPress));
-        commandManager.addCommand(new ButtonCommand(() => controller.justReleased(CButton.LookOver), &this.onLookOverJustRelease));
-        commandManager.addCommand(new StickCommand(() => controller.getLeftStickValue.safeNormalize, &this.onMovePress));
-        commandManager.addCommand(new StickCommand(() => controller.getRightStickValue.safeNormalize, &this.onRotatePress));
+    this(Camera camera) {
+        this.camera = new CameraController(camera, this);
+        static foreach (SphereType; SphereTypes) {
+            this.spheres ~= new SphereType(this, this.camera);
+        }
+        transit!(ElasticSphere);
+        this.camera.initialize();
+        auto controller = Controller();
+        this.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Press), &this.onDownPress));
+        this.addCommand(new ButtonCommand(() => controller.justReleased(CButton.Press), &this.onDownJustRelease));
+        this.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Needle), &this.onNeedlePress));
+        this.addCommand(new ButtonCommand(() => controller.isReleased(CButton.Needle), &this.onNeedleRelease));
+        this.addCommand(new ButtonCommand(() => controller.isPressed(CButton.Spring), &this.onSpringPress));
+        this.addCommand(new ButtonCommand(() => controller.justReleased(CButton.Spring), &this.onSpringJustRelease));
+        this.addCommand(new ButtonCommand(() => controller.justPressed(CButton.CameraReset), &this.onCameraResetJustPress));
+        this.addCommand(new ButtonCommand(() => controller.isPressed(CButton.LookOver), &this.onLookOverPress));
+        this.addCommand(new ButtonCommand(() => controller.justReleased(CButton.LookOver), &this.onLookOverJustRelease));
+        this.addCommand(new ButtonCommand(() => controller.justPressed(CButton.Decide), &this.onDecisideJustPressed));
+        this.addCommand(new StickCommand(() => controller.getLeftStickValue.safeNormalize, &this.onMovePress));
+        this.addCommand(new StickCommand(() => controller.getRightStickValue.safeNormalize, &this.onRotatePress));
     }
 
     void step() {
-        this.sphere = this.sphere.move();
-        this.cameraControl.step();
+        this.sphere.move();
+        this.camera.step();
+    }
+
+    SphereType transit(SphereType)() out (res) {
+        assert(this.sphere !is null);
+    } body {
+        return cast(SphereType)(this.sphere = this.spheres.find!(b => b.instanceof!SphereType).front);
     }
 
     void onDownPress() {
-        this.sphere = this.sphere.onDownPress();
+        this.sphere.onDownPress();
     }
 
     void onDownJustRelease() {
-        this.sphere = this.sphere.onDownJustRelease();
+        this.sphere.onDownJustRelease();
     }
 
     void onMovePress(vec2 v) {
-        this.sphere = this.sphere.onMovePress(v);
+        this.sphere.onMovePress(v);
     }
 
     void onRotatePress(vec2 v) {
         // なぜかyが死ぬ
-        this.cameraControl.turn(vec2(v.x,0));
+        this.camera.turn(vec2(v.x,0));
     }
 
     void onNeedlePress() {
-        this.sphere = this.sphere.onNeedlePress();
+        this.sphere.onNeedlePress();
     }
 
     void onNeedleRelease() {
-        this.sphere = this.sphere.onNeedleRelease();
+        this.sphere.onNeedleRelease();
     }
 
     void onSpringPress() {
-        this.sphere = this.sphere.onSpringPress();
+        this.sphere.onSpringPress();
     }
 
     void onSpringJustRelease() {
-        this.sphere = this.sphere.onSpringJustRelease();
+        this.sphere.onSpringJustRelease();
     }
 
     void onCameraResetJustPress() {
-        this.cameraControl.reset();
+        this.camera.reset();
     }
 
     void onLookOverPress() {
-        if (this.cameraControl.isLooking) return;
+        if (this.camera.isLooking) return;
         this.sphere.requestLookOver();
     }
 
     void onLookOverJustRelease() {
-        this.cameraControl.stopLookOver();
+        this.camera.stopLookOver();
+    }
+
+    void onDecisideJustPressed() {
+        this.sphere.onDecisideJustPressed();
+    }
+
+    vec3 getCenter() {
+        return this.sphere.getCenter();
     }
 
     vec3 getCameraTarget() {

@@ -1,9 +1,11 @@
 module game.player.NeedleSphere;
 
 public import game.player.BaseSphere;
+import game.Game;
 import game.player.ElasticSphere;
 import game.player.PlayerMaterial;
 import game.player.Player;
+import game.camera.CameraController;
 import sbylib;
 import std.algorithm;
 import std.range;
@@ -17,7 +19,8 @@ class NeedleSphere : BaseSphere {
         float MAX_RADIUS = 1.5f;
         float DEFAULT_RADIUS = 1.0f;
         float MIN_RADIUS = 0.7f;
-        float ALLOWED_PENETRATION = 0.5f;
+        float ALLOWED_PENETRATION = 0.4f;
+        float MAX_PENETRATION = MAX_RADIUS * 0.2;
         float SEPARATION_COEF = 1f / Player.TIME_STEP;
         float RESTITUTION_RATE = 0.3f;
         float MASS = 1.0f;
@@ -30,7 +33,6 @@ class NeedleSphere : BaseSphere {
         float MAX_VELOCITY = 40;
     }
 
-    private ElasticSphere elasticSphere;
     private NeedleParticle[] particleList;
     private Player.PlayerEntity entity;
     private Player parent;
@@ -39,9 +41,10 @@ class NeedleSphere : BaseSphere {
     private vec3 aVel;
     private vec3 _lastDirection;
 
-    this(Player parent) {
+    alias parent this;
+
+    this(Player parent, CameraController camera) {
         this.parent = parent; 
-        this.elasticSphere = elasticSphere;
         this.needleCount = flim(0,0,1);
         auto geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         auto mat = new Player.Mat();
@@ -58,22 +61,16 @@ class NeedleSphere : BaseSphere {
         }
     }
 
-    //生成時にElasticSphereいないからやむなし
-    void constructor(ElasticSphere elasticSphere) {
-        this.elasticSphere = elasticSphere;
-    }
-
-    override void initialize(BaseSphere sphere) {
-        assert(sphere is this.elasticSphere);
+    void initialize(ElasticSphere elasticSphere) {
         this.needleCount = 0;
-        this.entity.obj.pos = this.elasticSphere.getCenter();
-        this.lVel = this.elasticSphere.getLinearVelocity();
-        this.aVel = this.elasticSphere.getAngularVelocity();
-        this.parent.world.add(this.entity);
-        this._lastDirection = sphere.lastDirection;
+        this.entity.obj.pos = elasticSphere.getCenter();
+        this.lVel = elasticSphere.getLinearVelocity();
+        this.aVel = elasticSphere.getAngularVelocity();
+        Game.getWorld3D().add(this.entity);
+        this._lastDirection = elasticSphere.lastDirection;
     }
 
-    vec3 getCenter() {
+    override vec3 getCenter() {
         return this.entity.obj.pos;
     }
 
@@ -81,7 +78,7 @@ class NeedleSphere : BaseSphere {
         this.entity.pos = center;
     }
 
-    override BaseSphere move() {
+    override void move() {
         this.lVel.y -= GRAVITY * Player.TIME_STEP;
         this.lVel -= AIR_REGISTANCE * this.lVel * Player.TIME_STEP / MASS;
         if (this.lVel.length > MAX_VELOCITY) this.lVel *= MAX_VELOCITY / this.lVel.length;
@@ -96,7 +93,6 @@ class NeedleSphere : BaseSphere {
             particle.move();
         }
         updateGeometry();
-        return this;
     }
 
     override vec3 getCameraTarget() {
@@ -107,24 +103,23 @@ class NeedleSphere : BaseSphere {
         return this._lastDirection;
     }
 
-    override BaseSphere onNeedlePress() {
+    override void onNeedlePress() {
         this.needleCount += 0.08;
-        return this;
     }
-    override BaseSphere onNeedleRelease(){
+    override void onNeedleRelease(){
         if (this.needleCount == 0) {
-            this.parent.world.remove(this.entity);
-            this.elasticSphere.initialize(this);
-            return this.elasticSphere;
+            this.entity.remove();
+            auto elasticSphere = parent.transit!ElasticSphere;
+            elasticSphere.initialize(this);
+            return;
         }
         this.needleCount -= 0.05;
-        return this;
     }
 
     private void collision() {
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
-        this.parent.floors.collide(colInfos, this.entity);
+        this.parent.floors.each!(floor => floor.collide(colInfos, this.entity));
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
         foreach (colInfo; colInfos) {
@@ -243,15 +238,7 @@ class NeedleSphere : BaseSphere {
 
         this(CollisionInfo info, NeedleSphere sphere) {
             this.sphere = sphere;
-            auto geom = info.entity.getCollisionEntry().getGeometry();
-            auto geom2 = info.entity2.getCollisionEntry().getGeometry();
-            assert(cast(CollisionPolygon)geom !is null
-                    || cast(CollisionPolygon)geom2 !is null);
-            auto polygon = cast(CollisionPolygon)geom;
-            if (polygon is null) {
-                polygon = cast(CollisionPolygon)geom2;
-            }
-            this.normal = polygon.normal;
+            this.normal = info.getPushVector(sphere.entity);
             this.normalTotalImpulse = 0;
             this.tanTotalImpulse = 0;
             this.binTotalImpulse = 0;
@@ -291,9 +278,10 @@ class NeedleSphere : BaseSphere {
             //    nvel = 0;
             //}
 
-            auto penetration = dot(this.normal, polygon.positions[0] - colPoint) - ALLOWED_PENETRATION; //ちょっと甘くする
-            auto restitutionVelocity = -RESTITUTION_RATE * relativeColPointVelNormal;
+            auto penetration = info.getDepth - ALLOWED_PENETRATION; //ちょっと甘くする
+            penetration = min(penetration, MAX_PENETRATION); //大きく埋まりすぎていると吹っ飛ぶ
             auto separationVelocity = penetration * SEPARATION_COEF;
+            auto restitutionVelocity = -RESTITUTION_RATE * relativeColPointVelNormal;
             this.targetNormalLinearVelocity = max(restitutionVelocity, separationVelocity);
         }
 

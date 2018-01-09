@@ -13,4 +13,3 @@ void main(string[] args) {
         run(runMode, args);
     }
 }
-

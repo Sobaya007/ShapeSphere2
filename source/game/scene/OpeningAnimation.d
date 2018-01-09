@@ -3,7 +3,7 @@ module game.scene.OpeningAnimation;
 import game.scene.SceneBase;
 import sbylib;
 
-class OpeningAnimation : SceneBase {
+class OpeningAnimation : SceneProtoType {
 
     mixin SceneBasePack;
 
