@@ -45,7 +45,7 @@ class Box {
                 vertices ~= v;
             }
         }
-        uint[] indices = cast(uint[])iota(vertices.length).array;
+        uint[] indices = iota(cast(uint)vertices.length).array;
         auto g = new GeometryNT(vertices, indices);
         return g;
     }

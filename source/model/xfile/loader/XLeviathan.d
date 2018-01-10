@@ -10,7 +10,7 @@ class XLeviathan {
 
     Entity buildEntity(VertexNT[] vertices) {
         import std.range, std.array;
-        Geometry geometry = new GeometryNT(vertices, iota(cast(uint)vertices.length).array);
+        Geometry geometry = new GeometryNT(vertices, this.indices);
         Material material = this.material.buildMaterial();
         return new Entity(geometry, material);
     }
