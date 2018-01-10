@@ -7,10 +7,7 @@ mixin template ImplChangeCallback() {
         this.callbacks ~= cb;
         import std.algorithm;
         return {
-            // TODO
-            assert(false);
-            //writeln(this.callbacks.length);
-            //this.callbacks.remove!(c => c == cb);
+            this.callbacks.remove!(c => c == cb);
         };
     }
 
@@ -21,26 +18,56 @@ mixin template ImplChangeCallback() {
     }
 }
 
+struct ChangeObserveTarget(T) {
+    const(T) delegate() get;
+    void delegate() delegate(void delegate()) addChangeCallback;
+    void delegate() onChange;
+
+    const(T) get2() {
+        return this.get();
+    }
+
+    alias get2 this;
+}
+
 struct ChangeObservedArray(T) {
     import std.traits;
 
     private T[] array;
+    private const(T) delegate()[] getters;
+    private bool[] needsUpdate;
 
-    this(ChangeObserved!(T)*[] array) {
+    this(S)(S[] array) {
         this.array.length = array.length;
+        this.needsUpdate.length = array.length;
         foreach (i, ch; array) {
             (j, c) {
                 c.addChangeCallback({
-                    this.array[j] = c.get();
+                    if (this.needsUpdate[j]) return;
+                    this.needsUpdate[j] = true;
                     this.onChange();
                 });
-                c.onChange();
+                static if (isPointer!(typeof(&c.get))) {
+                    this.getters ~= c.get;
+                } else {
+                    this.getters ~= &c.get;
+                }
             }(i, ch);
         }
+        this.needsUpdate[] = true;
     }
 
-    const(const(T)[]) get() const {
+    const(const(T)[]) get() {
+        foreach (i, ref u; this.needsUpdate) {
+            if (!u) continue;
+            u = false;
+            this.array[i] = cast(T)this.getters[i]();
+        }
         return this.array;
+    }
+
+    ChangeObserveTarget!(T[]) getTarget() {
+        return ChangeObserveTarget!(T[])(&this.get, &this.addChangeCallback, &this.onChange);
     }
 
     mixin ImplChangeCallback;
@@ -231,7 +258,12 @@ struct ChangeObserved(T) {
         import std.conv;
         return to!string(this.value);
     }
+
+    ChangeObserveTarget!(Unqual!(ReturnType!(this.get))) getTarget() {
+        return ChangeObserveTarget!(Unqual!(ReturnType!(this.get)))(&this.get, &this.addChangeCallback, &this.onChange);
+    }
 }
+
 
 import std.traits, std.meta;
 struct Depends(alias Function, Type = ReturnType!Function) {
@@ -254,12 +286,14 @@ struct Depends(alias Function, Type = ReturnType!Function) {
         this.initialized = false;
     }
 
+    @disable this(this);
+
     mixin ImplChangeCallback;
 
-    void depends(Dependency...)(ref Dependency dependency) {
+    void depends(Dependency...)(ref Dependency dependency) if (Dependency.length == Args.length) {
         if (this.initialized) this.clearDependency();
         foreach (i, ref v; dependency) {
-            this.views[i] = () => cast(const(Args[i]))v.get;
+            this.views[i] = () => cast(const(Args[i]))v.get();
             this.removers[i] = v.addChangeCallback(&this.notify);
         }
         this.needsUpdate = true;
@@ -268,13 +302,12 @@ struct Depends(alias Function, Type = ReturnType!Function) {
     }
 
     const(Type) get()  in {
-        assert(this.initialized);
+        assert(this.initialized, "You must call 'depends' before use of this.");
     } body {
         if (this.needsUpdate) {
             this.needsUpdate = false;
             import std.algorithm, std.range, std.format;
             this.value = mixin(format!"Function(%s)"(iota(Views.length).map!(i => format!"this.views[%d]()"(i)).join(",")));
-            this.onChange();
         }
         return this.value;
     }
@@ -284,8 +317,13 @@ struct Depends(alias Function, Type = ReturnType!Function) {
     void notify() in {
         assert(this.initialized);
     } body {
+        if (this.needsUpdate) return;
         this.needsUpdate = true;
         this.onChange();
+    }
+
+    ChangeObserveTarget!(Unqual!(ReturnType!(this.get))) getTarget() {
+        return ChangeObserveTarget!(Unqual!(ReturnType!(this.get)))(&this.get, &this.addChangeCallback, &this.onChange);
     }
 
     string toString() {
@@ -295,10 +333,8 @@ struct Depends(alias Function, Type = ReturnType!Function) {
 
     private void clearDependency() {
         foreach (remove; this.removers) {
-            // TODO
-            //remove();
+            remove();
         }
-        this.onChange();
     }
 }
 

@@ -46,7 +46,6 @@ class Map {
         auto loader = new XLoader();
         auto model = loader.load(ModelPath("test.x")).buildEntity();
         model.createCollisionPolygon();
-        model.scale = vec3(3);
         this.polygons.addChild(model);
     }
 

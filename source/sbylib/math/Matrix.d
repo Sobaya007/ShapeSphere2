@@ -605,8 +605,10 @@ public:
             }
             T max;
             uint p, q;
+            uint bp = 114514, bq = 114514;
             while (true) {
                 if ((max = getMaxValue(m, p, q)) < 1e-3) break;
+                if (p == bp && q == bq) break;
                 T pp = m[p,p];
                 T pq = m[p,q];
                 T qq = m[q,q];
@@ -634,6 +636,8 @@ public:
                     result[i,q] = s*result[i,p] + c*result[i,q];
                     result[i,p] = tmp;
                 }
+                bp = p;
+                bq = q;
             }
             return result;
         }

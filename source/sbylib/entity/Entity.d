@@ -103,7 +103,7 @@ class Entity {
     }
 
     void createCollisionPolygon() {
-        this.mesh.geom.apply!(g => g.createCollisionPolygons().each!(po => addChild(new Entity(po))));
+        this.mesh.geom.apply!(g => addChild(new Entity(g.createCollisionPolygons())));
         foreach(child; this.children) {
             child.createCollisionPolygon();
         }

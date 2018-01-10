@@ -3,12 +3,13 @@ module sbylib.collision.geometry.CollisionGeometry;
 public {
     import sbylib.entity.Entity;
     import sbylib.math.Vector;
+    import sbylib.utils.Change;
 }
 
 struct AABB {
     vec3 min, max;
 
-    bool collide(AABB bound) {
+    bool collide(const AABB bound) const {
         if (this.max.x < bound.min.x) return false;
         if (this.max.y < bound.min.y) return false;
         if (this.max.z < bound.min.z) return false;
@@ -21,5 +22,5 @@ struct AABB {
 
 interface CollisionGeometry {
     void setOwner(Entity);
-    AABB getBound();
+    ChangeObserveTarget!AABB getBound();
 }

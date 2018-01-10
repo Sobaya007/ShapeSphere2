@@ -46,8 +46,8 @@ class CollisionCapsule : CollisionGeometry {
         this.bound.depends(this.start, this.end, this.radius);
     }
 
-    override AABB getBound() {
-        return this.bound;
+    override ChangeObserveTarget!AABB getBound() {
+        return this.bound.getTarget();
     }
 
     Entity getOwner() {

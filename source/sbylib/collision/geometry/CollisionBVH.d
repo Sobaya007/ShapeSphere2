@@ -1,5 +1,6 @@
 module sbylib.collision.geometry.CollisionBVH;
 
+import sbylib.utils.Change;
 import sbylib.collision.geometry;
 import sbylib.entity.Entity;
 import sbylib.utils;
@@ -16,22 +17,22 @@ class CollisionBVH : CollisionGeometry {
         }
 
         class INode {
-            AABB bound;
-
             abstract void setOwner(Entity);
             abstract void collide(ref Array!CollisionInfo, CollisionGeometry);
+            abstract ChangeObserveTarget!AABB getBound();
         };
 
         class Node : INode {
             INode[] children;
+            private ChangeObservedArray!AABB bounds;
+
+            import std.algorithm, std.array;
+            Depends!((const AABB[] bounds) => AABB(bounds.map!(b => b.min).reduce!minVector, bounds.map!(b => b.max).reduce!maxVector)) bound;
 
             this(INode[] children) {
                 this.children = children;
-                import std.algorithm, std.array;
-                this.bound = AABB(
-                    children.map!(child => child.bound.min).reduce!minVector,
-                    children.map!(child => child.bound.max).reduce!maxVector
-                );
+                this.bounds = ChangeObservedArray!(AABB)(children.map!(c => c.getBound()).array);
+                this.bound.depends(this.bounds);
             }
 
             override void setOwner(Entity owner) {
@@ -44,6 +45,10 @@ class CollisionBVH : CollisionGeometry {
                     child.collide(result, geom);
                 }
             }
+
+            override ChangeObserveTarget!AABB getBound() {
+                return this.bound.getTarget();
+            }
         }
 
         class Leaf : INode {
@@ -51,7 +56,6 @@ class CollisionBVH : CollisionGeometry {
 
             this(CollisionGeometry geom) {
                 this.geom = geom;
-                this.bound = geom.getBound();
             }
 
             override void setOwner(Entity owner) {
@@ -62,30 +66,58 @@ class CollisionBVH : CollisionGeometry {
                 if (!this.geom.getBound().collide(geom.getBound())) return;
                 CollisionEntry.collide(result, this.geom, geom);
             }
+
+            override ChangeObserveTarget!AABB getBound() {
+                return this.geom.getBound();
+            }
         }
 
         INode buildWithTopDown(GeomWithCenter[] geomCenterList) {
             if (geomCenterList.length == 1) return new Leaf(geomCenterList[0].geom);
             // calculate most long vector in the center points of geometries.
-            vec3 basis = Utils.mostDispersionBasis(geomCenterList.map!(g => g.center).array)[0];
+            vec3[3] basisCandidates = Utils.mostDispersionBasis(geomCenterList.map!(g => g.center).array);
+            GeomWithCenter[] geomCenterList2;
+            float len = -114514;
+            vec3 basis;
 
-            // sort object along the most dispersion basis
-            auto sorted = geomCenterList.sort!((a,b) => dot(a.center, basis) < dot(b.center, basis)).array;
-// calc length on the basis
-            auto len = dot(sorted[$-1].center - sorted[0].center, basis);
+            foreach (bc; basisCandidates) {
+                // sort object along the most dispersion basis
+                auto sorted = geomCenterList.sort!((a,b) => dot(a.center, bc) < dot(b.center, bc)).array;
+                // calc length on the b
+                float len2 = dot(sorted[$-1].center - sorted[0].center, bc);
+
+                if (len2 > len) {
+                    len = len2;
+                    geomCenterList2 = sorted;
+                    basis = bc;
+                }
+            }
 
             // separate objects at the center of the basis.
-            auto origin = sorted[0].center.dot(basis);
+            auto origin = geomCenterList2[0].center.dot(basis);
             GeomWithCenter[] before, after;
-            while (!sorted.empty) {
-                auto middle = sorted[$/2];
-                if (dot(middle.center, basis) - origin < len /2) {
-                    before ~= sorted[0..$/2+1];
-                    sorted = sorted[$/2+1..$];
+            while (!geomCenterList2.empty) {
+                auto middle = geomCenterList2[$/2];
+                auto coord = dot(middle.center, basis) - origin;
+                if (coord < len /2) {
+                    before ~= geomCenterList2[0..$/2+1];
+                    geomCenterList2 = geomCenterList2[$/2+1..$];
                 } else {
-                    after ~= sorted[$/2..$];
-                    sorted = sorted[0..$/2];
+                    after ~= geomCenterList2[$/2..$];
+                    geomCenterList2 = geomCenterList2[0..$/2];
                 }
+            }
+            if (before.length == 0) {
+                assert(after.length > 0);
+                if (after.length == 1) return new Leaf(after[0].geom);
+                before = after[0..$/2];
+                after = after[$/2..$];
+            }
+            if (after.length == 0) {
+                assert(before.length > 0);
+                if (before.length == 1) return new Leaf(before[0].geom);
+                after = before[$/2..$];
+                before = before[0..$/2];
             }
             auto beforeNode = buildWithTopDown(before);
             auto afterNode = buildWithTopDown(after);
@@ -98,14 +130,19 @@ class CollisionBVH : CollisionGeometry {
         }
     }
 
+
     private INode root;
+
+    this(CollisionGeometry[] geoms) {
+        this.root = buildWithTopDown(geoms);
+    }
 
     override void setOwner(Entity owner) {
         root.setOwner(owner);
     }
 
-    override AABB getBound() {
-        return root.bound;
+    override ChangeObserveTarget!AABB getBound() {
+        return root.getBound();
     }
 
     void collide(ref Array!CollisionInfo result, CollisionGeometry geom) {
