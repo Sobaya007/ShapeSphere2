@@ -15,15 +15,12 @@ class VertexArray {
 
     immutable uint id;
 
-    private bool alive;
-
     this() out {
         GlFunction.checkError();
     } body {
         uint vao;
         glGenVertexArrays(1, &vao);
         this.id = vao;
-        this.alive = true;
     }
 
     ~this() {

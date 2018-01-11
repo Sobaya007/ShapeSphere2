@@ -28,10 +28,6 @@ class Mesh {
         this.vao.setup(mat.shader, geom.getBuffers(), geom.getIndexBuffer());
     }
 
-    ~this() {
-        this.destroy();
-    }
-
     void destroy() {
         this.vao.destroy();
     }
