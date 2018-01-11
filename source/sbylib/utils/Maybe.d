@@ -91,7 +91,7 @@ auto match(alias funJust, alias funNone, T)(Maybe!T m) {
 }
 
 Maybe!T Just(T)(T v) in {
-    static if (is(T == class) || is(T == function) || is(T == delegate) || isArray!(T)) {
+    static if (is(T == class) || is(T == function) || is(T == delegate) || is(T == interface) || isArray!(T)) {
         assert(v !is null);
     }
 } body {
