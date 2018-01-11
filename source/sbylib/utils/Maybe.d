@@ -91,8 +91,8 @@ auto match(alias funJust, alias funNone, T)(Maybe!T m) {
 }
 
 Maybe!T Just(T)(T v) in {
-    static if (is(T == class) || is(T == function) || is(T == delegate) || is(T == interface) || isArray!(T)) {
-        assert(v !is null);
+    static if (is(typeof(v == null))) {
+        assert(v != null);
     }
 } body {
     return Maybe!T(v);
@@ -110,8 +110,8 @@ auto wrap(T)(T value) {
         } else {
             return Just(*value);
         }
-    } else static if (is(typeof({bool po = value is null;}))) {
-        if (value is null) {
+    } else static if (is(typeof(value == null))) {
+        if (value == null) {
             return None!T;
         } else {
             return Just(value);
