@@ -4,26 +4,10 @@ public import game.scene.manager;
 import sbylib;
 import std.stdio;
 
-class SceneBase {
-
-    enum State {Waiting, Running, Finished};
-
-    protected Maybe!FinishCallback _finish;
-    protected Maybe!SelectCallback _select;
+class SceneProtoType : SceneBase {
     private EntityTemp!(GeometryRect, ColorMaterial) fadeRect;
     protected World world;
     protected Camera camera;
-    private Renderer renderer;
-    private Screen screen;
-    private IViewport viewport;
-    private State state;
-    public Maybe!SceneTransition transition;
-
-    struct Event {
-        bool delegate() trigger;
-        void delegate() content;
-    }
-    Event[] events;
 
     this() {
         this(new OrthoCamera(2, 2, -1, 1));
@@ -36,16 +20,52 @@ class SceneBase {
         this.fadeRect.getMesh().mat.config.depthWrite = false;
         this.fadeRect.pos.z = 1;
 
-        auto window = Core().getWindow();
         this.world = new World;
         this.camera = camera;
-        this.renderer = new Renderer;
-        this.screen = window.getScreen;
-        this.viewport = new AutomaticViewport(window);
+        this.viewport = new AutomaticViewport(Core().getWindow);
 
         this.world.setCamera(this.camera);
 
         this.addEntity(this.fadeRect);
+    }
+
+    override void render() {
+        this.renderer.render(this.world, this.screen, this.viewport);
+    }
+
+    IAnimation fade(AnimSetting!vec4 setting) {
+        return new Animation!vec4((color) {
+            this.fadeRect.getMesh.mat.color = color;
+        }, setting);
+    }
+
+    void addEntity(Entity entity) {
+        this.world.add(entity);
+    }
+}
+
+class SceneBase {
+
+    enum State {Waiting, Running, Finished};
+
+    protected Maybe!FinishCallback _finish;
+    protected Maybe!SelectCallback _select;
+    protected Renderer renderer;
+    protected Screen screen;
+    protected IViewport viewport;
+    private State state;
+    public Maybe!SceneTransition transition;
+
+    struct Event {
+        bool delegate() trigger;
+        void delegate() content;
+    }
+    Event[] events;
+
+    this() {
+        auto window = Core().getWindow();
+        this.screen = window.getScreen;
+        this.renderer = new Renderer;
     }
 
     void initialize() {
@@ -57,13 +77,11 @@ class SceneBase {
         this.screen.clear(ClearMode.Color, ClearMode.Depth);
     }
 
-    void render() {
-        this.renderer.render(this.world, this.screen, this.viewport);
-    }
+    abstract void render();
 
-    void step(bool isTop) {
+    void step(bool eventAccept) {
         this.render();
-        if (isTop) {
+        if (eventAccept) {
             foreach (event; this.events) {
                 if (event.trigger()) {
                     event.content();
@@ -87,16 +105,6 @@ class SceneBase {
         import std.stdio;
         this.transition = Just(this._select.get()(idx));
         this.state = State.Finished;
-    }
-
-    IAnimation fade(AnimSetting!vec4 setting) {
-        return new Animation!vec4((color) {
-            this.fadeRect.getMesh.mat.color = color;
-        }, setting);
-    }
-
-    void addEntity(Entity entity) {
-        this.world.add(entity);
     }
 
     void addEvent(bool delegate() trigger, void delegate() content) {

@@ -33,7 +33,7 @@ public:
         if (_entity.getMesh !is null && createColEntryFlag) {
             _entity.createCollisionPolygon();
         }
-        _entity.setUserData(cast(void *)cast(IControllable)(this));
+        _entity.setUserData(cast(IControllable)this);
     }
 
     override float x() {

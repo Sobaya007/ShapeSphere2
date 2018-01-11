@@ -410,3 +410,7 @@ class Utils {
         enum hasMember = include!(string, [__traits(allMembers, T)], name);
     }
 }
+
+bool instanceof(T,S)(S o) if(is(T == class)) {
+	return cast(T) o !is null;
+}

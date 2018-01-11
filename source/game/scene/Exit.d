@@ -3,7 +3,7 @@ module game.scene.Exit;
 import game.scene.SceneBase;
 import sbylib;
 
-class Exit : SceneBase {
+class Exit : SceneProtoType {
 
     mixin SceneBasePack;
 

@@ -20,7 +20,7 @@ class Label {
     enum OriginY {Center, Top, Bottom}
 
     Entity entity;
-    private Letter[] letters;
+    Letter[] letters;
     private vec4 _color;
     private Font font;
     private OriginX originX;

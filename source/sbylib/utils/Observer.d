@@ -177,6 +177,10 @@ class Lazy(Type) {
         this.func = () => observer.get();
     }
 
+    void opAssign(Type v) {
+        this.func = () => v;
+    }
+
     auto opUnary(string op)() {
         mixin("return " ~ op ~ "func();");
     }

@@ -2,35 +2,55 @@ module game.command.CommandManager;
 
 import std.file, std.algorithm, std.range, std.array;
 import game.command.Command;
+import sbylib;
 
 private ubyte CommandVersion = 1; //When you update format of command, you must change this value.
 
 interface ICommandManager {
-    void addCommand(ICommand);
+    void setReceiver(CommandReceiver);
     void update();
     void save();
     bool isPlaying();
 }
 
+class CommandReceiver {
+    package ICommand[] commands;
+
+    void addCommand(ICommand command) {
+        this.commands ~= command;
+    }
+
+    package void act(ubyte[] history) {
+        foreach (cmd; this.commands) {
+            cmd.act();
+            history ~= cmd.value;
+        }
+    }
+
+    package void replay(ref ubyte[] input, ubyte[] output) {
+        foreach (cmd; this.commands) {
+            cmd.replay(input);
+            output ~= cmd.value;
+        }
+    }
+}
+
 class PlayCommandManager : ICommandManager {
     private ubyte[] history;
     private string writeFilePath;
-    private ICommand[] commands;
+    private CommandReceiver receiver;
 
     this(string writeFilePath) {
         this.history = [CommandVersion];
         this.writeFilePath = writeFilePath;
     }
 
-    override void addCommand(ICommand command) {
-        this.commands ~= command;
+    override void setReceiver(CommandReceiver receiver) {
+        this.receiver = receiver;
     }
 
     override void update() {
-        foreach (cmd; this.commands) {
-            cmd.act();
-            this.history ~= cmd.value;
-        }
+        this.receiver.act(this.history);
     }
 
     override void save() {
@@ -44,7 +64,7 @@ class PlayCommandManager : ICommandManager {
 }
 
 class ReplayCommandManager : ICommandManager {
-    private ICommand[] commands;
+    private CommandReceiver receiver;
     private ubyte[] inputHistory;
     private ubyte[] outputHistory;
     private string writeFilePath;
@@ -57,22 +77,16 @@ class ReplayCommandManager : ICommandManager {
         this.playing = true;
     }
 
-    override void addCommand(ICommand command) {
-        this.commands ~= command;
+    override void setReceiver(CommandReceiver receiver) {
+        this.receiver = receiver;
     }
 
     override void update() {
         if (this.playing) {
-            foreach (cmd; this.commands) {
-                cmd.replay(this.inputHistory);
-                this.outputHistory ~= cmd.value;
-            }
+            this.receiver.replay(this.inputHistory, this.outputHistory);
             if (this.inputHistory.length == 0) this.playing = false;
         } else {
-            foreach (cmd; this.commands) {
-                cmd.act();
-                this.outputHistory ~= cmd.value;
-            }
+            this.receiver.act(this.outputHistory);
         }
     }
 

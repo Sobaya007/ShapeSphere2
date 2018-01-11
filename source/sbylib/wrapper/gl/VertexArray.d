@@ -23,7 +23,11 @@ class VertexArray {
         this.id = vao;
     }
 
-    ~this() out {
+    ~this() {
+        this.destroy();
+    }
+
+    void destroy() out {
         GlFunction.checkError();
     } body {
         glDeleteVertexArrays(1, &this.id);

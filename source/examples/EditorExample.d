@@ -4,12 +4,13 @@ import sbylib;
 
 import editor.guiComponent;
 import editor.viewport;
-
 import editor.pane;
+
+import game.Game;
 
 import std.stdio;
 
-void editorExample() {
+void editorExample(string[] args) {
     const WINDOW_WIDTH = 1500;
     const WINDOW_HEIGHT = 900;
 
@@ -17,6 +18,8 @@ void editorExample() {
     Core.config.windowHeight = WINDOW_HEIGHT;
 
     auto core = Core();
+    Game.initialize(args);
+
     auto screen = core.getWindow().getScreen();
     core.addProcess((){
         screen.clear(ClearMode.Color, ClearMode.Depth);

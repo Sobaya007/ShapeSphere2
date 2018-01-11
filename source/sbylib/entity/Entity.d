@@ -6,6 +6,7 @@ public {
     import sbylib.mesh.Object3D;
     import sbylib.utils.Array;
     import sbylib.utils.Maybe;
+    import std.variant;
 }
 
 class Entity {
@@ -15,10 +16,13 @@ class Entity {
     private Entity parent;
     private Entity[] children;
     private Object3D _obj;
-    private void* userData;
+    private Maybe!Variant userData;
+    private string name;
+    bool visible;
 
     this(){
         this._obj = new Object3D(this);
+        this.visible = true;
     }
 
     this(Geometry geom, Material mat) {
@@ -37,6 +41,15 @@ class Entity {
         this.colEntry = new CollisionEntry(colGeom, this);
     }
 
+    void destroy() {
+        if (this.mesh) {
+            this.mesh.destroy();
+        }
+        foreach (child; this.children) {
+            child.destroy();
+        }
+    }
+
     CollisionEntry getCollisionEntry() {
         return this.colEntry;
     }
@@ -49,6 +62,18 @@ class Entity {
         return this._obj;
     }
 
+    World getWorld() {
+        return this.world;
+    }
+
+    string getName() {
+        return this.name;
+    }
+
+    void setName(string name) {
+        this.name = name;
+    }
+
     void setWorld(World world) in {
         assert(world);
     } body {
@@ -59,14 +84,14 @@ class Entity {
         }
     }
 
-    void* getUserData() {
+    Maybe!Variant getUserData() {
         return this.userData;
     }
 
-    void setUserData(void* userData) in {
+    void setUserData(T)(T userData) in {
         assert(this.parent is null);
     } body {
-        this.userData = userData;
+        this.userData = wrap(Variant(userData));
     }
 
     void clearChildren() {
@@ -92,14 +117,36 @@ class Entity {
         }
     }
 
-    void render(bool transparency) in {
-        assert(this.world);
-    } body {
-        if (this.mesh && this.mesh.mat.config.transparency == transparency) {
-            this.mesh.render();
+    /*
+    void collect(bool function(Mesh) cond)(ref Array!Entity result) {
+        if (this.mesh && cond(this.mesh)) {
+            result ~= this;
         }
         foreach (child; this.children) {
-            child.render(transparency);
+            child.collect!(cond)(result);
+        }
+    }
+    */
+
+    void collect(bool function(Mesh) cond)(ref Array!Entity trueResult, ref Array!Entity falseResult) {
+        if (this.mesh) {
+            if (cond(this.mesh)) {
+                trueResult ~= this;
+            } else {
+                falseResult ~= this;
+            }
+        }
+        foreach (child; this.children) {
+            child.collect!(cond)(trueResult, falseResult);
+        }
+    }
+
+    void render() in {
+        assert(this.world);
+    } body {
+        if (!this.visible) return;
+        if (this.mesh) {
+            this.mesh.render();
         }
     }
 
@@ -110,7 +157,7 @@ class Entity {
         }
     }
 
-    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) {
+    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) { 
         if (colEntry is null) return;
         if (this.getCollisionEntry()) {
             auto info = this.getCollisionEntry().collide(colEntry);
@@ -166,6 +213,10 @@ class Entity {
 
     Entity[] getChildren() {
         return this.children;
+    }
+
+    void remove() {
+        this.world.remove(this);
     }
 
     private void onSetWorld(World world) {

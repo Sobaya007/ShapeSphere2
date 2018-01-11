@@ -57,13 +57,13 @@ void run(RunMode mode, string[] args) {
         xFileLoadExample();
         break;
     case RunMode.Editor:
-        editorExample();
+        editorExample(args);
         break;
     case RunMode.Entity:
         entityExample();
         break;
     case RunMode.Scene:
-        sceneExample();
+        sceneExample(args);
         break;
     }
 }
