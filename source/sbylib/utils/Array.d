@@ -143,7 +143,6 @@ private void sort(alias lessThan, T)(Array!T array, size_t begin, size_t end) {
         left++;
         right--;
     }
-    if (left > 0) sort!(lessThan, T)(array, 0, left-1);
+    if (left > 0) sort!(lessThan, T)(array, begin, left-1);
     sort!(lessThan, T)(array, right+1, end);
 }
-
