@@ -25,5 +25,5 @@ void main() {
     }
 
     // texture
-    fragColor = texture(tex, uv);
+    fragColor = texture(tex, vec2(uv.x, 1 - uv.y));
 }

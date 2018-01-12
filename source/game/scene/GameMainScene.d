@@ -23,7 +23,7 @@ class GameMainScene : SceneBase {
         auto texture = Utils.generateTexture(ImageLoader.load(ImagePath("uv.png")));
 
         /* Camera Settings */
-        Camera camera = new PerspectiveCamera(1, 60.deg, 0.1, 100);
+        Camera camera = new PerspectiveCamera(1, 60.deg, 0.1, 200);
         camera.pos = vec3(3, 2, 9);
         camera.lookAt(vec3(0,2,0));
         world3d.setCamera(camera);
