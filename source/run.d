@@ -6,9 +6,9 @@ import game.GameMain;
 import plot.Main;
 
 enum RunMode {
-    Game,
-    Basic,
     CameraControl,
+    Basic,
+    Game,
     Gui,
     Material,
     Mouse,

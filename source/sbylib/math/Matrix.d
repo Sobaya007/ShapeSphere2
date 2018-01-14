@@ -131,15 +131,16 @@ public:
         }
     }
 
-    void opOpAssign(string op)(T s) {
+    Matrix!(T,U,V) opOpAssign(string op)(T s) {
         static if (op == "*" || op == "/") {
             mixin(getOpAssignMSCode(op, U, V));
         } else {
             static assert(false);
         }
+        return this;
     }
 
-    void opOpAssign(string op, S, uint P, uint Q)(Matrix!(S, P, Q) m) {
+    Matrix!(T,U,V) opOpAssign(string op, S, uint P, uint Q)(Matrix!(S, P, Q) m) {
         static if (op == "+" || op == "-") {
             static assert(U == P && V == Q);
             mixin(getOpAssignMMCode(op, U, V));
@@ -149,6 +150,7 @@ public:
         } else {
             static assert(false);
         }
+        return this;
     }
 
     T opIndex(size_t i, size_t j) const { //i = tate, y = yoko

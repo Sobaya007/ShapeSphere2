@@ -25,12 +25,14 @@ class Mouse {
         foreach (button; EnumMembers!MouseButton) {
             this.pressed[button] = false;
         }
+        this.dif = vec2(0);
     }
 
     package(sbylib) void update() {
         auto before = this.pos;
         this.pos = (this.window.getMousePos() / vec2(this.window.getWidth(), this.window.getHeight()) * 2 - 1) * vec2(1, -1);
-        this.dif = pos - before;
+        if (!before.hasNaN)
+            this.dif = pos - before;
         foreach (button; EnumMembers!MouseButton) {
             this.before[button] = this.pressed[button];
             this.pressed[button] = this.window.getMouseButton(button);
@@ -41,7 +43,9 @@ class Mouse {
         return this.pos;
     }
 
-    vec2 getDif() const {
+    vec2 getDif() const in {
+        assert(!this.dif.hasNaN);
+    } body {
         return this.dif;
     }
 

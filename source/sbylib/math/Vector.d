@@ -159,15 +159,10 @@ body {
 
     static if (isFloatingPoint!T) {
         bool hasNaN() const {
-            alias gen = {
-                string code;
-                foreach (i; 0..S) {
-                    code ~= "if(elements[" ~ to!string(i) ~ "].abs is T.nan) return true;";
-                }
-                code ~= "return false;";
-                return code;
-            };
-            mixin(gen());
+            foreach (e; this.elements) {
+                if (isNaN(e)) return true;
+            }
+            return false;
         }
     }
     static Vector fromString(string str) { //===========================文字列からVectorを生成
