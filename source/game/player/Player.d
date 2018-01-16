@@ -26,7 +26,7 @@ class Player : CommandReceiver {
 
     private BaseSphere sphere;
     private BaseSphere[] spheres;
-    private CameraController camera;
+    package CameraController camera;
     Entity[] collisionEntities;
 
     this(Camera camera) {

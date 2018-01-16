@@ -241,9 +241,10 @@ public:
             }
             static Matrix rotFromTo(Vector!(T,3) from, Vector!(T,3) to) {
                 auto v = cross(from, to);
-                auto s = v.length * (dot(from, to)<0 ? 1: -1);
-                if (s == 0) return identity();
-                auto rad = asin(v.length);
+                auto s = v.length;
+                if (s < 1e-5) return identity();
+                auto l = v.length;
+                auto rad = asin(l < -1 ? -1 : l > 1 ? 1 : l);
                 auto c = cos(rad);
                 v = normalize(v);
                 Matrix result;

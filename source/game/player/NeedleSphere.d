@@ -117,6 +117,13 @@ class NeedleSphere : BaseSphere {
         this.needleCount -= 0.05;
     }
 
+    vec2 v;
+
+    override void onMovePress(vec2 v) {
+        this.v = v;
+        //this.lVel += this.camera.rot * vec3(v.x, 0, v.y) * 0.1;
+    }
+
     private void collision() {
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
@@ -125,6 +132,10 @@ class NeedleSphere : BaseSphere {
         scope (exit) contacts.destroy();
         foreach (colInfo; colInfos) {
             contacts ~= Contact(colInfo, this);
+            auto n = normalize(colInfo.getPushVector(this.entity));
+            this.lVel += mat3.rotFromTo(n, vec3(0,1,0)) * this.camera.rot * vec3(v.x, 0, v.y) * 0.3;
+            import std.stdio;
+            writeln(mat3.rotFromTo(vec3(0,1,0), n) * this.camera.rot * vec3(v.x, 0, v.y));
         }
         foreach (i; 0..3) {
             foreach (contact; contacts) {
@@ -283,7 +294,7 @@ class NeedleSphere : BaseSphere {
             penetration = min(penetration, MAX_PENETRATION); //大きく埋まりすぎていると吹っ飛ぶ
             auto separationVelocity = penetration * SEPARATION_COEF;
             auto restitutionVelocity = -RESTITUTION_RATE * relativeColPointVelNormal;
-            this.targetNormalLinearVelocity = max(restitutionVelocity, separationVelocity);
+            this.targetNormalLinearVelocity = separationVelocity;//max(restitutionVelocity, separationVelocity);
         }
 
         void solve() {
@@ -299,7 +310,7 @@ class NeedleSphere : BaseSphere {
             auto newNormalImpulse = (targetNormalLinearVelocity - colPointVelNormal) * normalDenominator;
 
             this.normalTotalImpulse += newNormalImpulse;
-            if (normalTotalImpulse < 0) normalTotalImpulse = 0; //条件
+            //if (normalTotalImpulse < 0) normalTotalImpulse = 0; //条件
             newNormalImpulse = normalTotalImpulse - oldNormalImpulse; //補正
 
             auto normalImpulseVector = normal * newNormalImpulse;
@@ -321,11 +332,11 @@ class NeedleSphere : BaseSphere {
 
             auto maxFrictionSq     = abs(FRICTION * normalTotalImpulse) ^^ 2;
             auto currentFrictionSq = tanTotalImpulse^^2 + binTotalImpulse^^2;
-            if (maxFrictionSq < currentFrictionSq) { //条件
-                auto scale = sqrt(maxFrictionSq / currentFrictionSq);
-                this.tanTotalImpulse *= scale;
-                this.binTotalImpulse *= scale;
-            }
+            //if (maxFrictionSq < currentFrictionSq) { //条件
+            //    auto scale = sqrt(maxFrictionSq / currentFrictionSq);
+            //    this.tanTotalImpulse *= scale;
+            //    this.binTotalImpulse *= scale;
+            //}
 
             newTanImpulse = tanTotalImpulse - oldTanImpulse; //補正
             newBinImpulse = binTotalImpulse - oldBinImpulse; //補正
