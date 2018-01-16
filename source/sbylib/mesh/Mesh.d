@@ -52,10 +52,10 @@ class Mesh {
                 break;
             }
         }
-        foreach (uni; this.mat.getUniforms()) {
+        foreach (ud; this.mat.getUniforms()) {
             (u) {
-                this.uniforms ~= () => u;
-            } (uni);
+                this.uniforms ~= u;
+            } (ud);
         }
     }
 

@@ -32,13 +32,13 @@ class Material {
         uint textureUnit = 0;
         import std.stdio;
         foreach (uni; uniforms) {
-            //writeln(uni);
+            //writeln(uni());
             uni().apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
 
     abstract UniformDemand[] getDemands();
-    abstract Lazy!Uniform [] getUniforms();
+    abstract const(Uniform) delegate()[] getUniforms();
 }
 
 class MaterialTemp(UniformKeeper) : Material {
@@ -83,7 +83,7 @@ class MaterialTemp(UniformKeeper) : Material {
         return this.demands;
     }
 
-    override Lazy!Uniform [] getUniforms() {
+    override const(Uniform) delegate()[] getUniforms() {
         return this.keeper.getUniforms();
     }
 }

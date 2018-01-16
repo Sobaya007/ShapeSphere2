@@ -282,7 +282,7 @@ class CollisionEntry {
                 vec3 r = segseg(s, e, p0, p1);
                 r = min(r, segseg(s, e, p1, p2));
                 r = min(r, segseg(s, e, p2, p0));
-                return PolySegResult(r.length, r.safeNormalize);
+                return PolySegResult(r.length, n);
             }
         } else {
             auto s0 = dot(n, cross(p1 - p0, p0 - s));
@@ -297,13 +297,15 @@ class CollisionEntry {
                 //ポリゴンは凸形状なので、端点が両方とも面領域に入っていれば全体が面領域に入っている
                 // 5
                 auto dist = abs(dot(p0 - s, n));
+                //writeln("5: ", dist);
                 return PolySegResult(dist, n);
             } else {
                 // 6
                 vec3 r = segseg(s, e, p0, p1);
                 r = min(r, segseg(s, e, p1, p2));
                 r = min(r, segseg(s, e, p2, p0));
-                return PolySegResult(r.length, r.safeNormalize);
+                //writeln("6: ", r.length);
+                return PolySegResult(r.length, n); //?
             }
         }
     }

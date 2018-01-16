@@ -246,7 +246,7 @@ public:
                 auto l = v.length;
                 auto rad = asin(l < -1 ? -1 : l > 1 ? 1 : l);
                 auto c = cos(rad);
-                v = normalize(v);
+                v = -normalize(v);
                 Matrix result;
                 mixin(getRotAxisCode(3));
                 return result;

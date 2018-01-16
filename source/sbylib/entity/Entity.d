@@ -152,7 +152,7 @@ class Entity {
     void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) in {
         assert(colEntry !is null);
     } body { 
-        if (this.getCollisionEntry()) {
+        if (this.colEntry.isJust) {
             this.getCollisionEntry().collide(result, colEntry);
         }
         foreach (child; this.children) {

@@ -21,7 +21,7 @@ class NeedleSphere : BaseSphere {
         float DEFAULT_RADIUS = 1.0f;
         float MIN_RADIUS = 0.7f;
         float ALLOWED_PENETRATION = 0.4f;
-        float MAX_PENETRATION = MAX_RADIUS * 0.2;
+        float MAX_PENETRATION = 0.1f;
         float SEPARATION_COEF = 1f / Player.TIME_STEP;
         float RESTITUTION_RATE = 0.3f;
         float MASS = 1.0f;
@@ -130,18 +130,22 @@ class NeedleSphere : BaseSphere {
         Game.getMap().getPolygon().collide(colInfos, this.entity);
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
+        vec3 n = vec3(0,1,0);
+            import std.stdio;
         foreach (colInfo; colInfos) {
             contacts ~= Contact(colInfo, this);
-            auto n = normalize(colInfo.getPushVector(this.entity));
-            this.lVel += mat3.rotFromTo(n, vec3(0,1,0)) * this.camera.rot * vec3(v.x, 0, v.y) * 0.3;
-            import std.stdio;
-            writeln(mat3.rotFromTo(vec3(0,1,0), n) * this.camera.rot * vec3(v.x, 0, v.y));
+            auto nc = normalize(colInfo.getPushVector(this.entity));
+            if (nc.y < n.y) n = nc;
+            //writeln(colInfo.getPushVector(this.entity));
         }
-        foreach (i; 0..3) {
+        this.lVel += mat3.rotFromTo(vec3(0,1,0), n) * this.camera.rot * vec3(v.x, 0, v.y) * 0.4;
+        auto v = this.lVel;
+        foreach (i; 0..10) {
             foreach (contact; contacts) {
                 contact.solve();
             }
         }
+        writeln("dif= ", this.lVel - v);
     }
 
     vec3 calcVelocity(vec3 pos) {
@@ -295,6 +299,9 @@ class NeedleSphere : BaseSphere {
             auto separationVelocity = penetration * SEPARATION_COEF;
             auto restitutionVelocity = -RESTITUTION_RATE * relativeColPointVelNormal;
             this.targetNormalLinearVelocity = separationVelocity;//max(restitutionVelocity, separationVelocity);
+            import std.stdio;
+            writeln("penet =", penetration);
+            writeln("sep =", separationVelocity);
         }
 
         void solve() {
@@ -310,7 +317,7 @@ class NeedleSphere : BaseSphere {
             auto newNormalImpulse = (targetNormalLinearVelocity - colPointVelNormal) * normalDenominator;
 
             this.normalTotalImpulse += newNormalImpulse;
-            //if (normalTotalImpulse < 0) normalTotalImpulse = 0; //条件
+            if (normalTotalImpulse < 0) normalTotalImpulse = 0; //条件
             newNormalImpulse = normalTotalImpulse - oldNormalImpulse; //補正
 
             auto normalImpulseVector = normal * newNormalImpulse;

@@ -12,7 +12,7 @@ class CompassMaterialUniformKeeper : UniformKeeper {
 
     mixin MaterialUtils.declare;
 
-    alias Vec(uint i) = Depends!((mat4 world) => normalize(world.column[i]).xy, uvec2);
+    alias Vec(uint i) = Depends!((mat4 world) => normalize(world.column[i].xy), uvec2);
 
     private Vec!0 xvec;
     private Vec!1 yvec;
