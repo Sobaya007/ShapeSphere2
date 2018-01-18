@@ -53,9 +53,11 @@ class World {
     void remove(T)(T[] rs...) 
     if (isAssignable!(Entity, T)) in {
     } body{
+        auto len = this.entities.length;
         foreach (r; rs) {
             this.entities = this.entities.remove!(e => e == r); //TODO: やばそう？
         }
+        assert(len == rs.length + this.entities.length);
     }
 
     void addPointLight(PointLight pointLight) {

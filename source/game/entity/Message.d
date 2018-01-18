@@ -16,12 +16,15 @@ class Message : CommandReceiver {
     private void delegate() onFinish;
     private Maybe!AnimationProcedure procedure;
 
-    this(dstring message, void delegate() onFinish) {
-        this.onFinish = onFinish;
+    this() {
         this.entity = new Entity();
         this.img = ImageEntity(ImagePath("message.png"), 1, 1);
 
         this.addCommand(new ButtonCommand(() => Controller().justPressed(CButton.Decide), &this.onDecisideJustPressed));
+    }
+
+    void setMessage(dstring message, void delegate() onFinish) {
+        this.onFinish = onFinish;
         this.setMessage(message);
     }
 
@@ -63,6 +66,7 @@ class Message : CommandReceiver {
                 )
             ])
         ));
+        this.text.destroy();
         this.text = Just(text);
 
         this.entity.clearChildren();

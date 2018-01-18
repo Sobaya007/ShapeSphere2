@@ -134,7 +134,7 @@ private:
             while(entity.getUserData().isNone) {
                 entity = entity.getParent;
             }
-            return cast(IControllable)entity.getUserData.get.peek!IControllable;
+            return *entity.getUserData.get.peek!IControllable;
         });
     }
 

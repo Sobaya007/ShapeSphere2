@@ -3,6 +3,7 @@ module game.Game;
 public import game.command;
 public import game.player;
 public import game.stage.Map;
+public import game.entity.Message;
 import sbylib;
 import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv;
 
@@ -16,11 +17,13 @@ static:
     private Player player;
 
     private Map map;
+    private Message message;
 
     void initialize(string[] args) {
         this.commandManager = selectCommandManager(args);
         this.world2d = new World;
         this.world3d = new World;
+        this.message = new Message;
     }
 
     void initializePlayer(Camera camera) in {
@@ -57,6 +60,10 @@ static:
         assert(this.map !is null);
     } body {
         return this.map;
+    }
+
+    Message getMessge() {
+        return this.message;
     }
 
     void update() {

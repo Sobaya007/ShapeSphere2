@@ -42,6 +42,13 @@ class Entity {
         this.colEntry = Just(new CollisionEntry(colGeom, this));
     }
 
+    void destroy() {
+        this.mesh.destroy();
+        foreach (child; this.children) {
+            child.destroy();
+        }
+    }
+
     CollisionEntry getCollisionEntry() {
         return this.colEntry.get();
     }

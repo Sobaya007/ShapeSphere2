@@ -31,6 +31,10 @@ class Mesh {
         this.vao.setup(mat.shader, geom.getBuffers(), geom.getIndexBuffer());
     }
 
+    void destroy() {
+        this.vao.destroy();
+    }
+
     void render() in {
         assert(this.geom);
         assert(this.mat);
