@@ -304,7 +304,6 @@ class CollisionEntry {
                 vec3 r = segseg(s, e, p0, p1);
                 r = min(r, segseg(s, e, p1, p2));
                 r = min(r, segseg(s, e, p2, p0));
-                //writeln("6: ", r.length);
                 return PolySegResult(r.length, n); //?
             }
         }

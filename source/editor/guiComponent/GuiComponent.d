@@ -30,8 +30,8 @@ public:
     // zIndexが大きいほど手前で描画される
     this(Entity entity = null, bool createColEntryFlag = true) {
         _entity = entity is null ? new Entity : entity;
-        if (_entity.getMesh !is null && createColEntryFlag) {
-            _entity.createCollisionPolygon();
+        if (_entity.getMesh.isJust && createColEntryFlag) {
+            _entity.buildBVH();
         }
         _entity.setUserData(cast(IControllable)this);
     }

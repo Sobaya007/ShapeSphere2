@@ -156,6 +156,9 @@ struct ChangeObserved(T) {
         return this.value == arg;
     }
 
+    bool opEquals(ArgType)(ArgType arg) {
+        return this.value == arg;
+    }
     enum Value = isPointer!(T) ? "*this.value" : "this.value";
 
     auto opBinary(string op, ArgType)(ref ArgType arg) {

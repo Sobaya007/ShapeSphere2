@@ -5,7 +5,7 @@ public import game.player.NeedleSphere;
 public import game.player.SpringSphere;
 public import game.player.ElasticSphere2;
 import game.Game;
-import game.Map;
+import game.stage.Map;
 import game.player.PlayerMaterial;
 import game.player.Player;
 import game.character.Character;

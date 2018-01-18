@@ -10,6 +10,7 @@ private:
 
     GuiComponent _opener;
     GuiComponent _content;
+    GroupBoxComponentMaterial material;
 
     bool _isOpen = true;
 
@@ -31,11 +32,12 @@ public:
 
         auto geom = Rect.create(width, _content.height + 2*_borderSize, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, GroupBoxComponentMaterial)(geom);
+        this.material = entity.getMesh().mat;
 
-        entity.getMesh.mat.borderColor = _borderColor;
-        entity.getMesh.mat.borderSize = _borderSize;
-        entity.getMesh.mat.size = vec2(width, height);
-        entity.getMesh.mat.contentScale = 1.0;
+        this.material.borderColor = _borderColor;
+        this.material.borderSize = _borderSize;
+        this.material.size = vec2(width, height);
+        this.material.contentScale = 1.0;
 
         entity.addChild(_content.entity);
 
@@ -61,7 +63,7 @@ public:
     }
 
     override float width() {
-        return (cast(GroupBoxComponentMaterial)entity.getMesh.mat).size.x;
+        return this.material.size.x;
     }
 
     override float height() {
@@ -78,7 +80,7 @@ public:
         float a = 0.5;
         vec3 target = _isOpen ? vec3(1) : vec3(0);
         _content.entity.obj.scale = a*target + (1 - a)*_content.entity.obj.scale;
-        (cast(GroupBoxComponentMaterial)entity.getMesh.mat).contentScale = _content.entity.obj.scale.x;
+        this.material.contentScale = _content.entity.obj.scale.x;
     }
 
     private dstring getShowText() {

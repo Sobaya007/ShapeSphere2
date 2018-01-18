@@ -31,7 +31,7 @@ class Timeline : IControllable {
 
         this.rect = new RectEntity(Rect.create(1,1));
         this.rect.getMesh().mat.color = vec4(0.4);
-        this.rect.createCollisionPolygon();
+        this.rect.buildBVH();
         this.minLabel = new Label(font, 0.05);
         this.minLabel.obj.pos = vec3(-0.5, -0.5, -0.1);
         this.minLabel.setColor(vec4(1));

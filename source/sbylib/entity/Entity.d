@@ -46,8 +46,8 @@ class Entity {
         return this.colEntry.get();
     }
 
-    Mesh getMesh() {
-        return this.mesh.get();
+    Maybe!Mesh getMesh() {
+        return this.mesh;
     }
 
     inout(Object3D) obj() @property inout {
@@ -81,7 +81,7 @@ class Entity {
     }
 
     void setUserData(T)(T userData) in {
-        assert(this.parent is null);
+        //assert(this.parent is null);
     } body {
         this.userData = wrap(Variant(userData));
     }
@@ -102,10 +102,19 @@ class Entity {
         entity.setWorld(world);
     }
 
-    void createCollisionPolygon() {
-        this.mesh.geom.apply!(g => addChild(new Entity(g.createCollisionPolygons())));
+    void buildBVH() {
+        buildBVH((bvh) {});
+    }
+
+    void buildBVH(void delegate(Entity) func) {
+        this.mesh.apply!((m) {
+            auto bvh = new Entity(new CollisionBVH(m.geom.createCollisionPolygon()));
+            addChild(bvh);
+            func(bvh);
+        });
+
         foreach(child; this.children) {
-            child.createCollisionPolygon();
+            child.buildBVH(func);
         }
     }
 
@@ -229,35 +238,36 @@ class Entity {
     alias obj this;
 }
 
-class EntityTemp(Geom, Mat) : Entity {
+class EntityTemp(Geom, Mat) {
     alias M = MeshTemp!(Geom, Mat);
     private M mesh;
+    Entity entity;
 
     this(Geom g) {
-        super();
+        this.entity = new Entity;
         this.mesh = new M(g, this);
-        super.setMesh(this.mesh);
+        this.entity.setMesh(this.mesh);
     }
 
     this(Geom g, Mat m) {
-        super();
+        this.entity = new Entity;
         this.mesh = new M(g, m, this);
-        super.setMesh(this.mesh);
+        this.entity.setMesh(this.mesh);
     }
 
     this(Geom g, CollisionGeometry colGeom) {
-        super(colGeom);
+        this.entity = new Entity(colGeom);
         this.mesh = new M(g, this);
-        super.setMesh(this.mesh);
+        this.entity.setMesh(this.mesh);
     }
 
     this(Geom g, Mat m, CollisionGeometry colGeom) {
-        super(colGeom);
+        this.entity = new Entity(colGeom);
         this.mesh = new M(g, m, this);
-        super.setMesh(this.mesh);
+        this.entity.setMesh(this.mesh);
     }
 
-    override M getMesh() {
+    M getMesh() {
         return this.mesh;
     }
 
@@ -268,5 +278,5 @@ class EntityTemp(Geom, Mat) : Entity {
 //        super.setMesh(mesh);
 //    }
 
-    alias obj this;
+    alias entity this;
 }

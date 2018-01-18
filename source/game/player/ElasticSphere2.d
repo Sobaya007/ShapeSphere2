@@ -1,6 +1,6 @@
 module game.player.ElasticSphere2;
 
-import game.Map;
+import game.stage.Map;
 import game.Game;
 import game.player.Player;
 import game.player.PlayerMaterial;

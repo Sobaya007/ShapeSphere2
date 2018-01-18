@@ -155,6 +155,7 @@ private:
     XMaterial makeMaterial(XMaterialNode xMaterialNode) {
         XMaterial material = new XMaterial;
 
+        material.name = xMaterialNode.name;
         material.diffuse = xMaterialNode.faceColor;
         material.specular = xMaterialNode.specularColor;
         material.ambient = xMaterialNode.emissiveColor;

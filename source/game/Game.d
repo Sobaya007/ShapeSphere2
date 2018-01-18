@@ -2,7 +2,7 @@ module game.Game;
 
 public import game.command;
 public import game.player;
-public import game.Map;
+public import game.stage.Map;
 import sbylib;
 import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv;
 

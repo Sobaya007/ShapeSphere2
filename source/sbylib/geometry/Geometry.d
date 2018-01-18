@@ -25,7 +25,7 @@ interface Geometry {
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
     IndexBuffer getIndexBuffer();
     void updateBuffer();
-    CollisionBVH createCollisionPolygons();
+    CollisionGeometry[] createCollisionPolygon();
 }
 
 alias GeometryP = GeometryTemp!([Attribute.Position]);
@@ -125,7 +125,7 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
         }
     }
 
-    override CollisionBVH createCollisionPolygons() {
+    override CollisionGeometry[] createCollisionPolygon() {
         CollisionGeometry[] colPolygons;
         foreach (i, face; this.faces) {
             auto poly = new CollisionPolygon(
@@ -134,6 +134,6 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
                     this.vertices[face.indexList[0]].position);
             colPolygons ~= poly;
         }
-        return new CollisionBVH(colPolygons);
+        return colPolygons;
     }
 }

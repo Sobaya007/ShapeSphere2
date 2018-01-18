@@ -62,6 +62,12 @@ struct Maybe(T) {
         return _none;
     }
 
+    int opCmp(S)(S value) in {
+        assert(this.isJust);
+    } body {
+        return this.value > value;
+    }
+
     string toString() {
         if (this.isJust) return format!"Some(%s)"(this.value.to!string);
         return "None";
@@ -145,4 +151,10 @@ unittest {
 
     Maybe!A aMaybe;
     assert(aMaybe.isNone);
+
+    assert(!(intMaybe > 0));
+    assert(!(intMaybe <= 0));
+    intMaybe = Just(1);
+    assert(intMaybe.isJust);
+    assert(intMaybe > 0);
 }

@@ -18,7 +18,7 @@ void mouseExample() {
     auto camera =  new PerspectiveCamera(1, 120.deg, 0.1, 100);
     auto mouse = new ViewportMouse(viewport);
     auto polyEntity = new PlaneEntity(Plane.create());
-    polyEntity.createCollisionPolygon();
+    polyEntity.buildBVH();
     polyEntity.obj.rot = mat3.rotFromTo(vec3(0,1,0), vec3(0,0,1));
 
     auto colCapGeom = new CollisionCapsule(0.2, vec3(0,-1,0), vec3(0,1,0));
