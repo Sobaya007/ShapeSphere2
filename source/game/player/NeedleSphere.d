@@ -37,7 +37,7 @@ class NeedleSphere : BaseSphere {
         float MASS_INV = 1.0f / MASS;
         float INERTIA_INV = 2.5 / (MASS * MAX_RADIUS * MAX_RADIUS);
         uint RECURSION_LEVEL = 2;
-        float MAX_VELOCITY = 80;
+        float MAX_VELOCITY = 20;
     }
 
     private NeedleParticle[] particleList;

@@ -12,6 +12,15 @@ class ChaseBehavior : CameraController.Behavior {
     }
 
     override void step() {
+        target += (player.getCameraTarget - target) * 0.2;
+
+        auto v = camera.pos - target;
+        auto dp = v.length - defaultLength;
+        v = normalize(v);
+        vel -= (k * dp + c * dot(vel, v)) * v;
+        auto ay = target.y + 3;
+        vel.y += (ay - camera.pos.y) * 0.2;
+        vel *= 1 - c;
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
         Game.getMap().getPolygon().collide(colInfos, this.entity);
@@ -22,18 +31,12 @@ class ChaseBehavior : CameraController.Behavior {
             if (dot(this.vel, n) < 0) {
                 this.vel -= n * dot(n, this.vel) * 1;
             }
-            this.camera.pos += n * depth;
         }
-        target += (player.getCameraTarget - target) * 0.2;
-        auto v = camera.pos - target;
-        auto dp = v.length - defaultLength;
-        auto dy = v.y;
-        v = normalize(v);
-        vel -= (k * dp + c * dot(vel, v)) * v;
-        vel *= 1 - c;
+        if (vel.length > 0.5) {
+            vel = 0.5 * vel.safeNormalize;
+        }
         camera.pos += vel;
-        auto ay = target.y + 3;
-        camera.pos.y += (ay - camera.pos.y) * 0.9;
+
         camera.lookAt(target);
     }
 
