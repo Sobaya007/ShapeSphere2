@@ -38,13 +38,13 @@ class TestPane : GuiPane {
     }
 
 protected:
-    override void createContent(GuiControl control) {
+    override GuiComponent createContent() {
         auto core = Core();
 
         float w = 1200;
         float h = 900;
 
-        auto spacer = new SpacerComponent(400, 300);
+        auto spacer = new SpacerComponent(400, 400);
         auto label = new LabelComponent("D is 神"d, 50, vec4(0.6, 0.7, 0.8, 1.0));
         auto button = new ButtonComponent(500, 50, "犯人は"d, 40);
 
@@ -55,40 +55,18 @@ protected:
         auto textArea = new TextAreaComponent(400, 300, 30);
         textArea.setClipboard(core.getClipboard);
 
-        int t = 0;
         button.setTrigger({
-            import std.stdio;
-            import std.algorithm;
             int i = dropDown.getIndex;
-            dstring po = i<0 ? "@_n_ari！！！！"d : ary[i];
-            auto a = new LabelComponent(po, 50, vec4(0, 0, 0, 1.0));
-            a.x = 10;
-            a.y = h-20-t;
-            a.zIndex = 2;
-            t += 50;
-            control.add(a);
+            if (i < 0) return;
+            button.setText(ary[i]);
         });
 
 
-        auto leftComponent = new ComponentListComponent(
+        auto component = new ComponentListComponent(
             ComponentListComponent.Direction.Vertical,
-            spacer, label, groupBox, textArea
+            spacer, label, groupBox, textArea, dropDown, button
         );
-        leftComponent.y = h;
-        control.add(leftComponent);
 
-        auto threeCheckBox = new ComponentListComponent(
-            ComponentListComponent.Direction.Horizontal,
-            new CheckBoxComponent(20),
-            new CheckBoxComponent(30),
-            new CheckBoxComponent(40)
-        );
-        auto rightComponent = new ComponentListComponent(
-            ComponentListComponent.Direction.Vertical,
-            threeCheckBox, button, dropDown
-        );
-        rightComponent.x = w/2;
-        rightComponent.y = h;
-        control.add(rightComponent);
+        return component;
     }
 }

@@ -157,7 +157,7 @@ class Entity {
         }
     }
 
-    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) { 
+    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) {
         if (colEntry is null) return;
         if (this.getCollisionEntry()) {
             auto info = this.getCollisionEntry().collide(colEntry);

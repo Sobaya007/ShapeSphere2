@@ -17,15 +17,14 @@ class HierarchyPane : GuiPane {
     }
 
 protected:
-    override void createContent(GuiControl control) {
+    override GuiComponent createContent() {
         auto core = Core();
 
         float w = 1200;
         float h = 900;
         auto dropDown = new DropDownComponent(300, 40, ["aaaa", "bbbb"], 35);
-        dropDown.x = 0;
-        dropDown.y = h;
-        control.add(dropDown);
+
+        return dropDown;
     }
 
 }

@@ -12,7 +12,6 @@ import game.command;
 class ViewerPane : GuiPane {
 
 private:
-    ViewerComponent _viewer;
 
 public:
     this(int x, int y, uint width, uint height) {
@@ -20,13 +19,12 @@ public:
     }
 
 protected:
-    override void createContent(GuiControl control) {
+    override GuiComponent createContent() {
         auto core = Core();
 
-        _viewer = new ViewerComponent(this.width, this.height, this);
-        _viewer.x = 0;
-        _viewer.y = height;
-        control.add(_viewer);
+        auto viewer = new ViewerComponent(this.width, this.height, this);
+
+        return viewer;
     }
 
 }

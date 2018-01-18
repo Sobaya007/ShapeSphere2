@@ -4,6 +4,9 @@ import sbylib;
 
 import editor.guiComponent;
 import editor.viewport;
+import editor.pane;
+
+import std.algorithm;
 
 interface Pane {
     int x() @property;
@@ -19,6 +22,9 @@ protected:
     int _y;
     uint _width;
     uint _height;
+
+    GuiComponent _content;
+    ScrollBar _scrollBar;
 
 public:
 
@@ -49,8 +55,12 @@ public:
         core.addProcess(render, "render");
         core.addProcess(&control.update, "control");
 
-        createContent(control);
+        _content = createContent();
+        _content.x = 0;
+        _content.y = height;
+        control.add(_content);
 
+        _scrollBar = new ScrollBar(this, _content.height);
     }
 
     override int x() @property {
@@ -70,5 +80,5 @@ public:
     }
 
 protected:
-    void createContent(GuiControl control);
+    GuiComponent createContent();
 }
