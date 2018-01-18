@@ -139,7 +139,7 @@ class Utils {
             }
 
             void getRay(vec2 screenPos, Camera camera, ref CollisionRay ray) {
-                auto viewStart = Utils.projToView(vec3(screenPos, 0), camera);
+                auto viewStart = Utils.projToView(vec3(screenPos, -100), camera);
                 auto viewEnd = Utils.projToView(vec3(screenPos, 1), camera);
 
                 auto viewInv = camera.getObj().worldMatrix;
