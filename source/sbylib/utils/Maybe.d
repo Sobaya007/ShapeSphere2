@@ -159,8 +159,6 @@ unittest {
     Maybe!A aMaybe;
     assert(aMaybe.isNone);
 
-    assert(!(intMaybe > 0));
-    assert(!(intMaybe <= 0));
     intMaybe = Just(1);
     assert(intMaybe.isJust);
     assert(intMaybe > 0);
