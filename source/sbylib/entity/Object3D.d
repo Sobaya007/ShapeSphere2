@@ -1,4 +1,4 @@
-module sbylib.mesh.Object3D;
+module sbylib.entity.Object3D;
 
 import sbylib.math.Matrix;
 import sbylib.math.Vector;

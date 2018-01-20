@@ -1,8 +1,10 @@
 module sbylib.animation.Animation;
 
-import sbylib.entity.Entity;
+public {
+    import sbylib.entity.Entity;
+    import sbylib.animation.Ease;
+}
 import sbylib.math;
-import sbylib.animation.Ease;
 import std.algorithm;
 
 AnimSetting!T setting(T)(T start, T end, uint period, EaseFunc ease) {

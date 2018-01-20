@@ -1,4 +1,4 @@
-module sbylib.entity.ImageEntity;
+module sbylib.entity.utils.ImageEntity;
 
 public {
     import sbylib.entity.Entity;

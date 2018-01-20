@@ -3,7 +3,6 @@ module sbylib.control.BasicControl;
 import sbylib.wrapper.glfw.Constants;
 import sbylib.wrapper.glfw.Window;
 import sbylib.input.ViewportMouse;
-import sbylib.mesh.Object3D;
 import sbylib.camera.Camera;
 import sbylib.math.Angle;
 import sbylib.math.Vector;

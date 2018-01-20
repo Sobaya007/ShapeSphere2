@@ -1,6 +1,6 @@
 module sbylib.core.World;
 
-import sbylib.mesh.Mesh;
+import sbylib.entity.Mesh;
 import sbylib.camera.Camera;
 import sbylib.utils.Change;
 import sbylib.utils.Lazy;

@@ -4,7 +4,6 @@ import sbylib;
 import game.Game;
 import game.player.Controller;
 import game.command;
-import game.scene.manager.AnimationManager;
 import std.algorithm;
 
 class Message : CommandReceiver {

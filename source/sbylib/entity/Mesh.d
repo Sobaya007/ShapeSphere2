@@ -1,4 +1,5 @@
-module sbylib.mesh.Mesh; 
+module sbylib.entity.Mesh; 
+
 import sbylib.camera.Camera;
 import sbylib.wrapper.gl.VertexArray;
 import sbylib.collision.CollisionEntry;

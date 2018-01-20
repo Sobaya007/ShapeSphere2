@@ -2,7 +2,6 @@ module sbylib.camera.PerspectiveCamera;
 
 import sbylib.camera.Camera;
 import sbylib.wrapper.gl.Uniform;
-import sbylib.mesh.Object3D;
 import sbylib.math.Matrix;
 import sbylib.math.Vector;
 import sbylib.math.Angle;

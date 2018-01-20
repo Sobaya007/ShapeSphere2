@@ -12,7 +12,7 @@ import sbylib.material.Material;
 import sbylib.utils.Functions;
 import sbylib.collision.geometry.CollisionBVH;
 import sbylib.collision.CollisionEntry;
-import sbylib.mesh.Object3D;
+import sbylib.entity.Object3D;
 import sbylib.math.Vector;
 
 import std.range;

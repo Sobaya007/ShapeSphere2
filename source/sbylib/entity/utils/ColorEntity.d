@@ -1,4 +1,4 @@
-module sbylib.entity.ColorEntity;
+module sbylib.entity.utils.ColorEntity;
 
 import sbylib.entity.Entity;
 import sbylib.geometry.geometry2d.Rect;

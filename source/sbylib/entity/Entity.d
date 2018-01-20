@@ -2,8 +2,8 @@ module sbylib.entity.Entity;
 
 public {
     import sbylib.collision.CollisionEntry;
-    import sbylib.mesh.Mesh;
-    import sbylib.mesh.Object3D;
+    import sbylib.entity.Mesh;
+    import sbylib.entity.Object3D;
     import sbylib.utils.Array;
     import sbylib.utils.Maybe;
     import std.variant;
@@ -173,9 +173,7 @@ class Entity {
     }
 
     void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
-        if (this.colEntry.isJust) {
-            this.colEntry.get().collide(result, ray);
-        }
+        this.colEntry.collide(result, ray);
         foreach (child; this.children) {
             child.collide(result, ray);
         }
@@ -183,7 +181,7 @@ class Entity {
 
     Maybe!CollisionInfoRay rayCast(CollisionRay ray) {
         auto infos = Array!CollisionInfoRay(0);
-        //scope (exit) infos.destroy();
+        scope (exit) infos.destroy();
         this.collide(infos, ray);
         if (infos.length == 0) return None!CollisionInfoRay;
         import std.algorithm;

@@ -6,7 +6,7 @@ import sbylib.utils.Lazy;
 import sbylib.utils.Change;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.Vertex;
-import sbylib.mesh.Object3D;
+import sbylib.entity.Object3D;
 import std.algorithm;
 import std.array;
 import sbylib.collision.CollisionEntry;

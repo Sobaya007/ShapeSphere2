@@ -3,7 +3,6 @@ module sbylib.camera.OrthoCamera;
 public {
     import sbylib.camera.Camera;
     import sbylib.wrapper.gl.Uniform;
-    import sbylib.mesh.Object3D;
     import sbylib.utils.Lazy;
     import sbylib.math.Matrix;
     import sbylib.math.Vector;

@@ -6,7 +6,6 @@ import sbylib.core;
 import sbylib.camera;
 import sbylib.constant.ConstantManager;
 import sbylib.input;
-import sbylib.shadertemplates;
 import sbylib.utils;
 import sbylib.wrapper.al.AL;
 import sbylib.wrapper.gl.GL;

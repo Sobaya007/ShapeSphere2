@@ -4,7 +4,6 @@ import sbylib.wrapper.glfw.Constants;
 import sbylib.wrapper.glfw.Window;
 import sbylib.input.Mouse;
 import sbylib.input.Key;
-import sbylib.mesh.Object3D;
 import sbylib.camera.Camera;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;

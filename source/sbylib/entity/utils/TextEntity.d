@@ -1,4 +1,4 @@
-module sbylib.entity.TextEntity;
+module sbylib.entity.utils.TextEntity;
 
 public import sbylib.entity.Entity;
 public import sbylib.animation.Animation;

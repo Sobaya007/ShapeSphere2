@@ -1,9 +1,8 @@
-module game.scene.manager.AnimationManager;
+module sbylib.animation.AnimationManager;
 
-import game.scene.manager.SceneTransition;
-import game.scene.manager.SceneCallback;
-import game.scene.SceneBase;
-import sbylib;
+import sbylib.animation.Animation;
+import sbylib.utils.Array;
+import sbylib.utils.Maybe;
 
 class AnimationManager {
     private static AnimationManager instance;
@@ -37,7 +36,6 @@ class AnimationProcedure {
     private uint frame;
     private IAnimation animation;
  
-    private SceneBase scene;
     private Maybe!(void delegate()) finishCallback = None!(void delegate());
 
     this(IAnimation animation) {

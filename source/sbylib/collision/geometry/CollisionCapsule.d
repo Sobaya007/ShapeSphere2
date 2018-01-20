@@ -4,7 +4,6 @@ import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.geometry3d.Capsule;
-import sbylib.mesh.Object3D;
 import sbylib.utils.Lazy;
 import sbylib.utils.Change;
 import sbylib.collision.CollisionEntry;

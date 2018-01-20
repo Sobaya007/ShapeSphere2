@@ -1,7 +1,7 @@
 module sbylib.entity;
 
 public:
-import sbylib.entity.ColorEntity;
+import sbylib.entity.utils;
 import sbylib.entity.Entity;
-import sbylib.entity.ImageEntity;
-import sbylib.entity.TextEntity;
+import sbylib.entity.Mesh;
+import sbylib.entity.Object3D;
