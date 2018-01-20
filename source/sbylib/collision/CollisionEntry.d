@@ -35,13 +35,8 @@ class CollisionEntry {
         collide(result, this.geom, collidable.geom);
     }
 
-    Maybe!CollisionInfoRay collide(CollisionRay ray) {
-        if (auto cap = cast(CollisionCapsule)this.geom) {
-            return collide(cap, ray);
-        } else if (auto pol = cast(CollisionPolygon)this.geom) {
-            return collide(pol, ray);
-        }
-        assert(false);
+    void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
+        collide(result, this.geom, ray);
     }
 
     public static void collide(ref Array!CollisionInfo result, CollisionGeometry geom, CollisionGeometry geom2) {
@@ -80,6 +75,22 @@ class CollisionEntry {
             } else {
                 assert(false);
             }
+        } else {
+            assert(false);
+        }
+    }
+
+    public static void collide(ref Array!CollisionInfoRay result, CollisionGeometry geom, CollisionRay ray) {
+        void add(Maybe!CollisionInfoRay info) {
+            if (info.isNone) return;
+            result ~= info.get;
+        }
+        if (auto cap = cast(CollisionCapsule)geom) {
+            add(collide(cap, ray));
+        } else if (auto pol = cast(CollisionPolygon)geom) {
+            add(collide(pol, ray));
+        } else if (auto bvh = cast(CollisionBVH)geom) {
+            bvh.collide(result, ray);
         } else {
             assert(false);
         }
@@ -143,6 +154,11 @@ class CollisionEntry {
         auto s0 = dot(polygon.normal, cross(polygon.positions[1] - polygon.positions[0], p - polygon.positions[1]));
         auto s1 = dot(polygon.normal, cross(polygon.positions[2] - polygon.positions[1], p - polygon.positions[2]));
         auto s2 = dot(polygon.normal, cross(polygon.positions[0] - polygon.positions[2], p - polygon.positions[0]));
+        auto entity = polygon.getOwner();
+        while (entity.getUserData.isNone) {
+            entity = entity.getParent();
+        }
+        auto data = entity.getUserData();
         if (s0 > 0 && s1 > 0 && s2 > 0
             || s0 < 0 && s1 < 0 && s2 < 0) {
             return Just(CollisionInfoRay(polygon.getOwner(), ray, p));

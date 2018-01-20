@@ -18,6 +18,24 @@ struct AABB {
         if (bound.max.z < this.min.z) return false;
         return true;
     }
+
+    bool collide(const CollisionRay ray) const {
+        float[6] times;
+        times[0..3] = ((this.min - ray.start) / ray.dir).array;
+        times[3..6] = ((this.max - ray.start) / ray.dir).array;
+        foreach (time; times) {
+            if (!(time >= 0)) continue; //avoid NaN
+            auto p = ray.start + time * ray.dir;
+            if (p.x < min.x) continue;
+            if (p.y < min.y) continue;
+            if (p.z < min.z) continue;
+            if (p.x > max.x) continue;
+            if (p.y > max.y) continue;
+            if (p.z > max.z) continue;
+            return true;
+        }
+        return false;
+    }
 }
 
 interface CollisionGeometry {

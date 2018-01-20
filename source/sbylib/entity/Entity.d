@@ -49,10 +49,6 @@ class Entity {
         }
     }
 
-    CollisionEntry getCollisionEntry() {
-        return this.colEntry.get();
-    }
-
     Maybe!Mesh getMesh() {
         return this.mesh;
     }
@@ -168,30 +164,23 @@ class Entity {
     void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) in {
         assert(colEntry !is null);
     } body { 
-        if (this.colEntry.isJust) {
-            this.getCollisionEntry().collide(result, colEntry);
-        }
+        this.colEntry.collide(result, colEntry);
         foreach (child; this.children) {
             child.collide(result, colEntry);
         }
     }
 
-    CollisionInfoRay[] collide(CollisionRay ray) {
-        CollisionInfoRay[] result;
-        if (this.getCollisionEntry()) {
-            auto info = this.getCollisionEntry.collide(ray);
-            if (info.isJust) {
-                result ~= info.get;
-            }
-        }
+    void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
+        if (this.colEntry.isJust) this.colEntry.get().collide(result, ray);
         foreach (child; this.children) {
-            result ~=  child.collide(ray);
+            child.collide(result, ray);
         }
-        return result;
     }
 
     Maybe!CollisionInfoRay rayCast(CollisionRay ray) {
-        auto infos = this.collide(ray);
+        auto infos = Array!CollisionInfoRay(0);
+        //scope (exit) infos.destroy();
+        this.collide(infos, ray);
         if (infos.length == 0) return None!CollisionInfoRay;
         import std.algorithm;
         import sbylib.math.Vector;

@@ -19,6 +19,7 @@ class CollisionBVH : CollisionGeometry {
         class INode {
             abstract void setOwner(Entity);
             abstract void collide(ref Array!CollisionInfo, CollisionGeometry);
+            abstract void collide(ref Array!CollisionInfoRay, CollisionRay);
             abstract ChangeObserveTarget!AABB getBound();
         };
 
@@ -46,6 +47,13 @@ class CollisionBVH : CollisionGeometry {
                 }
             }
 
+            override void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
+                if (!this.bound.collide(ray)) return;
+                foreach (child; this.children) {
+                    child.collide(result, ray);
+                }
+            }
+
             override ChangeObserveTarget!AABB getBound() {
                 return this.bound.getTarget();
             }
@@ -65,6 +73,11 @@ class CollisionBVH : CollisionGeometry {
             override void collide(ref Array!CollisionInfo result, CollisionGeometry geom) {
                 if (!this.geom.getBound().collide(geom.getBound())) return;
                 CollisionEntry.collide(result, this.geom, geom);
+            }
+
+            override void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
+                if (!this.geom.getBound().collide(ray)) return;
+                CollisionEntry.collide(result, this.geom, ray);
             }
 
             override ChangeObserveTarget!AABB getBound() {
@@ -147,5 +160,9 @@ class CollisionBVH : CollisionGeometry {
 
     void collide(ref Array!CollisionInfo result, CollisionGeometry geom) {
         this.root.collide(result, geom);
+    }
+
+    void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
+        this.root.collide(result, ray);
     }
 }

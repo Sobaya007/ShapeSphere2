@@ -105,17 +105,16 @@ class World {
         }
     }
 
-    CollisionInfoRay[] calcCollideRay(CollisionRay ray) {
-        static CollisionInfoRay[] result;
-        result.length = 0;
+    void calcCollideRay(ref Array!CollisionInfoRay result, CollisionRay ray) {
         foreach (entity; this.entities) {
-            result ~= entity.collide(ray);
+            entity.collide(result, ray);
         }
-        return result;
     }
 
     Maybe!CollisionInfoRay rayCast(CollisionRay ray) {
-        auto infos = this.calcCollideRay(ray);
+        auto infos = Array!CollisionInfoRay(0);
+        scope(exit) infos.destroy();
+        this.calcCollideRay(infos, ray);
         if (infos.length == 0) return None!CollisionInfoRay;
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
