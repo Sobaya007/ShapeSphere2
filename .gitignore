@@ -9,3 +9,4 @@ dll/*
 history/*
 .vscode/*
 tags
+**/.DS_Store

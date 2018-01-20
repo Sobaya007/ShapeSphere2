@@ -25,20 +25,20 @@ class Material {
         this.config = new RenderConfig();
     }
 
-    final void set(Lazy!(Uniform)[string] uniforms) {
+    final void set(const(Uniform) delegate()[] uniforms) {
         this.config.set();
         this.shader.use();
         uint uniformBlockPoint = 0;
         uint textureUnit = 0;
         import std.stdio;
         foreach (uni; uniforms) {
-            //writeln(uni);
-            uni.apply(this.shader, uniformBlockPoint, textureUnit);
+            //writeln(uni());
+            uni().apply(this.shader, uniformBlockPoint, textureUnit);
         }
     }
 
     abstract UniformDemand[] getDemands();
-    abstract Lazy!Uniform [] getUniforms();
+    abstract const(Uniform) delegate()[] getUniforms();
 }
 
 class MaterialTemp(UniformKeeper) : Material {
@@ -83,7 +83,7 @@ class MaterialTemp(UniformKeeper) : Material {
         return this.demands;
     }
 
-    override Lazy!Uniform [] getUniforms() {
+    override const(Uniform) delegate()[] getUniforms() {
         return this.keeper.getUniforms();
     }
 }

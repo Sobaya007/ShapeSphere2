@@ -18,7 +18,7 @@ void mouseExample() {
     auto camera =  new PerspectiveCamera(1, 120.deg, 0.1, 100);
     auto mouse = new ViewportMouse(viewport);
     auto polyEntity = new PlaneEntity(Plane.create());
-    polyEntity.createCollisionPolygon();
+    polyEntity.buildBVH();
     polyEntity.obj.rot = mat3.rotFromTo(vec3(0,1,0), vec3(0,0,1));
 
     auto colCapGeom = new CollisionCapsule(0.2, vec3(0,-1,0), vec3(0,1,0));
@@ -42,8 +42,8 @@ void mouseExample() {
         polyEntity.getMesh().mat.condition = colInfo.get.entity.getRootParent() is polyEntity;
         capEntity.getMesh().mat.condition  = colInfo.get.entity.getRootParent() is capEntity;
     };
-    camera.getObj().pos.z = 4;
-    camera.getObj().lookAt(vec3(0));
+    camera.pos.z = 4;
+    camera.lookAt(vec3(0));
     world.setCamera(camera);
     world.add(polyEntity);
     world.add(capEntity);

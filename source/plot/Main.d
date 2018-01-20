@@ -20,7 +20,7 @@ void plotMain() {
     auto viewport = new AutomaticViewport(window);
 
     OrthoCamera camera = new OrthoCamera(1, 1, -1, 1);
-    camera.getObj().pos = vec3(+0.5, +0.5, 0);
+    camera.pos = vec3(+0.5, +0.5, 0);
     world.setCamera(camera);
 
     auto dataset = new DataSet(TimeLogger.TIME_LOG_PATH);
@@ -43,8 +43,8 @@ void plotMain() {
             camera.width  -= mouse.getDif().x * 0.001;
             camera.height -= mouse.getDif().y * 0.001;
         } else if (mouse.isPressed((MouseButton.Button2))) {
-            camera.getObj().pos.x += mouse.getDif().x * 0.001;
-            camera.getObj().pos.y += mouse.getDif().y * 0.001;
+            camera.pos.x += mouse.getDif().x * 0.001;
+            camera.pos.y += mouse.getDif().y * 0.001;
         }
     };
     core.addProcess(render, "render");

@@ -35,6 +35,11 @@ class UniformTemp(Type) : Uniform {
         this.value = value;
     }
 
+    typeof(this) opAssign(Type value) {
+        this.value = value;
+        return this;
+    }
+
     override string getName() const {
         return this.name;
     }

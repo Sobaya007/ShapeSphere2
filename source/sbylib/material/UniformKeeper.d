@@ -6,5 +6,5 @@ import sbylib.utils.Lazy;
 
 abstract class UniformKeeper {
 
-    abstract Lazy!Uniform[] getUniforms();
+    abstract const(Uniform) delegate()[] getUniforms();
 }

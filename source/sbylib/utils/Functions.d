@@ -73,27 +73,28 @@ class Utils {
                 return order.map!(o => [0,1,2,2,1,3].map!(i => o[i]).array).array.join.map!(i => vertex[i]).array;
             }
 
-            //与えられた点列に対し、分散が最大化するベクトルを含む正規直交基底を返す
-            Vector!(T,3)[] mostDispersionBasis(T)(Vector!(T,3)[] vertices...) {
-                vec3 c = vec3(0);
-                uint vNum = 0;
-                foreach (ref v; vertices) {
-                    c += v;
-                    vNum++;
-                }
-                assert(vNum);
-                c /= vNum;
-                mat3 vcm = mat3(0);
-                foreach (ref v; vertices) {
-                    auto r = v.xyz - c;
-                    vcm += Matrix!(float,3,1)(r.array) * Matrix!(float,1,3)(r.array);
-                }
-                vcm /= vNum;
-                auto diagonal = mat3.diagonalizeForRealSym(vcm);
-                auto base = 3.iota.map!(a => diagonal.column(a).normalize).array;
-                return base;
-            }
+        }
 
+        //与えられた点列に対し、分散が最大化するベクトルを含む正規直交基底を返す
+        Vector!(T,3)[] mostDispersionBasis(T)(Vector!(T,3)[] vertices...) {
+            vec3 c = vec3(0);
+            uint vNum = 0;
+            foreach (ref v; vertices) {
+                c += v;
+                vNum++;
+            }
+            assert(vNum);
+            c /= vNum;
+            mat3 vcm = mat3(0);
+            foreach (ref v; vertices) {
+                auto r = v.xyz - c;
+                vcm += Matrix!(float,3,1)(r.array) * Matrix!(float,1,3)(r.array);
+            }
+            vcm /= vNum;
+            auto diagonal = mat3.diagonalizeForRealSym(vcm);
+            import std.algorithm, std.range, std.array;
+            auto base = 3.iota.map!(a => diagonal.column[a].normalize).array;
+            return base;
         }
 
         T computeSignedVolume(T)(Vector!(T, 3)[4] positions...) {
@@ -139,10 +140,10 @@ class Utils {
             }
 
             void getRay(vec2 screenPos, Camera camera, ref CollisionRay ray) {
-                auto viewStart = Utils.projToView(vec3(screenPos, 0), camera);
-                auto viewEnd = Utils.projToView(vec3(screenPos, 1), camera);
+                auto viewStart = Utils.projToView(vec3(screenPos, -100), camera);
+                auto viewEnd = Utils.projToView(vec3(screenPos, 100), camera);
 
-                auto viewInv = camera.getObj().worldMatrix;
+                mat4 viewInv = camera.worldMatrix;
                 auto viewInv3 = viewInv.toMatrix3;
 
                 ray.start = (viewInv * vec4(viewStart, 1)).xyz;

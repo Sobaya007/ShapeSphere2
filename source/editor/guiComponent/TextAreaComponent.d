@@ -32,6 +32,8 @@ private:
     int _coverAnimationFrameCount = 0;
     const int _coverAnimationDuration = 80;
 
+    TextAreaComponentMaterial material;
+
     vec4 _borderColor = vec4(0.5, 0.5, 0.5, 1);
     vec4 _backgroundColor = vec4(0.9, 0.9, 0.9, 1.0);
     float _borderSize = 10;
@@ -46,10 +48,12 @@ public:
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, TextAreaComponentMaterial)(geom);
 
-        entity.getMesh.mat.borderColor = _borderColor;
-        entity.getMesh.mat.backgroundColor = _backgroundColor;
-        entity.getMesh.mat.borderSize = _borderSize;
-        entity.getMesh.mat.size = vec2(width, height);
+        this.material = entity.getMesh().mat;
+
+        this.material.borderColor = _borderColor;
+        this.material.backgroundColor = _backgroundColor;
+        this.material.borderSize = _borderSize;
+        this.material.size = vec2(width, height);
 
         _label = new LabelComponent(_text, textSize, _textColor, Label.OriginX.Left, Label.OriginY.Top, width - _borderSize*2);
         _label.x = _borderSize;
@@ -281,7 +285,7 @@ private:
             auto entity = new EntityTemp!(GeometryRect, TextAreaComponentCoverMaterial)(geom);
             entity.getMesh.mat.color = _coverColor;
             entity.getMesh.mat.opacity = getCoverOpacity();
-            entity.obj.pos = letter.getEntity.obj.pos;
+            entity.obj.pos = letter.getEntity.pos.get();
             _coverEntity.addChild(entity);
         }
         {
@@ -292,7 +296,7 @@ private:
                 .fold!"b"(0f);
             float y = letters
                 .take(_selectedIndex)
-                .map!"a.getEntity.obj.pos.y"
+                .map!"cast(float)a.getEntity.obj.pos.y"
                 .fold!"b"(-_label.getFontSize/2);
             auto geom = Rect.create(2, _label.getFontSize, Rect.OriginX.Left, Rect.OriginY.Center);
             auto entity = new EntityTemp!(GeometryRect, TextAreaComponentCoverMaterial)(geom);
@@ -306,7 +310,7 @@ private:
 
     void updateCover() {
         foreach(entity; _coverEntity.getChildren()) {
-            (cast(TextAreaComponentCoverMaterial)entity.getMesh.mat).opacity = getCoverOpacity();
+            (cast(TextAreaComponentCoverMaterial)entity.getMesh.get().mat).opacity = getCoverOpacity();
         }
     }
 

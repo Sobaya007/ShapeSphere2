@@ -1,5 +1,4 @@
-module sbylib.mesh.Mesh;
-
+module sbylib.mesh.Mesh; 
 import sbylib.camera.Camera;
 import sbylib.wrapper.gl.VertexArray;
 import sbylib.collision.CollisionEntry;
@@ -17,8 +16,12 @@ class Mesh {
     Geometry geom;
     Material mat;
     private VertexArray vao;
-    private Lazy!Uniform[string] getUniforms;
+    private const(Uniform) delegate()[] uniforms;
     private Entity owner;
+
+    invariant {
+        assert(geom !is null);
+    }
 
     this(Geometry geom, Material mat, Entity owner) {
         this.geom = geom;
@@ -36,7 +39,7 @@ class Mesh {
         assert(this.geom);
         assert(this.mat);
     } body{
-        this.mat.set(this.getUniforms);
+        this.mat.set(this.uniforms);
         this.geom.render(this.vao);
     }
 
@@ -44,25 +47,20 @@ class Mesh {
         foreach (demand; this.mat.getDemands()) {
             final switch (demand) {
             case UniformDemand.World:
-                this.setUniform(this.owner.obj.worldMatrix.getLazy!Uniform);
+                this.uniforms ~= () => this.owner.worldMatrix.get();
                 break;
             case UniformDemand.View:
             case UniformDemand.Proj:
             case UniformDemand.Light:
-                this.setUniform(world.getUniform(demand));
+                this.uniforms ~= world.getUniform(demand);
                 break;
             }
         }
-        foreach (uni; this.mat.getUniforms()) {
+        foreach (ud; this.mat.getUniforms()) {
             (u) {
-                this.setUniform(u);
-            }(uni);
+                this.uniforms ~= u;
+            } (ud);
         }
-    }
-
-    final void setUniform(T)(Lazy!T uniform) if (is(T : Uniform)) {
-        auto name = uniform.getName();
-        this.getUniforms[name] = uniform;
     }
 
     Entity getOwner() {

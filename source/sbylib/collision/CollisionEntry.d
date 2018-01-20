@@ -6,6 +6,7 @@ import sbylib.math.Matrix;
 public {
     import sbylib.collision.geometry.CollisionCapsule;
     import sbylib.collision.geometry.CollisionPolygon;
+    import sbylib.collision.geometry.CollisionBVH;
     import sbylib.collision.geometry.CollisionRay;
     import sbylib.collision.geometry.CollisionGeometry;
     import sbylib.collision.CollisionInfo;
@@ -30,34 +31,69 @@ class CollisionEntry {
         return this.owner;
     }
 
-    Maybe!CollisionInfo collide(CollisionEntry collidable) {
-        if (auto cap = cast(CollisionCapsule)this.geom) {
-            if (auto cap2 = cast(CollisionCapsule)collidable.geom) {
-                return collide(cap, cap2);
-            } else if (auto pol = cast(CollisionPolygon)collidable.geom) {
-                return collide(cap, pol);
-            } else {
-                assert(false);
-            }
-        } else if (auto pol = cast(CollisionPolygon)this.geom) {
-            if (auto cap = cast(CollisionCapsule)collidable.geom) {
-                return collide(cap, pol);
-            } else if (auto pol2 = cast(CollisionPolygon)collidable.geom) {
-                return collide(pol, pol2);
-            } else {
-                assert(false);
-            }
-        }
-        assert(false);
+    void collide(ref Array!CollisionInfo result, CollisionEntry collidable) {
+        collide(result, this.geom, collidable.geom);
     }
 
-    Maybe!CollisionInfoRay collide(CollisionRay ray) {
-        if (auto cap = cast(CollisionCapsule)this.geom) {
-            return collide(cap, ray);
-        } else if (auto pol = cast(CollisionPolygon)this.geom) {
-            return collide(pol, ray);
+    void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
+        collide(result, this.geom, ray);
+    }
+
+    public static void collide(ref Array!CollisionInfo result, CollisionGeometry geom, CollisionGeometry geom2) {
+        void add(Maybe!CollisionInfo info) {
+            if (info.isNone) return;
+            result ~= info.get;
         }
-        assert(false);
+
+        if (auto cap = cast(CollisionCapsule)geom) {
+            if (auto cap2 = cast(CollisionCapsule)geom2) {
+                add(collide(cap, cap2));
+            } else if (auto pol = cast(CollisionPolygon)geom2) {
+                add(collide(cap, pol));
+            } else if (auto bvh = cast(CollisionBVH)geom2) {
+                bvh.collide(result, cap);
+            } else {
+                assert(false);
+            }
+        } else if (auto pol = cast(CollisionPolygon)geom) {
+            if (auto cap = cast(CollisionCapsule)geom2) {
+                add(collide(cap, pol));
+            } else if (auto pol2 = cast(CollisionPolygon)geom2) {
+                add(collide(pol, pol2));
+            } else if (auto bvh = cast(CollisionBVH)geom2) {
+                bvh.collide(result, pol);
+            } else {
+                assert(false);
+            }
+        } else if (auto bvh = cast(CollisionBVH)geom) {
+            if (auto cap = cast(CollisionCapsule)geom2) {
+                bvh.collide(result, cap);
+            } else if (auto pol = cast(CollisionPolygon)geom2) {
+                bvh.collide(result, pol);
+            } else if (auto bvh2 = cast(CollisionBVH)geom2) {
+                bvh.collide(result, bvh2);
+            } else {
+                assert(false);
+            }
+        } else {
+            assert(false);
+        }
+    }
+
+    public static void collide(ref Array!CollisionInfoRay result, CollisionGeometry geom, CollisionRay ray) {
+        void add(Maybe!CollisionInfoRay info) {
+            if (info.isNone) return;
+            result ~= info.get;
+        }
+        if (auto cap = cast(CollisionCapsule)geom) {
+            add(collide(cap, ray));
+        } else if (auto pol = cast(CollisionPolygon)geom) {
+            add(collide(pol, ray));
+        } else if (auto bvh = cast(CollisionBVH)geom) {
+            bvh.collide(result, ray);
+        } else {
+            assert(false);
+        }
     }
 
     public static Maybe!CollisionInfo collide(CollisionCapsule capsule1, CollisionCapsule capsule2) {
@@ -69,6 +105,12 @@ class CollisionEntry {
     }
 
     public static Maybe!CollisionInfo collide(CollisionCapsule capsule, CollisionPolygon polygon) {
+        //枝刈り
+        import std.conv;
+        assert(abs(polygon.normal.length - 1) < 1e-3, polygon.normal.length.to!string);
+        auto d1 = abs(dot(capsule.start - polygon.positions[0], polygon.normal));
+        auto d2 = abs(dot(capsule.end - polygon.positions[0], polygon.normal));
+        if (d1 > capsule.radius * 2 && d2 > capsule.radius * 2) return None!CollisionInfo;
         auto r = segPoly(capsule.start, capsule.end, polygon.positions[0], polygon.positions[1], polygon.positions[2], polygon.normal);
         if (r.dist <= capsule.radius) {
             auto depth = fmax(dot(polygon.positions[0] - capsule.start, polygon.normal), dot(polygon.positions[0] - capsule.end, polygon.normal)) + capsule.radius;
@@ -124,7 +166,7 @@ class CollisionEntry {
                            val > max ? max :
                            val;
 
-    private static vec3 segseg(vec3 s1, vec3 e1, vec3 s2, vec3 e2) {
+    private static vec3 segseg(const vec3 s1, const vec3 e1, const vec3 s2, const vec3 e2) {
         if (s1 == e1) {
             if (s2 == e2) {
                 // point & point
@@ -197,7 +239,7 @@ class CollisionEntry {
         vec3 pushVector;
     }
 
-    private static PolySegResult segPoly(vec3 s, vec3 e, vec3 p0, vec3 p1, vec3 p2, vec3 n) {
+    private static PolySegResult segPoly(const vec3 s, const vec3 e, const vec3 p0, const vec3 p1, const vec3 p2, const vec3 n) {
         // 平行でないとき
         //   線分が完全にポリゴン(平面)の片側に寄っている場合
         //     線分の端点が面領域に入っているとき
@@ -251,7 +293,7 @@ class CollisionEntry {
                 vec3 r = segseg(s, e, p0, p1);
                 r = min(r, segseg(s, e, p1, p2));
                 r = min(r, segseg(s, e, p2, p0));
-                return PolySegResult(r.length, r.safeNormalize);
+                return PolySegResult(r.length, n);
             }
         } else {
             auto s0 = dot(n, cross(p1 - p0, p0 - s));
@@ -266,13 +308,14 @@ class CollisionEntry {
                 //ポリゴンは凸形状なので、端点が両方とも面領域に入っていれば全体が面領域に入っている
                 // 5
                 auto dist = abs(dot(p0 - s, n));
+                //writeln("5: ", dist);
                 return PolySegResult(dist, n);
             } else {
                 // 6
                 vec3 r = segseg(s, e, p0, p1);
                 r = min(r, segseg(s, e, p1, p2));
                 r = min(r, segseg(s, e, p2, p0));
-                return PolySegResult(r.length, r.safeNormalize);
+                return PolySegResult(r.length, n); //?
             }
         }
     }

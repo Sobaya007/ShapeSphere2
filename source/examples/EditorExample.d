@@ -28,7 +28,7 @@ void editorExample() {
     float h = screen.getHeight;
 
     auto camera = new OrthoCamera(w, h, -1, 1);
-    camera.getObj.pos = vec3(w/2, h/2, 0);
+    camera.pos = vec3(w/2, h/2, 0);
     world.setCamera(camera);
 
     auto control = new GuiControl(window, camera, viewport, world, core.getKey());

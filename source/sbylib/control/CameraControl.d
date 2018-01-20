@@ -14,57 +14,50 @@ import sbylib.utils.Lazy;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
+import sbylib.core;
 import std.math;
 import std.algorithm;
 
 class CameraControl {
 
-    enum Mode {None, Translate, Rotate}
-
     private Key key;
     private Mouse mouse;
     private CollisionRay ray;
     private Camera camera;
-    private Mode mode;
     private float z;
+    private bool cameraRotate;
 
     this(Key key, Mouse mouse, Camera camera) {
         this.ray = new CollisionRay();
         this.key = key;
         this.mouse = mouse;
         this.camera = camera;
-        this.mode = Mode.None;
         this.z = 10;
+        this.cameraRotate = false;
     }
 
     void update() {
-        final switch(this.mode) {
-        case Mode.None:
-            this.none();
-            break;
-        case Mode.Translate:
-            this.translate();
-            break;
-        case Mode.Rotate:
+        if (mouse.justPressed(MouseButton.Button1)) {
+            this.cameraRotate = true;
+            Core().getWindow().setCursorMode(CursorMode.Disabled);
+        }
+        if (mouse.justPressed(MouseButton.Button2)) {
+            this.cameraRotate = false;
+            Core().getWindow().setCursorMode(CursorMode.Normal);
+        }
+        this.translate();
+        if (cameraRotate) {
             this.rotate();
-            break;
         }
     }
 
-    private void none() {
-        import std.algorithm;
-        if (this.mouse.justPressed(MouseButton.Button1)) {
-            this.mode = Mode.Translate;
-        }
-        if (this.mouse.justPressed(MouseButton.Button2)) {
-            this.mode = Mode.Rotate;
-        }
+    private void translate() {
         enum speed = 0.2;
         if (this.key[KeyButton.KeyW]) {
-            this.camera.pos += this.camera.rot.column[1] * speed;
+            this.camera.pos -= this.camera.rot.column[2] * speed;
         }
         if (this.key[KeyButton.KeyS]) {
-            this.camera.pos -= this.camera.rot.column[1] * speed;
+            this.camera.pos += this.camera.rot.column[2] * speed;
         }
         if (this.key[KeyButton.KeyA]) {
             this.camera.pos -= this.camera.rot.column[0] * speed;
@@ -73,34 +66,22 @@ class CameraControl {
             this.camera.pos += this.camera.rot.column[0] * speed;
         }
         if (this.key[KeyButton.KeyQ]) {
-            this.camera.pos -= this.camera.rot.column[2] * speed;
+            this.camera.pos -= this.camera.rot.column[1] * speed;
         }
         if (this.key[KeyButton.KeyE]) {
-            this.camera.pos += this.camera.rot.column[2] * speed;
+            this.camera.pos += this.camera.rot.column[1] * speed;
         }
-    }
-
-    private void translate() {
-        if (this.mouse.justReleased(MouseButton.Button1)) {
-            this.mode = Mode.None;
-            return;
-        }
-        auto dif2 = mouse.getDif();
-        this.camera.pos -= this.camera.worldMatrix.toMatrix3() * vec3(dif2, 0);
     }
 
     private void rotate() {
-        if (this.mouse.justReleased(MouseButton.Button2)) {
-            this.mode = Mode.None;
-            return;
-        }
         auto dif2 = this.mouse.getDif();
-        if (dif2.length < 0.01) return;
-        auto rotX = mat3.axisAngle(this.camera.rot.column[0], -dif2.y.rad);
-        auto rotY = mat3.axisAngle(this.camera.rot.column[1], dif2.x.rad);
-        auto rot = abs(dif2.x) > abs(dif2.y) ? rotY : rotX;
-        this.camera.rot = rot * this.camera.rot;
-        auto focus = this.camera.pos + this.camera.rot.column[2] * this.z;
-        this.camera.pos = focus + mat3.transpose(rot) * (this.camera.pos - focus);
+        auto r = dif2.length.rad;
+        auto a = safeNormalize(this.camera.rot * vec3(-dif2.y, dif2.x, 0));
+        auto rot = mat3.axisAngle(a, r);
+        rot *= this.camera.rot;
+        auto forward = rot.column[2];
+        auto side = normalize(cross(vec3(0,1,0), forward));
+        auto up = normalize(cross(forward, side));
+        this.camera.rot = mat3(side, up, forward);
     }
 }

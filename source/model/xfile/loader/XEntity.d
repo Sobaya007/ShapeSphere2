@@ -15,14 +15,18 @@ class XEntity {
             テスト用の関数なので実際のゲームでは用いない
     */
     Entity buildEntity() {
+        return buildEntity(new DefaultMaterialBuilder);
+    }
+
+    Entity buildEntity(MaterialBuilder materialBuilder) {
         Entity entity = new Entity;
         foreach(child; this.children) {
-            entity.addChild(child.buildEntity());
+            entity.addChild(child.buildEntity(materialBuilder));
         }
         if (this.geometry !is null) {
             VertexNT[] vertices = this.geometry.buildVertices();
             foreach(leviathan; this.leviathans) {
-                entity.addChild(leviathan.buildEntity(vertices));
+                entity.addChild(leviathan.buildEntity(vertices, materialBuilder));
             }
         }
         return entity;

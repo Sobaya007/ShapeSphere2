@@ -46,12 +46,12 @@ class MaterialUtils {
             return fragAST;
         }
 
-        override Lazy!Uniform[] getUniforms() {
+        override const(Uniform) delegate()[] getUniforms() {
             import std.traits;
-            Lazy!Uniform[] result;
+            const(Uniform) delegate()[] result;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
-                static if (isAssignable!(Uniform, type)) {
-                    result ~= new Lazy!Uniform(() => mixin("this." ~ FieldNameTuple!(typeof(this))[i]));
+                static if (is(typeof({const(Uniform) u = type.init;}))) {
+                    result ~= () => cast(const(Uniform))mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
                 }
             }
             return result;
@@ -74,7 +74,8 @@ class MaterialUtils {
                 this.constructor();
             }
             constructor(this);
-            foreach (u; this.getUniforms) {
+            foreach (ud; this.getUniforms) {
+                auto u = cast(Uniform)ud(); //ゆるして
                 assert(u, "Uniform variable must be initialized");
                 u.setName(replace(u.getName()));
             }
@@ -113,11 +114,11 @@ class MaterialUtils {
             return fragAST;
         }
 
-        override Lazy!Uniform[] getUniforms() {
-            Lazy!Uniform[] result;
+        override const(Uniform) delegate()[] getUniforms() {
+            const(Uniform) delegate()[] result;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
-                static if (isAssignable!(Uniform, type)) {
-                    result ~= new Lazy!Uniform(() => mixin("this." ~ FieldNameTuple!(typeof(this))[i]));
+                static if (is(typeof({const(Uniform) u = type.init;}))) {
+                    result ~= () => mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
                 }
             }
             result ~= this.a.getUniforms();

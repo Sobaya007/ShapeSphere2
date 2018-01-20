@@ -30,11 +30,11 @@ public:
     }
 
     bool isChecked() @property {
-        return (cast(CheckBoxComponentMaterial)entity.getMesh().mat).isChecked;
+        return (cast(CheckBoxComponentMaterial)entity.getMesh().get().mat).isChecked;
     }
 
     void check() {
-        (cast(CheckBoxComponentMaterial)entity.getMesh().mat).isChecked ^= true;
+        (cast(CheckBoxComponentMaterial)entity.getMesh().get().mat).isChecked ^= true;
     }
 
     override void onMouseReleased(MouseButton mouseButton, bool isCollided) {
