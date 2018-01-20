@@ -82,6 +82,7 @@ void textExample() {
         mat.color = vec4(vec3(1) - l.getColor().rgb, 1);
         auto entity = new Entity(Rect.create(l.getWidth, l.getHeight), mat);
         entity.obj.pos = l.getPos(Label.OriginX.Center, Label.OriginY.Center);
+        entity.obj.pos.z -= 0.1;
         world.add(entity);
     }
     core.addProcess(render, "render");
