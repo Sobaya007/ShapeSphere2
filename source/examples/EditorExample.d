@@ -44,7 +44,6 @@ protected:
         float w = 1200;
         float h = 900;
 
-        auto spacer = new SpacerComponent(400, 400);
         auto label = new LabelComponent("D is 神"d, 50, vec4(0.6, 0.7, 0.8, 1.0));
         auto button = new ButtonComponent(500, 50, "犯人は"d, 40);
 
@@ -61,10 +60,12 @@ protected:
             button.setText(ary[i]);
         });
 
+        auto spacer = new SpacerComponent(400, 400);
+
 
         auto component = new ComponentListComponent(
             ComponentListComponent.Direction.Vertical,
-            spacer, label, groupBox, textArea, dropDown, button
+            label, groupBox, textArea, dropDown, button, spacer
         );
 
         return component;
