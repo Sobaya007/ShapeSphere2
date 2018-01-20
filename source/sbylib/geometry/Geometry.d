@@ -10,7 +10,7 @@ import sbylib.geometry.Vertex;
 import sbylib.geometry.Face;
 import sbylib.material.Material;
 import sbylib.utils.Functions;
-import sbylib.collision.geometry.CollisionPolygon;
+import sbylib.collision.geometry.CollisionBVH;
 import sbylib.collision.CollisionEntry;
 import sbylib.mesh.Object3D;
 import sbylib.math.Vector;
@@ -25,7 +25,7 @@ interface Geometry {
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
     IndexBuffer getIndexBuffer();
     void updateBuffer();
-    CollisionPolygon[] createCollisionPolygons();
+    CollisionGeometry[] createCollisionPolygon();
 }
 
 alias GeometryP = GeometryTemp!([Attribute.Position]);
@@ -125,13 +125,13 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
         }
     }
 
-    override CollisionPolygon[] createCollisionPolygons() {
-        CollisionPolygon[] colPolygons;
+    override CollisionGeometry[] createCollisionPolygon() {
+        CollisionGeometry[] colPolygons;
         foreach (i, face; this.faces) {
             auto poly = new CollisionPolygon(
-                    this.vertices[face.indexList[0]].position,
+                    this.vertices[face.indexList[2]].position,
                     this.vertices[face.indexList[1]].position,
-                    this.vertices[face.indexList[2]].position);
+                    this.vertices[face.indexList[0]].position);
             colPolygons ~= poly;
         }
         return colPolygons;

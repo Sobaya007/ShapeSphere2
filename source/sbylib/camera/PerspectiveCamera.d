@@ -24,6 +24,7 @@ private:
     Observer!umat4 _projMatrix;
 public:
     Entity entity;
+    alias getEntity this;
 
     this(float aspect, Degree fovy, float nearZ, float farZ) {
         this.aspectWperH = new Observed!float(aspect);
@@ -40,8 +41,8 @@ public:
         this._projMatrix.capture(this.farZ);
     }
 
-    override inout(Object3D) getObj() inout {
-        return this.entity.obj;
+    override inout(Entity) getEntity() inout {
+        return this.entity;
     }
 
     override @property Observer!umat4 projMatrix() {

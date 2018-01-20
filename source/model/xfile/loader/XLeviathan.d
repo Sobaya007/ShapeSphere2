@@ -8,9 +8,10 @@ class XLeviathan {
     XMaterial material;
     uint[] indices;
 
-    Entity buildEntity(VertexNT[] vertices) {
+    Entity buildEntity(VertexNT[] vertices, MaterialBuilder materialBuilder) {
+        import std.range, std.array;
         Geometry geometry = new GeometryNT(vertices, this.indices);
-        Material material = this.material.buildMaterial();
+        Material material = materialBuilder.buildMaterial(this.material);
         return new Entity(geometry, material);
     }
 

@@ -1,6 +1,7 @@
 module game.player.NeedleSphere;
 
 public import game.player.BaseSphere;
+import game.stage.Map;
 import game.Game;
 import game.player.ElasticSphere;
 import game.player.PlayerMaterial;
@@ -14,23 +15,29 @@ import std.stdio;
 
 class NeedleSphere : BaseSphere {
 
+    struct Wall {
+        float allowedPenetration;
+        float normalImpulseMin;
+    }
+
     private static immutable {
         float FRICTION = 2.0f;
         float MAX_RADIUS = 1.5f;
         float DEFAULT_RADIUS = 1.0f;
         float MIN_RADIUS = 0.7f;
-        float ALLOWED_PENETRATION = 0.4f;
-        float MAX_PENETRATION = MAX_RADIUS * 0.2;
+        Wall NORMAL_WALL = Wall(0.05f, 0f);
+        Wall SAND_WALL = Wall(0.5f, -0.3f);
+        float MAX_PENETRATION = 0.1f;
         float SEPARATION_COEF = 1f / Player.TIME_STEP;
         float RESTITUTION_RATE = 0.3f;
         float MASS = 1.0f;
         float AIR_REGISTANCE = 0.5f;
-        float GRAVITY = 10.0f;
+        float GRAVITY = 30.0f;
 
         float MASS_INV = 1.0f / MASS;
         float INERTIA_INV = 2.5 / (MASS * MAX_RADIUS * MAX_RADIUS);
         uint RECURSION_LEVEL = 2;
-        float MAX_VELOCITY = 40;
+        float MAX_VELOCITY = 20;
     }
 
     private NeedleParticle[] particleList;
@@ -40,6 +47,8 @@ class NeedleSphere : BaseSphere {
     private vec3 lVel;
     private vec3 aVel;
     private vec3 _lastDirection;
+    private Maybe!vec3 contactNormal;
+    private Entity line;
 
     alias parent this;
 
@@ -59,6 +68,11 @@ class NeedleSphere : BaseSphere {
         foreach (p; particleList) {
             p.isStinger = p.next.all!(a => a.isStinger == false);
         }
+        auto cmat = new ColorMaterial;
+        cmat.color = vec4(1,0,0,1);
+        this.line = new Entity(Capsule.create(0.1, vec3(0), vec3(0,3,0)), cmat);
+        this.line.visible = false;
+        this.entity.addChild(this.line);
     }
 
     void initialize(ElasticSphere elasticSphere) {
@@ -79,7 +93,9 @@ class NeedleSphere : BaseSphere {
     }
 
     override void move() {
-        this.lVel.y -= GRAVITY * Player.TIME_STEP;
+        if (this.contactNormal.isNone) {
+            this.lVel.y -= GRAVITY * Player.TIME_STEP;
+        }
         this.lVel -= AIR_REGISTANCE * this.lVel * Player.TIME_STEP / MASS;
         if (this.lVel.length > MAX_VELOCITY) this.lVel *= MAX_VELOCITY / this.lVel.length;
         this.collision();
@@ -116,16 +132,49 @@ class NeedleSphere : BaseSphere {
         this.needleCount -= 0.05;
     }
 
+    override void onMovePress(vec2 v) {
+        this.lVel += mat3.rotFromTo(vec3(0,1,0), this.contactNormal.getOrElse(vec3(0,1,0))) * this.camera.rot * vec3(v.x, 0, v.y) * 0.8;
+    }
+
     private void collision() {
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
-        this.parent.floors.each!(floor => floor.collide(colInfos, this.entity));
+        Game.getMap().getPolygon().collide(colInfos, this.entity);
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
-        foreach (colInfo; colInfos) {
+        auto lastContactNormal = this.contactNormal;
+        this.contactNormal = None!vec3;
+        Maybe!size_t newWallIndex;
+        Maybe!size_t lastWallIndex;
+        foreach (i, colInfo; colInfos) {
             contacts ~= Contact(colInfo, this);
+            colInfo.getOther(this.entity).getParent().getUserData().apply!((Variant data) {
+                if (auto matNamePtr = data.peek!string) {
+                    auto matName = *matNamePtr;
+                    import std.algorithm;
+                    if (matName.canFind("Sand")) {
+                        auto nc = normalize(colInfo.getPushVector(this.entity));
+                        if (this.contactNormal.isNone || nc.y < this.contactNormal.y) {
+                            this.contactNormal = Just(nc);
+                            if (this.contactNormal != lastContactNormal) {
+                                newWallIndex = Just(i);
+                            } else {
+                                lastWallIndex = Just(i);
+                            }
+                        }
+                    }
+                }
+            });
         }
-        foreach (i; 0..3) {
+        if (newWallIndex.isJust) {
+            contacts[newWallIndex.get].wall = SAND_WALL;
+        } else if (lastWallIndex.isJust) {
+            contacts[lastWallIndex.get].wall = SAND_WALL;
+        }
+        foreach (ref c; contacts) {
+            c.initialize();
+        }
+        foreach (i; 0..10) {
             foreach (contact; contacts) {
                 contact.solve();
             }
@@ -138,12 +187,12 @@ class NeedleSphere : BaseSphere {
     }
 
     private float calcRadius() {
-        auto center = this.entity.obj.pos;
+        vec3 center = this.entity.obj.pos;
         return this.particleList.map!(a => (a.position - center).length).sum / this.particleList.length;
     }
 
     private void rotateParticles() {
-        auto center = this.entity.obj.pos;
+        vec3 center = this.entity.obj.pos;
         auto radius = this.calcRadius();
         quat rot = quat.axisAngle(this.aVel * Player.TIME_STEP);
         foreach (p; this.particleList) {
@@ -235,16 +284,23 @@ class NeedleSphere : BaseSphere {
         float normalTotalImpulse;
         float tanTotalImpulse;
         float binTotalImpulse;
+        CollisionInfo info;
+        Wall wall;
 
         this(CollisionInfo info, NeedleSphere sphere) {
+            this.info = info;
             this.sphere = sphere;
+            this.wall = NORMAL_WALL;
+        }
+
+        void initialize() {
             this.normal = info.getPushVector(sphere.entity);
             this.normalTotalImpulse = 0;
             this.tanTotalImpulse = 0;
             this.binTotalImpulse = 0;
 
             //tangentベクトルは物体間の相対速度から法線成分を抜いた方向
-            auto center = sphere.entity.obj.pos;
+            vec3 center = sphere.entity.obj.pos;
             auto colPoint = center - MAX_RADIUS * this.normal;
             auto colPointVel = sphere.calcVelocity(colPoint);
             auto relativeColPointVel = colPointVel;
@@ -278,11 +334,11 @@ class NeedleSphere : BaseSphere {
             //    nvel = 0;
             //}
 
-            auto penetration = info.getDepth - ALLOWED_PENETRATION; //ちょっと甘くする
+            auto penetration = info.getDepth - wall.allowedPenetration; //ちょっと甘くする
             penetration = min(penetration, MAX_PENETRATION); //大きく埋まりすぎていると吹っ飛ぶ
             auto separationVelocity = penetration * SEPARATION_COEF;
-            auto restitutionVelocity = -RESTITUTION_RATE * relativeColPointVelNormal;
-            this.targetNormalLinearVelocity = max(restitutionVelocity, separationVelocity);
+            auto restitutionVelocity = 0;//-RESTITUTION_RATE * relativeColPointVelNormal;
+            this.targetNormalLinearVelocity = separationVelocity;//max(0, separationVelocity);//max(restitutionVelocity, separationVelocity);
         }
 
         void solve() {
@@ -298,7 +354,8 @@ class NeedleSphere : BaseSphere {
             auto newNormalImpulse = (targetNormalLinearVelocity - colPointVelNormal) * normalDenominator;
 
             this.normalTotalImpulse += newNormalImpulse;
-            if (normalTotalImpulse < 0) normalTotalImpulse = 0; //条件
+            auto borderNormalImpulse = wall.normalImpulseMin;
+            normalTotalImpulse = max(normalTotalImpulse, borderNormalImpulse);
             newNormalImpulse = normalTotalImpulse - oldNormalImpulse; //補正
 
             auto normalImpulseVector = normal * newNormalImpulse;
@@ -320,11 +377,11 @@ class NeedleSphere : BaseSphere {
 
             auto maxFrictionSq     = abs(FRICTION * normalTotalImpulse) ^^ 2;
             auto currentFrictionSq = tanTotalImpulse^^2 + binTotalImpulse^^2;
-            if (maxFrictionSq < currentFrictionSq) { //条件
-                auto scale = sqrt(maxFrictionSq / currentFrictionSq);
-                this.tanTotalImpulse *= scale;
-                this.binTotalImpulse *= scale;
-            }
+//            if (maxFrictionSq < currentFrictionSq) { //条件
+//                auto scale = sqrt(maxFrictionSq / currentFrictionSq);
+//                this.tanTotalImpulse *= scale;
+//                this.binTotalImpulse *= scale;
+//            }
 
             newTanImpulse = tanTotalImpulse - oldTanImpulse; //補正
             newBinImpulse = binTotalImpulse - oldBinImpulse; //補正

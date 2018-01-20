@@ -17,7 +17,7 @@ void cameraControlExample() {
 
     Camera camera = new PerspectiveCamera(
             window.getWidth() / window.getHeight(), /* Aspect Ratio   */
-            120.deg, /* FOV (in angle) */
+            60.deg, /* FOV (in angle) */
             0.1, /* Near Clip      */
             100, /* Far Clip       */);
     camera.pos = vec3(3, 2, 9);
@@ -51,6 +51,12 @@ void cameraControlExample() {
     world.add(boxEntity);
     core.addProcess(renderToScreen, "render");
     core.addProcess(&control.update, "update");
+
+    core.addProcess({
+        if (core.getKey().justPressed(KeyButton.Escape)) {
+            core.end();
+        }
+    }, "a");
 
     core.start();
 }

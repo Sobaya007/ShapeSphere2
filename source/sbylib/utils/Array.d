@@ -75,6 +75,19 @@ struct Array(T) {
         return res;
     }
 
+    int opApply(int delegate(size_t, ref T) dg) in {
+        assert(this.valid, invalidMessage);
+    } body {
+        int result = 0;
+        size_t pos = 0;
+        while (pos < this._length) {
+            result = dg(pos, this[pos]);
+            pos++;
+            if (result) break;
+        }
+        return result;
+    }
+
     int opApply(int delegate(ref T) dg) in {
         assert(this.valid, invalidMessage);
     } body {

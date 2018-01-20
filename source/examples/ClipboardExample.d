@@ -36,6 +36,7 @@ void clipboardExample() {
     backMat.color = vec4(1);
     auto backEntity = new Entity(Rect.create(size, size), backMat);
     backEntity.obj.pos = label.getPos(Label.OriginX.Center, Label.OriginY.Center);
+    backEntity.obj.pos.z -= 0.1;
     world.add(backEntity);
 
     bool onCopyKeyPressed() {

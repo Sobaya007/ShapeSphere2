@@ -62,6 +62,14 @@ class GlfwWindow {
         void removeResizeCallback(ResizeCallback cb) {
             this.resizeCallbacks = this.resizeCallbacks.remove!(r => r is cb);
         }
+
+        void setCursorPos(double xpos, double ypos) {
+            glfwSetCursorPos(this.window, xpos, ypos);
+        }
+
+        void setCursorMode(CursorMode mode) {
+            glfwSetInputMode(this.window, GLFW_CURSOR, mode);
+        }
     }
 
     package(sbylib) {

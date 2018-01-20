@@ -5,6 +5,7 @@ public import game.player.NeedleSphere;
 public import game.player.SpringSphere;
 public import game.player.ElasticSphere2;
 import game.Game;
+import game.stage.Map;
 import game.player.PlayerMaterial;
 import game.player.Player;
 import game.character.Character;
@@ -65,7 +66,7 @@ class ElasticSphere : BaseSphere {
         auto arrivalCenter = springSphere.getCenter();
         auto currentCenter = this.getCenter;
         auto dCenter = arrivalCenter - currentCenter;
-        auto height = this.elasticSphere2.getParticleList.map!(p => p.position.y).maxElement - this.elasticSphere2.getParticleList.map!(p => p.position.y).minElement;
+        auto height = this.elasticSphere2.getParticleList.map!(p => cast(float)p.position.y).maxElement - this.elasticSphere2.getParticleList.map!(p => cast(float)p.position.y).minElement;
         auto yrate = ginfo.length / height;
         foreach (particle; this.elasticSphere2.getParticleList) {
             particle.position += dCenter;
@@ -97,7 +98,7 @@ class ElasticSphere : BaseSphere {
     }
 
     Maybe!(ElasticSphere2.WallContact) getWallContact() {
-        return this.elasticSphere2.getWallContact(parent.floors);
+        return this.elasticSphere2.getWallContact();
     }
 
     override vec3 getCameraTarget() {
@@ -151,11 +152,15 @@ class ElasticSphere : BaseSphere {
         scope(exit) info.destroy();
         Game.getWorld3D().queryCollide(info, this.elasticSphere2.entity);
         auto charas = info.map!(colInfo => colInfo.entity.getUserData.fmapAnd!((Variant data) {
-            return wrap(data.peek!(Character));
+            if (auto chara = data.peek!Character) {
+                return Just(*chara); // peekで返ってくるポインタは長生きしない
+            } else {
+                return None!Character;
+            }
         })).filter!(chara => chara.isJust).map!(chara => chara.get);
         if (charas.empty) return;
         auto chara = charas.front();
-        camera.focus(chara.elasticSphere.entity);
+        camera.focus(chara.entity);
         chara.talk(&this.onReturnFromMessage);
     }
 
@@ -172,7 +177,7 @@ class ElasticSphere : BaseSphere {
 
         this.elasticSphere2.force *= calcSidePushForce();
 
-        this.elasticSphere2.move(parent.floors);
+        this.elasticSphere2.move(parent.collisionEntities);
 
         if (this.getLinearVelocity.xz.length > 0.5) {
             this._lastDirection = vec3(this.getLinearVelocity.xz.normalize, 0).xzy;

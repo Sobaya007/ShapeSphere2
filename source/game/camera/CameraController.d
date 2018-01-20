@@ -32,6 +32,7 @@ class CameraController {
     package ConstTemp!float defaultLength, k, c;
     package vec3 vel;
     package vec3 target;
+    package Entity entity;
     private Maybe!vec3 arrival;
     private Behavior[] behaviors;
     private Behavior behavior;
@@ -46,6 +47,8 @@ class CameraController {
         static foreach (Type; BehaviorTypes) {
             this.behaviors ~= new Type(this);
         }
+        this.entity = new Entity(new CollisionCapsule(2, vec3(0), vec3(0)));
+        this.camera.addChild(this.entity);
     }
 
     void initialize() {

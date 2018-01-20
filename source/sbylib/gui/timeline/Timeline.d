@@ -31,7 +31,7 @@ class Timeline : IControllable {
 
         this.rect = new RectEntity(Rect.create(1,1));
         this.rect.getMesh().mat.color = vec4(0.4);
-        this.rect.createCollisionPolygon();
+        this.rect.buildBVH();
         this.minLabel = new Label(font, 0.05);
         this.minLabel.obj.pos = vec3(-0.5, -0.5, -0.1);
         this.minLabel.setColor(vec4(1));
@@ -45,7 +45,7 @@ class Timeline : IControllable {
         this.root.addChild(this.rect);
         this.root.addChild(this.minLabel);
         this.root.addChild(this.maxLabel);
-        this.root.setUserData(cast(void*)cast(IControllable)this);
+        this.root.setUserData(cast(IControllable)this);
     }
 
     void add(float val) {

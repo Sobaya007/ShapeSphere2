@@ -1,6 +1,8 @@
 module sbylib.utils.Maybe;
 
 import std.traits;
+import std.format;
+import std.conv;
 
 struct Maybe(T) {
 
@@ -18,7 +20,7 @@ struct Maybe(T) {
         this._none = none;
     }
 
-    auto opDispatch(string fn, Args...)(lazy Args args) {
+    auto opDispatch(string fn, Args...)(auto ref Args args) {
         static if(args.length == 0) {
             alias F = typeof(mixin("value." ~ fn));
             static if(isCallable!F)
@@ -34,7 +36,7 @@ struct Maybe(T) {
             mixin(MethodCall ~ ';');
         } else {
             if (this.isNone) return None!R;
-            return Just(mixin(MethodCall));
+            return wrap(mixin(MethodCall));
         }
     }
 
@@ -58,6 +60,17 @@ struct Maybe(T) {
 
     bool isNone() {
         return _none;
+    }
+
+    int opCmp(S)(S value) in {
+        assert(this.isJust);
+    } body {
+        return this.value > value;
+    }
+
+    string toString() {
+        if (this.isJust) return format!"Some(%s)"(this.value.to!string);
+        return "None";
     }
 }
 
@@ -104,17 +117,24 @@ Maybe!T None(T)() {
 
 auto wrap(T)(T value) {
 
+    import std.traits;
     static if (isPointer!T) {
         if (value is null) {
-            return None!(PointerTarget!T);
+            return None!(T);
         } else {
-            return Just(*value);
+            return Just(value);
         }
     } else static if (is(typeof(value == null))) {
         if (value == null) {
             return None!T;
         } else {
             return Just(value);
+        }
+    } else static if (isInstanceOf!(Maybe, T)) {
+        if (value.isNone) {
+            return None!T;
+        } else {
+            return value;
         }
     } else {
         return Just(value);
@@ -138,4 +158,8 @@ unittest {
 
     Maybe!A aMaybe;
     assert(aMaybe.isNone);
+
+    intMaybe = Just(1);
+    assert(intMaybe.isJust);
+    assert(intMaybe > 0);
 }

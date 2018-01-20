@@ -16,6 +16,7 @@ private:
 
     const int _duration = 20;
     int _frameCount = _duration;
+    ButtonComponentMaterial material;
 
 public:
     this(
@@ -25,12 +26,13 @@ public:
     ) {
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, ButtonComponentMaterial)(geom);
-        entity.getMesh.mat.darkColor = _darkColor;
-        entity.getMesh.mat.lightColor = _lightColor;
-        entity.getMesh.mat.borderColor = _borderColor;
-        entity.getMesh.mat.borderSize = _borderSize;
-        entity.getMesh.mat.value = 0;
-        entity.getMesh.mat.size = vec2(width, height);
+        this.material = entity.getMesh().mat;
+        this.material.darkColor = _darkColor;
+        this.material.lightColor = _lightColor;
+        this.material.borderColor = _borderColor;
+        this.material.borderSize = _borderSize;
+        this.material.value = 0;
+        this.material.size = vec2(width, height);
 
         _label = label;
         label.x = width/2;
@@ -64,30 +66,30 @@ public:
 
     void setDarkColor(vec4 color) {
         _darkColor = color;
-        (cast(ButtonComponentMaterial)entity.getMesh.mat).darkColor = _darkColor;
+        this.material.darkColor = _darkColor;
     }
 
     void setLightColor(vec4 color) {
         _lightColor = color;
-        (cast(ButtonComponentMaterial)entity.getMesh.mat).lightColor = _lightColor;
+        this.material.lightColor = _lightColor;
     }
 
     void setBorderColor(vec4 color) {
         _borderColor = color;
-        (cast(ButtonComponentMaterial)entity.getMesh.mat).borderColor = _borderColor;
+        this.material.borderColor = _borderColor;
     }
 
     void setBorderSize(float size) {
         _borderSize = size;
-        (cast(ButtonComponentMaterial)entity.getMesh.mat).borderSize = _borderSize;
+        this.material.borderSize = _borderSize;
     }
 
     override float width() {
-        return (cast(ButtonComponentMaterial)entity.getMesh.mat).size.x;
+        return this.material.size.x;
     }
 
     override float height() {
-        return (cast(ButtonComponentMaterial)entity.getMesh.mat).size.y;
+        return this.material.size.y;
     }
 
     override void onMouseReleased(MouseButton mouseButton, bool isCollided) {
@@ -101,7 +103,7 @@ public:
         int t = _duration/2;
         float y = (t-_frameCount)^^2/cast(float)t^^2;
         float value = max(0, 1 - y);
-        (cast(ButtonComponentMaterial)entity.getMesh.mat).value = value;
+        this.material.value = value;
         _frameCount++;
     }
 

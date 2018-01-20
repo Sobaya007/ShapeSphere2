@@ -1,8 +1,9 @@
 module game.Game;
 
-import game.command;
-import game.player;
-import game.entity.Message;
+public import game.command;
+public import game.player;
+public import game.stage.Map;
+public import game.entity.Message;
 import sbylib;
 import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv;
 
@@ -15,6 +16,7 @@ static:
 
     private Player player;
 
+    private Map map;
     private Message message;
 
     void initialize(string[] args) {
@@ -28,6 +30,12 @@ static:
         assert(this.player is null);
     } body {
         this.player = new Player(camera);
+    }
+
+    void initializeMap(Map map) in {
+        assert(this.map is null);
+    } body {
+        this.map = map;
     }
 
     ICommandManager getCommandManager() {
@@ -46,6 +54,12 @@ static:
         assert(this.player !is null);
     } body {
         return this.player;
+    }
+
+    Map getMap() in {
+        assert(this.map !is null);
+    } body {
+        return this.map;
     }
 
     Message getMessge() {

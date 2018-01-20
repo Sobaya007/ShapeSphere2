@@ -28,7 +28,7 @@ public:
         entity.getMesh.mat.color = vec4(0, 1, 1, 1); // debug
 
         entity.setUserData(cast(IControllable)this);
-        entity.createCollisionPolygon();
+        entity.buildBVH();
         entity.pos.z = 2;
 
         _entity = entity;

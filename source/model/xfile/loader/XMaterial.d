@@ -2,11 +2,38 @@ module model.xfile.loader.XMaterial;
 
 import sbylib;
 
+interface MaterialBuilder {
+    Material buildMaterial(XMaterial);
+}
+
+class DefaultMaterialBuilder : MaterialBuilder {
+
+    override Material buildMaterial(XMaterial xmat) {
+        if (xmat.hasTexture()) {
+            PhongTextureMaterial material = new PhongTextureMaterial;
+            material.diffuse = xmat.diffuse.xyz;
+            material.specular = xmat.specular;
+            material.ambient = vec4(xmat.ambient, 1.0);
+            material.power = xmat.power;
+            material.texture = Utils.generateTexture(ImageLoader.load(ImagePath(xmat.getTextureFileName)));
+            return material;
+        } else {
+            PhongMaterial material = new PhongMaterial;
+            material.diffuse = xmat.diffuse.xyz;
+            material.specular = xmat.specular;
+            material.ambient = vec4(xmat.ambient, 1.0);
+            material.power = xmat.power;
+            return material;
+        }
+    }
+}
+
 class XMaterial {
     vec4 diffuse;
     vec3 specular;
     vec3 ambient;
     float power;
+    string name;
 
     private bool _hasTexture = false;
     private string _textureFileName;
@@ -22,25 +49,6 @@ class XMaterial {
 
     string getTextureFileName() {
         return _textureFileName;
-    }
-
-    Material buildMaterial() {
-        if (hasTexture()) {
-            PhongTextureMaterial material = new PhongTextureMaterial;
-            material.diffuse = this.diffuse.xyz;
-            material.specular = this.specular;
-            material.ambient = vec4(this.ambient, 1.0);
-            material.power = this.power;
-            material.texture = Utils.generateTexture(ImageLoader.load(ImagePath(getTextureFileName)));
-            return material;
-        } else {
-            PhongMaterial material = new PhongMaterial;
-            material.diffuse = this.diffuse.xyz;
-            material.specular = this.specular;
-            material.ambient = vec4(this.ambient, 1.0);
-            material.power = this.power;
-            return material;
-        }
     }
 
     override string toString() {

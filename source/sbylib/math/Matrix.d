@@ -131,15 +131,16 @@ public:
         }
     }
 
-    void opOpAssign(string op)(T s) {
+    Matrix!(T,U,V) opOpAssign(string op)(T s) {
         static if (op == "*" || op == "/") {
-            mixin(getOpAssignMSCode(op, U));
+            mixin(getOpAssignMSCode(op, U, V));
         } else {
             static assert(false);
         }
+        return this;
     }
 
-    void opOpAssign(string op, S, uint P, uint Q)(Matrix!(S, P, Q) m) {
+    Matrix!(T,U,V) opOpAssign(string op, S, uint P, uint Q)(Matrix!(S, P, Q) m) {
         static if (op == "+" || op == "-") {
             static assert(U == P && V == Q);
             mixin(getOpAssignMMCode(op, U, V));
@@ -149,6 +150,7 @@ public:
         } else {
             static assert(false);
         }
+        return this;
     }
 
     T opIndex(size_t i, size_t j) const { //i = tate, y = yoko
@@ -172,7 +174,7 @@ public:
         return element;
     }
 
-    Vector!(T,U)[V] column() {
+    Vector!(T,U)[V] column() const {
         Vector!(T,U)[V] result;
         mixin(getColumnCode(U,V));
         return result;
@@ -239,11 +241,12 @@ public:
             }
             static Matrix rotFromTo(Vector!(T,3) from, Vector!(T,3) to) {
                 auto v = cross(from, to);
-                auto s = v.length * (dot(from, to)<0 ? 1: -1);
-                if (s == 0) return identity();
-                auto rad = asin(v.length);
+                auto s = v.length;
+                if (s < 1e-5) return identity();
+                auto l = v.length;
+                auto rad = asin(l < -1 ? -1 : l > 1 ? 1 : l);
                 auto c = cos(rad);
-                v = normalize(v);
+                v = -normalize(v);
                 Matrix result;
                 mixin(getRotAxisCode(3));
                 return result;
@@ -338,7 +341,23 @@ public:
                         );
             }
 
-            Matrix!(T,3,3) toMatrix3() {
+            static Matrix makeTRS(Vector!(T,3) pos, Matrix!(T,3,3) rot, Vector!(T, 3) scale) {
+                return Matrix(
+                        scale.x * rot[0,0], scale.y * rot[0,1], scale.z * rot[0,2], pos.x,
+                        scale.x * rot[1,0], scale.y * rot[1,1], scale.z * rot[1,2], pos.y,
+                        scale.x * rot[2,0], scale.y * rot[2,1], scale.z * rot[2,2], pos.z,
+                        0,0,0, 1);
+            }
+            static Matrix makeInvertTRS(Vector!(T,3) pos, Matrix!(T,3,3) rot, Vector!(T, 3) scale) {
+                auto column = rot.column;
+                return Matrix(
+                        rot[0,0] / scale.x, rot[1,0] / scale.x, rot[2,0] / scale.x, -dot(column[0], pos) / scale.x,
+                        rot[0,1] / scale.y, rot[1,1] / scale.y, rot[2,1] / scale.y, -dot(column[1], pos) / scale.y,
+                        rot[0,2] / scale.z, rot[1,2] / scale.z, rot[2,2] / scale.z, -dot(column[2], pos) / scale.z,
+                        0,0,0, 1);
+            }
+
+            Matrix!(T,3,3) toMatrix3() const {
                 return Matrix!(T,3,3)(element[0..3],element[4..7],element[8..11]);
             }
 
@@ -589,8 +608,10 @@ public:
             }
             T max;
             uint p, q;
+            uint bp = 114514, bq = 114514;
             while (true) {
                 if ((max = getMaxValue(m, p, q)) < 1e-3) break;
+                if (p == bp && q == bq) break;
                 T pp = m[p,p];
                 T pq = m[p,q];
                 T qq = m[q,q];
@@ -618,6 +639,8 @@ public:
                     result[i,q] = s*result[i,p] + c*result[i,q];
                     result[i,p] = tmp;
                 }
+                bp = p;
+                bq = q;
             }
             return result;
         }

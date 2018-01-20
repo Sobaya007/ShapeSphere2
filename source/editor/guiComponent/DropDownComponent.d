@@ -91,6 +91,7 @@ package class MainNodeComponent : AGuiComponent {
 private:
     DropDownComponent _owner;
     LabelComponent _labelComponent;
+    ButtonComponentMaterial material;
 
     const vec4 _darkColor = vec4(0.3, 0.3, 0.3, 1.0);
     const vec4 _lightColor = vec4(0.95, 0.95, 0.95, 1.0);
@@ -113,12 +114,13 @@ public:
 
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, ButtonComponentMaterial)(geom);
-        entity.getMesh.mat.darkColor = _darkColor;
-        entity.getMesh.mat.lightColor = _lightColor;
-        entity.getMesh.mat.borderColor = _borderColor;
-        entity.getMesh.mat.borderSize = _borderSize;
-        entity.getMesh.mat.value = 0;
-        entity.getMesh.mat.size = vec2(width, height);
+        this.material = entity.getMesh().mat;
+        this.material.darkColor = _darkColor;
+        this.material.lightColor = _lightColor;
+        this.material.borderColor = _borderColor;
+        this.material.borderSize = _borderSize;
+        this.material.value = 0;
+        this.material.size = vec2(width, height);
 
         _labelComponent = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
         _labelComponent.x = width/2;
@@ -132,11 +134,11 @@ public:
     }
 
     override float width() {
-        return (cast(ButtonComponentMaterial)entity.getMesh.mat).size.x;
+        return this.material.size.x;
     }
 
     override float height() {
-        return (cast(ButtonComponentMaterial)entity.getMesh.mat).size.y;
+        return this.material.size.y;
     }
 
     override void onMouseReleased(MouseButton mouseButton, bool isCollided) {
@@ -150,7 +152,7 @@ public:
         int t = _duration/2;
         float y = (t-_frameCount)^^2/cast(float)t^^2;
         float value = max(0, 1 - y);
-        (cast(ButtonComponentMaterial)entity.getMesh.mat).value = value;
+        this.material.value = value;
         _frameCount++;
     }
 
@@ -174,6 +176,7 @@ package class ListNodeComponent : AGuiComponent {
 
 private:
     DropDownComponent _owner;
+    ButtonComponentMaterial material;
     const int _index;
     const dstring _text;
     const float _bottomY;
@@ -207,12 +210,13 @@ public:
 
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
         auto entity = new EntityTemp!(GeometryRect, ButtonComponentMaterial)(geom);
-        entity.getMesh.mat.darkColor = _darkColor;
-        entity.getMesh.mat.lightColor = _lightColor;
-        entity.getMesh.mat.borderColor = _borderColor;
-        entity.getMesh.mat.borderSize = _borderSize;
-        entity.getMesh.mat.value = 0;
-        entity.getMesh.mat.size = vec2(width, height);
+        this.material = entity.getMesh().mat;
+        this.material.darkColor = _darkColor;
+        this.material.lightColor = _lightColor;
+        this.material.borderColor = _borderColor;
+        this.material.borderSize = _borderSize;
+        this.material.value = 0;
+        this.material.size = vec2(width, height);
         auto labelComponent = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
         labelComponent.x = width/2;
         labelComponent.y = -height/2;
@@ -223,11 +227,11 @@ public:
     }
 
     override float width() @property {
-        return (cast(ButtonComponentMaterial)entity.getMesh.mat).size.x;
+        return this.material.size.x;
     }
 
     override float height() @property {
-        return (cast(ButtonComponentMaterial)entity.getMesh.mat).size.y;
+        return this.material.size.y;
     }
 
     dstring text() @property {
@@ -259,7 +263,7 @@ public:
         int t = _duration/2;
         float y = (t-_frameCount)^^2/cast(float)t^^2;
         float value = max(0, 1 - y);
-        (cast(ButtonComponentMaterial)entity.getMesh.mat).value = value;
+        this.material.value = value;
         _frameCount++;
 
         move();

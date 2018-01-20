@@ -21,7 +21,7 @@ public:
         auto camera = new OrthoCamera(1, 1, -1, 1);
         auto viewport = new PaneViewport(window, camera, pane.x + pane.width - WIDTH, pane.y, WIDTH, pane.height);
         auto world = new World;
-        camera.getObj.pos = vec3(viewport.getWidth / 2, viewport.getHeight /2, 0);
+        camera.obj.pos = vec3(viewport.getWidth / 2, viewport.getHeight /2, 0);
         world.setCamera(camera);
 
         auto renderer = new Renderer();

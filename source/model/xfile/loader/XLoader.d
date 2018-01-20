@@ -142,9 +142,9 @@ private:
         foreach(i; 0..materials.length) {
             entity.leviathans[i] = new XLeviathan;
             entity.leviathans[i].material = materials[i];
-            entity.leviathans[i].indices = cast(uint[])materialIndices.enumerate.filter!(
+            entity.leviathans[i].indices = materialIndices.enumerate.filter!(
                 a => a.value == i
-            ).map!"a.index".map!(
+            ).map!"cast(uint)a.index".map!(
                 j => iota(3*j, 3*(j+1))
             ).join.array;
         }
@@ -155,6 +155,7 @@ private:
     XMaterial makeMaterial(XMaterialNode xMaterialNode) {
         XMaterial material = new XMaterial;
 
+        material.name = xMaterialNode.name;
         material.diffuse = xMaterialNode.faceColor;
         material.specular = xMaterialNode.specularColor;
         material.ambient = xMaterialNode.emissiveColor;

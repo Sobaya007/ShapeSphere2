@@ -164,7 +164,7 @@ static:
         }
     }
 
-    deprecated void lineWidth(float width) {
+    void lineWidth(float width) {
         glLineWidth(width);
     }
 }

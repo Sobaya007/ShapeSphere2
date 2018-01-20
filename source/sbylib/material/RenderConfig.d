@@ -15,6 +15,7 @@ class RenderConfig {
     BlendEquation blendEquation;
     bool depthWrite, depthTest;
     bool transparency;
+    float lineWidth;
 
     this() {
         this.depthFunc = TestFunc.Less;
@@ -32,6 +33,7 @@ class RenderConfig {
         this.depthWrite = true;
         this.depthTest = true;
         this.transparency = false;
+        this.lineWidth = 1f;
     }
 
     void set() {
@@ -42,5 +44,6 @@ class RenderConfig {
         GlFunction.blendEquation(this.blendEquation);
         GlFunction.depthWrite(this.depthWrite);
         GlFunction.depthTest(this.depthTest);
+        GlFunction.lineWidth(this.lineWidth);
     }
 }
