@@ -45,7 +45,7 @@ class Timeline : IControllable {
         this.root.addChild(this.rect);
         this.root.addChild(this.minLabel);
         this.root.addChild(this.maxLabel);
-        this.root.setUserData(cast(void*)cast(IControllable)this);
+        this.root.setUserData(cast(IControllable)this);
     }
 
     void add(float val) {
