@@ -21,7 +21,7 @@ public:
         GuiComponent[] components...
     ) {
         _direction = direction;
-        _components = components;
+        _components = components.dup;
 
         Entity root = new Entity;
         vec2 acc = vec2(0);
@@ -46,9 +46,9 @@ public:
             : _components.map!"a.height".fold!max(0f);
     }
 
-    override void update(ViewportMouse mouse) {
+    override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
         _components.each!(
-            component => component.update(mouse)
+            component => component.update(mouse, activeControllable)
         );
     }
 

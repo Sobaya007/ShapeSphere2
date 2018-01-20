@@ -5,16 +5,17 @@ import sbylib.wrapper.gl.Functions;
 
 interface IViewport {
     void set();
-    uint getX();
-    uint getY();
+    int getX();
+    int getY();
     uint getWidth();
     uint getHeight();
 }
 
 class Viewport : IViewport {
-    private uint x,y,w,h;
+    private int x,y;
+    private uint w,h;
 
-    this(uint x, uint y, uint w, uint h) {
+    this(int x, int y, uint w, uint h) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -25,10 +26,10 @@ class Viewport : IViewport {
         GlFunction.setViewport(x,y,w,h);
     }
 
-    override uint getX() {
+    override int getX() {
         return this.x;
     }
-    override uint getY() {
+    override int getY() {
         return this.y;
     }
     override uint getWidth() {
@@ -41,7 +42,8 @@ class Viewport : IViewport {
 
 class AutomaticViewport : IViewport {
 
-    private uint x, y, w, h;
+    private int x, y;
+    uint w, h;
     private float aspect;
     private Window window;
 
@@ -75,10 +77,10 @@ class AutomaticViewport : IViewport {
         GlFunction.setViewport(x,y,w,h);
     }
 
-    override uint getX() {
+    override int getX() {
         return this.x;
     }
-    override uint getY() {
+    override int getY() {
         return this.y;
     }
     override uint getWidth() {

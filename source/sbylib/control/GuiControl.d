@@ -60,22 +60,24 @@ class GuiControl {
 private:
     void updateMouse() {
         if (this.mouse.justPressed()) {
-            getCollidedControllable().apply!((IControllable controllable) {
-                this.colEntry[this.mouse.justPressedButton()] = Just(controllable);
-                controllable.onMousePressed(this.mouse.justPressedButton());
-            });
-            this.selectedControllable = None!IControllable;
+            auto mouseButton = this.mouse.justPressedButton();
+            this.colEntry[mouseButton] = getCollidedControllable();
+            this.colEntry[mouseButton].apply!(
+                a => a.onMousePressed(mouseButton)
+            );
+            this.selectedControllable = this.colEntry[mouseButton];
         }
         if (this.mouse.justReleased()) {
             auto mouseButton = this.mouse.justReleasedButton();
-            getCollidedControllable().apply!((IControllable a) {
-                this.colEntry[mouseButton].apply!((IControllable b) {
-                    b.onMouseReleased(mouseButton, a is b);
-                });
-                this.selectedControllable = Just(a);
-            });
-
-            this.colEntry[mouseButton] = None!IControllable;
+            this.colEntry[mouseButton].apply!(
+                a => a.onMouseReleased(
+                    mouseButton,
+                    getCollidedControllable().match!(
+                        b => a is b,
+                        () => false
+                    )
+                )
+            );
         }
     }
 
@@ -118,16 +120,15 @@ private:
 
     void updateControllables() {
         foreach (controllable; this.controllables) {
-            controllable.update(this.mouse);
+            controllable.update(
+                this.mouse,
+                this.selectedControllable
+            );
         }
-        this.selectedControllable.apply!(
-            c => c.activeUpdate(this.mouse)
-        );
     }
 
     Maybe!IControllable getCollidedControllable() {
         import std.algorithm, std.math, std.array;
-
         Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
         return this.world.rayCast(this.ray).fmap!((CollisionInfoRay colInfo) {
             auto entity = colInfo.entity;

@@ -98,7 +98,7 @@ public:
         }
     }
 
-    override void update(ViewportMouse mouse) {
+    override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
         import std.math, std.algorithm;
         int t = _duration/2;
         float y = (t-_frameCount)^^2/cast(float)t^^2;

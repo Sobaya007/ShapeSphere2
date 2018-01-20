@@ -165,7 +165,7 @@ class Entity {
 
     void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) in {
         assert(colEntry !is null);
-    } body { 
+    } body {
         this.colEntry.collide(result, colEntry);
         foreach (child; this.children) {
             child.collide(result, colEntry);

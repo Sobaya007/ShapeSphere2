@@ -47,6 +47,10 @@ public:
         return _fontSize;
     }
 
+    void setFontColor(vec4 color) {
+        _label.setColor(color);
+    }
+
     void setText(dstring text) {
         _label.renderText(text);
     }

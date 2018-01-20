@@ -41,7 +41,7 @@ class World {
         this.camera = camera;
     }
 
-    void add(T)(T[] rs...) 
+    void add(T)(T[] rs...)
     if (isAssignable!(Entity, T)) in {
     } body{
         foreach (r; rs) {
@@ -50,7 +50,7 @@ class World {
         }
     }
 
-    void remove(T)(T[] rs...) 
+    void remove(T)(T[] rs...)
     if (isAssignable!(Entity, T)) in {
     } body{
         auto len = this.entities.length;
