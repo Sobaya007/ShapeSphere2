@@ -21,23 +21,25 @@ class Entity {
     private string name;
     bool visible;
 
-    this(){
+    this(string file = __FILE__, int line = __LINE__){
         this._obj = new Object3D(this);
         this.visible = true;
+        import std.conv;
+        this.name = file ~ " : " ~ line.to!string;
     }
 
-    this(Geometry geom, Material mat) {
-        this();
+    this(Geometry geom, Material mat, string file = __FILE__, int line = __LINE__) {
+        this(file, line);
         this.setMesh(new Mesh(geom, mat, this));
     }
 
-    this(CollisionGeometry colGeom) {
-        this();
+    this(CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
+        this(file, line);
         this.colEntry = Just(new CollisionEntry(colGeom, this));
     }
 
-    this(Geometry geom, Material mat, CollisionGeometry colGeom) {
-        this();
+    this(Geometry geom, Material mat, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
+        this(file, line);
         this.setMesh(new Mesh(geom, mat, this));
         this.colEntry = Just(new CollisionEntry(colGeom, this));
     }
@@ -171,7 +173,9 @@ class Entity {
     }
 
     void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
-        if (this.colEntry.isJust) this.colEntry.get().collide(result, ray);
+        if (this.colEntry.isJust) {
+            this.colEntry.get().collide(result, ray);
+        }
         foreach (child; this.children) {
             child.collide(result, ray);
         }
@@ -239,26 +243,26 @@ class EntityTemp(Geom, Mat) {
     private M mesh;
     Entity entity;
 
-    this(Geom g) {
-        this.entity = new Entity;
+    this(Geom g, string file = __FILE__, int line = __LINE__) {
+        this.entity = new Entity(file, line);
         this.mesh = new M(g, this);
         this.entity.setMesh(this.mesh);
     }
 
-    this(Geom g, Mat m) {
-        this.entity = new Entity;
+    this(Geom g, Mat m, string file = __FILE__, int line = __LINE__) {
+        this.entity = new Entity(file, line);
         this.mesh = new M(g, m, this);
         this.entity.setMesh(this.mesh);
     }
 
-    this(Geom g, CollisionGeometry colGeom) {
-        this.entity = new Entity(colGeom);
+    this(Geom g, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
+        this.entity = new Entity(colGeom, file, line);
         this.mesh = new M(g, this);
         this.entity.setMesh(this.mesh);
     }
 
-    this(Geom g, Mat m, CollisionGeometry colGeom) {
-        this.entity = new Entity(colGeom);
+    this(Geom g, Mat m, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
+        this.entity = new Entity(colGeom, file, line);
         this.mesh = new M(g, m, this);
         this.entity.setMesh(this.mesh);
     }

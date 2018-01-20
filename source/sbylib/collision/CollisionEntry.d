@@ -154,11 +154,6 @@ class CollisionEntry {
         auto s0 = dot(polygon.normal, cross(polygon.positions[1] - polygon.positions[0], p - polygon.positions[1]));
         auto s1 = dot(polygon.normal, cross(polygon.positions[2] - polygon.positions[1], p - polygon.positions[2]));
         auto s2 = dot(polygon.normal, cross(polygon.positions[0] - polygon.positions[2], p - polygon.positions[0]));
-        auto entity = polygon.getOwner();
-        while (entity.getUserData.isNone) {
-            entity = entity.getParent();
-        }
-        auto data = entity.getUserData();
         if (s0 > 0 && s1 > 0 && s2 > 0
             || s0 < 0 && s1 < 0 && s2 < 0) {
             return Just(CollisionInfoRay(polygon.getOwner(), ray, p));

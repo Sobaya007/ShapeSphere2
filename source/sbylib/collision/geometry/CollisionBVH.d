@@ -27,7 +27,6 @@ class CollisionBVH : CollisionGeometry {
             INode[] children;
             private ChangeObservedArray!AABB bounds;
 
-            import std.algorithm, std.array;
             Depends!((const AABB[] bounds) => AABB(bounds.map!(b => b.min).reduce!minVector, bounds.map!(b => b.max).reduce!maxVector)) bound;
 
             this(INode[] children) {
