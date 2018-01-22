@@ -80,9 +80,13 @@ class GameMainScene : SceneBase {
 
         /* FPS Observe */
         auto fpsCounter = new FpsCounter!100();
+        auto fpsLabel = TextEntity("FPS = ", 0.1, Label.OriginX.Left, Label.OriginY.Top);
+        fpsLabel.pos.xy = vec2(-1,1);
+        fpsLabel.setBackColor(vec4(1));
+        world2d.add(fpsLabel);
         core.addProcess((proc) {
             fpsCounter.update();
-            core.getWindow().setTitle(format!"FPS[%d]"(fpsCounter.getFPS()));
+            fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
         }, "fps update");
 
         /* Key Input */
@@ -93,6 +97,7 @@ class GameMainScene : SceneBase {
             }
             if (core.getKey[KeyButton.KeyP]) ConfigManager().load();
             if (core.getKey[KeyButton.Key0]) player.setCenter(vec3(0));
+            if (core.getKey[KeyButton.KeyF]) core.getWindow().toggleFullScreen();
         }, "po");
     }
 

@@ -22,6 +22,7 @@ class Label {
     Entity entity;
     Letter[] letters;
     private vec4 _color;
+    private vec4 backColor;
     private Font font;
     private OriginX originX;
     private OriginY originY;
@@ -45,8 +46,16 @@ class Label {
         foreach (l; this.letters) {
             auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
             mat.color = _color;
-            mat.config.transparency = true;//mat.color.a != 1;
+            mat.config.transparency = true;//mat._color.a != 1;
             mat.config.depthWrite = false;
+        }
+    }
+
+    void setBackColor(vec4 _color) {
+        this.backColor = _color;
+        foreach (l; this.letters) {
+            auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
+            mat.backColor = _color;
         }
     }
 
@@ -93,6 +102,7 @@ class Label {
             this.letters ~= l;
         }
         this.setColor(this._color);
+        this.setBackColor(this.backColor);
         this.lineUp();
     }
 

@@ -156,6 +156,11 @@ static:
         glViewport(x,y,w,h);
     }
 
+    void scissor(uint x, uint y, uint width, uint height) {
+        enable(Capability.ScissorTest);
+        glScissor(x, y, width, height);
+    }
+
     void checkError(string ext = "") {
         debug {
             if (GLFW.hasTerminated) return;

@@ -3,9 +3,9 @@
 require UV as vec2 uv;
 uniform sampler2D tex;
 uniform vec4 color;
+uniform vec4 backColor;
 
 void main() {
     float po = texture(tex, uv).r;
-    if (po == 0) discard;
-    fragColor = color;
+    fragColor = mix(backColor, color, po);
 }
