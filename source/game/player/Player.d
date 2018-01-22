@@ -113,6 +113,10 @@ class Player : CommandReceiver {
         return this.sphere.getCenter();
     }
 
+    void setCenter(vec3 center) {
+        this.sphere.setCenter(center);
+    }
+
     vec3 getCameraTarget() {
         return this.sphere.getCameraTarget;
     }

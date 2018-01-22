@@ -40,7 +40,6 @@ class GameMainScene : SceneBase {
         }, "player update");
         core.addProcess(&Game.update, "game update");
 
-
         auto map = new Map;
         map.testStage2();
         Game.initializeMap(map);
@@ -93,6 +92,7 @@ class GameMainScene : SceneBase {
                 core.end();
             }
             if (core.getKey[KeyButton.KeyP]) ConfigManager().load();
+            if (core.getKey[KeyButton.Key0]) player.setCenter(vec3(0));
         }, "po");
     }
 
