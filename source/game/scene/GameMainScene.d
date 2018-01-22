@@ -33,22 +33,10 @@ class GameMainScene : SceneBase {
         Game.initializePlayer(camera);
         auto player = Game.getPlayer();
         Game.getCommandManager().setReceiver(player);
-        auto po = [
-            tuple("そばやさんってかっこいいよね"d, vec3(0,1, 6)),
-            tuple("最近街ではそばやさんって人が人気なんだ"d, vec3(10,1, 4)),
-            tuple("そばやさん...イケメンだよなぁ..."d, vec3(-14,1, 10)),
-            tuple("キャーそばやさんよー！抱いてー！！"d, vec3(4,1, -6)),
-        ];
-        Character[] characters;
-        foreach (pair; po) {
-            auto chara = new Character(world3d, pair[0]);
-            chara.setCenter(pair[1]);
-            characters ~= chara;
-        }
-        characters.each!(character => player.collisionEntities ~= character.collisionArea);
+        //characters.each!(character => player.collisionEntities ~= character.collisionArea);
         core.addProcess((proc) {
             player.step();
-            characters.each!(character => character.step());
+            //characters.each!(character => character.step());
         }, "player update");
         core.addProcess(&Game.update, "game update");
 
@@ -77,11 +65,6 @@ class GameMainScene : SceneBase {
         auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));
         world2d.add(compass);
         compass.pos = vec3(0.75, -0.75, 0);
-
-
-        foreach (character; characters) {
-            character.initialize();
-        }
 
         /* Light Settings */
         PointLight pointLight;

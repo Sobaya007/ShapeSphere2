@@ -3,6 +3,8 @@ module game.stage.Map;
 import sbylib;
 import game.Game;
 import model.xfile.loader;
+import game.character;
+import std.json, std.file;
 
 class Map {
     private Entity polygons;
@@ -43,8 +45,8 @@ class Map {
     }
 
     void testStage2() {
+        auto jsonData = parseJSON(readText("Resource/stage/Stage1.json")).object();
         import game.stage.StageMaterial;
-        auto loader = new XLoader();
         class StageMaterialBuilder : MaterialBuilder {
             override Material buildMaterial(XMaterial xmat) {
                 if (xmat.hasTexture()) {
@@ -65,16 +67,43 @@ class Map {
                 }
             }
         }
-        auto builder = new StageMaterialBuilder();
-        auto model = loader.load(ModelPath("test.x")).buildEntity(builder);
-        model.buildBVH((Entity bvh) {
-            bvh.getParent().getMesh.apply!((Mesh m) {
-                if (auto stageMat = cast(StageMaterial)m.mat) {
-                    bvh.getParent.setUserData(stageMat.getName);
-                }
+
+        addModel(jsonData["Model"].str(), new StageMaterialBuilder);
+
+        foreach (model; this.polygons.getChildren) {
+            model.buildBVH((Entity bvh) {
+                bvh.getParent().getMesh.apply!((Mesh m) {
+                    if (auto stageMat = cast(StageMaterial)m.mat) {
+                        bvh.getParent.setUserData(stageMat.getName);
+                    }
+                });
             });
-        });
+        }
+
+        addNPC(jsonData["NPC"].array());
+    }
+
+    private void addModel(string modelPath, MaterialBuilder builder) {
+        auto loader = new XLoader();
+        auto model = loader.load(ModelPath(modelPath)).buildEntity(builder);
         this.polygons.addChild(model);
+    }
+
+    private void addNPC(JSONValue[] jsonData) {
+        import std.algorithm : map, each;
+        import std.array;
+        import std.conv;
+        Character[] characters;
+        foreach (data; jsonData) {
+            auto obj = data.object();
+            auto chara = new Character(Game.getWorld3D(), obj["serif"].str().to!dstring);
+            chara.setCenter(vec3(obj["pos"].as!(float[])));
+            characters ~= chara;
+            Game.getPlayer().collisionEntities ~= chara.collisionArea;
+        }
+        Core().addProcess((proc) {
+            characters.each!(c => c.step());
+        }, "player update");
     }
 
     Entity getPolygon() {
