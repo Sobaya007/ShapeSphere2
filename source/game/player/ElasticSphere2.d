@@ -56,7 +56,6 @@ class ElasticSphere2 {
     this() {
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
-        mat.config.depthWrite = false;
         mat.config.faceMode = FaceMode.Front;
         mat.config.transparency = true;
         this(mat);
