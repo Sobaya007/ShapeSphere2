@@ -349,11 +349,11 @@ class Utils {
     }
 
     // Singleton パターン
-    template singleton(T ...) {
-        static typeof(this) opCall(T t) {
-            static typeof(this) instance;
-            if(!instance) instance = new typeof(this)(t);
-            return instance;
+    mixin template Singleton() {
+        private static typeof(this) _instance;
+        static typeof(this) opCall() {
+            if(_instance is null) _instance = new typeof(this)();
+            return _instance;
         }
     }
 

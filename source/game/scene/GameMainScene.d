@@ -109,7 +109,7 @@ class GameMainScene : SceneBase {
                 Game.getCommandManager().save();
                 core.end();
             }
-            if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
+            if (core.getKey[KeyButton.KeyP]) ConfigManager().load();
         }, "po");
     }
 
