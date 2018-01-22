@@ -78,11 +78,11 @@ struct ChangeObserved(T) {
     alias Type = Unqual!T;
     private Type value;
 
-    this(lazy Type value, string file = __FILE__, int line = __LINE__) {
+    this(Type value) {
         this.value = value;
     }
 
-    this(lazy Type value, void delegate()[] onChange) {
+    this(Type value, void delegate()[] onChange) {
         this.value = value;
         this.callbacks = onChange;
     }
@@ -281,7 +281,7 @@ struct Depends(alias Function, Type = ReturnType!Function) {
     private Views views;
     private void delegate()[Args.length] removers;
     private bool needsUpdate;
-    private bool initialized;
+    bool initialized;
 
     this(Type initial) {
         this.value = initial;
@@ -293,7 +293,9 @@ struct Depends(alias Function, Type = ReturnType!Function) {
 
     mixin ImplChangeCallback;
 
-    void depends(Dependency...)(ref Dependency dependency) if (Dependency.length == Args.length) {
+    enum canAccept(Type) = is(typeof(Type.init.getTarget));
+
+    void depends(Dependency...)(ref Dependency dependency) if (Dependency.length == Args.length && allSatisfy!(canAccept, Dependency)) {
         if (this.initialized) this.clearDependency();
         foreach (i, ref v; dependency) {
             this.views[i] = () => cast(const(Args[i]))v.get();
@@ -318,7 +320,7 @@ struct Depends(alias Function, Type = ReturnType!Function) {
     alias get this;
 
     void notify() in {
-        assert(this.initialized);
+        assert(this.initialized, "You must call 'depends' before use of this.");
     } body {
         if (this.needsUpdate) return;
         this.needsUpdate = true;

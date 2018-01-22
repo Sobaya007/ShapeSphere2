@@ -36,7 +36,6 @@ class ConfigManager {
 class ConfigFile {
 
     private ConfigPath path;
-    private IConfigValue[] values;
 
     private this(ConfigPath path) {
         this.path = path;
@@ -56,11 +55,7 @@ class ConfigFile {
     mixin Signal!(ConfigPath, string, JSONValue);
 }
 
-interface IConfigValue {
-    void setValue(ConfigPath, string, JSONValue);
-}
-
-class ConfigValue(Type) : IConfigValue {
+class ConfigValue(Type) {
     private {
         bool initialized;
         Type value;
@@ -137,22 +132,20 @@ class ConfigValue(Type) : IConfigValue {
         assert(false);
     }
 
-    auto getValue() {
+    auto ref getValue() {
         if (!initialized) {
             this.initialize();
             this.initialized = true;
         }
-        import std.traits;
-        static if (isCopyable!(Type)) {
-            return this.value;
-        } else {
-            return this.value.get();
-        }
+        return this.value;
     }
 
-    import std.typecons;
+    import std.traits;
+    static if (isCopyable!Type) {
+        import std.typecons;
+        mixin Proxy!(getValue);
+    }
 
-    mixin Proxy!(getValue);
     alias getValue this;
 }
 
@@ -160,4 +153,10 @@ mixin template DeclareConfig(Type, string name, string path) {
     import std.format;
     enum TypeString = format!"ConfigValue!(%s)"(Type.stringof);
     mixin(format!`%s %s = new %s(ConfigPath("%s"), "%s");`(TypeString, name, TypeString, path, name));
+}
+
+mixin template DeclareConfig(Type, Type2, string name, string path) {
+    import std.format;
+    enum TypeString = format!"ConfigValue!(%s)"(Type2.stringof);
+    mixin(format!`%s %s = new %s(ConfigPath("%s"), "%s");`(Type.stringof, name, TypeString, path, name));
 }
