@@ -12,7 +12,7 @@ class CollisionBVH : CollisionGeometry {
 
     private {
 
-        debug mixin DeclareConfig!(bool, "USE_BVH", "etc.json");
+        mixin DeclareConfig!(bool, "USE_BVH", "etc.json");
 
         struct GeomWithCenter {
             CollisionGeometry geom;
