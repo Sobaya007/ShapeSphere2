@@ -238,7 +238,7 @@ struct ChangeObserved(T) {
                 }
             } else {
                 // some template function?
-                auto opDispatch(Args...)(ref Args args) if (is(typeof(mixin(Member ~ "(args)")))) {
+                auto ref opDispatch(Args...)(ref Args args) if (is(typeof(mixin(Member ~ "(args)")))) {
                     enum InstancedMember = Member ~ "!(Args)";
                     alias R = ReturnType!(mixin(InstancedMember));
                     alias isConst = hasFunctionAttributes!(mixin(InstancedMember), "const");
@@ -250,7 +250,11 @@ struct ChangeObserved(T) {
                     } else {
                         auto result = mixin(InstancedMember ~ "(args)");
                         static if (!isConst) this.onChange();
-                        return ChangeObserved!R(result, this.callbacks);
+                        static if (isCopyable!R) {
+                            return ChangeObserved!R(result, this.callbacks);
+                        } else {
+                            return result;
+                        }
                     }
                 }
             }

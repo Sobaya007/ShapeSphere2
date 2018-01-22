@@ -135,7 +135,7 @@ struct Array(T) {
     }
 }
 
-void sort(alias lessThan, T)(Array!T array) {
+void sort(alias lessThan = (a,b) => a < b, T)(Array!T array) {
     if (array.length == 0) return;
     sort!(lessThan, T)(array, 0, array.length-1);
 }
@@ -158,4 +158,24 @@ private void sort(alias lessThan, T)(Array!T array, size_t begin, size_t end) {
     }
     if (left > 0) sort!(lessThan, T)(array, begin, left-1);
     sort!(lessThan, T)(array, right+1, end);
+}
+
+unittest {
+    import std.random, std.range, std.array;
+    import algorithm = std.algorithm;
+
+    auto array = algorithm.map!(_ => uniform(-100000, 100000))(iota(1000)).array;
+
+    auto array2 = Array!int(1000);
+
+    foreach (a; array) {
+        array2 ~= a;
+    }
+
+    algorithm.sort(array);
+    sort(array2);
+
+    foreach (i; 0..1000) {
+        assert(array[i] == array2[i]);
+    }
 }
