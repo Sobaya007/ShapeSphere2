@@ -88,13 +88,13 @@ class ConfigValue(Type) {
                     break;
                 }
             case JSON_TYPE.INTEGER:
-                static if (is(typeof(this.value = int.init))) {
+                static if (is(typeof(this.value = long.max))) {
                     return value.integer();
                 } else {
                     break;
                 }
             case JSON_TYPE.UINTEGER:
-                static if (is(typeof(this.value = int.init))) {
+                static if (is(typeof(this.value = long.max))) {
                     return value.uinteger();
                 } else {
                     break;
@@ -151,12 +151,14 @@ class ConfigValue(Type) {
 
 mixin template DeclareConfig(Type, string name, string path) {
     import std.format;
+    import sbylib.utils.Path;
     enum TypeString = format!"ConfigValue!(%s)"(Type.stringof);
     mixin(format!`%s %s = new %s(ConfigPath("%s"), "%s");`(TypeString, name, TypeString, path, name));
 }
 
 mixin template DeclareConfig(Type, Type2, string name, string path) {
     import std.format;
+    import sbylib.utils.Path;
     enum TypeString = format!"ConfigValue!(%s)"(Type2.stringof);
     mixin(format!`%s %s = new %s(ConfigPath("%s"), "%s");`(Type.stringof, name, TypeString, path, name));
 }

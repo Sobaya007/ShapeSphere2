@@ -1,5 +1,6 @@
 module sbylib.collision.geometry.CollisionBVH;
 
+import sbylib.utils.Config;
 import sbylib.utils.Change;
 import sbylib.collision.geometry;
 import sbylib.entity.Entity;
@@ -10,6 +11,8 @@ import sbylib.math;
 class CollisionBVH : CollisionGeometry {
 
     private {
+
+        debug mixin DeclareConfig!(bool, "USE_BVH", "etc.json");
 
         struct GeomWithCenter {
             CollisionGeometry geom;
@@ -40,14 +43,14 @@ class CollisionBVH : CollisionGeometry {
             }
 
             override void collide(ref Array!CollisionInfo result, CollisionGeometry geom) {
-                if (!this.bound.collide(geom.getBound())) return;
+                if (USE_BVH == true && !this.bound.collide(geom.getBound())) return;
                 foreach (child; this.children) {
                     child.collide(result, geom);
                 }
             }
 
             override void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
-                if (!this.bound.collide(ray)) return;
+                if (USE_BVH == true  && !this.bound.collide(ray)) return;
                 foreach (child; this.children) {
                     child.collide(result, ray);
                 }
@@ -70,12 +73,12 @@ class CollisionBVH : CollisionGeometry {
             }
 
             override void collide(ref Array!CollisionInfo result, CollisionGeometry geom) {
-                if (!this.geom.getBound().collide(geom.getBound())) return;
+                if (USE_BVH == true && !this.geom.getBound().collide(geom.getBound())) return;
                 CollisionEntry.collide(result, this.geom, geom);
             }
 
             override void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
-                if (!this.geom.getBound().collide(ray)) return;
+                if (USE_BVH == true && !this.geom.getBound().collide(ray)) return;
                 CollisionEntry.collide(result, this.geom, ray);
             }
 
