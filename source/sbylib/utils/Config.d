@@ -2,6 +2,7 @@ module sbylib.utils.Config;
 
 import std.json;
 import sbylib.utils.Path;
+import std.traits;
 
 class ConfigManager {
 
@@ -55,7 +56,7 @@ class ConfigFile {
     mixin Signal!(ConfigPath, string, JSONValue);
 }
 
-class ConfigValue(Type) {
+class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!(ForeachType!Type)) {
     private {
         bool initialized;
         Type value;
@@ -82,43 +83,43 @@ class ConfigValue(Type) {
     auto conv(JSONValue value) {
         switch (value.type) {
             case JSON_TYPE.FLOAT:
-                static if (is(typeof(this.value = float.init))) {
+                static if (isFloatingPoint!(Type)) {
                     return value.floating();
                 } else {
                     break;
                 }
             case JSON_TYPE.INTEGER:
-                static if (is(typeof(this.value = long.max))) {
-                    return value.integer();
+                static if (isNumeric!(Type)) {
+                    return cast(Type)value.integer();
                 } else {
                     break;
                 }
             case JSON_TYPE.UINTEGER:
-                static if (is(typeof(this.value = long.max))) {
-                    return value.uinteger();
+                static if (isNumeric!(Type)) {
+                    return cast(Type)value.uinteger();
                 } else {
                     break;
                 }
             case JSON_TYPE.STRING:
-                static if (is(typeof(this.value = string.init))) {
+                static if (isSomeString!(Type)) {
                     return value.str();
                 } else {
                     break;
                 }
             case JSON_TYPE.TRUE:
-                static if (is(typeof(this.value = true))) {
+                static if (is(Type == bool)) {
                     return true;
                 } else {
                     break;
                 }
             case JSON_TYPE.FALSE:
-                static if (is(typeof(this.value = false))) {
+                static if (is(Type == bool)) {
                     return false;
                 } else {
                     break;
                 }
             case JSON_TYPE.ARRAY:
-                static if (is(typeof(this.value = []))) {
+                static if (isArray!(Type)) {
                     import std.algorithm : map;
                     import std.arary;
                     return this.value.array().map!(this.conv).array;
@@ -129,7 +130,8 @@ class ConfigValue(Type) {
                 import std.format;
                 assert(false, format!"Type '%s' is not allowed."(value.type));
         }
-        assert(false);
+                import std.format;
+        assert(false, format!"Expected Type is '%s', but %s's type is '%s'."(Type.stringof, this.name, value.type));
     }
 
     auto ref getValue() {
@@ -140,7 +142,6 @@ class ConfigValue(Type) {
         return this.value;
     }
 
-    import std.traits;
     static if (isCopyable!Type) {
         import std.typecons;
         mixin Proxy!(getValue);
