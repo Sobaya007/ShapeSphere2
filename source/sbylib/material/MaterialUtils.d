@@ -34,10 +34,11 @@ class MaterialUtils {
 
     mixin template declare(string file = __FILE__) {
         import std.string;
-        import std.file;
+        import std.file, std.path;
         import sbylib.material.glsl.Ast;
         import sbylib.material.glsl.GlslUtils;
-        enum FRAG_ROOT = file.replace(".d", ".frag");
+        import sbylib.utils.Path;
+        enum FRAG_ROOT = ShaderPath(baseName(file).replace(".d", ".frag"));
 
         static Ast generateFragmentAST() {
             auto fragSource = readText(FRAG_ROOT);
@@ -89,11 +90,12 @@ class MaterialUtils {
     mixin template declareMix(alias A, alias B, string file = __FILE__) {
 
         import std.string;
-        import std.file;
+        import std.file, std.path;
         import std.traits;
         import sbylib.material.glsl.Ast;
         import sbylib.material.glsl.GlslUtils;
-        enum FRAG_ROOT = file.replace(".d", ".frag");
+        import sbylib.utils.Path;
+        enum FRAG_ROOT = ShaderPath(baseName(file).replace(".d", ".frag"));
         private A.Keeper a;
         private B.Keeper b;
 
