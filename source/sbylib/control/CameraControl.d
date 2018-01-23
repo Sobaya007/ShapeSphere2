@@ -9,7 +9,6 @@ import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Quaternion;
 import sbylib.math.Angle;
-import sbylib.utils.Lazy;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;

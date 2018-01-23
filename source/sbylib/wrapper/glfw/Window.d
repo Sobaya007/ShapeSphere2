@@ -166,9 +166,7 @@ class GlfwWindow {
         this.setTitle(title);
 
         //Actual window size might differ from given size.
-        glfwGetWindowSize(this.window, &width, &height);
-        this.width = width;
-        this.height = height;
+        glfwGetWindowSize(this.window, &this.width, &this.height);
 
         windows[this.window] = this;
     }

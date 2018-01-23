@@ -1,8 +1,6 @@
 module sbylib.material.UniformKeeper;
 
-import sbylib.material.Material;
-import sbylib.wrapper.gl.Uniform;
-import sbylib.utils.Lazy;
+public import sbylib.wrapper.gl.Uniform;
 
 abstract class UniformKeeper {
 

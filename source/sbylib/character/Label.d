@@ -7,7 +7,6 @@ import sbylib.entity.Mesh;
 import sbylib.material.TextMaterial;
 import sbylib.entity.Object3D;
 import sbylib.math.Vector;
-import sbylib.utils.Lazy;
 import sbylib.character.Letter;
 import std.typecons;
 import std.math;

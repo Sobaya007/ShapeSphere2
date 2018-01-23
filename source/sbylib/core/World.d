@@ -3,7 +3,6 @@ module sbylib.core.World;
 import sbylib.entity.Mesh;
 import sbylib.camera.Camera;
 import sbylib.utils.Change;
-import sbylib.utils.Lazy;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
@@ -20,7 +19,7 @@ import std.algorithm;
 
 class World {
     private Entity[] entities;
-    private ChangeObserved!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
+    private Camera camera;
     private PointLightBlock pointLightBlock;
     private UniformBuffer!PointLightBlock pointLightBlockBuffer;
 

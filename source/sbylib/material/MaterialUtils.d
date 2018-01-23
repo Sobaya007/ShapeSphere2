@@ -37,7 +37,6 @@ class MaterialUtils {
         import std.file;
         import sbylib.material.glsl.Ast;
         import sbylib.material.glsl.GlslUtils;
-        import sbylib.utils.Lazy;
         enum FRAG_ROOT = file.replace(".d", ".frag");
 
         static Ast generateFragmentAST() {
@@ -94,7 +93,6 @@ class MaterialUtils {
         import std.traits;
         import sbylib.material.glsl.Ast;
         import sbylib.material.glsl.GlslUtils;
-        import sbylib.utils.Lazy;
         enum FRAG_ROOT = file.replace(".d", ".frag");
         private A.Keeper a;
         private B.Keeper b;
