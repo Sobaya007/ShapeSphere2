@@ -75,9 +75,7 @@ class MaterialTemp(UniformKeeper) : Material {
         this.keeper = new UniformKeeper(constructor);
     }
 
-    ref auto opDispatch(string s)() {
-        return mixin("this.keeper." ~ s );
-    }
+    alias keeper this;
 
     override UniformDemand[] getDemands() {
         return this.demands;

@@ -27,9 +27,6 @@ class CameraController {
     Camera camera;
     alias camera this;
     package Player player;
-    mixin DeclareConfig!(float, "DEFAULT_LENGTH", "camera.json");
-    mixin DeclareConfig!(float, "K", "camera.json");
-    mixin DeclareConfig!(float, "C", "camera.json");
     package vec3 vel;
     package vec3 target;
     package Entity entity;

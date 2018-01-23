@@ -4,7 +4,7 @@ import sbylib;
 import game.Game;
 import model.xfile.loader;
 import game.character;
-import std.json, std.file;
+import std.json, std.file, std.stdio;;
 
 class Map {
     private Entity polygons;
@@ -49,36 +49,31 @@ class Map {
         import game.stage.StageMaterial;
         class StageMaterialBuilder : MaterialBuilder {
             override Material buildMaterial(XMaterial xmat) {
-                if (xmat.hasTexture()) {
-                    auto material = new StageMaterial(xmat.name);
-                    material.diffuse = xmat.diffuse.xyz;
-                    material.specular = xmat.specular;
-                    material.ambient = vec4(xmat.ambient, 1.0);
-                    material.power = xmat.power;
-                    material.texture = Utils.generateTexture(ImageLoader.load(ImagePath(xmat.getTextureFileName)));
-                    return material;
-                } else {
-                    PhongMaterial material = new PhongMaterial;
-                    material.diffuse = xmat.diffuse.xyz;
-                    material.specular = xmat.specular;
-                    material.ambient = vec4(xmat.ambient, 1.0);
-                    material.power = xmat.power;
-                    return material;
-                }
+                auto material = new StageMaterial();
+                material.diffuse = xmat.diffuse.xyz;
+                material.specular = xmat.specular;
+                material.ambient = vec4(xmat.ambient, 1.0);
+                material.power = xmat.power;
+                material.name = xmat.name;
+                return material;
             }
         }
 
+        writeln("Model Load Start. ModelPath is ", jsonData["Model"].str());
         addModel(jsonData["Model"].str(), new StageMaterialBuilder);
+        writeln("Model was Loaded.");
 
+        writeln("BVH constructing...");
         foreach (model; this.polygons.getChildren) {
             model.buildBVH((Entity bvh) {
                 bvh.getParent().getMesh.apply!((Mesh m) {
                     if (auto stageMat = cast(StageMaterial)m.mat) {
-                        bvh.getParent.setUserData(stageMat.getName);
+                        bvh.getParent.setUserData(stageMat.name);
                     }
                 });
             });
         }
+        writeln("BVH construction was finished.");
 
         addNPC(jsonData["NPC"].array());
     }

@@ -3,6 +3,7 @@
 require Position in World as vec3 position;
 require Position in View as vec3 vPosition;
 require Normal in World as vec3 normal;
+require Normal in View as vec3 vNormal;
 require UV as vec2 uv;
 require Light;
 
@@ -23,7 +24,9 @@ void main() {
         fragColor.rgb += specular * pow(s, power);
         // fragColor.rgb += pointLights[i].specular * specular * pow(s, power);
     }
+    float d = max(0.0, dot(normalize(vPosition), -vNormal));
+    fragColor.rgb += vec3(0.5) * diffuse * d;
 
     // texture
-    fragColor = texture(tex, vec2(uv.x, 1 - uv.y));
+    //fragColor = texture(tex, vec2(uv.x, 1 - uv.y));
 }

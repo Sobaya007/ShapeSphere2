@@ -11,6 +11,7 @@ class FocusBehavior : CameraController.Behavior {
     private vec3 dir;
 
     mixin DeclareConfig!(float, "FOCUS_SPEED_RATE", "camera.json");
+    mixin DeclareConfig!(float, "FOCUS_DEFAULT_LENGTH", "camera.json");
 
     void initialize(Object3D obj, vec3 dir) {
         this.obj = obj;
@@ -23,7 +24,7 @@ class FocusBehavior : CameraController.Behavior {
 
     override void step() {
         target += (obj.pos - target) * FOCUS_SPEED_RATE;
-        auto arrival = this.obj.pos + this.dir * DEFAULT_LENGTH;
+        auto arrival = this.obj.pos + this.dir * FOCUS_DEFAULT_LENGTH;
         vel = (arrival - camera.pos) * FOCUS_SPEED_RATE;
         camera.pos += vel;
         camera.lookAt(target);
