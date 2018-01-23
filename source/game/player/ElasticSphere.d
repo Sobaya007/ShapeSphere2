@@ -110,7 +110,7 @@ class ElasticSphere : BaseSphere {
     }
 
     override void requestLookOver() {
-        if (!this.elasticSphere2.ground) return;
+        if (this.elasticSphere2.contactNormal.isNone) return;
         auto dir = (this.getCenter - this.camera.pos);
         dir.y = 0;
         dir = normalize(dir);
@@ -119,7 +119,7 @@ class ElasticSphere : BaseSphere {
 
     override void onDownPress() {
         this.pushCount += 0.1;
-        this.elasticSphere2.push(DOWN_PUSH_FORCE * pushCount * vec3(0,-1,0), DOWN_PUSH_FORE_MIN);
+        this.elasticSphere2.push(mat3.rotFromTo(vec3(0,1,0), this.elasticSphere2.contactNormal.getOrElse(vec3(0,1,0))) * vec3(0,-1,0) * DOWN_PUSH_FORCE * pushCount, DOWN_PUSH_FORE_MIN);
     }
 
     override void onDownJustRelease() {
@@ -131,7 +131,7 @@ class ElasticSphere : BaseSphere {
             this.camera.turn(v);
             return;
         }
-        this.elasticSphere2.force += this.camera.rot * vec3(v.x, 0, v.y);
+        this.elasticSphere2.force += mat3.rotFromTo(vec3(0,1,0), this.elasticSphere2.contactNormal.getOrElse(vec3(0,1,0))) * this.camera.rot * vec3(v.x, 0, v.y);
     }
 
     override void onNeedlePress() {
@@ -187,7 +187,7 @@ class ElasticSphere : BaseSphere {
     private float calcSidePushForce() {
         if (this.pushCount > 0) {
             return SLOW_SIDE_PUSH_FORCE;
-        } else if (elasticSphere2.ground) {
+        } else if (elasticSphere2.contactNormal.isJust) {
             return NORMAL_SIDE_PUSH_FORCE;
         } else {
             return AIR_SIDE_PUSH_FORCE;

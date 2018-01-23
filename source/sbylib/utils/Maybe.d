@@ -68,6 +68,12 @@ struct Maybe(T) {
         return this.value > value;
     }
 
+    Maybe!T opOpAssign(string op, S)(S value) {
+        if (this.isNone) return this;
+        mixin("this.value " ~ op ~ "= value;");
+        return this;
+    }
+
     string toString() {
         if (this.isJust) return format!"Some(%s)"(this.value.to!string);
         return "None";

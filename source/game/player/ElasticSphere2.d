@@ -51,7 +51,7 @@ class ElasticSphere2 {
         })) / positions.length;
     }) aVel;
     private ChangeObservedArray!vec3 positions, velocities;
-    bool ground;
+    Maybe!vec3 contactNormal;
 
     this() {
         auto mat = new Player.Mat();
@@ -178,10 +178,10 @@ class ElasticSphere2 {
             }
         }
         float baloonForce = this.calcBaloonForce();
-        this.ground = false;
+        this.contactNormal = None!vec3;
         foreach (ref particle; this.particleList) {
             particle.force += particle.normal * baloonForce;
-            particle.force.y -= GRAVITY * MASS;
+            if (this.contactNormal.isNone) particle.force.y -= GRAVITY * MASS;
             particle.velocity += particle.force * FORCE_COEF;
             move(particle);
             collision(particle, collisionEntities);
@@ -306,12 +306,14 @@ class ElasticSphere2 {
             if (depth < 0) continue;
             auto po = particle.velocity - dot(particle.velocity, n) * n;
             particle.velocity -= po * FRICTION;
-            this.ground = true;
+            if (this.contactNormal.isNone) this.contactNormal = Just(normalize(n));
+            else this.contactNormal += normalize(n);
             if (dot(particle.velocity, n) < 0) {
                 particle.velocity -= n * dot(n, particle.velocity) * 1;
             }
             particle.position += n * depth;
         }
+        this.contactNormal = this.contactNormal.fmap!((vec3 n) => normalize(n));
     }
 
     private void end(ElasticParticle particle) {
