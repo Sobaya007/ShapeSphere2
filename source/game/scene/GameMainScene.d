@@ -97,7 +97,7 @@ class GameMainScene : SceneBase {
             }
             if (core.getKey[KeyButton.KeyP]) ConfigManager().load();
             if (core.getKey[KeyButton.Key0]) player.setCenter(vec3(0));
-            if (core.getKey[KeyButton.KeyF]) core.getWindow().toggleFullScreen();
+            if (core.getKey.justPressed(KeyButton.KeyF)) core.getWindow().toggleFullScreen();
         }, "po");
     }
 
