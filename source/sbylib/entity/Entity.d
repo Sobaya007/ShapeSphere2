@@ -10,6 +10,8 @@ public {
 }
 import std.algorithm;
 
+class Lock {}
+
 class Entity {
     private Maybe!Mesh mesh;
     private Maybe!CollisionEntry colEntry;
@@ -26,6 +28,7 @@ class Entity {
         this.visible = true;
         import std.conv;
         this.name = file ~ " : " ~ line.to!string;
+        this.lock = new shared(Lock);
     }
 
     this(Geometry geom, Material mat, string file = __FILE__, int line = __LINE__) {
@@ -107,13 +110,24 @@ class Entity {
         entity.setWorld(world);
     }
 
+    Entity[] preserved;
+    shared Lock lock;
+
+    void addChildFromAnotherThread(Entity entity) {
+        synchronized (lock) {
+            preserved ~= entity;
+        }
+    }
+
     void buildBVH() {
         buildBVH((bvh) {});
     }
 
     void buildBVH(void delegate(Entity) func) {
         this.mesh.apply!((m) {
-            auto bvh = new Entity(new CollisionBVH(m.geom.createCollisionPolygon()));
+            auto polygons = m.geom.createCollisionPolygon();
+            if (polygons.length == 0) return;
+            auto bvh = new Entity(new CollisionBVH(polygons));
             addChild(bvh);
             func(bvh);
         });
@@ -152,6 +166,13 @@ class Entity {
     } body {
         if (!this.visible) return;
         this.mesh.render();
+
+        synchronized (lock) {
+            foreach (p; preserved) {
+                addChild(p);
+            }
+            preserved = null;
+        }
     }
 
     void collide(ref Array!CollisionInfo result, Entity entity) {

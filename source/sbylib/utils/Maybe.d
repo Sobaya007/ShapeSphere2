@@ -40,7 +40,7 @@ struct Maybe(T) {
         }
     }
 
-    T get() in {
+    auto ref get() inout in {
         assert(!_none, "this is none");
     } body {
         return this.value;
@@ -54,11 +54,11 @@ struct Maybe(T) {
         return None!T;
     }
 
-    bool isJust() {
+    bool isJust() inout {
         return !_none;
     }
 
-    bool isNone() {
+    bool isNone() inout {
         return _none;
     }
 

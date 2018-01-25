@@ -18,7 +18,7 @@ class Poll {
         VertexN[] vertices;
         vertices ~= 
             (northCap(radius, length, cut) ~ southCap(radius, length, cut));
-        return new GeometryN(vertices, getIndices(cut));
+        return new GeometryN(vertices, getIndices(cut).idup);
     }
 
     private static VertexN[] northCap(float radius, float length, uint cut) {

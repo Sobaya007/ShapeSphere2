@@ -76,21 +76,17 @@ class Utils {
         }
 
         //与えられた点列に対し、分散が最大化するベクトルを含む正規直交基底を返す
-        Vector!(T,3)[] mostDispersionBasis(T)(Vector!(T,3)[] vertices...) {
-            vec3 c = vec3(0);
-            uint vNum = 0;
-            foreach (ref v; vertices) {
-                c += v;
-                vNum++;
-            }
-            assert(vNum);
-            c /= vNum;
+        Vector!(T,3)[] mostDispersionBasis(T)(Vector!(T,3)[] vertices...) in {
+            assert(vertices.length > 0);
+        } body {
+            import std.algorithm, std.array;
+            auto c = vertices.sum / vertices.length;
             mat3 vcm = mat3(0);
             foreach (ref v; vertices) {
                 auto r = v.xyz - c;
                 vcm += Matrix!(float,3,1)(r.array) * Matrix!(float,1,3)(r.array);
             }
-            vcm /= vNum;
+            vcm /= vertices.length;
             auto diagonal = mat3.diagonalizeForRealSym(vcm);
             import std.algorithm, std.range, std.array;
             auto base = 3.iota.map!(a => diagonal.column[a].normalize).array;

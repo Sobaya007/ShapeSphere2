@@ -21,6 +21,6 @@ class Line {
         foreach (tuple; zip(positions, uvs)) {
             vertices ~= new VertexT(tuple.expand);
         }
-        return new GeometryLine(vertices, indices);
+        return new GeometryLine(vertices, indices.idup);
     }
 }

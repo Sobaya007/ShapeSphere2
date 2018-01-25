@@ -88,6 +88,7 @@ class CollisionBVH : CollisionGeometry {
         }
 
         INode buildWithTopDown(GeomWithCenter[] geomCenterList) {
+            assert(geomCenterList.length > 0);
             if (geomCenterList.length == 1) return new Leaf(geomCenterList[0].geom);
             // calculate most long vector in the center points of geometries.
             vec3[3] basisCandidates = Utils.mostDispersionBasis(geomCenterList.map!(g => g.center).array);
@@ -134,13 +135,17 @@ class CollisionBVH : CollisionGeometry {
                 after = before[$/2..$];
                 before = before[0..$/2];
             }
+            assert(before.length > 0);
+            assert(after.length > 0);
             auto beforeNode = buildWithTopDown(before);
             auto afterNode = buildWithTopDown(after);
             auto result = new Node([beforeNode, afterNode]);
             return result;
         }
 
-        INode buildWithTopDown(CollisionGeometry[] geoms) {
+        INode buildWithTopDown(CollisionGeometry[] geoms) in {
+            assert(geoms.length > 0);
+        } body {
             return buildWithTopDown(geoms.map!(g => GeomWithCenter(g, g.getBound().pipe!(aabb => (aabb.min + aabb.max) / 2))).array);
         }
     }
@@ -148,7 +153,9 @@ class CollisionBVH : CollisionGeometry {
 
     private INode root;
 
-    this(CollisionGeometry[] geoms) {
+    this(CollisionGeometry[] geoms) in {
+        assert(geoms.length > 0);
+    } body {
         this.root = buildWithTopDown(geoms);
     }
 

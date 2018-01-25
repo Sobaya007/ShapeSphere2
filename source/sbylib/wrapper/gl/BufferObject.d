@@ -51,7 +51,7 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
             this.unbind();
         }
     } else {
-        void sendData(T[] data, BufferUsage freq = BufferUsage.Static) {
+        void sendData(S)(S data, BufferUsage freq = BufferUsage.Static) {
             this.bind();
             glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
             GlFunction.checkError();

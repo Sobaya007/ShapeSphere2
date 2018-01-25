@@ -46,7 +46,7 @@ class Box {
             }
         }
         uint[] indices = iota(cast(uint)vertices.length).array;
-        auto g = new GeometryNT(vertices, indices);
+        auto g = new GeometryNT(vertices, indices.idup);
         return g;
     }
 }

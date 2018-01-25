@@ -48,7 +48,7 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
         this(vertices, iota(cast(uint)vertices.length).array);
     }
 
-    this(VertexA[] vertices, uint[] indices) {
+    this(VertexA[] vertices, immutable(uint[]) indices) {
         this.vertices = vertices;
         foreach (attr; Utils.Range!(Attribute, Attributes)) {
             auto buffer = new VertexBuffer;

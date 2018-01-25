@@ -5,6 +5,19 @@ import game.Game;
 import model.xfile.loader;
 import game.character;
 import std.json, std.file, std.stdio;;
+import game.stage.StageMaterial;
+
+class StageMaterialBuilder : MaterialBuilder {
+    override Material buildMaterial(immutable(XMaterial) xmat) {
+        auto material = new StageMaterial();
+        material.diffuse = xmat.diffuse.xyz;
+        material.specular = xmat.specular;
+        material.ambient = vec4(xmat.ambient, 1.0);
+        material.power = xmat.power;
+        material.name = xmat.name;
+        return material;
+    }
+}
 
 class Map {
     private Entity polygons;
@@ -46,22 +59,25 @@ class Map {
 
     void testStage2() {
         auto jsonData = parseJSON(readText("Resource/stage/Stage1.json")).object();
-        import game.stage.StageMaterial;
-        class StageMaterialBuilder : MaterialBuilder {
-            override Material buildMaterial(XMaterial xmat) {
-                auto material = new StageMaterial();
-                material.diffuse = xmat.diffuse.xyz;
-                material.specular = xmat.specular;
-                material.ambient = vec4(xmat.ambient, 1.0);
-                material.power = xmat.power;
-                material.name = xmat.name;
-                return material;
-            }
-        }
 
-        writeln("Model Load Start. ModelPath is ", jsonData["Model"].str());
-        addModel(jsonData["Model"].str(), new StageMaterialBuilder);
+        import std.algorithm, std.array;
+        auto models = jsonData["Model"].array().map!(a => a.str()).array;
+        auto mat = new StageMaterialBuilder;
+        writeln("Model Load Start. ModelPath is ", models[0]);
+        addModel(models[0], mat);
         writeln("Model was Loaded.");
+        import std.concurrency;
+        import core.thread;
+        spawn(function (immutable(string[]) models) {
+            Thread.sleep(1000.msecs);
+            immutable builder = new StageMaterialBuilder;
+            foreach (i; 1..models.length) {
+                auto loader = new XLoader();
+                auto loaded = loader.load(ModelPath(models[i]));
+                //auto tid = Core().tid;
+                //send(tid, loaded);
+            }
+        }, models.idup);
 
         writeln("BVH constructing...");
         foreach (model; this.polygons.getChildren) {
@@ -82,6 +98,9 @@ class Map {
         auto loader = new XLoader();
         auto model = loader.load(ModelPath(modelPath)).buildEntity(builder);
         this.polygons.addChild(model);
+    }
+
+    private void addModelFromAnotherThread(string modelPath, MaterialBuilder builder) {
     }
 
     private void addNPC(JSONValue[] jsonData) {

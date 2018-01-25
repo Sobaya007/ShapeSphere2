@@ -24,6 +24,7 @@ import std.stdio, std.string;
 import std.algorithm;
 import std.array;
 import std.stdio;
+import std.concurrency;
 
 /*
    SbyLibを動かすための準備をするクラスです。
@@ -75,6 +76,7 @@ class Core {
     private FpsBalancer fpsBalancer;
     private Array!Process processes;
     private bool endFlag;
+    Tid tid;
 
     //初期化関数
     private this() {
@@ -92,6 +94,7 @@ class Core {
         this.processes = Array!Process(0);
 
         _config = null;
+        this.tid = thisTid;
     }
 
     ~this() {
@@ -138,10 +141,20 @@ class Core {
             this.processes.filter!(proc => proc.step());
             this.window.swapBuffers();
             this.window.pollEvents();
+            import model.xfile.loader;
+            receiveTimeout(0.msecs, 
+                (immutable XEntity entity) {
+                    entity.buildEntity();
+                }
+            );
             stdout.flush();
             return window.shouldClose() || endFlag;
         });
         this.processes.destroy();
+    }
+
+    void send(T)(T val) {
+        send(this.tid, val);
     }
 
     Window getWindow() {

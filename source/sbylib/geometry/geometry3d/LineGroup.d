@@ -18,7 +18,7 @@ if (p == Prim.Line || p == Prim.LineStrip || p == Prim.LineLoop) {
         foreach (i; 0..size) {
             vertices ~= new VertexP(vec3(0));
         }
-        return new GeometryLineGroup(vertices, indices);
+        return new GeometryLineGroup(vertices, indices.idup);
     }
 }
 

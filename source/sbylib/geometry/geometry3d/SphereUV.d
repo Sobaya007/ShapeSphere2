@@ -17,7 +17,7 @@ class SphereUV {
     public static Geometry create(Geometry=GeometryNT)(float radius = 0.5, uint tCut = 20, uint pCut = 20) {
         auto vertices = getVertices!(Geometry.VertexA)(radius, tCut, pCut);
         auto indices = getIndices(tCut, pCut);
-        auto g = new Geometry(vertices, indices);
+        auto g = new Geometry(vertices, indices.idup);
         return g;
     }
 

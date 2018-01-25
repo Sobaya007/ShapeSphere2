@@ -33,7 +33,7 @@ class Texture {
         this.unbind();
     }
 
-    ~this() {
+    void destroy() {
         glDeleteTextures(1, &id);
     }
 
