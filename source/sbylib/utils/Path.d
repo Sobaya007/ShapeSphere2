@@ -36,3 +36,4 @@ struct DllPath { mixin CreatePath!("../dll/"); }
 struct ImagePath { mixin CreatePath!("./Resource/image/"); }
 struct FontPath { mixin CreatePath!("./Resource/font/"); }
 struct ModelPath { mixin CreatePath!("./Resource/model/"); }
+struct ConfigPath { mixin CreatePath!("./Resource/config/"); }

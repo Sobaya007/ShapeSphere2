@@ -349,11 +349,11 @@ class Utils {
     }
 
     // Singleton パターン
-    template singleton(T ...) {
-        static typeof(this) opCall(T t) {
-            static typeof(this) instance;
-            if(!instance) instance = new typeof(this)(t);
-            return instance;
+    mixin template Singleton() {
+        private static typeof(this) _instance;
+        static typeof(this) opCall() {
+            if(_instance is null) _instance = new typeof(this)();
+            return _instance;
         }
     }
 
@@ -415,3 +415,25 @@ class Utils {
 bool instanceof(T,S)(S o) if(is(T == class)) {
 	return cast(T) o !is null;
 }
+
+import std.json, std.traits;
+Type as(Type)(JSONValue v) if (isNumeric!Type) {
+    switch (v.type) {
+        case JSON_TYPE.INTEGER:
+            return v.integer();
+        case JSON_TYPE.UINTEGER:
+            return v.uinteger();
+        case JSON_TYPE.FLOAT:
+            return v.floating();
+        default:
+            assert(false);
+    }
+}
+
+Type as(Type)(JSONValue v) if (isArray!Type) {
+    assert(v.type == JSON_TYPE.ARRAY);
+    import std.algorithm : map;
+    import std.array;
+    return v.array().map!(as!(ForeachType!Type)).array;
+}
+

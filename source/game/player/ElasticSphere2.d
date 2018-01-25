@@ -14,25 +14,28 @@ import std.typecons;
 class ElasticSphere2 {
 
     private static immutable {
-        alias TIME_STEP = Player.TIME_STEP;
         uint RECURSION_LEVEL = 2;
         float DEFAULT_RADIUS = 0.5;
         float RADIUS = 2.0f;
-        float MASS = 0.05;
-        float FRICTION = 0.3;
-        float ZETA = 0.5;
-        float OMEGA = 110;
-        float c = 2 * ZETA * OMEGA * MASS;
-        float k = MASS * OMEGA * OMEGA;
-        float GRAVITY = 100;
         uint ITERATION_COUNT = 20;
-
-        float VEL_COEF = 1 / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
-        float POS_COEF = - (TIME_STEP*k/MASS) / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
-        float FORCE_COEF = (TIME_STEP/MASS) / (1+TIME_STEP*c/MASS+TIME_STEP*TIME_STEP*k/MASS);
-        float BALOON_COEF = 20000;
-        float MAX_VELOCITY = 40;
     }
+
+    private {
+        mixin DeclareConfig!(float, "FRICTION", "elastic.json");
+        mixin DeclareConfig!(float, "GRAVITY", "elastic.json");
+        mixin DeclareConfig!(float, "BALOON_COEF", "elastic.json");
+        mixin DeclareConfig!(float, "MAX_VELOCITY", "elastic.json");
+        mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "TIME_STEP", "elastic.json"); 
+        mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "ZETA", "elastic.json"); 
+        mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "OMEGA", "elastic.json"); 
+        mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "MASS", "elastic.json"); 
+        Depends!((float ZETA, float OMEGA, float MASS) => 2 * ZETA * OMEGA * MASS) C;
+        Depends!((float OMEGA, float MASS) => OMEGA * OMEGA* MASS) K;
+        Depends!((float TIME_STEP, float MASS, float C, float K) => 1 / (1 + TIME_STEP*C/MASS + TIME_STEP*TIME_STEP*K/MASS)) VEL_COEF;
+        Depends!((float TIME_STEP, float MASS, float C, float K) => - (TIME_STEP*K/MASS) / (1 + TIME_STEP*C/MASS + TIME_STEP*TIME_STEP*K/MASS)) POS_COEF;
+        Depends!((float TIME_STEP, float MASS, float C, float K) => (TIME_STEP/MASS) / (1 + TIME_STEP*C/MASS + TIME_STEP*TIME_STEP*K/MASS)) FORCE_COEF;
+    }
+
     private ElasticParticle[] particleList;
     private ElasticPair[] pairList;
     private GeometrySphere geom;
@@ -53,13 +56,17 @@ class ElasticSphere2 {
     this() {
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
-        mat.config.depthWrite = false;
         mat.config.faceMode = FaceMode.Front;
         mat.config.transparency = true;
         this(mat);
     }
 
     this(Material mat) {
+        C.depends(ZETA, OMEGA, MASS);
+        K.depends(OMEGA, MASS);
+        VEL_COEF.depends(TIME_STEP, MASS, C, K);
+        POS_COEF.depends(TIME_STEP, MASS, C, K);
+        FORCE_COEF.depends(TIME_STEP, MASS, C, K);
         this.force = vec3(0);
         this.geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         this.entity = new Entity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));

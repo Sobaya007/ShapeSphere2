@@ -11,10 +11,7 @@ import std.math;
 
 class Character {
 
-    enum DOWN_PUSH_FORCE = 600;
-    enum DOWN_PUSH_FORE_MIN = 800;
-    enum SIDE_PUSH_FORCE = 10;
-    enum TIME_STEP = 0.02;
+    mixin DeclareConfig!(float, "TIME_STEP", "player.json");
 
     Entity[] floors;
     ElasticSphere2 elasticSphere;

@@ -6,7 +6,6 @@ import sbylib.animation;
 import sbylib.camera;
 import sbylib.character;
 import sbylib.collision;
-import sbylib.constant;
 import sbylib.control;
 import sbylib.core;
 import sbylib.entity;

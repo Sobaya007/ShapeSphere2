@@ -31,7 +31,8 @@ class GLFW {
     }
 
     private extern(C) void errorCallback(int error, const(char)* description) nothrow {
-        printf("error code: %x\n", error);
+        import sbylib.wrapper.glfw.Constants : ErrorCode;
+        printf("error code: %s\n", error);
         printf("description: %s\n", description);
         assert(false, "GLFW error");
     }

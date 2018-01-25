@@ -13,11 +13,14 @@ class TextMaterialUniformKeeper : UniformKeeper {
 
     utexture texture;
     uvec4 color;
+    uvec4 backColor;
 
     void constructor() {
         this.texture = new utexture("tex");
         this.color = new uvec4("color");
         this.color = vec4(1);
+        this.backColor = new uvec4("backColor");
+        this.backColor = vec4(0);
     }
 }
 

@@ -4,7 +4,6 @@ import std.datetime;
 import core.thread;
 import sbylib.core;
 import sbylib.camera;
-import sbylib.constant.ConstantManager;
 import sbylib.input;
 import sbylib.utils;
 import sbylib.wrapper.al.AL;
@@ -33,7 +32,7 @@ import std.stdio;
 
 class Core {
 
-    mixin Utils.singleton;
+    mixin Utils.Singleton;
 
     static class Config {
         uint windowWidth;
@@ -84,7 +83,6 @@ class Core {
         GLFW.init();
         FreeType.init();
         FreeImage.init();
-        ConstantManager.init();
         this.window = new Window("Window Title", config.windowWidth, config.windowHeight);
         this.key = new Key(this.window);
         this.mouse = new Mouse(this.window);

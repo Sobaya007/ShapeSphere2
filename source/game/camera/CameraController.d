@@ -24,12 +24,12 @@ class CameraController {
         }
     }
 
-    package static float TURN_SPEED = 2;
-
     Camera camera;
     alias camera this;
     package Player player;
-    package ConstTemp!float defaultLength, k, c;
+    mixin DeclareConfig!(float, "DEFAULT_LENGTH", "camera.json");
+    mixin DeclareConfig!(float, "K", "camera.json");
+    mixin DeclareConfig!(float, "C", "camera.json");
     package vec3 vel;
     package vec3 target;
     package Entity entity;
@@ -40,9 +40,6 @@ class CameraController {
     this(Camera camera, Player player) {
         this.camera = camera;
         this.player = player;
-        this.defaultLength = ConstantManager.get!float("defaultLength");
-        this.k = ConstantManager.get!float("k");
-        this.c = ConstantManager.get!float("c");
         this.vel = vec3(0);
         static foreach (Type; BehaviorTypes) {
             this.behaviors ~= new Type(this);

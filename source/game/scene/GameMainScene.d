@@ -33,25 +33,12 @@ class GameMainScene : SceneBase {
         Game.initializePlayer(camera);
         auto player = Game.getPlayer();
         Game.getCommandManager().setReceiver(player);
-        auto po = [
-            tuple("そばやさんってかっこいいよね"d, vec3(0,1, 6)),
-            tuple("最近街ではそばやさんって人が人気なんだ"d, vec3(10,1, 4)),
-            tuple("そばやさん...イケメンだよなぁ..."d, vec3(-14,1, 10)),
-            tuple("キャーそばやさんよー！抱いてー！！"d, vec3(4,1, -6)),
-        ];
-        Character[] characters;
-        foreach (pair; po) {
-            auto chara = new Character(world3d, pair[0]);
-            chara.setCenter(pair[1]);
-            characters ~= chara;
-        }
-        characters.each!(character => player.collisionEntities ~= character.collisionArea);
+        //characters.each!(character => player.collisionEntities ~= character.collisionArea);
         core.addProcess((proc) {
             player.step();
-            characters.each!(character => character.step());
+            //characters.each!(character => character.step());
         }, "player update");
         core.addProcess(&Game.update, "game update");
-
 
         auto map = new Map;
         map.testStage2();
@@ -78,11 +65,6 @@ class GameMainScene : SceneBase {
         world2d.add(compass);
         compass.pos = vec3(0.75, -0.75, 0);
 
-
-        foreach (character; characters) {
-            character.initialize();
-        }
-
         /* Light Settings */
         PointLight pointLight;
         pointLight.pos = vec3(0,2,0);
@@ -98,9 +80,13 @@ class GameMainScene : SceneBase {
 
         /* FPS Observe */
         auto fpsCounter = new FpsCounter!100();
+        auto fpsLabel = TextEntity("FPS = ", 0.1, Label.OriginX.Left, Label.OriginY.Top);
+        fpsLabel.pos.xy = vec2(-1,1);
+        fpsLabel.setBackColor(vec4(1));
+        world2d.add(fpsLabel);
         core.addProcess((proc) {
             fpsCounter.update();
-            core.getWindow().setTitle(format!"FPS[%d]"(fpsCounter.getFPS()));
+            fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
         }, "fps update");
 
         /* Key Input */
@@ -109,7 +95,9 @@ class GameMainScene : SceneBase {
                 Game.getCommandManager().save();
                 core.end();
             }
-            if (core.getKey[KeyButton.KeyR]) ConstantManager.reload();
+            if (core.getKey[KeyButton.KeyP]) ConfigManager().load();
+            if (core.getKey[KeyButton.Key0]) player.setCenter(vec3(0));
+            if (core.getKey.justPressed(KeyButton.KeyF)) core.getWindow().toggleFullScreen();
         }, "po");
     }
 

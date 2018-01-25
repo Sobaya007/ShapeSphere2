@@ -20,8 +20,11 @@ class GlfwWindow {
     alias ResizeCallback = void delegate();
     private {
         GLFWwindow *window;
-        uint width, height;
+        int width, height;
+        int windowedX, windowedY;
+        int windowedWidth, windowedHeight;
         bool resized;
+        bool isFullScreen;
         string title;
         ResizeCallback[] resizeCallbacks;
         bool[int] hasKeyPressed; // KeyButton -> bool
@@ -33,14 +36,24 @@ class GlfwWindow {
         }
 
         void setSize(int width, int height) {
-            this.width = width;
-            this.height = height;
+            this.windowedWidth = width;
+            this.windowedHeight = height;
             glfwSetWindowSize(window, width, height);
         }
 
         void setTitle(string title) {
             this.title = title;
             window.glfwSetWindowTitle(title.toStringz);
+        }
+
+        void toggleFullScreen() {
+            this.isFullScreen = !this.isFullScreen;
+            if (this.isFullScreen) {
+                auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+                glfwSetWindowMonitor(this.window, glfwGetPrimaryMonitor(), 0, 0, mode.width, mode.height, 0);
+            } else {
+                glfwSetWindowMonitor(this.window, null,  this.windowedX, this.windowedY, this.windowedWidth, this.windowedHeight, 60);
+            }
         }
 
         uint getWidth() const {
@@ -82,29 +95,18 @@ class GlfwWindow {
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-            window = glfwCreateWindow(width, height,title.toStringz, null, null);
+            auto window = glfwCreateWindow(width, height,title.toStringz, null, null);
             if(!window){
                 assert(false, "Failed to create window");
             }
 
-            glfwSetWindowPos(this.window, 200, 200);
-            glfwSetWindowSizeCallback(this.window, &resizeCallback);
-            glfwMakeContextCurrent(window);
+            this.setWindow(window);
 
-            glfwSetKeyCallback(this.window, &keyCallback);
-
-            this.setTitle(title);
-
-            //Actual window size might differ from given size.
-            glfwGetWindowSize(this.window, &width, &height);
-            this.width = width;
-            this.height = height;
+            glfwSetWindowPos(window, 200, 200);
 
             GL.glVersion = DerelictGL3.reload();
             writeln("Version = ", GL.glVersion);
             assert(GL.glVersion > GLVersion.gl30, "OpenGL version is too low");
-
-            windows[this.window] = this;
         }
 
         bool getKey(KeyButton key) {
@@ -153,12 +155,49 @@ class GlfwWindow {
             return window.glfwGetClipboardString().fromStringz.to!dstring;
         }
     }
+
+    private void destroy() {
+        glfwDestroyWindow(this.window);
+        windows.remove(this.window);
+    }
+
+    private void setWindow(GLFWwindow *window) {
+        this.window = window;
+        glfwSetWindowSizeCallback(this.window, &resizeCallback);
+        glfwSetWindowPosCallback(this.window, &windowPosCallback);
+        glfwMakeContextCurrent(this.window);
+
+        glfwSwapInterval(1);
+
+        glfwSetKeyCallback(this.window, &keyCallback);
+
+        this.setTitle(title);
+
+        //Actual window size might differ from given size.
+        glfwGetWindowSize(this.window, &this.windowedWidth, &this.windowedHeight);
+        glfwGetWindowSize(this.window, &this.width, &this.height);
+        glfwGetWindowPos(this.window, &this.windowedX, &this.windowedY);
+
+        windows[this.window] = this;
+    }
+}
+
+private extern(C) void windowPosCallback(GLFWwindow *window, int x, int y) nothrow {
+    assert(window in windows);
+    if (!windows[window].isFullScreen) {
+        windows[window].windowedX = x;
+        windows[window].windowedY = y;
+    }
 }
 
 private extern(C) void resizeCallback(GLFWwindow *window, int w, int h) nothrow {
     assert(window in windows);
     windows[window].width = w;
     windows[window].height = h;
+    if (!windows[window].isFullScreen) {
+        windows[window].windowedWidth = w;
+        windows[window].windowedHeight = h;
+    }
     windows[window].resized = true;
 }
 

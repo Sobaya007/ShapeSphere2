@@ -75,7 +75,7 @@ class World {
             r.collect!(mesh => mesh.mat.config.transparency == true)(transparents, notTransparents);
         }
         notTransparents.each!(e => e.render());
-        transparents.sort!((a,b) => dot(camera.pos - a.pos, a.pos) < dot(camera.pos - b.pos, b.pos));
+        transparents.sort!((a,b) => dot(camera.pos - a.pos, camera.rot.column[2]) > dot(camera.pos - b.pos, camera.rot.column[2]));
         transparents.each!(e => e.render());
     }
 

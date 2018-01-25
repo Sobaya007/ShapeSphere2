@@ -13,6 +13,9 @@ class LookOverBehavior : CameraController.Behavior {
     private vec3 center;
     private vec3 dir;
 
+    mixin DeclareConfig!(float, "LOOKOVER_EYE_SPEED_RATE", "camera.json");
+    mixin DeclareConfig!(float, "LOOKOVER_TARGET_SPEED_RATE", "camera.json");
+
     void initialize(vec3 dir) {
         this.dir = dir;
         this.center = player.getCameraTarget();
@@ -21,8 +24,8 @@ class LookOverBehavior : CameraController.Behavior {
     }
 
     override void step() {
-        camera.pos += (player.getCameraTarget() - this.dir * 0.01 - camera.pos) * 0.1;
-        this.target += (this.targetArrival - this.target) * 0.05;
+        camera.pos += (player.getCameraTarget() - this.dir * 0.01 - camera.pos) * LOOKOVER_EYE_SPEED_RATE;
+        this.target += (this.targetArrival - this.target) * LOOKOVER_TARGET_SPEED_RATE;
         camera.lookAt(this.target);
     }
 

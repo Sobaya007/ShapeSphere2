@@ -19,9 +19,6 @@ class Player : CommandReceiver {
     alias Mat = ConditionalMaterial!(LambertMaterial, PlayerMaterial);
     alias PlayerEntity = EntityTemp!(GeometryN, Mat);
 
-    enum DOWN_PUSH_FORCE = 600;
-    enum DOWN_PUSH_FORE_MIN = 800;
-    enum SIDE_PUSH_FORCE = 10;
     enum TIME_STEP = 0.02;
 
     private BaseSphere sphere;
@@ -114,6 +111,10 @@ class Player : CommandReceiver {
 
     vec3 getCenter() {
         return this.sphere.getCenter();
+    }
+
+    void setCenter(vec3 center) {
+        this.sphere.setCenter(center);
     }
 
     vec3 getCameraTarget() {
