@@ -37,6 +37,7 @@ class Label {
         this.originY = OriginY.Center;
         this.wrapWidth = 1145141919.810;
         this.size = size;
+        this.backColor = vec4(0);
         this._color = vec4(0,0,0,1);
         this.entity = new Entity;
     }
