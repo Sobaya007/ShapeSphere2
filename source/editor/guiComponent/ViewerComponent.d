@@ -29,8 +29,8 @@ public:
         _pane = pane;
 
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
-        auto entity = new EntityTemp!(GeometryRect, ColorMaterial)(geom);
-        entity.getMesh.mat.color = vec4(0); // 透明
+        auto entity = makeEntity(geom, new ColorMaterial);
+        entity.color = vec4(0); // 透明
         super(entity);
 
         createWorld();

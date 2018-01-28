@@ -14,10 +14,10 @@ public:
     this(float size) {
         _size = size;
         auto geom = Rect.create(_size, _size, Rect.OriginX.Left, Rect.OriginY.Top);
-        auto entity = new EntityTemp!(GeometryRect, CheckBoxComponentMaterial)(geom);
-        entity.getMesh.mat.backColor = _backColor;
-        entity.getMesh.mat.foreColor = _foreColor;
-        entity.getMesh.mat.isChecked = false;
+        auto entity = makeEntity(geom, new CheckBoxComponentMaterial);
+        entity.backColor = _backColor;
+        entity.foreColor = _foreColor;
+        entity.isChecked = false;
         super(entity);
     }
 

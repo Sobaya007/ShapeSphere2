@@ -7,6 +7,11 @@ import derelict.opengl;
 class RenderBuffer {
 
     private immutable uint id;
+    private bool allocated;
+
+    invariant {
+        assert(this.id > 0);
+    }
 
     this() out {
        GlFunction.checkError(); 
@@ -14,6 +19,11 @@ class RenderBuffer {
         uint id;
         glGenRenderbuffers(1, &id);
         this.id = id;
+    }
+
+    this(uint width, uint height, ImageInternalFormat format) {
+        this();
+        this.allocate(width, height, format);
     }
 
     ~this() out {
@@ -25,18 +35,31 @@ class RenderBuffer {
     void bind() out {
         GlFunction.checkError();
     } body {
-        glBindRenderbuffer(RenderBufferBindType.Both, id);
+        glBindRenderbuffer(RenderBufferBindType.Both, this.id);
     }
 
-    void unBind() out {
+    void unbind() out {
         GlFunction.checkError();
     } body {
         glBindRenderbuffer(RenderBufferBindType.Both, 0);
     }
 
-    void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) out {
+    void allocate(uint width, uint height, ImageInternalFormat format) out {
         GlFunction.checkError();
     } body {
+        this.bind();
+        glRenderbufferStorage(RenderBufferBindType.Both, format, width, height);
+        this.unbind();
+        this.allocated = true;
+    }
+
+    void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) in {
+        assert(this.allocated);
+    } out {
+        GlFunction.checkError();
+    } body {
+        this.bind();
         glFramebufferRenderbuffer(bindType, attachType, RenderBufferBindType.Both, this.id);
+        this.unbind();
     }
 }

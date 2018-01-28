@@ -10,8 +10,6 @@ public {
 }
 import std.algorithm;
 
-class Lock {}
-
 class Entity {
     private Maybe!Mesh mesh;
     private Maybe!CollisionEntry colEntry;
@@ -28,7 +26,6 @@ class Entity {
         this.visible = true;
         import std.conv;
         this.name = file ~ " : " ~ line.to!string;
-        this.lock = new shared(Lock);
     }
 
     this(Geometry geom, Material mat, string file = __FILE__, int line = __LINE__) {
@@ -110,15 +107,6 @@ class Entity {
         entity.setWorld(world);
     }
 
-    Entity[] preserved;
-    shared Lock lock;
-
-    void addChildFromAnotherThread(Entity entity) {
-        synchronized (lock) {
-            preserved ~= entity;
-        }
-    }
-
     void buildBVH() {
         buildBVH((bvh) {});
     }
@@ -166,13 +154,6 @@ class Entity {
     } body {
         if (!this.visible) return;
         this.mesh.render();
-
-        synchronized (lock) {
-            foreach (p; preserved) {
-                addChild(p);
-            }
-            preserved = null;
-        }
     }
 
     void collide(ref Array!CollisionInfo result, Entity entity) {
@@ -257,45 +238,38 @@ class Entity {
     alias obj this;
 }
 
-class EntityTemp(Geom, Mat) {
-    alias M = MeshTemp!(Geom, Mat);
-    private M mesh;
-    Entity entity;
+class TypedEntity(G, M) {
 
-    this(Geom g, string file = __FILE__, int line = __LINE__) {
-        this.entity = new Entity(file, line);
-        this.mesh = new M(g, this);
-        this.entity.setMesh(this.mesh);
-    }
+    import sbylib.utils.Functions;
 
-    this(Geom g, Mat m, string file = __FILE__, int line = __LINE__) {
-        this.entity = new Entity(file, line);
-        this.mesh = new M(g, m, this);
-        this.entity.setMesh(this.mesh);
-    }
+    mixin Proxy;
 
-    this(Geom g, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-        this.entity = new Entity(colGeom, file, line);
-        this.mesh = new M(g, this);
-        this.entity.setMesh(this.mesh);
-    }
-
-    this(Geom g, Mat m, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-        this.entity = new Entity(colGeom, file, line);
-        this.mesh = new M(g, m, this);
-        this.entity.setMesh(this.mesh);
-    }
-
-    M getMesh() {
-        return this.mesh;
-    }
-
-//    override void setMesh(Geometry geom, Material mat) {
-//        assert(cast(Geom)geom);
-//        assert(cast(Mat)mat);
-//        this.mesh = new M(cast(Geom)geom, cast(Mat)mat, this);
-//        super.setMesh(mesh);
-//    }
+    @Proxied TypedMesh!(G, M) mesh;
+    @Proxied Entity entity;
 
     alias entity this;
+}
+
+auto makeEntity(string file = __FILE__, int line = __LINE__) {
+    return new Entity(file, line);
+}
+
+auto makeEntity(G, M)(G g, M m, string file = __FILE__, int line = __LINE__) {
+    auto entity = new TypedEntity!(G, M);
+    entity.entity = new Entity(file, line);
+    entity.mesh = new TypedMesh!(G, M)(g, m, entity.entity);
+    entity.entity.setMesh(entity.mesh);
+    return entity;
+}
+
+auto makeEntity(CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
+    return new Entity(colGeom, file, line);
+}
+
+auto makeEntity(G, M)(G g, M m, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
+    auto entity = new TypedEntity!(G, M);
+    entity.entity = new Entity(colGeom, file, line);
+    entity.mesh = new TypedMesh!(G, M)(g, m, entity.entity);
+    entity.entity.setMesh(entity.mesh);
+    return entity;
 }

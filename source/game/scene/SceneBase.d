@@ -5,7 +5,7 @@ import sbylib;
 import std.stdio;
 
 class SceneProtoType : SceneBase {
-    private EntityTemp!(GeometryRect, ColorMaterial) fadeRect;
+    private TypedEntity!(GeometryRect, ColorMaterial) fadeRect;
     protected World world;
     protected Camera camera;
 
@@ -16,8 +16,8 @@ class SceneProtoType : SceneBase {
     this(Camera camera) {
         this.state = State.Waiting;
         this.fadeRect = ColorEntity(vec4(0), 2,2);
-        this.fadeRect.getMesh().mat.config.transparency = true;
-        this.fadeRect.getMesh().mat.config.depthWrite = false;
+        this.fadeRect.config.transparency = true;
+        this.fadeRect.config.depthWrite = false;
         this.fadeRect.pos.z = 1;
 
         this.world = new World;
@@ -35,7 +35,7 @@ class SceneProtoType : SceneBase {
 
     IAnimation fade(AnimSetting!vec4 setting) {
         return new Animation!vec4((color) {
-            this.fadeRect.getMesh.mat.color = color;
+            this.fadeRect.color = color;
         }, setting);
     }
 

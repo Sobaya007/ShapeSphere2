@@ -34,12 +34,12 @@ class RenderTarget : IRenderTarget {
     }
 
     void attachTexture(T)(FrameBufferAttachType attachType) {
-        Texture tex = new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.RGBA, this.width, this.height, ImageFormat.RGBA, cast(T*)null);
+        Texture tex = new Texture(TextureTarget.Tex2D, 0, this.getInternalFormat(attachType), this.width, this.height, ImageFormat.RGBA, cast(T*)null);
         this.attach(tex, attachType);
     }
 
     void attachRenderBuffer(FrameBufferAttachType attachType) {
-        RenderBuffer rbo = new RenderBuffer();
+        RenderBuffer rbo = new RenderBuffer(this.width, this.height, this.getInternalFormat(attachType));
         this.attach(rbo, attachType);
     }
 
@@ -58,6 +58,19 @@ class RenderTarget : IRenderTarget {
         texture.attachFrameBuffer(FrameBufferBindType.Both, attachType);
         this.frameBuffer.unbind(FrameBufferBindType.Both);
         this.textures[attachType] = texture;
+    }
+
+    private ImageInternalFormat getInternalFormat(FrameBufferAttachType attachType) {
+        switch (attachType) {
+            case FrameBufferAttachType.Color0, FrameBufferAttachType.Color1, FrameBufferAttachType.Color2:
+                return ImageInternalFormat.RGBA;
+            case FrameBufferAttachType.Depth:
+                return ImageInternalFormat.Depth;
+            case FrameBufferAttachType.DepthStencil:
+                return ImageInternalFormat.DepthStencil;
+            default:
+                assert(false);
+        }
     }
 
     Texture getColorTexture()  {

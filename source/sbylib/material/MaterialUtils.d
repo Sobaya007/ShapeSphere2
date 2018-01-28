@@ -83,7 +83,7 @@ class MaterialUtils {
 
         template hasMember(string s) {
             import sbylib.utils.Functions;
-            enum hasMember = Utils.hasMember!(typeof(this), s);
+            enum hasMember = haveMember!(typeof(this), s);
         }
     }
 
@@ -159,17 +159,17 @@ class MaterialUtils {
             }
         }
 
-        ref auto opDispatch(string mem)() if (hasMember!mem) {
+        template opDispatch(string mem) if (hasMember!(mem)) {
             import sbylib.utils.Functions;
-            enum hasMemberThis = Utils.hasMember!(typeof(this), mem);
-            enum hasMemberA = Utils.hasMember!(typeof(this.a), mem);
-            enum hasMemberB = Utils.hasMember!(typeof(this.b), mem);
+            enum hasMemberThis = haveMember!(typeof(this), mem);
+            enum hasMemberA = haveMember!(typeof(this.a), mem);
+            enum hasMemberB = haveMember!(typeof(this.b), mem);
             static if (hasMemberThis) {
-                return mixin("this." ~ mem);
+                enum MemberCall = "this." ~ mem;
             } else static if (!hasMemberThis && hasMemberA && !hasMemberB) {
-                return mixin("this.a." ~ mem);
+                enum MemberCall = "this.a." ~ mem;
             } else static if (!hasMemberThis && !hasMemberA && hasMemberB) {
-                return mixin("this.b." ~ mem);
+                enum MemberCall = "this.b." ~ mem;
             } else {
                 import std.ascii;
                 import std.conv;
@@ -181,21 +181,29 @@ class MaterialUtils {
                     enum mem2 = mem[0..pos] ~ mem[pos+1..$];
                     enum hit = mem[pos];
                     static if (hit == '1') {
-                        return mixin("this.a." ~ mem2);
+                        enum MemberCall = "this.a." ~ mem2;
                     } else static if (hit == '2') {
-                        return mixin("this.b." ~ mem2);
+                        enum MemberCall = "this.b." ~ mem2;
                     } else {
                         static assert(false);
                     }
                 }
             }
+
+            auto ref opDispatch(Args...)(auto ref Args args) {
+                return mixin(MemberCall ~ "= args");
+            }
+
+            auto ref opDispatch() {
+                return mixin(MemberCall);
+            }
         }
 
         template hasMember(string mem) {
             import sbylib.utils.Functions;
-            enum hasMemberThis = Utils.hasMember!(typeof(this), mem);
-            enum hasMemberA = Utils.hasMember!(typeof(this.a), mem);
-            enum hasMemberB = Utils.hasMember!(typeof(this.b), mem);
+            enum hasMemberThis = haveMember!(typeof(this), mem);
+            enum hasMemberA = haveMember!(typeof(this.a), mem);
+            enum hasMemberB = haveMember!(typeof(this.b), mem);
             static if (hasMemberThis) {
                 enum hasMember = true;
             } else static if (!hasMemberThis && hasMemberA && !hasMemberB) {

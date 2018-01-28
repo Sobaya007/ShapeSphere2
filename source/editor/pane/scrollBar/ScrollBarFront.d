@@ -24,8 +24,8 @@ public:
         _viewportHeight = viewportHeight;
 
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
-        auto entity = new EntityTemp!(GeometryRect, ColorMaterial)(geom);
-        entity.getMesh.mat.color = vec4(0, 1, 1, 1); // debug
+        auto entity = makeEntity(geom, new ColorMaterial);
+        entity.color = vec4(0, 1, 1, 1); // debug
 
         entity.setUserData(cast(IControllable)this);
         entity.buildBVH();

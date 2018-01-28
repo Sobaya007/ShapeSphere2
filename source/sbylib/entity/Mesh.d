@@ -4,6 +4,7 @@ import sbylib.camera.Camera;
 import sbylib.wrapper.gl.VertexArray;
 import sbylib.collision.CollisionEntry;
 import std.traits;
+import sbylib.utils.Functions;
 
 public {
     import sbylib.geometry.Geometry;
@@ -69,14 +70,12 @@ class Mesh {
     }
 }
 
-class MeshTemp(G, M) : Mesh {
+class TypedMesh(G, M) : Mesh {
 
-    G geom;
-    M mat;
+    mixin Proxy;
 
-    this(G geom, Entity owner) {
-        this(geom, new M, owner);
-    }
+    @Proxied G geom;
+    @Proxied M mat;
 
     this(G geom, M mat, Entity owner) {
         super(geom, mat, owner);

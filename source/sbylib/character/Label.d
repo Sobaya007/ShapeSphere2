@@ -43,7 +43,7 @@ class Label {
     void setColor(vec4 _color) {
         this._color = _color;
         foreach (l; this.letters) {
-            auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
+            auto mat = cast(TextMaterial)l.getEntity().mat;
             mat.color = _color;
             mat.config.transparency = true;//mat._color.a != 1;
             mat.config.depthWrite = false;
@@ -53,7 +53,7 @@ class Label {
     void setBackColor(vec4 _color) {
         this.backColor = _color;
         foreach (l; this.letters) {
-            auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
+            auto mat = cast(TextMaterial)l.getEntity().mat;
             mat.backColor = _color;
         }
     }

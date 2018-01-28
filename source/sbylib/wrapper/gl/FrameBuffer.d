@@ -8,6 +8,10 @@ class FrameBuffer {
 
     private immutable uint id;
 
+    invariant {
+        assert(id > 0);
+    }
+
     this() out {
         GlFunction.checkError();
     } body {

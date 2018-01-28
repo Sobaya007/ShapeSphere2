@@ -12,25 +12,33 @@ class Texture {
 
     immutable uint id;
     private immutable TextureTarget target;
+    private bool allocated;
 
-    this(Type)(TextureTarget target, uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, ImageFormat format, Type* data) in {
-        if (target == TextureTarget.Rect || target == TextureTarget.ProxyRect) {
-            assert(mipmapLevel == 0);
-        }
-    } body {
+    this(TextureTarget target) {
         uint id;
         glGenTextures(1, &id);
         GlFunction.checkError();
         this.id = id;
         this.target = target;
-        this.bind();
-        glTexImage2D(target, mipmapLevel, iformat, width, height, 0, format, GlFunction.getTypeEnum!Type, data);
-        GlFunction.checkError();
         this.setMagFilter(TextureFilter.Linear);
         this.setMinFilter(TextureFilter.Linear);
         this.setWrapS(TextureWrap.Repeat);
         this.setWrapT(TextureWrap.Repeat);
-        this.unbind();
+    }
+
+    this(Type)(TextureTarget target, uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, ImageFormat format, Type* data) {
+        this(target);
+        this.allocate(mipmapLevel, iformat, width, height, format, data);
+    }
+
+    void allocate(Type)(uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, ImageFormat format, Type* data) in {
+        if (this.target == TextureTarget.Rect || this.target == TextureTarget.ProxyRect) {
+            assert(mipmapLevel == 0);
+        }
+    } body {
+        glTexImage2D(this.target, mipmapLevel, iformat, width, height, 0, format, GlFunction.getTypeEnum!Type, data);
+        GlFunction.checkError();
+        this.allocated = true;
     }
 
     void destroy() {
@@ -72,7 +80,9 @@ class Texture {
         glBindTexture(this.target, 0);
     }
 
-    void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) out {
+    void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) in {
+        assert(this.allocated);
+    } out {
         GlFunction.checkError();
     } body {
         glFramebufferTexture2D(bindType, attachType, this.target, this.id, 0);

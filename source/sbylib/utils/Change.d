@@ -175,30 +175,7 @@ struct ChangeObserved(T) {
         return r;
     }
 
-    template haveMember(Type, string member) {
-        import std.meta;
-        static if (isAggregateType!Type) {
-            static if (Filter!(ApplyLeft!(isSame, member), __traits(allMembers, Type)).length > 0) {
-                enum haveMember = true;
-            } else static if (is(typeof({Type t; auto po = &t.opDispatch!(member);}))) {
-                enum haveMember = true;
-            } else static if (isAggregateType!Type && __traits(getAliasThis, Type).length > 0) {
-                enum This = "Type." ~ __traits(getAliasThis, Type)[0];
-                static if (isCallable!(mixin(This))) {
-                    alias Type2 = ReturnType!(mixin(This));
-                } else {
-                    alias Type2 = typeof(mixin(This));
-                }
-                enum haveMember = haveMember!(Type2, member);
-            } else {
-                enum haveMember = false;
-            }
-        } else static if (isArray!Type) {
-            enum haveMember = member == "length";
-        } else {
-            enum haveMember = false;
-        }
-    }
+    import sbylib.utils.Functions : haveMember;
 
     template opDispatch(string member) if (haveMember!(CoreType, member)) {
         enum Member = "value." ~ member;

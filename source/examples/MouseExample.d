@@ -5,8 +5,7 @@ import std.stdio;
 import std.algorithm;
 import std.array;
 
-alias PlaneEntity = EntityTemp!(GeometryPlane, ConditionalMaterial!(LambertMaterial, LambertMaterial));
-alias CapsuleEntity = EntityTemp!(GeometryNT, ConditionalMaterial!(LambertMaterial, LambertMaterial));
+alias MyMaterial = ConditionalMaterial!(LambertMaterial, LambertMaterial);
 
 void mouseExample() {
     auto core = Core();
@@ -17,13 +16,13 @@ void mouseExample() {
     auto world = new World;
     auto camera =  new PerspectiveCamera(1, 120.deg, 0.1, 100);
     auto mouse = new ViewportMouse(viewport);
-    auto polyEntity = new PlaneEntity(Plane.create());
+    auto polyEntity = makeEntity(Plane.create(), new MyMaterial);
     polyEntity.buildBVH();
     polyEntity.obj.rot = mat3.rotFromTo(vec3(0,1,0), vec3(0,0,1));
 
     auto colCapGeom = new CollisionCapsule(0.2, vec3(0,-1,0), vec3(0,1,0));
     auto capGeom = colCapGeom.createGeometry();
-    auto capEntity = new CapsuleEntity(capGeom, colCapGeom);
+    auto capEntity = makeEntity(capGeom, new MyMaterial, colCapGeom);
     auto control = new BasicControl(mouse, world, camera);
 
     auto render = delegate (Process proc) {
@@ -39,8 +38,8 @@ void mouseExample() {
         Utils.getRay(mouse.getPos(), camera, ray);
         auto colInfo = world.rayCast(ray);
         if (colInfo.isNone) return;
-        polyEntity.getMesh().mat.condition = colInfo.get.entity.getRootParent() is polyEntity;
-        capEntity.getMesh().mat.condition  = colInfo.get.entity.getRootParent() is capEntity;
+        polyEntity.condition = colInfo.get.entity.getRootParent() is polyEntity;
+        capEntity.condition  = colInfo.get.entity.getRootParent() is capEntity;
     };
     camera.pos.z = 4;
     camera.lookAt(vec3(0));
@@ -51,10 +50,10 @@ void mouseExample() {
     core.addProcess(render, "render");
     core.addProcess(mouseUpdate, "mouse");
     core.addProcess(detect, "detect");
-    polyEntity.getMesh().mat.ambient1 = vec3(0.2, 0, 0);
-    polyEntity.getMesh().mat.ambient2 = vec3(0.5);
-    capEntity.getMesh().mat.ambient1 = vec3(0, 0, 0.2);
-    capEntity.getMesh().mat.ambient2 = vec3(0.5);
+    polyEntity.mat.ambient1 = vec3(0.2, 0, 0);
+    polyEntity.mat.ambient2 = vec3(0.5);
+    capEntity.mat.ambient1 = vec3(0, 0, 0.2);
+    capEntity.mat.ambient2 = vec3(0.5);
 
     core.start();
 }

@@ -9,12 +9,12 @@ import std.conv;
 import std.string;
 import std.format;
 
-alias ubool = UniformTemp!(bool);
-alias ufloat = UniformTemp!(float);
-alias uvec2 = UniformTemp!(vec2);
-alias uvec3 = UniformTemp!(vec3);
-alias uvec4 = UniformTemp!(vec4);
-alias umat4 = UniformTemp!(mat4);
+alias ubool = TypedUniform!(bool);
+alias ufloat = TypedUniform!(float);
+alias uvec2 = TypedUniform!(vec2);
+alias uvec3 = TypedUniform!(vec3);
+alias uvec4 = TypedUniform!(vec4);
+alias umat4 = TypedUniform!(mat4);
 
 interface Uniform {
     string getName() const;
@@ -22,7 +22,7 @@ interface Uniform {
     void apply(const Program, ref uint, ref uint) const;
 }
 
-class UniformTemp(Type) : Uniform {
+class TypedUniform(Type) : Uniform {
     string name;
     Type value;
 

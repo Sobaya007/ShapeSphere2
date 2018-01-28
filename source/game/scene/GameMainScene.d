@@ -12,15 +12,21 @@ class GameMainScene : SceneBase {
 
     mixin SceneBasePack;
 
+    private RenderTarget backBuffer;
+
     override void initialize() {
         /* Core Settings */
         auto core = Core();
         auto window = core.getWindow();
-        auto screen = window.getScreen();
+        //auto screen = window.getScreen();
         this.viewport = new AutomaticViewport(window);
         auto world2d = Game.getWorld2D();
         auto world3d = Game.getWorld3D();
         auto texture = Utils.generateTexture(ImageLoader.load(ImagePath("uv.png")));
+
+        this.backBuffer = new RenderTarget(256, 256);
+        this.backBuffer.attachRenderBuffer(FrameBufferAttachType.Depth);
+        this.backBuffer.attachTexture!ubyte(FrameBufferAttachType.Color0);
 
         /* Camera Settings */
         Camera camera = new PerspectiveCamera(1, 60.deg, 0.1, 200);
@@ -89,8 +95,8 @@ class GameMainScene : SceneBase {
     }
 
     override void render() {
-        renderer.render(Game.getWorld3D(), screen, viewport);
+        renderer.render(Game.getWorld3D(), backBuffer, viewport);
         screen.clear(ClearMode.Depth);
-        renderer.render(Game.getWorld2D(), screen, viewport);
+        renderer.render(Game.getWorld2D(), backBuffer, viewport);
     }
 }

@@ -402,10 +402,6 @@ class Utils {
             enum include = include!(T, members[1..$], name);
         }
     }
-
-    template hasMember(T, string name) {
-        enum hasMember = include!(string, [__traits(allMembers, T)], name);
-    }
 }
 
 bool instanceof(T,S)(S o) if(is(T == class)) {
@@ -433,3 +429,78 @@ Type as(Type)(JSONValue v) if (isArray!Type) {
     return v.array().map!(as!(ForeachType!Type)).array;
 }
 
+template staticFindIndex(alias F, T...) {
+    template _staticFindIndex(alias F, int cnt, T...) {
+        static if (T.length == 0) {
+            enum _staticFindIndex = -1;
+        } else static if (F!(T[0])) {
+            enum _staticFindIndex = cnt;
+        } else {
+            enum _staticFindIndex = _staticFindIndex!(F, cnt+1, T[1..$]);
+        }
+    }
+
+    enum staticFindIndex = _staticFindIndex!(F, 0, T);
+}
+
+template haveMember(Type, string member) {
+    import std.meta;
+    static if (isAggregateType!Type) {
+        static if (Filter!(ApplyLeft!(isSame, member), __traits(allMembers, Type)).length > 0) {
+            enum haveMember = true;
+        } else static if (is(typeof({Type t; auto po = &t.opDispatch!(member);}))) {
+            enum haveMember = true;
+        } else static if (__traits(getAliasThis, Type).length > 0) {
+            enum This = "Type." ~ __traits(getAliasThis, Type)[0];
+            static if (isCallable!(mixin(This))) {
+                alias Type2 = ReturnType!(mixin(This));
+            } else {
+                alias Type2 = typeof(mixin(This));
+            }
+            enum haveMember = haveMember!(Type2, member);
+        } else {
+            enum haveMember = false;
+        }
+    } else static if (isArray!Type) {
+        enum haveMember = member == "length";
+    } else {
+        enum haveMember = false;
+    }
+}
+
+mixin template Proxy() {
+    enum Proxied;
+
+    template opDispatch(string name) {
+        import std.traits, std.meta;
+        alias Types = typeof(getSymbolsByUDA!(typeof(this), Proxied));
+        enum index = staticFindIndex!(ApplyRight!(haveMember, name), Types);
+        static if (index >= 0) {
+            alias TargetType = Types[index];
+            enum MemberCall = getSymbolsByUDA!(typeof(this), Proxied)[index].stringof ~ "." ~ name;
+            static if (is(typeof(__traits(getMember, TargetType, name)) == function)) {
+                // non template function
+                auto opDispatch(this X, Args...)(Args args) {
+                    return mixin(MemberCall ~ "(args)");
+                }
+            } else static if (is(typeof({ enum x = mixin(MemberCall); }))) {
+                // built-in type field, manifest constant, and static non-mutable field
+                enum opDispatch = mixin(MemberCall);
+            } else static if (is(typeof(mixin(MemberCall))) || __traits(getOverloads, TargetType, name).length != 0) {
+                // field or property function
+                @property auto ref opDispatch() {
+                    return mixin(MemberCall);
+                }
+            } else {
+                // member template
+                template opDispatch(T...)
+                {
+                    enum targs = T.length ? "!T" : "";
+                    auto ref opDispatch(this X, Args...)(auto ref Args args){
+                        return mixin(MemberCall ~ targs ~ "(args)");
+                    }
+                }
+            }
+        }
+    }
+}

@@ -15,9 +15,9 @@ public:
         _height = height;
 
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
-        auto entity = new EntityTemp!(GeometryRect, ColorMaterial)(geom);
-        entity.getMesh.mat.color = vec4(0); // 透明
-        entity.getMesh.mat.color = vec4(1, 1, 1, 1); // debug
+        auto entity = makeEntity(geom, new ColorMaterial);
+        entity.color = vec4(0); // 透明
+        entity.color = vec4(1, 1, 1, 1); // debug
         super(entity);
     }
 

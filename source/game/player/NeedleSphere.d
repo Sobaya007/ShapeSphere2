@@ -58,8 +58,8 @@ class NeedleSphere : BaseSphere {
         auto geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
-        this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(MAX_RADIUS, vec3(0), vec3(0)));
-        this.particleList = entity.getMesh().geom.vertices.map!(p => new NeedleParticle(p.position)).array;
+        this.entity = makeEntity(geom, mat, new CollisionCapsule(MAX_RADIUS, vec3(0), vec3(0)));
+        this.particleList = entity.geom.vertices.map!(p => new NeedleParticle(p.position)).array;
         NeedlePair[] pairs = this.generatePairs(geom, this.particleList);
         foreach(pair; pairs) {
             pair.p0.next ~= pair.p1;
@@ -220,7 +220,7 @@ class NeedleSphere : BaseSphere {
     }
 
     private void updateGeometry() {
-        auto geom = this.entity.getMesh().geom;
+        auto geom = this.entity.geom;
         auto vs = geom.vertices;
         foreach (ref v; vs) {
             v.normal = vec3(0);

@@ -8,7 +8,6 @@ enum ClearMode {
     Stencil = GL_STENCIL_BUFFER_BIT
 };
 
-
 enum Prim {
     Triangle = GL_TRIANGLES,
     TriangleStrip = GL_TRIANGLE_STRIP,
@@ -280,7 +279,21 @@ enum GlErrorType {
     InvalidEnum = GL_INVALID_ENUM,
     InvalidValue = GL_INVALID_VALUE,
     InvalidOperation = GL_INVALID_OPERATION,
+    InvalidFramebufferOperation = GL_INVALID_FRAMEBUFFER_OPERATION,
     OutOfMemory = GL_OUT_OF_MEMORY
+}
+
+enum FramebufferStatus {
+    Complete = GL_FRAMEBUFFER_COMPLETE,
+    Undefined = GL_FRAMEBUFFER_UNDEFINED,
+    IncompleteAttachment = GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT,
+    IncompleteMissingAttachment = GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT,
+    IncompleteDrawBuffer = GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER,
+    IncompleteReadBuffer = GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER,
+    Unsupported = GL_FRAMEBUFFER_UNSUPPORTED,
+    IncompleteMultisample = GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE,
+    IncompleteLayerTargets = GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS
+
 }
 
 enum PixelAlignType {

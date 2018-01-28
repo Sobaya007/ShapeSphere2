@@ -6,8 +6,8 @@ import std.math;
 import std.format;
 
 class Timeline : IControllable {
-    alias RectEntity = EntityTemp!(GeometryRect, ColorMaterial);
-    alias LinesEntity = EntityTemp!(Lines.GeometryLineGroup, ColorMaterial);
+    alias RectEntity = TypedEntity!(GeometryRect, ColorMaterial);
+    alias LinesEntity = TypedEntity!(Lines.GeometryLineGroup, ColorMaterial);
 
     enum N = 300;
 
@@ -26,18 +26,18 @@ class Timeline : IControllable {
         this.time = -0.5;
         this.lastWritten = 1;
 
-        this.line = new LinesEntity(Lines.create(N*2));
-        line.getMesh().mat.color = vec4(1,0,0,1);
+        this.line = makeEntity(Lines.create(N*2), new ColorMaterial);
+        line.color = vec4(1,0,0,1);
 
-        this.rect = new RectEntity(Rect.create(1,1));
-        this.rect.getMesh().mat.color = vec4(0.4);
+        this.rect = makeEntity(Rect.create(1,1), new ColorMaterial);
+        this.rect.color = vec4(0.4);
         this.rect.buildBVH();
         this.minLabel = new Label(font, 0.05);
-        this.minLabel.obj.pos = vec3(-0.5, -0.5, -0.1);
+        this.minLabel.pos = vec3(-0.5, -0.5, -0.1);
         this.minLabel.setColor(vec4(1));
         this.minLabel.setOrigin(Label.OriginX.Left, Label.OriginY.Bottom);
         this.maxLabel = new Label(font, 0.05);
-        this.maxLabel.obj.pos = vec3(-0.5, +0.5, -0.1);
+        this.maxLabel.pos = vec3(-0.5, +0.5, -0.1);
         this.maxLabel.setColor(vec4(1));
         this.maxLabel.setOrigin(Label.OriginX.Left, Label.OriginY.Top);
         this.root = new Entity;
@@ -52,16 +52,16 @@ class Timeline : IControllable {
         auto v = vec3(-time, val, 0);
         if (!this.firstFlag) {
             this.firstFlag = true;
-            this.line.getMesh().geom.vertices[0].position = v;
+            this.line.geom.vertices[0].position = v;
         } else if (!this.secondFlag) {
             this.secondFlag = true;
-            this.line.getMesh().geom.vertices[1].position = v;
+            this.line.geom.vertices[1].position = v;
         } else {
             auto n1 = (lastWritten + 1) % (N * 2);
             auto n2 = (lastWritten + 2) % (N * 2);
-            this.line.getMesh().geom.vertices[n1].position = this.line.getMesh().geom.vertices[lastWritten].position;
-            this.line.getMesh().geom.vertices[n2].position = v;
-            this.line.getMesh().geom.updateBuffer();
+            this.line.geom.vertices[n1].position = this.line.geom.vertices[lastWritten].position;
+            this.line.geom.vertices[n2].position = v;
+            this.line.geom.updateBuffer();
             this.line.obj.pos = vec3(time-0.5,0,0);
             this.lastWritten = (this.lastWritten + 2) % (N * 2);
         }

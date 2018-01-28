@@ -10,7 +10,7 @@ import sbylib.wrapper.freetype.Constants;
 
 class Letter {
 
-    alias LetterEntity = EntityTemp!(GeometryRect, TextMaterial);
+    alias LetterEntity = TypedEntity!(GeometryRect, TextMaterial);
 
     private LetterEntity entity;
     private LetterInfo info;
@@ -18,8 +18,7 @@ class Letter {
 
     this(Letter letter) {
         this.info = letter.info;
-        auto before = letter.getEntity().getMesh();
-        this.entity = new LetterEntity(before.geom, before.mat);
+        this.entity = makeEntity(letter.geom, letter.mat);
         this.width = letter.width;
         this.height = letter.height;
     }
@@ -30,9 +29,9 @@ class Letter {
         this.width = h * this.info.width / this.info.height;
         this.height = h;
         auto geom = Rect.create(this.width, this.height);
-        this.entity = new LetterEntity(geom);
-        this.entity.getMesh().mat.texture = this.info.texture;
-        this.entity.getMesh().mat.color = vec4(0,0,0,1);
+        this.entity = makeEntity(geom, new TextMaterial);
+        this.entity.texture = this.info.texture;
+        this.entity.color = vec4(0,0,0,1);
     }
 
     LetterEntity getEntity() {
@@ -42,4 +41,6 @@ class Letter {
     LetterInfo getInfo() {
         return this.info;
     }
+
+    alias getEntity this;
 }
