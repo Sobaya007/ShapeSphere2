@@ -14,9 +14,10 @@ immutable:
         this.indices = indices;
     }
 
-    Entity buildEntity(VertexNT[] vertices, MaterialBuilder materialBuilder) {
+    Entity buildEntity(VertexGroupNT vertexGroup, MaterialBuilder materialBuilder) {
         import std.range, std.array;
-        Geometry geometry = new GeometryNT(vertices, this.indices);
+        auto faceGroup = new FaceGroup!(Prim.Triangle)(this.indices);
+        Geometry geometry = new GeometryNT(vertexGroup, faceGroup);
         Material material = materialBuilder.buildMaterial(this.material);
         return new Entity(geometry, material);
     }

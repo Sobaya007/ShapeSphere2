@@ -1,5 +1,5 @@
 {
-    "Model": "test.x",
+    "Model": ["test1.x", "test2.x", "test3.x", "test4.x"],
     "NPC": [
         {
             "serif": "そばやさんってかっこいいよね",

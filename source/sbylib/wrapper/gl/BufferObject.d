@@ -53,7 +53,18 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     } else {
         void sendData(S)(S data, BufferUsage freq = BufferUsage.Static) {
             this.bind();
+            //import std.stdio, std.datetime.stopwatch;
+            //writeln("Type = ", Type.stringof);
+            //writeln("T = ", T.stringof);
+            //writeln("S = ", S.stringof);
+            //writeln("length = ", data.length);
+            //writeln("size = ", T.sizeof);
+            //writeln("total = ", data.length * T.sizeof);
+            //writeln("freq = ", freq);
+            //StopWatch sw;
+            //sw.start();
             glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
+            //writeln("time = ", sw.peek);
             GlFunction.checkError();
             this.unbind();
         }

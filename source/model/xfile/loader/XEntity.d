@@ -38,8 +38,9 @@ immutable:
         }
         if (this.geometry.isJust) {
             VertexNT[] vertices = this.geometry.get().buildVertices();
+            auto vertexGroup = new VertexGroupNT(vertices);
             foreach(leviathan; this.leviathans) {
-                entity.addChild(leviathan.buildEntity(vertices, materialBuilder));
+                entity.addChild(leviathan.buildEntity(vertexGroup, materialBuilder));
             }
         }
         return entity;

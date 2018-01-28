@@ -69,15 +69,34 @@ class Map {
         import std.concurrency;
         import core.thread;
         spawn(function (immutable(string[]) models) {
-            Thread.sleep(1000.msecs);
-            immutable builder = new StageMaterialBuilder;
             foreach (i; 1..models.length) {
+                Thread.sleep(1000.msecs);
+                writeln("Model Load Start. ModelPath is ", models[i]);
                 auto loader = new XLoader();
                 auto loaded = loader.load(ModelPath(models[i]));
-                //auto tid = Core().tid;
-                //send(tid, loaded);
+                writeln("Model was Loaded.");
+                ownerTid.send(loaded);
             }
         }, models.idup);
+        Core().addProcess((Process proc) {
+            import model.xfile.loader;
+            receiveTimeout(0.msecs,
+                (immutable XEntity entity) {
+                    import std.stdio;
+                    writeln("received");
+                    auto model = entity.buildEntity(new StageMaterialBuilder);
+                    polygons.addChild(model);
+                    model.buildBVH((Entity bvh) {
+                        bvh.getParent().getMesh.apply!((Mesh m) {
+                            if (auto stageMat = cast(StageMaterial)m.mat) {
+                                bvh.getParent.setUserData(stageMat.name);
+                            }
+                        });
+                    });
+                    //proc.kill();
+                }
+            );
+        }, "addModel");
 
         writeln("BVH constructing...");
         foreach (model; this.polygons.getChildren) {

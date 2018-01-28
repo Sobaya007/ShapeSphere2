@@ -15,4 +15,11 @@ class VertexBuffer : BufferObject!(BufferType.Array, float) {
         GlFunction.checkError();
         this.unbind();
     }
+
+    final void asAttribute(uint stride, uint size, uint location) {
+        this.bind();
+        glVertexAttribPointer(location, size, GlFunction.getTypeEnum!(float), false, stride, null);
+        GlFunction.checkError();
+        this.unbind();
+    }
 }

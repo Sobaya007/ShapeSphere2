@@ -33,28 +33,47 @@ alias GeometryN = GeometryTemp!([Attribute.Position, Attribute.Normal]);
 alias GeometryT = GeometryTemp!([Attribute.Position, Attribute.UV]);
 alias GeometryNT = GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV]);
 
-class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
-    enum Attributes = A;
+class VertexGroup(Attribute[] Attributes) {
     alias VertexA = Vertex!(Attributes);
-
     VertexA[] vertices;
-    const Face[] faces;
-    const uint indicesCount;
-    private IndexBuffer ibo;
-    private Tuple!(Attribute, VertexBuffer)[] buffers;
-    float delegate(vec3, vec3) getRayIntersectParameter;
+    Tuple!(Attribute, VertexBuffer)[] buffers;
 
     this(VertexA[] vertices) {
-        this(vertices, iota(cast(uint)vertices.length).array);
-    }
-
-    this(VertexA[] vertices, immutable(uint[]) indices) {
         this.vertices = vertices;
         foreach (attr; Utils.Range!(Attribute, Attributes)) {
             auto buffer = new VertexBuffer;
-            buffer.sendData(vertices.map!(vertex => __traits(getMember, vertex, attr.name.dropOne()).array).reduce!((a,b) => a ~ b), BufferUsage.Static);
+            float[] data = new float[vertices.length * attr.dim];
+            foreach (i, vertex; vertices) {
+                data[i*attr.dim..(i+1)*attr.dim] = __traits(getMember, vertex, attr.name.dropOne()).array;
+            }
+            buffer.sendData(data, BufferUsage.Static);
             this.buffers ~= tuple(attr, buffer);
         }
+    }
+
+    void updateBuffer() {
+        foreach (i, attr; Utils.Range!(Attribute, Attributes)) {
+            auto buffer = buffers[i][1];
+            float* data = cast(float*)buffer.map(BufferAccess.Write);
+            foreach (j, v; this.vertices) {
+                data[j*attr.dim..(j+1)*attr.dim] = __traits(getMember, v, attr.name.dropOne()).array;
+            }
+            buffer.unmap();
+        }
+    }
+}
+
+alias VertexGroupP = VertexGroup!([Attribute.Position]);
+alias VertexGroupN = VertexGroup!([Attribute.Position, Attribute.Normal]);
+alias VertexGroupT = VertexGroup!([Attribute.Position, Attribute.UV]);
+alias VertexGroupNT = VertexGroup!([Attribute.Position, Attribute.Normal, Attribute.UV]);
+
+class FaceGroup(Prim Mode) {
+    const Face[] faces;
+    const uint indicesCount;
+    private IndexBuffer ibo;
+
+    this(immutable(uint[]) indices) {
         this.ibo = new IndexBuffer;
         this.ibo.sendData(indices, BufferUsage.Static);
         this.indicesCount = cast(uint)indices.length;
@@ -86,54 +105,64 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
             break;
         }
         this.faces = faces;
-        this.getRayIntersectParameter = (vec3 s, vec3 v) => minElement(this.faces.map!((face) {
-                auto n = cross(
-                this.vertices[face.indexList[2]].position - this.vertices[face.indexList[1]].position,
-                this.vertices[face.indexList[1]].position - this.vertices[face.indexList[0]].position);
-                if (dot(v,n) == 0) return 1145141919.810;
-                auto t = dot(this.vertices[face.indexList[0]].position - s, n) / dot(v, n);
-                if (t < 0) return 8939311919.810;
-                auto p = s + t * n;
-                auto signs = face.indexList.map!(i => 
-                    cross(this.vertices[(i+1)%3].position - this.vertices[i].position, this.vertices[i].position - p).dot(n)).array;
-                if (signs.all!(sign => sign >= 0) || signs.all!(sign => sign < 0)) {
-                    return t;
-                }
-                return 114514893810.1919;
-            }));
+    }
+}
+
+class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
+    enum Attributes = A;
+    alias VertexA = Vertex!(Attributes);
+    alias VertexGroupA = VertexGroup!(Attributes);
+    alias FaceGroupP = FaceGroup!(Mode);
+
+    VertexGroup!(Attributes) vertexGroup;
+    FaceGroup!(Mode) faceGroup;
+
+    this(VertexA[] vertices) {
+        this(vertices, iota(cast(uint)vertices.length).array);
+    }
+
+    this(VertexA[] vertices, immutable(uint[]) indices) {
+        this.vertexGroup = new VertexGroup!(Attributes)(vertices);
+        this.faceGroup = new FaceGroup!(Mode)(indices);
+    }
+
+    this(VertexGroupA vertexGroup, FaceGroupP faceGroup) {
+        this.vertexGroup = vertexGroup;
+        this.faceGroup = faceGroup;
     }
 
     override void render(VertexArray vao) {
-        vao.drawElements!uint(Mode, this.indicesCount);
+        vao.drawElements!uint(Mode, this.faceGroup.indicesCount);
     }
 
     override Tuple!(Attribute, VertexBuffer)[] getBuffers() {
-        return this.buffers;
+        return this.vertexGroup.buffers;
     }
     override IndexBuffer getIndexBuffer() {
-        return this.ibo;
+        return this.faceGroup.ibo;
     }
 
     override void updateBuffer() {
-        foreach (i, attr; Utils.Range!(Attribute, Attributes)) {
-            auto buffer = buffers[i][1];
-            float* data = cast(float*)buffer.map(BufferAccess.Write);
-            foreach (j, v; this.vertices) {
-                data[j*attr.dim..(j+1)*attr.dim] = __traits(getMember, v, attr.name.dropOne()).array;
-            }
-            buffer.unmap();
-        }
+        this.vertexGroup.updateBuffer();
     }
 
     override CollisionGeometry[] createCollisionPolygon() {
         CollisionGeometry[] colPolygons;
-        foreach (i, face; this.faces) {
+        foreach (i, face; this.faceGroup.faces) {
             auto poly = new CollisionPolygon(
-                    this.vertices[face.indexList[2]].position,
-                    this.vertices[face.indexList[1]].position,
-                    this.vertices[face.indexList[0]].position);
+                    this.vertexGroup.vertices[face.indexList[2]].position,
+                    this.vertexGroup.vertices[face.indexList[1]].position,
+                    this.vertexGroup.vertices[face.indexList[0]].position);
             colPolygons ~= poly;
         }
         return colPolygons;
+    }
+
+    VertexA[] vertices() {
+        return this.vertexGroup.vertices;
+    }
+
+    const(Face[]) faces() const {
+        return this.faceGroup.faces;
     }
 }

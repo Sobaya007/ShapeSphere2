@@ -15,4 +15,5 @@ void main() {
     vec3 n = normalize(vNormal);
     float d = max(0.0, dot(normalize(vPosition), -n));
     fragColor.rgb += vec3(2) * diffuse * d;
+    fragColor.rgb *= clamp((100 - length(vPosition)) * 0.01, 0, 1);
 }

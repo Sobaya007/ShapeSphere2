@@ -51,7 +51,9 @@ public:
     }
 
 private:
+    import std.stdio;
     immutable(XEntity) makeEntity(XFrameNode parent, mat4 transformMat) {
+        writeln("make Entity");
         mat4 mat = transformMat * mat4.transpose(parent.frameTransformMatrix.matrix);
 
         immutable(XEntity)[] children;
@@ -66,6 +68,7 @@ private:
     }
 
     immutable(XEntity) makeEntity(XMeshNode xMesh, mat4 transformMat) {
+        writeln("make Entity(mesh)");
         struct Geom {
             vec3[] positions;
             vec3[] normals;
