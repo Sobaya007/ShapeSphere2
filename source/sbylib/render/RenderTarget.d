@@ -11,13 +11,27 @@ import std.algorithm;
 import std.stdio;
 
 interface IRenderTarget {
-    void renderBegin();
-    void renderEnd();
+
+    const(FrameBuffer) getFrameBuffer();
+    int getWidth();
+    int getHeight();
+
+    final void renderBegin() {
+        getFrameBuffer().bind(FrameBufferBindType.Both);
+    }
+
+    final void renderEnd() {
+        getFrameBuffer().unbind(FrameBufferBindType.Both);
+    }
+
+    final void blitsTo(IRenderTarget dstRenderTarget, ClearMode[] mode...) {
+        auto dst = dstRenderTarget.getFrameBuffer();
+        this.getFrameBuffer().blitsTo(dst, 0, 0, this.getWidth(), this.getHeight(), 0, 0, dstRenderTarget.getWidth(), dstRenderTarget.getHeight(), TextureFilter.Linear, mode);
+    }
+
     void setClearColor(vec4);
     void setClearStencil(int);
     void clear(ClearMode[]...);
-    int getWidth();
-    int getHeight();
 }
 
 class RenderTarget : IRenderTarget {
@@ -81,14 +95,6 @@ class RenderTarget : IRenderTarget {
         return textures[FrameBufferAttachType.Depth];
     }
 
-    override void renderBegin() {
-        this.frameBuffer.bind(FrameBufferBindType.Both);
-    }
-
-    override void renderEnd() {
-        this.frameBuffer.unbind(FrameBufferBindType.Both);
-    }
-
     override void setClearColor(vec4 color) {
         this.clearColor = color;
     }
@@ -107,6 +113,10 @@ class RenderTarget : IRenderTarget {
         this.renderBegin();
         GlFunction.clear(clearMode);
         this.renderEnd();
+    }
+
+    override const(FrameBuffer) getFrameBuffer() {
+        return this.frameBuffer;
     }
 
     override int getWidth() {

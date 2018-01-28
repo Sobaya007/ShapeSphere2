@@ -6,10 +6,10 @@ import game.GameMain;
 import plot.Main;
 
 enum RunMode {
-    Framebuffer,
     Game,
     Basic,
     CameraControl,
+    Framebuffer,
     Gui,
     Material,
     Mouse,

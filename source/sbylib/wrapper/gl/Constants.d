@@ -2,11 +2,13 @@ module sbylib.wrapper.gl.Constants;
 
 import derelict.opengl;
 
-enum ClearMode {
+enum BufferBit {
     Color = GL_COLOR_BUFFER_BIT,
     Depth = GL_DEPTH_BUFFER_BIT,
     Stencil = GL_STENCIL_BUFFER_BIT
 };
+
+alias ClearMode = BufferBit;
 
 enum Prim {
     Triangle = GL_TRIANGLES,

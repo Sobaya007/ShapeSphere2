@@ -21,7 +21,7 @@ static:
         else static assert(false, T.stringof ~ " is an invalid type.");
     }
 
-    void clear(ClearMode[] mode...) out {
+    void clear(BufferBit[] mode...) out {
         checkError();
     } body {
         if (mode.canFind(ClearMode.Depth)) glDepthMask(true); //これしないとDepthをClearできない

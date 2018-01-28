@@ -19,7 +19,7 @@ class GameMainScene : SceneBase {
         auto core = Core();
         auto window = core.getWindow();
         //auto screen = window.getScreen();
-        this.viewport = new AutomaticViewport(window);
+        this.viewport = new Viewport(0,0,256,256);
         auto world2d = Game.getWorld2D();
         auto world3d = Game.getWorld3D();
         auto texture = Utils.generateTexture(ImageLoader.load(ImagePath("uv.png")));
@@ -96,7 +96,9 @@ class GameMainScene : SceneBase {
 
     override void render() {
         renderer.render(Game.getWorld3D(), backBuffer, viewport);
-        screen.clear(ClearMode.Depth);
+        backBuffer.clear(ClearMode.Depth);
         renderer.render(Game.getWorld2D(), backBuffer, viewport);
+
+        backBuffer.blitsTo(screen, BufferBit.Color);
     }
 }
