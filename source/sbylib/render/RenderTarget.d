@@ -104,7 +104,9 @@ class RenderTarget : IRenderTarget {
         if (clearMode.canFind(ClearMode.Stencil)) {
             GlFunction.clearStencil(this.clearStencil);
         }
+        this.renderBegin();
         GlFunction.clear(clearMode);
+        this.renderEnd();
     }
 
     override int getWidth() {

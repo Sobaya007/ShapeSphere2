@@ -5,11 +5,16 @@ import sbylib;
 void framebufferExample() {
     auto core = Core();
     auto world = new World;
-    auto internalWorld = new World;
     auto window = core.getWindow();
     auto screen = window.getScreen();
     auto renderer = new Renderer();
     auto viewport = new AutomaticViewport(window);
+
+
+    auto renderTarget = new RenderTarget(window.getWidth, window.getHeight);
+    renderTarget.setClearColor(vec4(1));
+    renderTarget.attachTexture!uint(FrameBufferAttachType.Color0);
+    renderTarget.attachRenderBuffer(FrameBufferAttachType.Depth);
 
 
     Camera camera = new PerspectiveCamera(
@@ -31,14 +36,36 @@ void framebufferExample() {
     world.add(planeEntity);
 
 
-    auto boxEntity = new Entity(Box.create(10,10,10), new TextureMaterial);
+    auto boxEntity = makeEntity(Box.create(10,10,10), new TextureMaterial);
     boxEntity.obj.pos = vec3(0,2,0);
+    boxEntity.texture = renderTarget.getColorTexture;
     world.add(boxEntity);
 
+
+
+    auto internalWorld = new World;
+
+
     auto boxEntity2 = new Entity(Box.create(10,10,10), new NormalMaterial);
+    internalWorld.add(boxEntity2);
+    core.addProcess({ boxEntity2.rot *= mat3.axisAngle(vec3(1,1,1).normalize, 0.02.rad); }, "a");
+
+
+    Camera camera2 = new PerspectiveCamera(
+            1, /* Aspect Ratio   */
+            60.deg, /* FOV (in angle) */
+            0.1, /* Near Clip      */
+            100, /* Far Clip       */
+    );
+    camera2.pos = vec3(1, 2, 3);
+    camera2.lookAt(vec3(0,0,0));
+    internalWorld.setCamera(camera2);
 
 
     auto renderToScreen = delegate (Process proc) {
+        renderTarget.clear(ClearMode.Color, ClearMode.Depth);
+        renderer.render(internalWorld, renderTarget, viewport);
+
         screen.clear(ClearMode.Color, ClearMode.Depth);
         renderer.render(world, screen, viewport);
     };

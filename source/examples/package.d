@@ -12,3 +12,4 @@ import examples.XFileLoadExample;
 import examples.EditorExample;
 import examples.EntityExample;
 import examples.SceneExample;
+import examples.FramebufferExample;

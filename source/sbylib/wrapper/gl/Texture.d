@@ -36,8 +36,10 @@ class Texture {
             assert(mipmapLevel == 0);
         }
     } body {
+        this.bind();
         glTexImage2D(this.target, mipmapLevel, iformat, width, height, 0, format, GlFunction.getTypeEnum!Type, data);
         GlFunction.checkError();
+        this.unbind();
         this.allocated = true;
     }
 
@@ -85,7 +87,9 @@ class Texture {
     } out {
         GlFunction.checkError();
     } body {
+        this.bind();
         glFramebufferTexture2D(bindType, attachType, this.target, this.id, 0);
+        this.unbind();
     }
 
     alias id this;

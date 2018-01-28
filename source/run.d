@@ -6,6 +6,7 @@ import game.GameMain;
 import plot.Main;
 
 enum RunMode {
+    Framebuffer,
     Game,
     Basic,
     CameraControl,
@@ -18,7 +19,7 @@ enum RunMode {
     XFileLoad,
     Editor,
     Entity,
-    Scene
+    Scene,
 };
 
 void run(RunMode mode, string[] args) {
@@ -64,6 +65,9 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Scene:
         sceneExample(args);
+        break;
+    case RunMode.Framebuffer:
+        framebufferExample();
         break;
     }
 }
