@@ -6,9 +6,12 @@ import model.xfile.loader;
 import game.character;
 import std.json, std.file, std.stdio;;
 import game.stage.StageMaterial;
+import game.stage.CrystalMaterial;
 
 class StageMaterialBuilder : MaterialBuilder {
     override Material buildMaterial(immutable(XMaterial) xmat) {
+        import std.string;
+        if (xmat.name.startsWith("Crystal")) return new CrystalMaterial;
         auto material = new StageMaterial();
         material.diffuse = xmat.diffuse.xyz;
         material.specular = xmat.specular;
@@ -21,6 +24,7 @@ class StageMaterialBuilder : MaterialBuilder {
 
 class Map {
     private Entity polygons;
+    private string stageDataPath;
 
     alias getPolygon this;
 
@@ -58,14 +62,16 @@ class Map {
     }
 
     void testStage2() {
-        auto jsonData = parseJSON(readText("Resource/stage/Stage1.json")).object();
-
         import std.algorithm, std.array;
+        this.stageDataPath = "Resource/stage/Stage1.json";
+
+        auto loader = new XLoader;
+        auto jsonData = parseJSON(readText(stageDataPath)).object();
         auto models = jsonData["Model"].array().map!(a => a.str()).array;
-        auto mat = new StageMaterialBuilder;
         writeln("Model Load Start. ModelPath is ", models[0]);
-        addModel(models[0], mat);
+        this.polygons.addChild(loader.load(ModelPath(models[0])).buildEntity(new StageMaterialBuilder));
         writeln("Model was Loaded.");
+
         import std.concurrency;
         import core.thread;
         spawn(function (immutable(string[]) models) {
@@ -111,15 +117,29 @@ class Map {
         writeln("BVH construction was finished.");
 
         addNPC(jsonData["NPC"].array());
+
+        addLight();
+
     }
 
-    private void addModel(string modelPath, MaterialBuilder builder) {
-        auto loader = new XLoader();
-        auto model = loader.load(ModelPath(modelPath)).buildEntity(builder);
-        this.polygons.addChild(model);
-    }
+    private void addLight() {
+        void exec() {
+            auto jsonData = parseJSON(readText("Resource/stage/Stage1.json")).object();
+            Game.getWorld3D().clearPointLight();
+            foreach (data; jsonData["Lights"].array) {
+                auto obj = data.object();
+                auto pos = vec3(obj["pos"].as!(float[]));
+                auto color = vec3(obj["color"].as!(float[]));
+                Game.getWorld3D().addPointLight(PointLight(pos, color));
+            }
+        }
 
-    private void addModelFromAnotherThread(string modelPath, MaterialBuilder builder) {
+        Core().addProcess({
+            if (Core().getKey.justPressed(KeyButton.KeyL)) {
+                exec();
+            }
+        }, "poyo");
+        exec();
     }
 
     private void addNPC(JSONValue[] jsonData) {

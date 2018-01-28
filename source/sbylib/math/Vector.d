@@ -78,6 +78,13 @@ body {
         return result;
     }
 
+    Vector opAssign(T[] a) in {
+        assert(a.length == this.elements.length);
+    } body {
+        this.elements[] = a;
+        return this;
+    }
+
     Vector opOpAssign(string op)(Vector v) //=============================ベクトルに対する代入算術演算子
 in {
         assert(v.elements.length == S);

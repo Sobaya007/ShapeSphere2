@@ -1,5 +1,11 @@
 {
     "Model": ["test1.x", "test2.x", "test3.x", "test4.x"],
+    "Lights": [
+        {
+            "pos": [130,2,17],
+            "color": [0.9, 0.7, 0.2]
+        }
+    ],
     "NPC": [
         {
             "serif": "そばやさんってかっこいいよね",

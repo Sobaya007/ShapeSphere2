@@ -63,6 +63,10 @@ class World {
         this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
     }
 
+    void clearPointLight() {
+        this.pointLightBlock.num = 0;
+    }
+
     void render() {
         auto notTransparents = Array!Entity(0);
         auto transparents = Array!Entity(0);

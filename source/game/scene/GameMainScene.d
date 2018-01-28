@@ -65,19 +65,6 @@ class GameMainScene : SceneBase {
         world2d.add(compass);
         compass.pos = vec3(0.75, -0.75, 0);
 
-        /* Light Settings */
-        PointLight pointLight;
-        pointLight.pos = vec3(0,2,0);
-        pointLight.diffuse = vec3(1);
-        world3d.addPointLight(pointLight);
-
-        /* Joy Stick Settings */
-        core.addProcess((proc) {
-            if (core.getJoyStick().canUse) {
-                //writeln(core.getJoyStick());
-            }
-        }, "joy state");
-
         /* FPS Observe */
         auto fpsCounter = new FpsCounter!100();
         auto fpsLabel = TextEntity("FPS = ", 0.1, Label.OriginX.Left, Label.OriginY.Top);
