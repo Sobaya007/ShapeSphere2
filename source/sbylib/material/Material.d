@@ -11,8 +11,6 @@ class Material {
     import sbylib.material.RenderConfig;
     const Program program;
     RenderConfig config;
-    
-    alias config this;
 
     this() {
         this.program = new Program(getShaders);

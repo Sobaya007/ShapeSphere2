@@ -11,6 +11,12 @@ struct Maybe(T) {
     private T value;
     private bool _none = true;
 
+    invariant {
+        static if (is(typeof(value is null))) {
+            assert(_none || value !is null);
+        }
+    }
+
     private this(T value) {
         this.value = value;
         this._none = false;

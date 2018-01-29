@@ -5,19 +5,18 @@ import sbylib;
 void clipboardExample() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getScreen();
+    auto world = new World;
     auto renderer = new Renderer();
     auto viewport = new AutomaticViewport(window);
-    auto world = new World;
+
+
     auto camera = new OrthoCamera(2,2,-1,1);
     world.setCamera(camera);
 
+
+    auto screen = window.getScreen();
     screen.setClearColor(vec4(0.2));
-    auto render = delegate (Process proc) {
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
-    };
-    core.addProcess(render, "render");
+
 
     dstring labelText = "Press C to copy here, or press V to paste here."d;
     float size = 1.8;
@@ -26,18 +25,18 @@ void clipboardExample() {
     auto font = FontLoader.load(FontPath("meiryo.ttc"), 256);
     auto label = new Label(font, 0.2);
     label.setOrigin(Label.OriginX.Center, Label.OriginY.Center);
-    label.entity.obj.pos = vec3(0);
+    label.entity.pos = vec3(0);
     label.setWrapWidth(size);
     label.setColor(vec4(0,0,0,1));
     label.renderText(labelText);
     world.add(label);
 
-    auto backMat = new ColorMaterial();
-    backMat.color = vec4(1);
-    auto backEntity = new Entity(Rect.create(size, size), backMat);
-    backEntity.obj.pos = label.getPos(Label.OriginX.Center, Label.OriginY.Center);
-    backEntity.obj.pos.z -= 0.1;
+
+    auto backEntity = makeEntity(Rect.create(size, size), new ColorMaterial(vec4(1)));
+    backEntity.pos = label.getPos(Label.OriginX.Center, Label.OriginY.Center);
+    backEntity.pos.z -= 0.1;
     world.add(backEntity);
+
 
     bool onCopyKeyPressed() {
         return core.getKey.justPressed(KeyButton.KeyC);
@@ -66,6 +65,20 @@ void clipboardExample() {
         }
 
     }, "clipboard");
+
+
+    core.addProcess({
+        if (core.getKey().justPressed(KeyButton.Escape)) {
+            core.end();
+        }
+    }, "escape");
+
+
+    core.addProcess({
+        screen.clear(ClearMode.Color, ClearMode.Depth);
+        renderer.render(world, screen, viewport);
+    }, "render");
+
 
     core.start();
 }

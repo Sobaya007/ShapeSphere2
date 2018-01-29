@@ -4,9 +4,9 @@ import sbylib;
 
 void basicExample() {
     auto core = Core();
-    auto world = new World;
     auto window = core.getWindow();
     auto screen = window.getScreen();
+    auto world = new World;
     auto renderer = new Renderer();
     auto viewport = new AutomaticViewport(window);
 
@@ -20,12 +20,13 @@ void basicExample() {
     camera.lookAt(vec3(0,2,0));
     world.setCamera(camera);
 
+
     auto planeEntity = makeEntity(
             Plane.create(100,100), /* width, height */
             new CheckerMaterial!(LambertMaterial, LambertMaterial)
     );
     planeEntity.ambient1 = vec3(1);
-    planeEntity.mat.ambient2 = vec3(0.5);
+    planeEntity.ambient2 = vec3(0.5);
     planeEntity.size = 0.015; /* Checker Size (in UV) */
     world.add(planeEntity);
 
@@ -34,12 +35,19 @@ void basicExample() {
     boxEntity.pos = vec3(0,2,0);
     world.add(boxEntity);
 
-    auto renderToScreen = delegate (Process proc) {
+
+    core.addProcess({
+        if (core.getKey().justPressed(KeyButton.Escape)) {
+            core.end();
+        }
+    }, "escape");
+
+
+    core.addProcess({
         screen.clear(ClearMode.Color, ClearMode.Depth);
         renderer.render(world, screen, viewport);
-    };
+    }, "render");
 
-    core.addProcess(renderToScreen, "render");
 
     core.start();
 }

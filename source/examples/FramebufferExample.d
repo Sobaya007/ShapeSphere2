@@ -4,9 +4,10 @@ import sbylib;
 
 void framebufferExample() {
     auto core = Core();
-    auto world = new World;
     auto window = core.getWindow();
     auto screen = window.getScreen();
+    auto world = new World;
+    auto internalWorld = new World;
     auto renderer = new Renderer();
     auto viewport = new AutomaticViewport(window);
 
@@ -17,7 +18,7 @@ void framebufferExample() {
     renderTarget.attachRenderBuffer(FrameBufferAttachType.Depth);
 
 
-    Camera camera = new PerspectiveCamera(
+    auto camera = new PerspectiveCamera(
             window.getWidth() / window.getHeight(), /* Aspect Ratio   */
             60.deg, /* FOV (in angle) */
             0.1, /* Near Clip      */
@@ -43,15 +44,12 @@ void framebufferExample() {
 
 
 
-    auto internalWorld = new World;
-
-
     auto boxEntity2 = new Entity(Box.create(10,10,10), new NormalMaterial);
     internalWorld.add(boxEntity2);
     core.addProcess({ boxEntity2.rot *= mat3.axisAngle(vec3(1,1,1).normalize, 0.02.rad); }, "a");
 
 
-    Camera camera2 = new PerspectiveCamera(
+    auto camera2 = new PerspectiveCamera(
             1, /* Aspect Ratio   */
             60.deg, /* FOV (in angle) */
             0.1, /* Near Clip      */
@@ -62,16 +60,6 @@ void framebufferExample() {
     internalWorld.setCamera(camera2);
 
 
-    auto renderToScreen = delegate (Process proc) {
-        renderTarget.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(internalWorld, renderTarget, viewport);
-
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
-    };
-    core.addProcess(renderToScreen, "render");
-
-
     auto control = new CameraControl(core.getKey(), core.getMouse(), camera);
     core.addProcess(&control.update, "update");
 
@@ -80,7 +68,16 @@ void framebufferExample() {
         if (core.getKey().justPressed(KeyButton.Escape)) {
             core.end();
         }
-    }, "a");
+    }, "escape");
+
+
+    core.addProcess({
+        renderTarget.clear(ClearMode.Color, ClearMode.Depth);
+        renderer.render(internalWorld, renderTarget, viewport);
+
+        screen.clear(ClearMode.Color, ClearMode.Depth);
+        renderer.render(world, screen, viewport);
+    }, "render");
 
 
     core.start();

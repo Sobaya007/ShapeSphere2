@@ -4,17 +4,11 @@ import sbylib;
 
 void entityExample() {
     auto core = Core();
-
     auto world = new World;
-
     auto window = core.getWindow();
-
     auto screen = window.getScreen();
-
     auto renderer = new Renderer();
-
     auto viewport = new AutomaticViewport(window);
-
     auto camera = new OrthoCamera(2,2,-1,1);
 
     auto renderToScreen = delegate (Process proc) {

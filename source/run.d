@@ -8,17 +8,16 @@ import plot.Main;
 enum RunMode {
     Game,
     Basic,
-    Material,
+    Editor,
     CameraControl,
+    Material,
+    XFileLoad,
     Framebuffer,
-    Gui,
     Mouse,
+    Gui,
     Text,
     Clipboard,
     Plot,
-    XFileLoad,
-    Editor,
-    Entity,
     Scene,
 };
 
@@ -59,9 +58,6 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Editor:
         editorExample(args);
-        break;
-    case RunMode.Entity:
-        entityExample();
         break;
     case RunMode.Scene:
         sceneExample(args);

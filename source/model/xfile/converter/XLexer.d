@@ -55,8 +55,6 @@ private:
                 label.insertBack(node);
             }
         }
-        import std.stdio;
-        writeln("lexer finshed");
 
         return tokens;
     }
