@@ -18,6 +18,12 @@ class Process {
         this.name = name;
     }
 
+    this(const void delegate(Process) func, string name = __FILE__, int line = __LINE__) in {
+        assert(func !is null);
+    } body {
+        this(func, name ~ line.stringof);
+    }
+
     package(sbylib) bool step() {
         this.logger.start();
         this.func(this);

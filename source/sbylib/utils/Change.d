@@ -213,9 +213,9 @@ struct ChangeObserved(T) {
                     this.onChange();
                     return ChangeObserved!T(result, this.callbacks);
                 }
-            } else {
-                // some template function?
-                auto ref opDispatch(Args...)(ref Args args) if (is(typeof(mixin(Member ~ "(args)")))) {
+            } else static if (isTemplate!(mixin(Member))) {
+                // some template function
+                auto ref opDispatch(Args...)(ref Args args) {
                     enum InstancedMember = Member ~ "!(Args)";
                     alias R = ReturnType!(mixin(InstancedMember));
                     alias isConst = hasFunctionAttributes!(mixin(InstancedMember), "const");
@@ -234,6 +234,8 @@ struct ChangeObserved(T) {
                         }
                     }
                 }
+            } else {
+                static assert(false);
             }
         }
     }

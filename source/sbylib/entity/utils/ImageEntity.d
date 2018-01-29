@@ -9,18 +9,12 @@ import sbylib.geometry.geometry2d.Rect;
 import sbylib.utils.Path;
 import sbylib.utils.Functions;
 
-Entity ImageEntity(
+auto ImageEntity(
         ImagePath path,
         float width,
         float height) {
-    auto image = Utils.generateTexture(ImageLoader.load(path));
-    auto geom = Rect.create(width, height);
-    auto mat = new TextureMaterial;
-    auto entity = new Entity(geom, mat);
-
-    mat.texture = image;
-
-    //mat.config.depthWrite = false;
-
-    return entity;
+    return makeEntity(
+        Rect.create(width, height),
+        new TextureMaterial(Utils.generateTexture(ImageLoader.load(path)))
+    );
 }

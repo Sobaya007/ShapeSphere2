@@ -9,10 +9,8 @@ auto ColorEntity(
         vec4 color,
         float width,
         float height) {
-    auto geom = Rect.create(width, height);
-    auto mat = new ColorMaterial;
-    mat.color = color;
-    mat.config.transparency = true;
-    mat.config.depthWrite = false;
-    return makeEntity(geom, mat);
+    auto entity = makeEntity(Rect.create(width, height), new ColorMaterial(color));
+    entity.transparency = true;
+    entity.depthWrite = false;
+    return entity;
 }

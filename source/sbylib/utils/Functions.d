@@ -443,12 +443,15 @@ template staticFindIndex(alias F, T...) {
     enum staticFindIndex = _staticFindIndex!(F, 0, T);
 }
 
+template hasDirectMember(Type, string member) {
+    import std.meta, std.traits;
+    enum hasDirectMember = Filter!(ApplyLeft!(isSame, member), __traits(allMembers, Type)).length > 0;
+}
+
 template haveMember(Type, string member) {
     import std.meta, std.traits;
     static if (isAggregateType!Type) {
-        static if (Filter!(ApplyLeft!(isSame, member), __traits(allMembers, Type)).length > 0) {
-            enum haveMember = true;
-        } else static if (is(typeof({Type t; auto po = &t.opDispatch!(member);}))) {
+        static if (hasMember!(Type, member)) {
             enum haveMember = true;
         } else static if (__traits(getAliasThis, Type).length > 0) {
             enum This = "Type." ~ __traits(getAliasThis, Type)[0];
@@ -458,6 +461,8 @@ template haveMember(Type, string member) {
                 alias Type2 = typeof(mixin(This));
             }
             enum haveMember = haveMember!(Type2, member);
+        //} else static if (isFunction!(mixin(member)) && isImplicitlyConvertible!(Type, Parameters!(mixin(member))[0])) {
+            //enum haveMember = true;
         } else {
             enum haveMember = false;
         }
@@ -475,30 +480,29 @@ mixin template Proxy() {
         import std.traits, std.meta;
         alias Types = typeof(getSymbolsByUDA!(typeof(this), Proxied));
         enum index = staticFindIndex!(ApplyRight!(haveMember, name), Types);
-        static if (index >= 0) {
-            alias TargetType = Types[index];
-            enum MemberCall = getSymbolsByUDA!(typeof(this), Proxied)[index].stringof ~ "." ~ name;
-            static if (is(typeof(__traits(getMember, TargetType, name)) == function)) {
-                // non template function
-                auto opDispatch(this X, Args...)(Args args) {
-                    return mixin(MemberCall ~ "(args)");
-                }
-            } else static if (is(typeof({ enum x = mixin(MemberCall); }))) {
-                // built-in type field, manifest constant, and static non-mutable field
-                enum opDispatch = mixin(MemberCall);
-            } else static if (is(typeof(mixin(MemberCall))) || __traits(getOverloads, TargetType, name).length != 0) {
-                // field or property function
-                @property auto ref opDispatch() {
-                    return mixin(MemberCall);
-                }
-            } else {
-                // member template
-                template opDispatch(T...)
-                {
-                    enum targs = T.length ? "!T" : "";
-                    auto ref opDispatch(this X, Args...)(auto ref Args args){
-                        return mixin(MemberCall ~ targs ~ "(args)");
-                    }
+        static assert(index >= 0);
+        alias TargetType = Types[index];
+        enum MemberCall = getSymbolsByUDA!(typeof(this), Proxied)[index].stringof ~ "." ~ name;
+        static if (is(typeof(__traits(getMember, TargetType, name)) == function)) {
+            // non template function
+            auto opDispatch(this X, Args...)(Args args) {
+                return mixin(MemberCall ~ "(args)");
+            }
+        } else static if (is(typeof({ enum x = mixin(MemberCall); }))) {
+            // built-in type field, manifest constant, and static non-mutable field
+            enum opDispatch = mixin(MemberCall);
+        } else static if (is(typeof(mixin(MemberCall))) || __traits(getOverloads, TargetType, name).length != 0) {
+            // field or property function
+            @property auto ref opDispatch() {
+                return mixin(MemberCall);
+            }
+        } else {
+            // member template
+            template opDispatch(T...)
+            {
+                enum targs = T.length ? "!T" : "";
+                auto ref opDispatch(this X, Args...)(auto ref Args args){
+                    return mixin(MemberCall ~ targs ~ "(args)");
                 }
             }
         }

@@ -13,6 +13,12 @@ class ColorMaterial : Material {
     this() {
         mixin(autoAssignCode);
         super();
-        color = vec4(1);
+        this.color = vec4(1);
+    }
+
+    this(vec4 color) {
+        mixin(autoAssignCode);
+        super();
+        this.color = color;
     }
 }

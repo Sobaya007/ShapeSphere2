@@ -11,6 +11,8 @@ class Material {
     import sbylib.material.RenderConfig;
     const Program program;
     RenderConfig config;
+    
+    alias config this;
 
     this() {
         this.program = new Program(getShaders);
@@ -100,6 +102,8 @@ class Material {
 
         enum FRAG_ROOT = ShaderPath(baseName(file).replace(".d", ".frag"));
 
+        alias config this;
+
         mixin commonDeclare;
 
         static Ast generateFragmentAST() {
@@ -136,7 +140,7 @@ class Material {
 
         template hasMember(string mem) {
             import sbylib.utils.Functions;
-            enum hasMember = haveMember!(typeof(this), mem);
+            enum hasMember = hasDirectMember!(typeof(this), mem);
         }
     }
 
@@ -146,6 +150,8 @@ class Material {
         import sbylib.material.glsl;
 
         enum FRAG_ROOT = ShaderPath(baseName(file).replace(".d", ".frag"));
+
+        alias config this;
 
         mixin commonDeclare;
 
@@ -213,9 +219,9 @@ class Material {
 
         template opDispatch(string mem) if (hasMember!(mem)) {
             import sbylib.utils.Functions;
-            enum hasMemberThis = haveMember!(typeof(this), mem);
-            enum hasMemberA = haveMember!(typeof(this.a), mem);
-            enum hasMemberB = haveMember!(typeof(this.b), mem);
+            enum hasMemberThis = hasDirectMember!(typeof(this), mem);
+            enum hasMemberA = hasDirectMember!(typeof(this.a), mem);
+            enum hasMemberB = hasDirectMember!(typeof(this.b), mem);
             static if (hasMemberThis) {
                 enum MemberCall = "this." ~ mem;
             } else static if (!hasMemberThis && hasMemberA && !hasMemberB) {
@@ -253,9 +259,9 @@ class Material {
 
         template hasMember(string mem) {
             import sbylib.utils.Functions;
-            enum hasMemberThis = haveMember!(typeof(this), mem);
-            enum hasMemberA = haveMember!(A, mem);
-            enum hasMemberB = haveMember!(B, mem);
+            enum hasMemberThis = hasDirectMember!(typeof(this), mem);
+            enum hasMemberA = hasDirectMember!(A, mem);
+            enum hasMemberB = hasDirectMember!(B, mem);
             static if (hasMemberThis) {
                 enum hasMember = true;
             } else static if (!hasMemberThis && hasMemberA && !hasMemberB) {

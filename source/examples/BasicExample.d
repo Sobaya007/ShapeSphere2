@@ -24,7 +24,7 @@ void basicExample() {
             Plane.create(100,100), /* width, height */
             new CheckerMaterial!(LambertMaterial, LambertMaterial)
     );
-    planeEntity.mat.ambient1 = vec3(1);
+    planeEntity.ambient1 = vec3(1);
     planeEntity.mat.ambient2 = vec3(0.5);
     planeEntity.size = 0.015; /* Checker Size (in UV) */
     world.add(planeEntity);

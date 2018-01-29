@@ -14,4 +14,10 @@ class TextureMaterial : Material {
         mixin(autoAssignCode);
         super();
     }
+
+    this(Texture texture) {
+        mixin(autoAssignCode);
+        super();
+        this.texture = texture;
+    }
 }
