@@ -1,19 +1,21 @@
 module sbylib.material.ConditionalMaterial;
 
 import sbylib.material.Material;
-import sbylib.material.MaterialUtils;
-import sbylib.material.UniformKeeper;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformTexture;
 
-class ConditionalMaterialUniformMaterial(TrueMaterial, FalseMaterial) : UniformKeeper {
+class ConditionalMaterial(TrueMaterial, FalseMaterial) : Material {
     enum MaterialName1 = "TrueMaterial";
     enum MaterialName2 = "FalseMaterial";
-    mixin MaterialUtils.declareMix!(TrueMaterial, FalseMaterial);
+
+    mixin declareMix!(TrueMaterial, FalseMaterial);
+
     ubool condition;
-    void constructor() {
-        this.condition = new ubool("condition");
+
+    this() {
+        mixin(autoAssignCode);
+        initialize();
+        super();
     }
 }
 
-alias ConditionalMaterial(TrueMaterial, FalseMaterial) = MaterialTemp!(ConditionalMaterialUniformMaterial!(TrueMaterial, FalseMaterial));

@@ -444,7 +444,7 @@ template staticFindIndex(alias F, T...) {
 }
 
 template haveMember(Type, string member) {
-    import std.meta;
+    import std.meta, std.traits;
     static if (isAggregateType!Type) {
         static if (Filter!(ApplyLeft!(isSame, member), __traits(allMembers, Type)).length > 0) {
             enum haveMember = true;

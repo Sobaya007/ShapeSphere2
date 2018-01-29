@@ -287,7 +287,7 @@ struct Depends(alias Function, Type = ReturnType!Function) {
         this.onChange();
     }
 
-    const(Type) get()  in {
+    Type get()  in {
         assert(this.initialized, "You must call 'depends' before use of this.");
     } body {
         if (this.needsUpdate) {

@@ -32,12 +32,11 @@ class TypedUniform(Type) : Uniform {
 
     this(string name, Type value) {
         this.name = name;
-        this.value = value;
+        this = value;
     }
 
-    typeof(this) opAssign(Type value) {
+    void opAssign(Type value) {
         this.value = value;
-        return this;
     }
 
     override string getName() const {

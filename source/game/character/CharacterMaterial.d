@@ -2,8 +2,10 @@ module game.character.CharacterMaterial;
 
 import sbylib;
 
-class CharacterMaterialUniformKeeper : UniformKeeper {
-    mixin MaterialUtils.declare;
-}
+class CharacterMaterial : Material {
+    mixin declare;
 
-alias CharacterMaterial = MaterialTemp!CharacterMaterialUniformKeeper;
+    this() {
+        initialize();
+    }
+}

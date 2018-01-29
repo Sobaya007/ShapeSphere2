@@ -30,7 +30,7 @@ class Mesh {
         this.mat = mat;
         this.owner = owner;
         this.vao = new VertexArray;
-        this.vao.setup(mat.shader, geom.getBuffers(), geom.getIndexBuffer());
+        this.vao.setup(mat.program, geom.getBuffers(), geom.getIndexBuffer());
     }
 
     void destroy() {
@@ -46,7 +46,7 @@ class Mesh {
     }
 
     void onSetWorld(World world) {
-        foreach (demand; this.mat.getDemands()) {
+        foreach (demand; this.mat.getUniformDemands) {
             final switch (demand) {
             case UniformDemand.World:
                 this.uniforms ~= () => this.owner.worldMatrix.get();

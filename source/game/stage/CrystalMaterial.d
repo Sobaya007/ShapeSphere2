@@ -2,9 +2,11 @@ module game.stage.CrystalMaterial;
 
 import sbylib;
 
-class CrystalMaterialUniformKeeper : UniformKeeper {
+class CrystalMaterial : Material {
 
-    mixin MaterialUtils.declare;
+    mixin declare;
+
+    this() {
+        initialize();
+    }
 }
-
-alias CrystalMaterial = MaterialTemp!(CrystalMaterialUniformKeeper);

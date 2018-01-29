@@ -8,10 +8,10 @@ import plot.Main;
 enum RunMode {
     Game,
     Basic,
+    Material,
     CameraControl,
     Framebuffer,
     Gui,
-    Material,
     Mouse,
     Text,
     Clipboard,

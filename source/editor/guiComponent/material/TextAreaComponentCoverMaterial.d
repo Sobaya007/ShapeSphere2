@@ -2,17 +2,15 @@ module editor.guiComponent.material.TextAreaComponentCoverMaterial;
 
 import sbylib;
 
-class TextAreaComponentCoverMaterialUniformKeeper : UniformKeeper {
+class TextAreaComponentCoverMaterial : Material {
 
-    mixin MaterialUtils.declare;
+    mixin declare;
 
     ufloat opacity;
     uvec4 color;
 
-    void constructor() {
-        this.opacity = new ufloat("opacity");
-        this.color   = new uvec4("color");
+    this() {
+        mixin(autoAssignCode);
+        super();
     }
 }
-
-alias TextAreaComponentCoverMaterial = MaterialTemp!TextAreaComponentCoverMaterialUniformKeeper;

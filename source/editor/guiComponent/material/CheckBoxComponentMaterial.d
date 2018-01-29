@@ -2,19 +2,18 @@ module editor.guiComponent.material.CheckBoxComponentMaterial;
 
 import sbylib;
 
-class CheckBoxComponentMaterialUniformKeeper : UniformKeeper {
+class CheckBoxComponentMaterial : Material {
 
-    mixin MaterialUtils.declare;
+    mixin declare;
 
     uvec4 backColor;
     uvec4 foreColor;
     ubool isChecked;
 
-    void constructor() {
-        this.backColor = new uvec4("backColor");
-        this.foreColor = new uvec4("foreColor");
-        this.isChecked = new ubool("isChecked");
+    this() {
+
+        mixin(autoAssignCode);
+        super();
+
     }
 }
-
-alias CheckBoxComponentMaterial = MaterialTemp!CheckBoxComponentMaterialUniformKeeper;

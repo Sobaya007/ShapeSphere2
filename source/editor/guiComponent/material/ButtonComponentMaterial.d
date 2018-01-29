@@ -2,9 +2,9 @@ module editor.guiComponent.material.ButtonComponentMaterial;
 
 import sbylib;
 
-class ButtonComponentMaterialUniformKeeper : UniformKeeper {
+class ButtonComponentMaterial : Material {
 
-    mixin MaterialUtils.declare;
+    mixin declare;
 
     uvec4 darkColor;
     uvec4 lightColor;
@@ -13,14 +13,9 @@ class ButtonComponentMaterialUniformKeeper : UniformKeeper {
     uvec2 size;
     ufloat borderSize;
 
-    void constructor() {
-        this.darkColor   = new uvec4("darkColor");
-        this.lightColor  = new uvec4("lightColor");
-        this.borderColor = new uvec4("borderColor");
-        this.value       = new ufloat("value");
-        this.size        = new uvec2("size");
-        this.borderSize  = new ufloat("borderSize");
+    this() {
+
+        mixin(autoAssignCode);
+        super();
     }
 }
-
-alias ButtonComponentMaterial = MaterialTemp!ButtonComponentMaterialUniformKeeper;

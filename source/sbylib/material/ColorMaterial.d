@@ -1,20 +1,18 @@
 module sbylib.material.ColorMaterial;
 
 import sbylib.material.Material;
-import sbylib.material.MaterialUtils;
-import sbylib.material.UniformKeeper;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.math.Vector;
 
-class ColorMaterialUniformKeeper : UniformKeeper {
-
-    mixin MaterialUtils.declare;
+class ColorMaterial : Material {
 
     uvec4 color;
 
-    void constructor() {
-        this.color = new uvec4("color");
+    mixin declare;
+
+    this() {
+        mixin(autoAssignCode);
+        super();
+        color = vec4(1);
     }
 }
-
-alias ColorMaterial = MaterialTemp!ColorMaterialUniformKeeper;

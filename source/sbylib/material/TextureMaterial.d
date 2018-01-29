@@ -1,20 +1,17 @@
 module sbylib.material.TextureMaterial;
 
 import sbylib.material.Material;
-import sbylib.material.MaterialUtils;
-import sbylib.material.UniformKeeper;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformTexture;
 
-class TextureMaterialUniformKeeper : UniformKeeper {
+class TextureMaterial : Material {
 
-    mixin MaterialUtils.declare;
+    mixin declare;
 
     utexture texture;
 
-    void constructor() {
-        this.texture = new utexture("tex");
+    this() {
+        mixin(autoAssignCode);
+        super();
     }
 }
-
-alias TextureMaterial = MaterialTemp!TextureMaterialUniformKeeper;

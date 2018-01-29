@@ -2,9 +2,11 @@ module game.player.PlayerMaterial;
 
 import sbylib;
 
-class PlayerMaterialUniformKeeper : UniformKeeper {
+class PlayerMaterial : Material {
 
-    mixin MaterialUtils.declare;
+    mixin declare;
+
+    this() {
+        initialize();
+    }
 }
-
-alias PlayerMaterial = MaterialTemp!PlayerMaterialUniformKeeper;
