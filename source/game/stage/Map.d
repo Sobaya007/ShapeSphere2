@@ -134,11 +134,7 @@ class Map {
             }
         }
 
-        Core().addProcess({
-            if (Core().getKey.justPressed(KeyButton.KeyL)) {
-                exec();
-            }
-        }, "poyo");
+        Core().getKey.justPressed(KeyButton.KeyL).add(&exec);
         exec();
     }
 

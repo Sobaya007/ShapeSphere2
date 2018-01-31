@@ -1,11 +1,11 @@
 module sbylib.wrapper.freeimage.ImageLoader;
 
-import std.stdio, std.string;
-import derelict.freeimage.freeimage;
-import sbylib.wrapper.freeimage.Image;
+public import sbylib.wrapper.freeimage.Image;
 
 class ImageLoader {
     static Image load(string path) {
+        import std.stdio, std.string;
+        import derelict.freeimage.freeimage;
         auto type = FreeImage_GetFileType(path.toStringz,0);
         assert(type != -1, path ~ " was not found.");
         FIBITMAP* origin = FreeImage_Load(type,path.toStringz);

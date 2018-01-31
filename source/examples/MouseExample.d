@@ -46,7 +46,7 @@ void mouseExample() {
 
     auto ray = new CollisionRay();
     core.addProcess({
-        Utils.getRay(mouse.getPos(), camera, ray);
+        ray.build(mouse.getPos(), camera);
         auto colInfo = world.rayCast(ray);
         if (colInfo.isNone) return;
         polyEntity.condition = colInfo.get.entity.getRootParent() is polyEntity;
@@ -58,11 +58,7 @@ void mouseExample() {
     core.addProcess(&control.update, "mouse");
 
 
-    core.addProcess({
-        if (core.getKey().justPressed(KeyButton.Escape)) {
-            core.end();
-        }
-    }, "escape");
+    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
 
 
     core.addProcess({

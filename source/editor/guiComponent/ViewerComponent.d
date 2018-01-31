@@ -170,13 +170,13 @@ private:
         }, "fps update");
 
         /* Key Input */
-        core.addProcess((proc) {
-            if (core.getKey[KeyButton.Escape]) {
-                Game.getCommandManager().save();
-                core.end();
-            }
-            if (core.getKey[KeyButton.KeyR]) ConfigManager().load();
-        }, "po");
+        core.getKey().justPressed(KeyButton.Escape).add({
+            Game.getCommandManager().save();
+            core.end();
+        });
+        core.getKey().justPressed(KeyButton.KeyP).add({ConfigManager().load();});
+        core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
+        core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
 
         /* Animation */
         core.addProcess(&AnimationManager().step, "Animation Manager");

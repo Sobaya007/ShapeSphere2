@@ -40,7 +40,7 @@ class VertexGroup(Attribute[] Attributes) {
 
     this(VertexA[] vertices) {
         this.vertices = vertices;
-        foreach (attr; Utils.Range!(Attribute, Attributes)) {
+        static foreach (attr; Attributes) {{
             auto buffer = new VertexBuffer;
             float[] data = new float[vertices.length * attr.dim];
             foreach (i, vertex; vertices) {
@@ -48,18 +48,18 @@ class VertexGroup(Attribute[] Attributes) {
             }
             buffer.sendData(data, BufferUsage.Static);
             this.buffers ~= tuple(attr, buffer);
-        }
+        }}
     }
 
     void updateBuffer() {
-        foreach (i, attr; Utils.Range!(Attribute, Attributes)) {
+        static foreach (i, attr; Attributes) {{
             auto buffer = buffers[i][1];
             float* data = cast(float*)buffer.map(BufferAccess.Write);
             foreach (j, v; this.vertices) {
                 data[j*attr.dim..(j+1)*attr.dim] = __traits(getMember, v, attr.name.dropOne()).array;
             }
             buffer.unmap();
-        }
+        }}
     }
 }
 

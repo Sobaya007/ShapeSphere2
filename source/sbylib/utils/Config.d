@@ -11,7 +11,7 @@ class ConfigManager {
 
     mixin Signal;
     mixin Signal!(ConfigPath, string, JSONValue);
-    mixin Utils.Singleton;
+    mixin Singleton;
 
     private ConfigFile[] files;
 

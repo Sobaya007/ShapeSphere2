@@ -14,14 +14,14 @@ alias VertexT = Vertex!([Attribute.Position, Attribute.UV]);
 alias VertexNT = Vertex!([Attribute.Position, Attribute.Normal, Attribute.UV]);
 
 template GenAttribute(Attribute[] attr) {
-    const char[] GenAttribute = attr.map!(a => format!"vec%s %s;"(a.dim, a.name.dropOne())).join("\n");
+    enum GenAttribute = attr.map!(a => format!"vec%s %s;"(a.dim, a.name.dropOne())).join("\n");
 }
 
 
-class Vertex(Attribute[] attr) {
+class Vertex(Attribute[] Attributes) {
 
-    enum attributes = attr;
-    mixin(GenAttribute!(attr));
+    enum attributes = Attributes;
+    mixin(GenAttribute!(Attributes));
 
     this() {}
 
@@ -32,15 +32,15 @@ class Vertex(Attribute[] attr) {
                 static NewVertex create(%s) {
                     return new NewVertex(%s);
                 }"
-                (attr.map!(a => format!"vec%s %s"(a.dim, a.name.dropOne())).join(", "),
+                (Attributes.map!(a => format!"vec%s %s"(a.dim, a.name.dropOne())).join(", "),
                  NewVertex.attributes.map!(a => a.name.dropOne()).join(", "));
                 }());
     }
 
     mixin(() {
         return format!"this(%s) {%s}"(
-            attr.map!(a => format!"vec%s %s"(a.dim, a.name.dropOne())).join(", "),
-            attr.map!(a => format!"this.%s = %s;"(a.name.dropOne(), a.name.dropOne())).join("\n"));
+            Attributes.map!(a => format!"vec%s %s"(a.dim, a.name.dropOne())).join(", "),
+            Attributes.map!(a => format!"this.%s = %s;"(a.name.dropOne(), a.name.dropOne())).join("\n"));
         }());
 
     Vertex!(attr2) to(Attribute[] attr2)() {
@@ -59,9 +59,9 @@ class Vertex(Attribute[] attr) {
 
     override string toString() {
         auto res = "Vertex {";
-        foreach (attr; Utils.Range!(Attribute, attr)) {
+        static foreach (attr; Attributes) {{
             res ~= format!"\n  %s = %s"(attr.name, __traits(getMember, this, attr.name.dropOne()).toString());
-        }
+        }}
         res ~= "\n}";
         return res;
     }

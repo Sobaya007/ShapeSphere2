@@ -363,6 +363,47 @@ Vector!(T,S) reduceV(alias pred, T, int S)(Vector!(T,S)[] v...) {
     return result;
 }
 
+T computeUnSignedArea(T)(Vector!(T,3)[3] positions...) {
+    return length(cross(positions[2] - positions[0], positions[1] - positions[0]));
+}
+
+T computeSignedVolume(T)(Vector!(T, 3)[4] positions...) {
+    mixin({
+            string code;
+            foreach (i; 0..3) {
+            code ~= "Vector!(T,3) v" ~ to!string(i) ~ " = positions[" ~to!string(i+1) ~ "] - positions[0];\n";
+            }
+            code ~= "return ";
+            foreach (i; 0..3) {
+            code ~= "+v" ~ to!string(i) ~ ".x * v" ~ to!string((i+1)%3) ~ ".y * v" ~ to!string((i+2)%3) ~ ".z\n";
+            }
+            foreach (i; 0..3) {
+            code ~= "-v" ~ to!string(i) ~ ".x * v" ~ to!string((i+2)%3) ~ ".y * v" ~ to!string((i+1)%3) ~ ".z\n";
+            }
+            code ~= ";";
+            return code;
+            }());
+}
+
+//与えられた点列に対し、分散が最大化するベクトルを含む正規直交基底を返す
+Vector!(T,3)[] mostDispersionBasis(T)(Vector!(T,3)[] vertices...) in {
+    assert(vertices.length > 0);
+} body {
+    import std.algorithm, std.array, std.range;
+    import sbylib.math.Matrix;
+    auto c = vertices.sum / vertices.length;
+    mat3 vcm = mat3(0);
+    foreach (ref v; vertices) {
+        auto r = v.xyz - c;
+        vcm += Matrix!(float,3,1)(r.array) * Matrix!(float,1,3)(r.array);
+    }
+    vcm /= vertices.length;
+    auto diagonal = mat3.diagonalizeForRealSym(vcm);
+    auto base = 3.iota.map!(a => diagonal.column[a].normalize).array;
+    return base;
+}
+
+
 private string getUnaryCode(string op, int S) {
     string code;
     foreach (i; 0..S) {

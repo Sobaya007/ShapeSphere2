@@ -33,7 +33,7 @@ import std.concurrency;
 
 class Core {
 
-    mixin Utils.Singleton;
+    mixin Singleton;
 
     static class Config {
         uint windowWidth;

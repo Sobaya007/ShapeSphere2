@@ -36,15 +36,11 @@ void cameraControlExample() {
     world.add(boxEntity);
 
 
-    auto control = new CameraControl(core.getKey(), core.getMouse(), camera);
+    auto control = new CameraControl(camera);
     core.addProcess(&control.update, "camera control");
 
 
-    core.addProcess({
-        if (core.getKey().justPressed(KeyButton.Escape)) {
-            core.end();
-        }
-    }, "escape");
+    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
 
 
     core.addProcess({

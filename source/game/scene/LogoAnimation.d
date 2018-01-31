@@ -9,7 +9,7 @@ class LogoAnimation : SceneProtoType {
 
     private Entity image;
     this() {
-        this.image = ImageEntity(ImagePath("uv.png"), 0.2, 0.2);
+        this.image = makeImageEntity(ImagePath("uv.png"), 0.2, 0.2);
         super();
         addEntity(image);
     }

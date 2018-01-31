@@ -91,7 +91,7 @@ class CollisionBVH : CollisionGeometry {
             assert(geomCenterList.length > 0);
             if (geomCenterList.length == 1) return new Leaf(geomCenterList[0].geom);
             // calculate most long vector in the center points of geometries.
-            vec3[3] basisCandidates = Utils.mostDispersionBasis(geomCenterList.map!(g => g.center).array);
+            vec3[3] basisCandidates = mostDispersionBasis(geomCenterList.map!(g => g.center).array);
             GeomWithCenter[] geomCenterList2;
             float len = -114514;
             vec3 basis;

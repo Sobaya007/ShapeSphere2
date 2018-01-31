@@ -46,32 +46,21 @@ void clipboardExample() {
     }
 
     Clipboard clipboard = core.getClipboard;
-    core.addProcess({
-        import std.stdio, std.format, std.conv, std.algorithm;
-        int maximum = 100;
-
-        if (onCopyKeyPressed()) {
-            clipboard.set(labelText);
+    core.getKey.justPressed(KeyButton.KeyC).add({ clipboard.set(labelText); });
+    core.getKey.justPressed(KeyButton.KeyV).add({
+        import std.format, std.conv, std.algorithm;
+        enum maximum = 100;
+        dstring pasteText = clipboard.get();
+        dstring errorText = format!"'%s ... ' is too long."(pasteText[0..min($, maximum)]).to!dstring;
+        if (pasteText.length > maximum) {
+            label.renderText(labelText = errorText);
+        } else {
+            label.renderText(labelText = clipboard.get());
         }
-
-        if (onPasteKeyPressed()) {
-            dstring pasteText = clipboard.get();
-            dstring errorText = format!"'%s ... ' is too long."(pasteText[0..min($, maximum)]).to!dstring;
-            if (pasteText.length > maximum) {
-                label.renderText(labelText = errorText);
-            } else {
-                label.renderText(labelText = clipboard.get());
-            }
-        }
-
-    }, "clipboard");
+    });
 
 
-    core.addProcess({
-        if (core.getKey().justPressed(KeyButton.Escape)) {
-            core.end();
-        }
-    }, "escape");
+    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
 
 
     core.addProcess({

@@ -15,7 +15,7 @@ class Title : SceneProtoType {
     private uint selector = 0;
 
     this() {
-        this.text = TextEntity("タイトル"d, 0.4);
+        this.text = makeTextEntity("タイトル"d, 0.4);
         auto newGame = Selection("New Game"d, vec2(0.9, -0.6));
         auto loadGame = Selection("Load Game"d, vec2(0.85, -0.75));
         selections = [newGame, loadGame];
@@ -99,7 +99,7 @@ class Title : SceneProtoType {
         private vec2 basePos;
         private Maybe!AnimationProcedure animation;
         this(dstring text, vec2 basePos) {
-            this.label = TextEntity(text, 0.15, Label.OriginX.Right, Label.OriginY.Center);
+            this.label = makeTextEntity(text, 0.15, Label.OriginX.Right, Label.OriginY.Center);
             this.basePos = basePos;
             this.label.pos = vec3(basePos, 0);
             this.label.setColor(vec4(0));

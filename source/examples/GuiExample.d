@@ -35,11 +35,7 @@ void guiExample() {
     auto fpsCounter = new FpsCounter!100;
 
 
-    core.addProcess({
-        if (core.getKey().justPressed(KeyButton.Escape)) {
-            core.end();
-        }
-    }, "escape");
+    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
 
 
     core.addProcess({

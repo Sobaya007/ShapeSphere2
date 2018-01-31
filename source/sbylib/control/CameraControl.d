@@ -18,61 +18,54 @@ import std.algorithm;
 
 class CameraControl {
 
-    private Key key;
-    private Mouse mouse;
     private CollisionRay ray;
     private Camera camera;
     private float z;
     private bool cameraRotate;
 
-    this(Key key, Mouse mouse, Camera camera) {
+    this(Camera camera) {
         this.ray = new CollisionRay();
-        this.key = key;
-        this.mouse = mouse;
         this.camera = camera;
         this.z = 10;
         this.cameraRotate = false;
+
+        enum speed = 0.2;
+        Core().getKey().justPressed(KeyButton.KeyW).add({
+            this.camera.pos -= this.camera.rot.column[2] * speed;
+        });
+        Core().getKey().justPressed(KeyButton.KeyS).add({
+            this.camera.pos += this.camera.rot.column[2] * speed;
+        });
+        Core().getKey().justPressed(KeyButton.KeyA).add({
+            this.camera.pos -= this.camera.rot.column[0] * speed;
+        });
+        Core().getKey().justPressed(KeyButton.KeyD).add({
+            this.camera.pos += this.camera.rot.column[0] * speed;
+        });
+        Core().getKey().justPressed(KeyButton.KeyQ).add({
+            this.camera.pos -= this.camera.rot.column[1] * speed;
+        });
+        Core().getKey().justPressed(KeyButton.KeyE).add({
+            this.camera.pos += this.camera.rot.column[1] * speed;
+        });
     }
 
     void update() {
-        if (mouse.justPressed(MouseButton.Button1)) {
+        if (Core().getMouse().justPressed(MouseButton.Button1)) {
             this.cameraRotate = true;
             Core().getWindow().setCursorMode(CursorMode.Disabled);
         }
-        if (mouse.justPressed(MouseButton.Button2)) {
+        if (Core().getMouse().justPressed(MouseButton.Button2)) {
             this.cameraRotate = false;
             Core().getWindow().setCursorMode(CursorMode.Normal);
         }
-        this.translate();
         if (cameraRotate) {
             this.rotate();
         }
     }
 
-    private void translate() {
-        enum speed = 0.2;
-        if (this.key[KeyButton.KeyW]) {
-            this.camera.pos -= this.camera.rot.column[2] * speed;
-        }
-        if (this.key[KeyButton.KeyS]) {
-            this.camera.pos += this.camera.rot.column[2] * speed;
-        }
-        if (this.key[KeyButton.KeyA]) {
-            this.camera.pos -= this.camera.rot.column[0] * speed;
-        }
-        if (this.key[KeyButton.KeyD]) {
-            this.camera.pos += this.camera.rot.column[0] * speed;
-        }
-        if (this.key[KeyButton.KeyQ]) {
-            this.camera.pos -= this.camera.rot.column[1] * speed;
-        }
-        if (this.key[KeyButton.KeyE]) {
-            this.camera.pos += this.camera.rot.column[1] * speed;
-        }
-    }
-
     private void rotate() {
-        auto dif2 = this.mouse.getDif();
+        auto dif2 = Core().getMouse().getDif();
         auto r = dif2.length.rad;
         auto a = safeNormalize(this.camera.rot * vec3(-dif2.y, dif2.x, 0));
         auto rot = mat3.axisAngle(a, r);

@@ -13,7 +13,7 @@ class StartNewGame : SceneProtoType {
     this() {
         super();
 
-        this.label = TextEntity("Loading...", 0.3, Label.OriginX.Right, Label.OriginY.Bottom);
+        this.label = makeTextEntity("Loading...", 0.3, Label.OriginX.Right, Label.OriginY.Bottom);
         this.label.pos = vec3(1, -1, 0);
 
         this.addEntity(this.label);

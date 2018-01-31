@@ -6,7 +6,4 @@ class CrystalMaterial : Material {
 
     mixin declare;
 
-    this() {
-        initialize();
-    }
 }

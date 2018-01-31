@@ -15,7 +15,7 @@ class DefaultMaterialBuilder : MaterialBuilder {
             material.specular = xmat.specular;
             material.ambient = vec4(xmat.ambient, 1.0);
             material.power = xmat.power;
-            material.texture = Utils.generateTexture(ImageLoader.load(ImagePath(xmat.textureFileName.get)));
+            material.texture = generateTexture(ImageLoader.load(ImagePath(xmat.textureFileName.get)));
             return material;
         } else {
             PhongMaterial material = new PhongMaterial;

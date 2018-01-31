@@ -55,15 +55,11 @@ void xFileLoadExample() {
     world.addPointLight(pointLight);
 
 
-    auto control = new CameraControl(core.getKey(), core.getMouse(), camera);
+    auto control = new CameraControl(camera);
     core.addProcess(&control.update, "update");
 
 
-    core.addProcess({
-        if (core.getKey().justPressed(KeyButton.Escape)) {
-            core.end();
-        }
-    }, "escape");
+    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
 
 
     core.addProcess({
