@@ -12,8 +12,6 @@ class GameMainScene : SceneBase {
 
     mixin SceneBasePack;
 
-    private RenderTarget backBuffer;
-
     override void initialize() {
         /* Core Settings */
         auto core = Core();
@@ -24,11 +22,6 @@ class GameMainScene : SceneBase {
 
 
         this.viewport = new AutomaticViewport(window);
-
-
-        this.backBuffer = new RenderTarget(256, 256);
-        this.backBuffer.attachRenderBuffer(FrameBufferAttachType.Depth);
-        this.backBuffer.attachTexture!ubyte(FrameBufferAttachType.Color0);
 
 
         /* Camera Settings */
@@ -73,9 +66,6 @@ class GameMainScene : SceneBase {
         }
 
 
-        /* Image Setting */
-
-
         /* Compass Settings */
         auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));
         world2d.add(compass);
@@ -106,9 +96,8 @@ class GameMainScene : SceneBase {
 
     override void render() {
         renderer.render(Game.getWorld3D(), screen, viewport);
+        screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
         screen.clear(ClearMode.Depth);
         renderer.render(Game.getWorld2D(), screen, viewport);
-
-        screen.blitsTo(backBuffer, BufferBit.Color);
     }
 }

@@ -1,8 +1,11 @@
 module sbylib.render.Renderer;
 
-import sbylib.core.World;
-import sbylib.render.RenderTarget;
-import sbylib.render.Viewport;
+public {
+    import sbylib.core.World;
+    import sbylib.render.RenderTarget;
+    import sbylib.render.Viewport;
+    import sbylib.entity.Entity;
+}
 
 class Renderer {
 

@@ -2,6 +2,7 @@
 
 require Position in World as vec3 position;
 require Position in View as vec3 vPosition;
+require Position in Proj as vec3 pPosition;
 require Normal in World as vec3 normal;
 require Normal in View as vec3 vNormal;
 

@@ -16,6 +16,7 @@ class RenderConfig {
     bool depthWrite, depthTest;
     bool transparency;
     float lineWidth;
+    bool visible;
 
     this() {
         this.depthFunc = TestFunc.Less;
@@ -34,6 +35,7 @@ class RenderConfig {
         this.depthTest = true;
         this.transparency = false;
         this.lineWidth = 1f;
+        this.visible = true;
     }
 
     void set() {
