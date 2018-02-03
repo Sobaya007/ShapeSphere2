@@ -52,7 +52,9 @@ void textExample() {
         createLabel(0.1, Label.OriginX.Right,  Label.OriginY.Bottom, vec3(+1,-1,0), getColor(315), "南東"d),
     ];
     labels[0].setWrapWidth(1.5);
-    world.add(labels);
+    foreach (label; labels) {
+        world.add(label);
+    }
 
 
     core.getKey().justPressed(KeyButton.Escape).add(&core.end);

@@ -16,16 +16,19 @@ import sbylib.utils.Array;
 import sbylib.utils.Maybe;
 import std.traits;
 import std.algorithm;
+import sbylib.core.RenderGroup;
 
 class World {
     private Entity[] entities;
     private Camera camera;
     private PointLightBlock pointLightBlock;
     private UniformBuffer!PointLightBlock pointLightBlockBuffer;
+    private IRenderGroup[string] renderGroups;
 
     this() {
         this.pointLightBlockBuffer = new UniformBuffer!PointLightBlock("PointLightBlock");
         this.pointLightBlockBuffer.sendData(this.pointLightBlock, BufferUsage.Dynamic);
+        this.renderGroups["regular"] = new RegularRenderGroup;
     }
 
     private UniformBuffer!PointLightBlock getPointLightBlockBuffer() {
@@ -38,15 +41,22 @@ class World {
 
     void setCamera(Camera camera) {
         this.camera = camera;
+        this.renderGroups["transparent"] = new TransparentRenderGroup(camera);
     }
 
-    void add(T)(T[] rs...)
-    if (isAssignable!(Entity, T)) in {
-    } body{
-        foreach (r; rs) {
-            this.entities ~= r;
-            r.setWorld(this);
-        }
+    void addRenderGroup(string name, IRenderGroup group) {
+        this.renderGroups[name] = group;
+    }
+
+    void add(Entity entity) {
+        add(entity, entity.getMesh().mat.config.transparency.fmap!(b => b ? "regular" : "transparent"));
+    }
+
+    void add(Entity entity, Maybe!(string) groupName) {
+        this.entities ~= entity;
+        entity.setWorld(this);
+        if (groupName.isNone) return;
+        this.renderGroups[groupName.get()].add(entity);
     }
 
     void remove(T)(T[] rs...)
@@ -68,18 +78,13 @@ class World {
     }
 
     void render() {
-        auto notTransparents = Array!Entity(0);
-        auto transparents = Array!Entity(0);
-        scope (exit) {
-            notTransparents.destroy();
-            transparents.destroy();
+        foreach (groupName; this.renderGroups.byKey) {
+            this.render(groupName);
         }
-        foreach (r; this.entities) {
-            r.collect!(mesh => mesh.mat.config.transparency == true)(transparents, notTransparents);
-        }
-        notTransparents.each!(e => e.render());
-        transparents.sort!((a,b) => dot(camera.pos - a.pos, camera.rot.column[2]) > dot(camera.pos - b.pos, camera.rot.column[2]));
-        transparents.each!(e => e.render());
+    }
+
+    void render(string groupName) {
+        this.renderGroups["regular"].render();
     }
 
     const(Uniform) delegate() getUniform(UniformDemand demand) {
