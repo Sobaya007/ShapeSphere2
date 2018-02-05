@@ -12,7 +12,7 @@ auto makeColorEntity(
     import sbylib.geometry.geometry2d.Rect;
     import sbylib.material.ColorMaterial;
     auto entity = makeEntity(Rect.create(width, height), new ColorMaterial(color));
-    entity.transparency = true;
+    entity.renderGroupName = "transparent";
     entity.depthWrite = false;
     return entity;
 }

@@ -26,7 +26,7 @@ class Character {
         this.serif = serif;
         {
             auto mat = new CharacterMaterial();
-            mat.config.transparency = true;
+            mat.config.renderGroupName = "transparent";
             mat.config.depthWrite = false;
             mat.config.faceMode = FaceMode.Front;
             this.elasticSphere = new ElasticSphere2(mat);

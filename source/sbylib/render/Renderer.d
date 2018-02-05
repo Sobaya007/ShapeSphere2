@@ -15,4 +15,11 @@ class Renderer {
         world.render();
         renderTarget.renderEnd();
     }
+
+    void render(World world, IRenderTarget renderTarget, IViewport viewport, string renderGroupName) {
+        viewport.set();
+        renderTarget.renderBegin();
+        world.render();
+        renderTarget.renderEnd();
+    }
 }

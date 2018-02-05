@@ -1,5 +1,5 @@
 import std.getopt;
-import Run;
+import entry;
 
 extern(C) __gshared string[] rt_options = ["gcopt=profile:1"];
 

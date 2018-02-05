@@ -16,7 +16,7 @@ class SceneProtoType : SceneBase {
     this(Camera camera) {
         this.state = State.Waiting;
         this.fadeRect = makeColorEntity(vec4(0), 2,2);
-        this.fadeRect.config.transparency = true;
+        this.fadeRect.config.renderGroupName = "transparent";
         this.fadeRect.config.depthWrite = false;
         this.fadeRect.pos.z = 1;
 

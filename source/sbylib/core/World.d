@@ -49,14 +49,16 @@ class World {
     }
 
     void add(Entity entity) {
-        add(entity, entity.getMesh().mat.config.transparency.fmap!(b => b ? "regular" : "transparent"));
+        add(entity, entity.getMesh().mat.config.renderGroupName);
+        entity.getChildren.each!(e => add(e));
     }
 
-    void add(Entity entity, Maybe!(string) groupName) {
+    private void add(Entity entity, Maybe!(string) groupName) {
         this.entities ~= entity;
         entity.setWorld(this);
-        if (groupName.isNone) return;
-        this.renderGroups[groupName.get()].add(entity);
+        if (groupName.isJust) {
+            this.renderGroups[groupName.get()].add(entity);
+        }
     }
 
     void remove(T)(T[] rs...)
@@ -84,7 +86,7 @@ class World {
     }
 
     void render(string groupName) {
-        this.renderGroups["regular"].render();
+        this.renderGroups[groupName].render();
     }
 
     const(Uniform) delegate() getUniform(UniformDemand demand) {

@@ -95,7 +95,8 @@ class GameMainScene : SceneBase {
     }
 
     override void render() {
-        renderer.render(Game.getWorld3D(), screen, viewport);
+        renderer.render(Game.getWorld3D(), screen, viewport, "regular");
+        renderer.render(Game.getWorld3D(), screen, viewport, "transparent");
         screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
         screen.clear(ClearMode.Depth);
         renderer.render(Game.getWorld2D(), screen, viewport);

@@ -1,4 +1,4 @@
-module Run;
+module entry;
 
 import std.stdio, std.format, std.traits, std.conv, std.range, std.algorithm, std.array;
 import examples;

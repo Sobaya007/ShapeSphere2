@@ -107,6 +107,10 @@ class Entity {
         entity.setWorld(world);
     }
 
+    Entity[] getChilren() {
+        return this.children;
+    }
+
     void buildBVH() {
         buildBVH((bvh) {});
     }

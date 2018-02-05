@@ -45,7 +45,7 @@ class Label {
         foreach (l; this.letters) {
             auto mat = cast(TextMaterial)l.getEntity().mat;
             mat.color = _color;
-            mat.config.transparency = true;//mat._color.a != 1;
+            mat.config.renderGroupName = "transparent";
             mat.config.depthWrite = false;
         }
     }

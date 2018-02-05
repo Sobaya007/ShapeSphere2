@@ -69,8 +69,12 @@ class Map {
         auto jsonData = parseJSON(readText(stageDataPath)).object();
         auto models = jsonData["Model"].array().map!(a => a.str()).array;
         writeln("Model Load Start. ModelPath is ", models[0]);
-        this.polygons.addChild(loader.load(ModelPath(models[0])).buildEntity(new StageMaterialBuilder));
-        writeln("Model was Loaded.");
+        {
+            auto model = loader.load(ModelPath(models[0])).buildEntity(new StageMaterialBuilder);
+            this.polygons.addChild(model);
+            Game.getWorld3D().add(model);
+            writeln("Model was Loaded.");
+        }
 
         import std.concurrency;
         import core.thread;
@@ -92,6 +96,7 @@ class Map {
                     writeln("received");
                     auto model = entity.buildEntity(new StageMaterialBuilder);
                     polygons.addChild(model);
+                    Game.getWorld3D().add(model);
                     model.buildBVH((Entity bvh) {
                         bvh.getParent().getMesh.apply!((Mesh m) {
                             if (auto stageMat = cast(StageMaterial)m.mat) {
