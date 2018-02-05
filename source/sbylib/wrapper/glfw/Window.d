@@ -21,6 +21,8 @@ class GlfwWindow {
     private {
         GLFWwindow *window;
         int width, height;
+        int windowedX, windowedY;
+        int windowedWidth, windowedHeight;
         bool resized;
         bool isFullScreen;
         string title;
@@ -34,8 +36,8 @@ class GlfwWindow {
         }
 
         void setSize(int width, int height) {
-            this.width = width;
-            this.height = height;
+            this.windowedWidth = width;
+            this.windowedHeight = height;
             glfwSetWindowSize(window, width, height);
         }
 
@@ -46,9 +48,12 @@ class GlfwWindow {
 
         void toggleFullScreen() {
             this.isFullScreen = !this.isFullScreen;
-            auto newWindow = glfwCreateWindow(width, height,title.toStringz, this.isFullScreen ? glfwGetPrimaryMonitor() : null, this.window);
-            this.destroy();
-            this.setWindow(newWindow);
+            if (this.isFullScreen) {
+                auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+                glfwSetWindowMonitor(this.window, glfwGetPrimaryMonitor(), 0, 0, mode.width, mode.height, 0);
+            } else {
+                glfwSetWindowMonitor(this.window, null,  this.windowedX, this.windowedY, this.windowedWidth, this.windowedHeight, 60);
+            }
         }
 
         uint getWidth() const {
@@ -159,16 +164,29 @@ class GlfwWindow {
     private void setWindow(GLFWwindow *window) {
         this.window = window;
         glfwSetWindowSizeCallback(this.window, &resizeCallback);
+        glfwSetWindowPosCallback(this.window, &windowPosCallback);
         glfwMakeContextCurrent(this.window);
+
+        glfwSwapInterval(1);
 
         glfwSetKeyCallback(this.window, &keyCallback);
 
         this.setTitle(title);
 
         //Actual window size might differ from given size.
+        glfwGetWindowSize(this.window, &this.windowedWidth, &this.windowedHeight);
         glfwGetWindowSize(this.window, &this.width, &this.height);
+        glfwGetWindowPos(this.window, &this.windowedX, &this.windowedY);
 
         windows[this.window] = this;
+    }
+}
+
+private extern(C) void windowPosCallback(GLFWwindow *window, int x, int y) nothrow {
+    assert(window in windows);
+    if (!windows[window].isFullScreen) {
+        windows[window].windowedX = x;
+        windows[window].windowedY = y;
     }
 }
 
@@ -176,6 +194,10 @@ private extern(C) void resizeCallback(GLFWwindow *window, int w, int h) nothrow 
     assert(window in windows);
     windows[window].width = w;
     windows[window].height = h;
+    if (!windows[window].isFullScreen) {
+        windows[window].windowedWidth = w;
+        windows[window].windowedHeight = h;
+    }
     windows[window].resized = true;
 }
 
