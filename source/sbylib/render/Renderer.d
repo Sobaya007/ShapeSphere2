@@ -19,7 +19,7 @@ class Renderer {
     void render(World world, IRenderTarget renderTarget, IViewport viewport, string renderGroupName) {
         viewport.set();
         renderTarget.renderBegin();
-        world.render();
+        world.render(renderGroupName);
         renderTarget.renderEnd();
     }
 }

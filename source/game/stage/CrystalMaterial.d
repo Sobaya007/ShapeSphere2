@@ -16,5 +16,6 @@ class CrystalMaterial : Material {
 
 
         this.backBuffer = Game.getBackBuffer().getColorTexture();
+        this.config.renderGroupName = "Crystal";
     }
 }

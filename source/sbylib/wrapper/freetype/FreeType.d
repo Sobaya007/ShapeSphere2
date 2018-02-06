@@ -30,8 +30,7 @@ class FreeType {
         version (Windows) {
             DerelictFT.missingSymbolCallback = &missingSymFunc;
             DerelictFT.load(DllPath("freetype.dll"));
-        }
-        version (OSX) {
+        } else {
             DerelictFT.load();
         }
         assert(!FT_Init_FreeType(&library), "Failed to init freetype!");

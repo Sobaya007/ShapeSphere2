@@ -61,14 +61,12 @@ class World {
         }
     }
 
-    void remove(T)(T[] rs...)
-    if (isAssignable!(Entity, T)) in {
-    } body{
-        auto len = this.entities.length;
-        foreach (r; rs) {
-            this.entities = this.entities.remove!(e => e == r); //TODO: やばそう？
+    void remove(Entity entity) {
+        this.entities = this.entities.remove!(e => e == entity); //TODO: やばそう？
+        auto groupName = entity.getMesh().mat.config.renderGroupName;
+        if (groupName.isJust) {
+            this.renderGroups[groupName.get()].remove(entity);
         }
-        assert(len == rs.length + this.entities.length);
     }
 
     void addPointLight(PointLight pointLight) {

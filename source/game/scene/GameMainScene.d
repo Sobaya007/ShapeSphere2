@@ -31,6 +31,9 @@ class GameMainScene : SceneBase {
         world3d.setCamera(camera);
 
 
+        world3d.addRenderGroup("Crystal", new TransparentRenderGroup(camera));
+
+
         world2d.setCamera(new OrthoCamera(2,2,-1,1));
 
 
@@ -81,6 +84,7 @@ class GameMainScene : SceneBase {
         core.addProcess((proc) {
             fpsCounter.update();
             fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
+            window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
         }, "fps update");
 
 
@@ -98,6 +102,7 @@ class GameMainScene : SceneBase {
         renderer.render(Game.getWorld3D(), screen, viewport, "regular");
         renderer.render(Game.getWorld3D(), screen, viewport, "transparent");
         screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
+        renderer.render(Game.getWorld3D(), screen, viewport, "Crystal");
         screen.clear(ClearMode.Depth);
         renderer.render(Game.getWorld2D(), screen, viewport);
     }
