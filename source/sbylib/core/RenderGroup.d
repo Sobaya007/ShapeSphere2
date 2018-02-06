@@ -12,6 +12,7 @@ interface IRenderGroup {
     void render();
     void add(Entity);
     void remove(Entity);
+    void clear();
 }
 
 class RegularRenderGroup : IRenderGroup {
@@ -28,6 +29,10 @@ class RegularRenderGroup : IRenderGroup {
 
     override void remove(Entity e) {
         this.entities = this.entities.remove!(e2 => e2 == e);
+    }
+
+    override void clear() {
+        this.entities = [];
     }
 }
 
@@ -51,5 +56,9 @@ class TransparentRenderGroup : IRenderGroup {
 
     override void remove(Entity e) {
         this.entities = this.entities.remove!(e2 => e2 == e);
+    }
+
+    override void clear() {
+        this.entities = [];
     }
 }

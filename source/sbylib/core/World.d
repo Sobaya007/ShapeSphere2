@@ -69,6 +69,10 @@ class World {
         }
     }
 
+    void clear(string groupName) {
+        this.renderGroups[groupName].clear();
+    }
+
     void addPointLight(PointLight pointLight) {
         this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
     }

@@ -128,6 +128,8 @@ class Map {
     }
 
     private void addLight() {
+        auto loader = new XLoader;
+        auto loaded = loader.load(ModelPath("crystal.x"));
         void exec() {
             auto jsonData = parseJSON(readText("Resource/stage/Stage1.json")).object();
             Game.getWorld3D().clearPointLight();
@@ -135,6 +137,17 @@ class Map {
                 auto obj = data.object();
                 auto pos = vec3(obj["pos"].as!(float[]));
                 auto color = vec3(obj["color"].as!(float[]));
+                Game.getWorld3D().addPointLight(PointLight(pos, color));
+            }
+            Game.getWorld3D().clear("Crystal");
+            foreach (data; jsonData["Crystal"].array()) {
+                auto obj = data.object();
+                auto pos = vec3(obj["pos"].as!(float[]));
+                auto color = vec3(obj["color"].as!(float[]));
+                auto model = loaded.buildEntity(new StageMaterialBuilder);
+                model.pos = pos;
+                this.polygons.addChild(model);
+                Game.getWorld3D().add(model);
                 Game.getWorld3D().addPointLight(PointLight(pos, color));
             }
         }

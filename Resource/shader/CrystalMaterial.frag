@@ -2,6 +2,8 @@
 
 uniform sampler2D backBuffer;
 
+require Position in World as vec3 position;
+require Normal in World as vec3 normal;
 require Position in View as vec3 vPos;
 require Normal in View as vec3 vNormal;
 require Position in Proj as vec3 projPos;
@@ -14,10 +16,10 @@ void main() {
     vec3 dir = normalize(vPos);
     dir = refract(dir, normalize(vNormal), 0.1) * 0.1;
     fragColor = texture(backBuffer, uv + dir.xy);
-    //fragColor.rgb += vec3(0,0.1, 0.2) * 0.8;
 
-    vec3 l = -normalize(vec3(1,1,1));
-    float d = max(0.0, dot(-l, vNormal));
-    float s = pow(max(0.0, dot(-normalize(vPos), reflect(l,vNormal))), 2);
-    fragColor.rgb += vec3(d + s) * 0.1;
+    for (int i = 0; i < pointLightNum; i++) {
+        vec3 l = pointLights[i].pos - position;
+        float d = exp(-length(l)) * 10;
+        fragColor.rgb += pointLights[i].diffuse * d;
+    }
 }
