@@ -151,13 +151,7 @@ class ElasticSphere : BaseSphere {
         auto info = Array!CollisionInfoByQuery(0);
         scope(exit) info.destroy();
         Game.getWorld3D().queryCollide(info, this.elasticSphere2.entity);
-        auto charas = info.map!(colInfo => colInfo.entity.getUserData.fmapAnd!((Variant data) {
-            if (auto chara = data.peek!Character) {
-                return Just(*chara); // peekで返ってくるポインタは長生きしない
-            } else {
-                return None!Character;
-            }
-        })).filter!(chara => chara.isJust).map!(chara => chara.get);
+        auto charas = info.map!(colInfo => colInfo.entity.getUserData!Character).catMaybe;
         if (charas.empty) return;
         auto chara = charas.front();
         camera.focus(chara.entity);

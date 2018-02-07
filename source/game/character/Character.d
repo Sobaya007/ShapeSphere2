@@ -34,9 +34,9 @@ class Character {
             world.add(elasticSphere.entity);
         }
         this.collisionArea = new Entity(new CollisionCapsule(1.2, vec3(0), vec3(0)));
-        this.collisionArea.setName("Character's Collision Area");
+        this.collisionArea.name = "Character's Collision Area";
         this.activeArea = new Entity(new CollisionCapsule(2, vec3(0), vec3(0)));
-        this.activeArea.setName("Character's Active Area");
+        this.activeArea.name = "Character's Active Area";
         this.elasticSphere.entity.addChild(collisionArea);
         this.elasticSphere.entity.addChild(activeArea);
         elasticSphere.entity.setUserData(this);
@@ -52,9 +52,9 @@ class Character {
         auto info = Array!CollisionInfoByQuery(0);
         scope(exit) info.destroy();
         Game.getWorld3D().queryCollide(info, this.activeArea);
-        auto charas = info.map!(colInfo => colInfo.entity.getUserData.fmapAnd!((Variant data) {
-            return wrap(data.peek!(Player));
-        })).filter!(player => player.isJust).map!(player => player.get);
+        auto charas = 
+            info.map!(colInfo => colInfo.entity.getUserData!(Player))
+            .catMaybe;
         auto c = count % 100;
 
         if (charas.empty && c == 1) return;

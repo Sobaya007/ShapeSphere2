@@ -159,6 +159,17 @@ mixin template Proxy() {
     }
 }
 
+mixin template buildReadonly(Type, string name) {
+    import std.format;
+    mixin(format!q{
+              private Type %s;
+
+              Type %s() {
+                  return %s;
+              }
+          }("_"~name, name, "_"~name));
+}
+
 Texture generateTexture(Image image) {
     return new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.RGBA, image.getWidth(), image.getHeight(), ImageFormat.BGRA, image.getBits());
 }

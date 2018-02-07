@@ -56,6 +56,9 @@ class Mesh {
             case UniformDemand.Light:
                 this.uniforms ~= world.getUniform(demand);
                 break;
+            case UniformDemand.DebugCounter:
+                this.uniforms ~= () => this.mat.debugCounter;
+                break;
             }
         }
         foreach (ud; this.mat.getUniforms()) {

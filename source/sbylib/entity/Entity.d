@@ -11,14 +11,17 @@ public {
 import std.algorithm;
 
 class Entity {
-    private Maybe!Mesh mesh;
+
+    import sbylib.utils.Functions;
+
+    mixin buildReadonly!(Maybe!Mesh, "mesh");
+    mixin buildReadonly!(Object3D, "obj");
+    mixin buildReadonly!(World, "world");
+    string name;
     private Maybe!CollisionEntry colEntry;
-    private World world;
     private Entity parent;
     private Entity[] children;
-    private Object3D _obj;
     private Maybe!Variant userData;
-    private string name;
     bool visible;
 
     this(string file = __FILE__, int line = __LINE__){
@@ -45,44 +48,20 @@ class Entity {
     }
 
     void destroy() {
-        this.mesh.destroy();
-        foreach (child; this.children) {
-            child.destroy();
-        }
-    }
-
-    Maybe!Mesh getMesh() {
-        return this.mesh;
-    }
-
-    inout(Object3D) obj() @property inout {
-        return this._obj;
-    }
-
-    World getWorld() {
-        return this.world;
-    }
-
-    string getName() {
-        return this.name;
-    }
-
-    void setName(string name) {
-        this.name = name;
+        this.traverse!((Entity e) => e.mesh.destroy);
     }
 
     void setWorld(World world) in {
         assert(world);
     } body {
-        this.world = world;
-        this.onSetWorld(world);
-        foreach (child; this.children) {
-            child.setWorld(world);
-        }
+        this.traverse((Entity e) {
+            e._world = world;
+            e.onSetWorld(world);
+        });
     }
 
-    Maybe!Variant getUserData() {
-        return this.userData;
+    Maybe!T getUserData(T)() {
+        return this.userData.fmapAnd!((Variant v) => wrapPointer(v.peek!T));
     }
 
     void setUserData(T)(T userData) in {
@@ -111,46 +90,25 @@ class Entity {
         return this.children;
     }
 
+    void traverse(alias func)() {
+        func(this);
+        foreach (child; this.children) {
+            child.traverse!(func);
+        }
+    }
+
+    void traverse(void delegate(Entity) func) {
+        func(this);
+        foreach (child; this.children) {
+            child.traverse(func);
+        }
+    }
+
     void buildBVH() {
-        buildBVH((bvh) {});
-    }
-
-    void buildBVH(void delegate(Entity) func) {
-        this.mesh.apply!((m) {
-            auto polygons = m.geom.createCollisionPolygon();
-            if (polygons.length == 0) return;
-            auto bvh = new Entity(new CollisionBVH(polygons));
-            addChild(bvh);
-            func(bvh);
+        this.traverse((Entity e) {
+            auto polygons = e.mesh.geom.createCollisionPolygon();
+            e.colEntry = polygons.fmap!((CollisionGeometry[] p) => new CollisionEntry(new CollisionBVH(p), this));
         });
-
-        foreach(child; this.children) {
-            child.buildBVH(func);
-        }
-    }
-
-    /*
-    void collect(bool function(Mesh) cond)(ref Array!Entity result) {
-        if (this.mesh && cond(this.mesh)) {
-            result ~= this;
-        }
-        foreach (child; this.children) {
-            child.collect!(cond)(result);
-        }
-    }
-    */
-
-    void collect(bool function(Mesh) cond)(ref Array!Entity trueResult, ref Array!Entity falseResult) {
-        if (this.mesh.isJust) {
-            if (cond(this.mesh.get)) {
-                trueResult ~= this;
-            } else {
-                falseResult ~= this;
-            }
-        }
-        foreach (child; this.children) {
-            child.collect!(cond)(trueResult, falseResult);
-        }
     }
 
     void render() in {
@@ -231,10 +189,10 @@ class Entity {
         this._obj.onSetParent(entity);
     }
 
-    private void setMesh(Mesh mesh) in {
-        assert(mesh.getOwner() == this);
+    private void setMesh(Mesh m) in {
+        assert(m.getOwner() == this);
     } body {
-        this.mesh = Just(mesh);
+        this._mesh = Just(m);
         if (this.world is null) return;
         this.mesh.onSetWorld(this.world);
     }

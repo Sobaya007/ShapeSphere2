@@ -27,7 +27,7 @@ static:
         this.world2d = new World;
         this.world3d = new World;
         this.message = new Message;
-        this.backBuffer = new RenderTarget(256, 256);
+        this.backBuffer = new RenderTarget(512, 512);
         this.backBuffer.attachTexture!ubyte(FrameBufferAttachType.Color0);
     }
 

@@ -44,12 +44,16 @@ class World {
         this.renderGroups["transparent"] = new TransparentRenderGroup(camera);
     }
 
+    Camera getCamera() {
+        return camera;
+    }
+
     void addRenderGroup(string name, IRenderGroup group) {
         this.renderGroups[name] = group;
     }
 
     void add(Entity entity) {
-        add(entity, entity.getMesh().mat.config.renderGroupName);
+        add(entity, entity.mesh.mat.config.renderGroupName);
         entity.getChildren.each!(e => add(e));
     }
 
@@ -63,7 +67,7 @@ class World {
 
     void remove(Entity entity) {
         this.entities = this.entities.remove!(e => e == entity); //TODO: やばそう？
-        auto groupName = entity.getMesh().mat.config.renderGroupName;
+        auto groupName = entity.mesh.mat.config.renderGroupName;
         if (groupName.isJust) {
             this.renderGroups[groupName.get()].remove(entity);
         }

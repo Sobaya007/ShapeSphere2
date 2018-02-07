@@ -310,7 +310,7 @@ private:
 
     void updateCover() {
         foreach(entity; _coverEntity.getChildren()) {
-            (cast(TextAreaComponentCoverMaterial)entity.getMesh.get().mat).opacity = getCoverOpacity();
+            (cast(TextAreaComponentCoverMaterial)entity.mesh.get().mat).opacity = getCoverOpacity();
         }
     }
 

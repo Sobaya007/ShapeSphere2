@@ -81,7 +81,7 @@ struct Maybe(T) {
     }
 
     string toString() {
-        if (this.isJust) return format!"Some(%s)"(this.value.to!string);
+        if (this.isJust) return format!"Just(%s)"(this.value.to!string);
         return "None";
     }
 }
@@ -127,6 +127,14 @@ Maybe!T None(T)() {
     return Maybe!T(true);
 }
 
+auto wrapPointer(T)(T value) if (isPointer!T){
+    if (value is null) {
+        return None!(PointerTarget!T);
+    } else {
+        return Just(*value);
+    }
+}
+
 auto wrap(T)(T value) {
 
     import std.traits;
@@ -151,6 +159,15 @@ auto wrap(T)(T value) {
     } else {
         return Just(value);
     }
+}
+
+auto wrapCast(T, S)(Maybe!S m) {
+    return m.fmapAnd!((S s) => wrap(cast(T)s));
+}
+
+auto catMaybe(Range)(Range r) {
+    import std.algorithm;
+    return r.filter!(m => m.isJust).map!(m => m.get);
 }
 
 unittest {

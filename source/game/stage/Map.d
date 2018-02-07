@@ -97,26 +97,23 @@ class Map {
                     auto model = entity.buildEntity(new StageMaterialBuilder);
                     polygons.addChild(model);
                     Game.getWorld3D().add(model);
-                    model.buildBVH((Entity bvh) {
-                        bvh.getParent().getMesh.apply!((Mesh m) {
-                            if (auto stageMat = cast(StageMaterial)m.mat) {
-                                bvh.getParent.setUserData(stageMat.name);
-                            }
-                        });
+                    model.buildBVH();
+                    model.traverse!((Entity e) {
+                        auto name = e.mesh.mat.wrapCast!(StageMaterial).name;
+                        if (name.isNone) return;
+                        e.setUserData(name.get);
                     });
-                    //proc.kill();
                 }
             );
         }, "addModel");
 
         writeln("BVH constructing...");
         foreach (model; this.polygons.getChildren) {
-            model.buildBVH((Entity bvh) {
-                bvh.getParent().getMesh.apply!((Mesh m) {
-                    if (auto stageMat = cast(StageMaterial)m.mat) {
-                        bvh.getParent.setUserData(stageMat.name);
-                    }
-                });
+            model.buildBVH();
+            model.traverse!((Entity e) {
+                auto name = e.mesh.mat.wrapCast!(StageMaterial).name;
+                if (name.isNone) return;
+                e.setUserData(name.get);
             });
         }
         writeln("BVH construction was finished.");

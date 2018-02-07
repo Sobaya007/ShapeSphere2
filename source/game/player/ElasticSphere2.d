@@ -70,7 +70,7 @@ class ElasticSphere2 {
         this.force = vec3(0);
         this.geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         this.entity = new Entity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
-        this.entity.setName("ElasticSphere");
+        this.entity.name = "ElasticSphere";
         this.particleList = geom.vertices.map!(p => new ElasticParticle(p.position)).array;
         auto p = this.particleList.map!(p => &p.position).array;
         auto v = this.particleList.map!(p => &p.velocity).array;

@@ -148,23 +148,23 @@ class NeedleSphere : BaseSphere {
         Maybe!size_t lastWallIndex;
         foreach (i, colInfo; colInfos) {
             contacts ~= Contact(colInfo, this);
-            colInfo.getOther(this.entity).getParent().getUserData().apply!((Variant data) {
-                if (auto matNamePtr = data.peek!string) {
-                    auto matName = *matNamePtr;
-                    import std.algorithm;
-                    if (matName.canFind("Sand")) {
-                        auto nc = normalize(colInfo.getPushVector(this.entity));
-                        if (this.contactNormal.isNone || nc.y < this.contactNormal.y) {
-                            this.contactNormal = Just(nc);
-                            if (this.contactNormal != lastContactNormal) {
-                                newWallIndex = Just(i);
-                            } else {
-                                lastWallIndex = Just(i);
-                            }
-                        }
+            auto matName = colInfo.getOther(this.entity).getUserData!(string).getOrElse("");
+            import std.algorithm;
+            this.entity.getRootParent.traverse!((Entity e) {
+                import std.stdio;
+                writeln(e.getUserData!(string));
+            });
+            if (matName.canFind("Sand")) {
+                auto nc = normalize(colInfo.getPushVector(this.entity));
+                if (this.contactNormal.isNone || nc.y < this.contactNormal.y) {
+                    this.contactNormal = Just(nc);
+                    if (this.contactNormal != lastContactNormal) {
+                        newWallIndex = Just(i);
+                    } else {
+                        lastWallIndex = Just(i);
                     }
                 }
-            });
+            }
         }
         if (newWallIndex.isJust) {
             contacts[newWallIndex.get].wall = SAND_WALL;

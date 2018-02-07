@@ -130,10 +130,10 @@ private:
         this.ray.build(this.mouse.getPos(), this.camera);
         return this.world.rayCast(this.ray).fmap!((CollisionInfoRay colInfo) {
             auto entity = colInfo.entity;
-            while(entity.getUserData().isNone) {
+            while(entity.getUserData!(IControllable).isNone) {
                 entity = entity.getParent;
             }
-            return *entity.getUserData.get.peek!IControllable;
+            return entity.getUserData!(IControllable).get();
         });
     }
 

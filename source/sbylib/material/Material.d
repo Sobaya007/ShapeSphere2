@@ -11,10 +11,12 @@ class Material {
     import sbylib.material.RenderConfig;
     const Program program;
     RenderConfig config;
+    TypedUniform!int debugCounter;
 
     this() {
         this.program = new Program(getShaders);
         this.config = new RenderConfig();
+        this.debugCounter = new TypedUniform!int("DebugCounter");
     }
 
     final void set(const(Uniform) delegate()[] uniforms) {
