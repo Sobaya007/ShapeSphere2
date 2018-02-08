@@ -164,7 +164,7 @@ mixin template buildReadonly(Type, string name) {
     mixin(format!q{
               private Type %s;
 
-              Type %s() {
+              auto %s() inout {
                   return %s;
               }
           }("_"~name, name, "_"~name));

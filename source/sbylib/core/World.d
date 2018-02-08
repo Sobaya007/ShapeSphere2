@@ -31,14 +31,9 @@ class World {
         this.renderGroups["regular"] = new RegularRenderGroup;
     }
 
-    private UniformBuffer!PointLightBlock getPointLightBlockBuffer() {
-        PointLightBlock* buffer = this.pointLightBlockBuffer.map(BufferAccess.Write);
-        buffer.num = this.pointLightBlock.num;
-        buffer.lights = this.pointLightBlock.lights;
-        this.pointLightBlockBuffer.unmap();
-        return this.pointLightBlockBuffer;
-    }
-
+    /*
+       Camera Access
+     */
     void setCamera(Camera camera) {
         this.camera = camera;
         this.renderGroups["transparent"] = new TransparentRenderGroup(camera);
@@ -48,33 +43,44 @@ class World {
         return camera;
     }
 
-    void addRenderGroup(string name, IRenderGroup group) {
-        this.renderGroups[name] = group;
-    }
 
-    void add(Entity entity) {
-        add(entity, entity.mesh.mat.config.renderGroupName);
-        entity.getChildren.each!(e => add(e));
-    }
+    /*
+       Entity Management
+     */
 
-    private void add(Entity entity, Maybe!(string) groupName) {
+    void add(Entity entity) out {
+        assert(entity.world.get() is this);
+    } body {
         this.entities ~= entity;
-        entity.setWorld(this);
+        entity.setWorld(Just(this));
+        auto groupName = entity.mesh.mat.config.renderGroupName;
         if (groupName.isJust) {
             this.renderGroups[groupName.get()].add(entity);
         }
+        entity.getChildren.each!(e => add(e));
     }
 
-    void remove(Entity entity) {
-        this.entities = this.entities.remove!(e => e == entity); //TODO: やばそう？
+    void remove(Entity entity) in {
+        assert(entity.world.get() is this);
+    } body {
+        auto num = this.entities.length;
+        this.entities = this.entities.remove!(e => e == entity);
+        assert(this.entities.length == num-1);
+        entity.setWorld(None!World);
         auto groupName = entity.mesh.mat.config.renderGroupName;
         if (groupName.isJust) {
             this.renderGroups[groupName.get()].remove(entity);
         }
+        entity.getChildren.each!(e => remove(e));
     }
 
     void clear(string groupName) {
         this.renderGroups[groupName].clear();
+        this.entities = this.entities.remove!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName);
+    }
+
+    invariant {
+        assert(this.entities.all!(e => e.world.get() is this));
     }
 
     void addPointLight(PointLight pointLight) {
@@ -85,6 +91,10 @@ class World {
         this.pointLightBlock.num = 0;
     }
 
+    void addRenderGroup(string name, IRenderGroup group) {
+        this.renderGroups[name] = group;
+    }
+
     void render() {
         foreach (groupName; this.renderGroups.byKey) {
             this.render(groupName);
@@ -93,19 +103,6 @@ class World {
 
     void render(string groupName) {
         this.renderGroups[groupName].render();
-    }
-
-    const(Uniform) delegate() getUniform(UniformDemand demand) {
-        switch (demand) {
-        case UniformDemand.View:
-            return () => this.camera.viewMatrix;
-        case UniformDemand.Proj:
-            return () => this.camera.projMatrix;
-        case UniformDemand.Light:
-            return () => this.getPointLightBlockBuffer;
-        default:
-            assert(false);
-        }
     }
 
     void queryCollide(ref Array!CollisionInfoByQuery result, Entity colEntry) {
@@ -134,4 +131,26 @@ class World {
         if (infos.length == 0) return None!CollisionInfoRay;
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
+
+    const(Uniform) delegate() getUniform(UniformDemand demand) {
+        switch (demand) {
+        case UniformDemand.View:
+            return () => this.camera.viewMatrix;
+        case UniformDemand.Proj:
+            return () => this.camera.projMatrix;
+        case UniformDemand.Light:
+            return () => this.getPointLightBlockBuffer;
+        default:
+            assert(false);
+        }
+    }
+
+    private UniformBuffer!PointLightBlock getPointLightBlockBuffer() {
+        PointLightBlock* buffer = this.pointLightBlockBuffer.map(BufferAccess.Write);
+        buffer.num = this.pointLightBlock.num;
+        buffer.lights = this.pointLightBlock.lights;
+        this.pointLightBlockBuffer.unmap();
+        return this.pointLightBlockBuffer;
+    }
+
 }

@@ -45,7 +45,9 @@ class Mesh {
         this.geom.render(this.vao);
     }
 
-    void onSetWorld(World world) {
+    void onSetWorld(Maybe!World world) {
+        this.uniforms = null;
+        if (world.isNone) return;
         foreach (demand; this.mat.getUniformDemands) {
             final switch (demand) {
             case UniformDemand.World:
@@ -54,7 +56,7 @@ class Mesh {
             case UniformDemand.View:
             case UniformDemand.Proj:
             case UniformDemand.Light:
-                this.uniforms ~= world.getUniform(demand);
+                this.uniforms ~= world.get().getUniform(demand);
                 break;
             case UniformDemand.DebugCounter:
                 this.uniforms ~= () => this.mat.debugCounter;

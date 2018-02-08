@@ -19,6 +19,7 @@ class Letter {
     this(Letter letter) {
         this.info = letter.info;
         this.entity = makeEntity(letter.geom, letter.mat);
+        this.entity.name = letter.entity.name;
         this.width = letter.width;
         this.height = letter.height;
     }
@@ -32,6 +33,9 @@ class Letter {
         this.entity = makeEntity(geom, new TextMaterial);
         this.entity.texture = this.info.texture;
         this.entity.color = vec4(0,0,0,1);
+        this.entity.config.renderGroupName = "transparent";
+        this.entity.config.depthWrite = false;
+        this.entity.name = "Letter '" ~ cast(char)c ~ "'";
     }
 
     LetterEntity getEntity() {

@@ -16,14 +16,18 @@ class Entity {
 
     mixin buildReadonly!(Maybe!Mesh, "mesh");
     mixin buildReadonly!(Object3D, "obj");
-    mixin buildReadonly!(World, "world");
+    mixin buildReadonly!(Maybe!World, "world");
     string name;
     private Maybe!CollisionEntry colEntry;
-    private Entity parent;
+    private Maybe!Entity parent;
     private Entity[] children;
     private Maybe!Variant userData;
     bool visible;
 
+
+    /*
+       Create/Destroy
+     */
     this(string file = __FILE__, int line = __LINE__){
         this._obj = new Object3D(this);
         this.visible = true;
@@ -51,14 +55,10 @@ class Entity {
         this.traverse!((Entity e) => e.mesh.destroy);
     }
 
-    void setWorld(World world) in {
-        assert(world);
-    } body {
-        this.traverse((Entity e) {
-            e._world = world;
-            e.onSetWorld(world);
-        });
-    }
+
+    /*
+       User Data access
+     */
 
     Maybe!T getUserData(T)() {
         return this.userData.fmapAnd!((Variant v) => wrapPointer(v.peek!T));
@@ -68,31 +68,70 @@ class Entity {
         return this.userData.fmap!((Variant v) => v.type.stringof);
     }
 
-    void setUserData(T)(T userData) in {
-        //assert(this.parent is null);
-    } body {
+    void setUserData(T)(T userData) {
         this.userData = wrap(Variant(userData));
     }
 
-    void clearChildren() {
-        foreach (child; this.children) {
-            child.parent = null;
-        }
+
+    /*
+       Parent/Child Access
+     */
+
+    void addChild(Entity entity) {
+        entity.parent = Just(this);
+        entity.obj.onSetParent(this);
+        this.children ~= entity;
+        this.world.add(entity);
+    }
+
+    void clearChildren() out {
+        assert(this.children.length == 0);
+    } body {
+        this.children.each!(child => child.remove());
+        this.children.each!(child => child.parent = None!Entity);
         this.children = null;
     }
 
-    void addChild(Entity entity) in {
-        assert(entity !is null);
-    } body {
-        this.children ~= entity;
-        entity.setParent(this);
-        if (this.world is null) return;
-        entity.setWorld(world);
+    Maybe!Entity getParent() {
+        return this.parent;
     }
 
-    Entity[] getChilren() {
+    Entity getRootParent() {
+        return this.parent.getRootParent().getOrElse(this);
+    }
+
+    Entity[] getChildren() {
         return this.children;
     }
+
+    invariant {
+        assert(this.children.all!(child => child.parent.isJust));
+        assert(this.children.all!(child => child.parent.get() == this));
+    }
+
+    /*
+       World Access
+     */
+
+    void remove() {
+        this.world.remove(this);
+        this._world = None!World;
+    }
+
+    void setWorld(Maybe!World world) {
+        this.traverse((Entity e) {
+            e._world = world;
+            e.mesh.onSetWorld(world);
+        });
+    }
+
+    void render() in {
+        assert(this.world.isJust, this.toString());
+    } body {
+        if (!this.visible) return;
+        this.mesh.render();
+    }
+
 
     void traverse(alias func)() {
         func(this);
@@ -113,13 +152,6 @@ class Entity {
             auto polygons = e.mesh.geom.createCollisionPolygon();
             e.colEntry = polygons.fmap!((CollisionGeometry[] p) => new CollisionEntry(new CollisionBVH(p), e));
         });
-    }
-
-    void render() in {
-        assert(this.world);
-    } body {
-        if (!this.visible) return;
-        this.mesh.render();
     }
 
     void collide(ref Array!CollisionInfo result, Entity entity) {
@@ -158,47 +190,11 @@ class Entity {
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 
-    Entity getParent() {
-        return this.parent;
-    }
-
-    Entity getRootParent() {
-        if (this.parent is null) return this;
-        return this.parent.getRootParent();
-    }
-
-    uint getChildNum() {
-        uint res = 0;
-        if (this.parent !is null) res++;
-        foreach (child; this.children) {
-            res += child.getChildNum();
-        }
-        return res;
-    }
-
-    Entity[] getChildren() {
-        return this.children;
-    }
-
-    void remove() {
-        this.world.remove(this);
-    }
-
-    private void onSetWorld(World world) {
-        this.mesh.onSetWorld(world);
-    }
-
-    private void setParent(Entity entity) {
-        this.parent = entity;
-        this._obj.onSetParent(entity);
-    }
-
     private void setMesh(Mesh m) in {
         assert(m.getOwner() == this);
+        assert(this.world.isNone);
     } body {
         this._mesh = Just(m);
-        if (this.world is null) return;
-        this.mesh.onSetWorld(this.world);
     }
 
     override string toString() {
