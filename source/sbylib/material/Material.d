@@ -38,7 +38,6 @@ class Material {
     protected abstract Shader[] getShaders();
     abstract const(Uniform) delegate()[] getUniforms();
 
-
     mixin template commonDeclare() {
 ;
         import sbylib.material.glsl;
@@ -79,6 +78,11 @@ class Material {
                 }
             }}
             return str;
+        }
+
+        override string toString() {
+            import sbylib.utils.Functions;
+            return typeof(this).stringof;
         }
 
         invariant {

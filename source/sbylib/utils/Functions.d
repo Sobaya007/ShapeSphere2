@@ -174,6 +174,11 @@ Texture generateTexture(Image image) {
     return new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.RGBA, image.getWidth(), image.getHeight(), ImageFormat.BGRA, image.getBits());
 }
 
+string indent(string str, int space) {
+    import std.string, std.algorithm, std.range;
+    return str.split("\n").map!(s => " ".repeat(space).join ~ s).join("\n");
+}
+
 enum red    = vec4(1,0,0,1);
 enum green  = vec4(0,1,0,1);
 enum blue   = vec4(0,0,1,1);

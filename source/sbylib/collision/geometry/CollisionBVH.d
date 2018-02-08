@@ -174,4 +174,8 @@ class CollisionBVH : CollisionGeometry {
     void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
         this.root.collide(result, ray);
     }
+
+    override string toString() {
+        return typeof(this).stringof;
+    }
 }

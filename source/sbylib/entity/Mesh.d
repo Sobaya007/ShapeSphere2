@@ -71,6 +71,12 @@ class Mesh {
     Entity getOwner() {
         return this.owner;
     }
+
+    override string toString() {
+        import std.format;
+        import sbylib.utils.Functions;
+        return format!"Geom(%s),Mat(%s)"(geom.toString(), mat.toString());
+    }
 }
 
 class TypedMesh(G, M) : Mesh {

@@ -41,4 +41,5 @@ struct AABB {
 interface CollisionGeometry {
     void setOwner(Entity);
     ChangeObserveTarget!AABB getBound();
+    string toString();
 }

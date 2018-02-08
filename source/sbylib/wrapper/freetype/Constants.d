@@ -20,7 +20,7 @@ enum FontLoadType {
     IgnoreGlobalAdvanceWidth = FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH,
     NoRecurse = FT_LOAD_NO_RECURSE,
     IgnoreTransform = FT_LOAD_IGNORE_TRANSFORM,
-        Monochrome = FT_LOAD_MONOCHROME,
+    Monochrome = FT_LOAD_MONOCHROME,
     LinearDesign = FT_LOAD_LINEAR_DESIGN,
     Color = FT_LOAD_COLOR,
     ComputeMetrics = FT_LOAD_COMPUTE_METRICS,

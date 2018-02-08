@@ -64,6 +64,10 @@ class Entity {
         return this.userData.fmapAnd!((Variant v) => wrapPointer(v.peek!T));
     }
 
+    Maybe!string getUserDataType() {
+        return this.userData.fmap!((Variant v) => v.type.stringof);
+    }
+
     void setUserData(T)(T userData) in {
         //assert(this.parent is null);
     } body {
@@ -107,7 +111,7 @@ class Entity {
     void buildBVH() {
         this.traverse((Entity e) {
             auto polygons = e.mesh.geom.createCollisionPolygon();
-            e.colEntry = polygons.fmap!((CollisionGeometry[] p) => new CollisionEntry(new CollisionBVH(p), this));
+            e.colEntry = polygons.fmap!((CollisionGeometry[] p) => new CollisionEntry(new CollisionBVH(p), e));
         });
     }
 
@@ -195,6 +199,16 @@ class Entity {
         this._mesh = Just(m);
         if (this.world is null) return;
         this.mesh.onSetWorld(this.world);
+    }
+
+    override string toString() {
+        import std.format, std.range;
+        import sbylib.utils.Functions;
+        auto result = format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s\n"(name, this.mesh.toString(), this.colEntry.toString(), this.userData.toString);
+        if (children.length > 0) {
+            result ~= format!"Children(%d):\n%s"(this.children.length, this.children.map!(child => child.toString()).join("\n").indent(3));
+        }
+        return result;
     }
 
     alias obj this;

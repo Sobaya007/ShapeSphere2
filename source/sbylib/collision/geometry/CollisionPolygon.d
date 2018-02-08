@@ -62,4 +62,8 @@ class CollisionPolygon : CollisionGeometry {
     Entity getOwner() {
         return this.owner;
     }
+
+    override string toString() {
+        return typeof(this).stringof;
+    }
 }

@@ -150,10 +150,6 @@ class NeedleSphere : BaseSphere {
             contacts ~= Contact(colInfo, this);
             auto matName = colInfo.getOther(this.entity).getUserData!(string).getOrElse("");
             import std.algorithm;
-            this.entity.getRootParent.traverse!((Entity e) {
-                import std.stdio;
-                writeln(e.getUserData!(string));
-            });
             if (matName.canFind("Sand")) {
                 auto nc = normalize(colInfo.getPushVector(this.entity));
                 if (this.contactNormal.isNone || nc.y < this.contactNormal.y) {

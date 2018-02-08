@@ -26,6 +26,8 @@ interface Geometry {
     IndexBuffer getIndexBuffer();
     void updateBuffer();
     CollisionGeometry[] createCollisionPolygon();
+
+    string toString();
 }
 
 alias GeometryP = GeometryTemp!([Attribute.Position]);
@@ -164,5 +166,11 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
 
     const(Face[]) faces() const {
         return this.faceGroup.faces;
+    }
+
+    override string toString() {
+        import std.conv;
+        import sbylib.utils.Functions;
+        return Attributes.map!(a => a.name).join(",") ~ "," ~ Mode.to!string;
     }
 }

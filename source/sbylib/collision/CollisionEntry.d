@@ -480,16 +480,8 @@ class CollisionEntry {
         colPoint = l + t * v;
         return true;
     }
-}
 
-class CollisionEntryTemp(Geom) : CollisionEntry {
-    private Geom geom;
-    this(Geom geom, Entity owner) {
-        this.geom = geom;
-        super(geom, owner);
-    }
-
-    override Geom getGeometry() {
-        return this.geom;
+    override string toString() {
+        return geom.toString();
     }
 }
