@@ -21,7 +21,7 @@ class RenderConfig {
     this() {
         this.depthFunc = TestFunc.Less;
         this.polygonMode = PolygonMode.Fill;
-        this.faceMode = FaceMode.FrontBack;
+        this.faceMode = FaceMode.Front;
         this.stencilFunc = stencilFunc.Always;
         this.stencilValue = 1;
         this.stencilMask = 1;

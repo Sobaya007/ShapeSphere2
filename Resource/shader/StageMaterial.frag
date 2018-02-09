@@ -18,12 +18,12 @@ void main() {
     vec3 n = normalize(vNormal);
     float d = max(0.0, dot(normalize(vPosition), -n));
     fragColor.rgb += vec3(2) * diffuse * d;
-    fragColor.rgb *= clamp((100 - length(vPosition)) * 0.01, 0, 1);
 
     for (int i = 0; i < pointLightNum; i++) {
         vec3 l = pointLights[i].pos - position;
         float d = max(0.0, dot(normalize(l), normalize(normal)));
-        d *= exp(-length(l) * length(l)) * 20;
+        d *= pow(length(l), -1.5)  * 5;
         fragColor.rgb += pointLights[i].diffuse * d;
     }
+    fragColor.rgb *= clamp((100 - length(vPosition)) * 0.01, 0, 1);
 }
