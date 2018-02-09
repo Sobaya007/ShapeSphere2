@@ -3,6 +3,8 @@ module sbylib.utils.Maybe;
 import std.traits;
 import std.format;
 import std.conv;
+import std.range;
+import std.algorithm;
 
 struct Maybe(T) {
 
@@ -136,8 +138,6 @@ auto wrapPointer(T)(T value) if (isPointer!T){
 }
 
 auto wrap(T)(T value) {
-
-    import std.traits;
     static if (isPointer!T) {
         if (value is null) {
             return None!(T);
@@ -165,8 +165,8 @@ auto wrapCast(T, S)(Maybe!S m) {
     return m.fmapAnd!((S s) => wrap(cast(T)s));
 }
 
-auto catMaybe(Range)(Range r) {
-    import std.algorithm;
+// InputRange!(Maybe!T) -> InputRange!T
+auto catMaybe(Range)(Range r) if (isInputRange!Range && isInstanceOf!(Maybe, ElementType!Range)) {
     return r.filter!(m => m.isJust).map!(m => m.get);
 }
 
