@@ -72,7 +72,6 @@ class Map {
         {
             auto model = loader.load(ModelPath(models[0])).buildEntity(new StageMaterialBuilder);
             this.polygons.addChild(model);
-            Game.getWorld3D().add(model);
             writeln("Model was Loaded.");
         }
 

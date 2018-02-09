@@ -30,22 +30,22 @@ class CameraControl {
         this.cameraRotate = false;
 
         enum speed = 0.2;
-        Core().getKey().justPressed(KeyButton.KeyW).add({
+        Core().getKey().isPressed(KeyButton.KeyW).add({
             this.camera.pos -= this.camera.rot.column[2] * speed;
         });
-        Core().getKey().justPressed(KeyButton.KeyS).add({
+        Core().getKey().isPressed(KeyButton.KeyS).add({
             this.camera.pos += this.camera.rot.column[2] * speed;
         });
-        Core().getKey().justPressed(KeyButton.KeyA).add({
+        Core().getKey().isPressed(KeyButton.KeyA).add({
             this.camera.pos -= this.camera.rot.column[0] * speed;
         });
-        Core().getKey().justPressed(KeyButton.KeyD).add({
+        Core().getKey().isPressed(KeyButton.KeyD).add({
             this.camera.pos += this.camera.rot.column[0] * speed;
         });
-        Core().getKey().justPressed(KeyButton.KeyQ).add({
+        Core().getKey().isPressed(KeyButton.KeyQ).add({
             this.camera.pos -= this.camera.rot.column[1] * speed;
         });
-        Core().getKey().justPressed(KeyButton.KeyE).add({
+        Core().getKey().isPressed(KeyButton.KeyE).add({
             this.camera.pos += this.camera.rot.column[1] * speed;
         });
     }
