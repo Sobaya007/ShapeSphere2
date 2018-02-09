@@ -61,7 +61,7 @@ class World {
     }
 
     void remove(Entity entity) in {
-        assert(entity.world.get() is this);
+        assert(entity.world.get() is this, entity.toString);
     } body {
         auto num = this.entities.length;
         this.entities = this.entities.remove!(e => e == entity);

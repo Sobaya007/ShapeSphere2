@@ -72,7 +72,7 @@ class NeedleSphere : BaseSphere {
         cmat.color = vec4(1,0,0,1);
         this.line = new Entity(Capsule.create(0.1, vec3(0), vec3(0,3,0)), cmat);
         this.line.visible = false;
-        this.entity.addChild(this.line);
+        //this.entity.addChild(this.line);
     }
 
     void initialize(ElasticSphere elasticSphere) {
@@ -124,6 +124,8 @@ class NeedleSphere : BaseSphere {
     }
     override void onNeedleRelease(){
         if (this.needleCount == 0) {
+            import std.stdio;
+            writeln(this.entity.world);
             this.entity.remove();
             auto elasticSphere = parent.transit!ElasticSphere;
             elasticSphere.initialize(this);
