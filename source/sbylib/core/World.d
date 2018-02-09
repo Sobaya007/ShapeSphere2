@@ -80,7 +80,7 @@ class World {
     }
 
     invariant {
-        assert(this.entities.all!(e => e.world.get() is this));
+        //assert(this.entities.all!(e => e.world.get() is this));
     }
 
     void addPointLight(PointLight pointLight) {

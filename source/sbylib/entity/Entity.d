@@ -105,8 +105,8 @@ class Entity {
     }
 
     invariant {
-        assert(this.children.all!(child => child.parent.isJust));
-        assert(this.children.all!(child => child.parent.get() == this));
+        //assert(this.children.all!(child => child.parent.isJust));
+        //assert(this.children.all!(child => child.parent.get() == this));
     }
 
     /*
