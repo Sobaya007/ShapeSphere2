@@ -40,7 +40,7 @@ class ChaseBehavior : CameraController.Behavior {
 
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
-        Game.getMap().getPolygon().collide(colInfos, this.entity);
+        Game.getMap().getStageEntity().collide(colInfos, this.entity);
         foreach (colInfo; colInfos) {
             auto n = colInfo.getPushVector(this.entity);
             auto depth = colInfo.getDepth();

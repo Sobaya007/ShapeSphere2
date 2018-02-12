@@ -83,7 +83,7 @@ class GameMainScene : SceneBase {
         world2d.add(fpsLabel);
         core.addProcess((proc) {
             fpsCounter.update();
-            fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
+            //fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
             window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
         }, "fps update");
 
@@ -96,6 +96,24 @@ class GameMainScene : SceneBase {
         core.getKey().justPressed(KeyButton.KeyP).add({ConfigManager().load();});
         core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
         core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
+
+        import core.thread;
+        new Thread({
+            while (true) {
+                try {
+                    write(" > ");
+                    import std.string;
+                    auto line = readln.chomp;
+                    Pattern(line)
+                    .match!((l) => l == "player.pos")(player.getCenter().toString)
+                    .match!((l) => l == "world3d.entities")(world3d.getEntities.map!(e => e.toString).join("\n"))
+                    .other("no match pattern for '" ~ line ~ "'")
+                    .writeln;
+                } catch (Error e) {
+                    e.writeln;
+                }
+            }
+        }).start();
     }
 
     override void render() {

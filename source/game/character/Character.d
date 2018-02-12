@@ -6,8 +6,7 @@ import game.command;
 import game.player;
 import game.character.CharacterMaterial;
 import sbylib;
-import std.algorithm, std.array;
-import std.math;
+import std.algorithm, std.array, std.math, std.json, std.conv;
 
 class Character {
 
@@ -22,7 +21,14 @@ class Character {
 
     alias elasticSphere this;
 
-    this(World world, dstring serif) {
+    this(JSONValue[string] obj) {
+        auto serif = obj["serif"].str().to!(dstring);
+        auto pos = vec3(obj["pos"].as!(float[]));
+        this(serif);
+        this.setCenter(pos);
+    }
+
+    this(dstring serif) {
         this.serif = serif;
         {
             auto mat = new CharacterMaterial();
@@ -31,7 +37,6 @@ class Character {
             mat.config.faceMode = FaceMode.Front;
             this.elasticSphere = new ElasticSphere2(mat);
             this.elasticSphere.setCenter(vec3(2, 10, 2));
-            world.add(elasticSphere.entity);
         }
         this.collisionArea = new Entity(new CollisionCapsule(1.2, vec3(0), vec3(0)));
         this.collisionArea.name = "Character's Collision Area";

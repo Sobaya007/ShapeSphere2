@@ -142,7 +142,7 @@ class ElasticSphere2 {
     }
     Maybe!WallContact getWallContact() {
         auto colInfos = Array!CollisionInfo(0);
-        Game.getMap().getPolygon().collide(colInfos, this.entity);
+        Game.getMap().getStageEntity().collide(colInfos, this.entity);
         scope (exit) {
             colInfos.destroy();
         }
@@ -293,7 +293,7 @@ class ElasticSphere2 {
 
     private void collision(ElasticParticle particle, Entity[] collisionEntities) {
         auto colInfos = Array!CollisionInfo(0);
-        Game.getMap().getPolygon().collide(colInfos, particle.entity);
+        Game.getMap().getStageEntity().collide(colInfos, particle.entity);
         foreach (entity; collisionEntities) {
             entity.collide(colInfos, particle.entity);
         }

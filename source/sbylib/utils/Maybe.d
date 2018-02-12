@@ -118,7 +118,7 @@ auto match(alias funJust, alias funNone, T)(Maybe!T m) {
 }
 
 Maybe!T Just(T)(T v) in {
-    static if (is(typeof(v == null))) {
+    static if (is(typeof(v == null)) && !isArray!(T)) {
         assert(v != null);
     }
 } body {

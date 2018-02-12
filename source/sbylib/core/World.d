@@ -81,6 +81,10 @@ class World {
         this.entities = this.entities.aremove!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName);
     }
 
+    Entity[] getEntities() {
+        return entities;
+    }
+
     invariant {
         //assert(this.entities.all!(e => e.world.get() is this));
     }
