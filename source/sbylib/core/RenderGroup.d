@@ -34,7 +34,7 @@ class RegularRenderGroup : IRenderGroup {
     override void remove(Entity e) {
         auto num = this.entities.length;
         this.entities = this.entities.remove!(e2 => e2 == e);
-        assert(this.entities.length == num-1, e.toString);
+        //assert(this.entities.length == num-1, e.toString);
     }
 
     override void clear() {
@@ -63,7 +63,7 @@ class TransparentRenderGroup : IRenderGroup {
     override void remove(Entity e) {
         auto num = this.entities.length;
         this.entities = this.entities.remove!(e2 => e2 == e);
-        assert(this.entities.length == num-1, e.toString);
+        //assert(this.entities.length == num-1, e.toString);
     }
 
     override void clear() {

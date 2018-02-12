@@ -18,6 +18,6 @@ class Plane {
         vertices ~= new VertexNT(vec3(+width/2, 0, -height/2), vec3(0,1,0), vec2(1,0));
         vertices ~= new VertexNT(vec3(-width/2, 0, +height/2), vec3(0,1,0), vec2(0,1));
         vertices ~= new VertexNT(vec3(+width/2, 0, +height/2), vec3(0,1,0), vec2(1,1));
-        return new GeometryPlane(vertices, [0,1,2,1,2,3]);
+        return new GeometryPlane(vertices, [2,1,0,3,2,1]);
     }
 }

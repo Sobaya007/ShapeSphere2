@@ -16,6 +16,7 @@ import sbylib.utils.Array;
 import sbylib.utils.Maybe;
 import std.traits;
 import std.algorithm;
+import std.algorithm : aremove = remove;
 import sbylib.core.RenderGroup;
 
 class World {
@@ -61,11 +62,12 @@ class World {
     }
 
     void remove(Entity entity) in {
-        assert(entity.world.get() is this, entity.toString);
+        assert(entity.world.isJust && entity.world.get() is this, entity.toString);
     } body {
+        import std.format;
         auto num = this.entities.length;
-        this.entities = this.entities.remove!(e => e == entity);
-        assert(this.entities.length == num-1);
+        this.entities = this.entities.aremove!(e => e == entity);
+        //assert(this.entities.length == num-1, format!"before: %d, after: %d\nremoved was %s"(num, this.entities.length, entity.toString));
         entity.setWorld(None!World);
         auto groupName = entity.mesh.mat.config.renderGroupName;
         if (groupName.isJust) {
@@ -76,7 +78,7 @@ class World {
 
     void clear(string groupName) {
         this.renderGroups[groupName].clear();
-        this.entities = this.entities.remove!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName);
+        this.entities = this.entities.aremove!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName);
     }
 
     invariant {

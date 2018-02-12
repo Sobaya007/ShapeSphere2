@@ -22,17 +22,16 @@ class Entity {
     private Maybe!Entity parent;
     private Entity[] children;
     private Maybe!Variant userData;
-    bool visible;
-
+    bool visible; // Materialに書くと、Materialが同じでVisiblityが違う物体が実現できない
 
     /*
        Create/Destroy
      */
     this(string file = __FILE__, int line = __LINE__){
         this._obj = new Object3D(this);
-        this.visible = true;
         import std.conv;
         this.name = file ~ " : " ~ line.to!string;
+        this.visible = true;
     }
 
     this(Geometry geom, Material mat, string file = __FILE__, int line = __LINE__) {
@@ -119,10 +118,8 @@ class Entity {
     }
 
     void setWorld(Maybe!World world) {
-        this.traverse((Entity e) {
-            e._world = world;
-            e.mesh.onSetWorld(world);
-        });
+        this._world = world;
+        this.mesh.onSetWorld(world);
     }
 
     void render() in {

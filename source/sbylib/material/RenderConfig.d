@@ -15,7 +15,6 @@ class RenderConfig {
     BlendEquation blendEquation;
     bool depthWrite, depthTest;
     float lineWidth;
-    bool visible;
     string renderGroupName;
 
     this() {
@@ -34,7 +33,6 @@ class RenderConfig {
         this.depthWrite = true;
         this.depthTest = true;
         this.lineWidth = 1f;
-        this.visible = true;
         this.renderGroupName = "regular";
     }
 

@@ -34,7 +34,7 @@ class Letter {
         this.entity.texture = this.info.texture;
         this.entity.color = vec4(0,0,0,1);
         this.entity.config.renderGroupName = "transparent";
-        this.entity.config.depthWrite = false;
+        this.entity.config.depthTest = false;
         this.entity.name = "Letter '" ~ cast(char)c ~ "'";
     }
 

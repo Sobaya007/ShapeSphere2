@@ -9,9 +9,12 @@ class Material {
     import sbylib.wrapper.gl;
     import sbylib.material.glsl;
     import sbylib.material.RenderConfig;
+    import sbylib.utils.Functions;
     const Program program;
-    RenderConfig config;
+    @Proxied RenderConfig config;
     TypedUniform!int debugCounter;
+
+    mixin Proxy;
 
     this() {
         this.program = new Program(getShaders);

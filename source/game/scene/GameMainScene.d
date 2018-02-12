@@ -104,6 +104,7 @@ class GameMainScene : SceneBase {
         screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
         renderer.render(Game.getWorld3D(), screen, viewport, "Crystal");
         screen.clear(ClearMode.Depth);
-        renderer.render(Game.getWorld2D(), screen, viewport);
+        renderer.render(Game.getWorld2D(), screen, viewport, "regular");
+        renderer.render(Game.getWorld2D(), screen, viewport, "transparent");
     }
 }

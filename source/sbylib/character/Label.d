@@ -96,7 +96,7 @@ class Label {
                 l = new Letter(this.font, c, this.size);
                 cache[c] = l;
             }
-            this.entity.addChild(l.getEntity());
+            this.entity.addChild(l);
             this.letters ~= l;
         }
         this.setColor(this._color);
