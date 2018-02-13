@@ -102,7 +102,7 @@ class World {
     }
 
     void render() {
-        foreach (groupName; this.renderGroups.byKey) {
+        foreach_reverse (groupName; this.renderGroups.keys) {
             this.render(groupName);
         }
     }
