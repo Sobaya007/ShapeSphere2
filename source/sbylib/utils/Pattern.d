@@ -37,17 +37,18 @@ private struct P(A, B) {
     }
 }
 
-auto match(alias pred, Type, Result)(PD!(Type) value, Result result) {
+auto match(alias pred, Type, Result)(PD!(Type) value, lazy Result result) {
     if (pred(value)) return P!(Type, Result).right(result);
     return P!(Type, Result).left(value);
 }
 
-auto match(alias pred, Type, Result)(P!(Type, Result) alg, Result result) {
+auto match(alias pred, Type, Result)(P!(Type, Result) alg, lazy Result result) {
+    if (alg.b.isJust) return alg;
     if (pred(alg.a.get())) return P!(Type, Result).right(result);
     return alg;
 }
 
-auto other(Type, Result)(P!(Type, Result) alg, Result result) {
+auto other(Type, Result)(P!(Type, Result) alg, lazy Result result) {
     if (alg.b.isJust) return alg.b.get();
     return result;
 }

@@ -18,10 +18,13 @@ class Stage1 : Stage {
 
     private Area area;
 
+    enum path = "Resource/stage/Stage1.json";
+
     this() {
-        auto path = "Resource/stage/Stage1.json";
-        auto value = parseJSON(readText(path));
-        this.areas = value.array().map!(v => new Area(v.object())).array;
+        auto obj = parseJSON(readText(path)).object();
+        foreach (k, v; obj) {
+            this.areas ~= new Area(k, v.object());
+        }
         this.area = this.areas[0];
         Game.getWorld3D().add(this.area.stageEntity);
         Game.getWorld3D().add(this.area.characterEntity);
@@ -32,7 +35,7 @@ class Stage1 : Stage {
     }
 
     void step() {
-        areas.each!(area => area.step());
+        this.area.step();
     }
 
     override Entity getStageEntity() {
@@ -45,11 +48,18 @@ class Stage1 : Stage {
 
     void update() {
         Game.getWorld3D.clearPointLight();
-        auto path = "Resource/stage/Stage1.json";
-        auto value = parseJSON(readText(path)).array();
-        foreach (a, v; zip(this.areas, value)) {
-            a.update(v.object());
+        auto value = parseJSON(readText(path)).object();
+        foreach (name, v; value) {
+            import std.algorithm;
+            this.areas.find!(a => a.name == name).front.update(v.object());
         }
+    }
+
+    void addCrystal(vec3 pos) {
+        auto root = parseJSON(readText(path));
+        this.area.addCrystal(root[this.area.name], pos);
+        write(path, root.toJSON(true));
+        Core().addProcess((proc) { update(); proc.kill(); }, "update stage");
     }
 }
 
@@ -62,10 +72,10 @@ class Area {
     private Crystal[] crystals;
     private Character[] characters;
 
-    this(JSONValue[string] obj) {
+    this(string name, JSONValue[string] obj) {
         this.stageEntity = new Entity;
         this.characterEntity = new Entity;
-        this.name = obj["Name"].str();
+        this.name = name;
         this.moves = obj["Move"].array().map!(v => new Move(v.object())).array;
         this.lights = obj["Lights"].array().map!(v => new Light(v.object())).array;
         this.crystals = obj["Crystals"].array().map!(v => new Crystal(v.object())).array;
@@ -138,6 +148,13 @@ class Area {
         if (data.length < this.crystals.length) {
             this.crystals[data.length..$].each!(l => l.remove());
         }
+    }
+
+    void addCrystal(ref JSONValue area, vec3 pos) {
+        auto obj = parseJSON("{}");
+        obj["pos"] = JSONValue(pos.array[]);
+        obj["color"] = JSONValue(vec3(1).array[]);
+        area["Crystals"].array ~= obj;
     }
 }
 

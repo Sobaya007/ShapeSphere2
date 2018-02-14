@@ -10,7 +10,7 @@ align (16):
 struct PointLightBlock {
 align (16):
     int num;
-    PointLight[10] lights;
+    PointLight[100] lights;
 }
 
 enum PointLightDeclareCode = 

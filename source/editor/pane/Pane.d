@@ -34,7 +34,7 @@ public:
         _width = width;
         _height = height;
 
-        Core core = Core();
+        auto core = Core();
 
         auto window = core.getWindow();
         auto screen = window.getScreen();

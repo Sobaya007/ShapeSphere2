@@ -52,7 +52,7 @@ void materialExample() {
     core.addProcess(&control.update, "update");
 
 
-    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
+    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
 
 
     core.addProcess({
