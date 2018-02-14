@@ -13,8 +13,7 @@ class GLFW {
     public static void init() {
         version (Windows) {
             DerelictGLFW3.load(DllPath("glfw3.dll"));
-        }
-        version (OSX) {
+        } else {
             DerelictGLFW3.load();
         }
         glfwSetErrorCallback(&errorCallback);
@@ -32,7 +31,7 @@ class GLFW {
 
     private extern(C) void errorCallback(int error, const(char)* description) nothrow {
         import sbylib.wrapper.glfw.Constants : ErrorCode;
-        printf("error code: %s\n", error);
+        printf("error code: %x\n", error);
         printf("description: %s\n", description);
         assert(false, "GLFW error");
     }

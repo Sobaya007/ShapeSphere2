@@ -7,7 +7,6 @@ import sbylib.entity.Mesh;
 import sbylib.material.TextMaterial;
 import sbylib.entity.Object3D;
 import sbylib.math.Vector;
-import sbylib.utils.Lazy;
 import sbylib.character.Letter;
 import std.typecons;
 import std.math;
@@ -45,17 +44,15 @@ class Label {
     void setColor(vec4 _color) {
         this._color = _color;
         foreach (l; this.letters) {
-            auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
+            auto mat = cast(TextMaterial)l.getEntity().mat;
             mat.color = _color;
-            mat.config.transparency = true;//mat._color.a != 1;
-            mat.config.depthWrite = false;
         }
     }
 
     void setBackColor(vec4 _color) {
         this.backColor = _color;
         foreach (l; this.letters) {
-            auto mat = cast(TextMaterial)l.getEntity().getMesh().mat;
+            auto mat = cast(TextMaterial)l.getEntity().mat;
             mat.backColor = _color;
         }
     }
@@ -99,7 +96,7 @@ class Label {
                 l = new Letter(this.font, c, this.size);
                 cache[c] = l;
             }
-            this.entity.addChild(l.getEntity());
+            this.entity.addChild(l);
             this.letters ~= l;
         }
         this.setColor(this._color);

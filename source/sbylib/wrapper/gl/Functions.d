@@ -21,7 +21,7 @@ static:
         else static assert(false, T.stringof ~ " is an invalid type.");
     }
 
-    void clear(ClearMode[] mode...) out {
+    void clear(BufferBit[] mode...) out {
         checkError();
     } body {
         if (mode.canFind(ClearMode.Depth)) glDepthMask(true); //これしないとDepthをClearできない
@@ -165,7 +165,13 @@ static:
         debug {
             if (GLFW.hasTerminated) return;
             auto errorCode = glGetError().to!GlErrorType;
-            assert(errorCode == GlErrorType.NoError, errorCode.to!string ~ "\n" ~ ext);
+            if (errorCode == GlErrorType.NoError) return;
+            if (errorCode == GlErrorType.InvalidFramebufferOperation) {
+                auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER).to!FramebufferStatus;
+                assert(false, errorCode.to!string ~ " : " ~ status.to!string ~ "\n" ~ ext);
+            } else {
+                assert(false, errorCode.to!string ~ "\n" ~ ext);
+            }
         }
     }
 

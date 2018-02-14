@@ -3,7 +3,6 @@ module sbylib.core.World;
 import sbylib.entity.Mesh;
 import sbylib.camera.Camera;
 import sbylib.utils.Change;
-import sbylib.utils.Lazy;
 import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
@@ -17,79 +16,99 @@ import sbylib.utils.Array;
 import sbylib.utils.Maybe;
 import std.traits;
 import std.algorithm;
+import std.algorithm : aremove = remove;
+import sbylib.core.RenderGroup;
 
 class World {
     private Entity[] entities;
-    private ChangeObserved!Camera camera; //この変数をwatch対象にするため、どうしてもここに宣言が必要
+    private Camera camera;
     private PointLightBlock pointLightBlock;
     private UniformBuffer!PointLightBlock pointLightBlockBuffer;
+    private IRenderGroup[string] renderGroups;
 
     this() {
         this.pointLightBlockBuffer = new UniformBuffer!PointLightBlock("PointLightBlock");
         this.pointLightBlockBuffer.sendData(this.pointLightBlock, BufferUsage.Dynamic);
+        this.renderGroups["regular"] = new RegularRenderGroup;
     }
 
-    private UniformBuffer!PointLightBlock getPointLightBlockBuffer() {
-        PointLightBlock* buffer = this.pointLightBlockBuffer.map(BufferAccess.Write);
-        buffer.num = this.pointLightBlock.num;
-        buffer.lights = this.pointLightBlock.lights;
-        this.pointLightBlockBuffer.unmap();
-        return this.pointLightBlockBuffer;
-    }
-
+    /*
+       Camera Access
+     */
     void setCamera(Camera camera) {
         this.camera = camera;
+        this.renderGroups["transparent"] = new TransparentRenderGroup(camera);
     }
 
-    void add(T)(T[] rs...)
-    if (isAssignable!(Entity, T)) in {
-    } body{
-        foreach (r; rs) {
-            this.entities ~= r;
-            r.setWorld(this);
-        }
+    Camera getCamera() {
+        return camera;
     }
 
-    void remove(T)(T[] rs...)
-    if (isAssignable!(Entity, T)) in {
-    } body{
-        auto len = this.entities.length;
-        foreach (r; rs) {
-            this.entities = this.entities.remove!(e => e == r); //TODO: やばそう？
+
+    /*
+       Entity Management
+     */
+
+    void add(Entity entity) out {
+        assert(entity.world.get() is this);
+    } body {
+        this.entities ~= entity;
+        entity.setWorld(Just(this));
+        auto groupName = entity.mesh.mat.config.renderGroupName;
+        if (groupName.isJust) {
+            this.renderGroups[groupName.get()].add(entity);
         }
-        assert(len == rs.length + this.entities.length);
+        entity.getChildren.each!(e => add(e));
+    }
+
+    void remove(Entity entity) in {
+        assert(entity.world.isJust && entity.world.get() is this, entity.toString);
+    } body {
+        import std.format;
+        auto num = this.entities.length;
+        this.entities = this.entities.aremove!(e => e == entity);
+        //assert(this.entities.length == num-1, format!"before: %d, after: %d\nremoved was %s"(num, this.entities.length, entity.toString));
+        entity.setWorld(None!World);
+        auto groupName = entity.mesh.mat.config.renderGroupName;
+        if (groupName.isJust) {
+            this.renderGroups[groupName.get()].remove(entity);
+        }
+        entity.getChildren.each!(e => remove(e));
+    }
+
+    void clear(string groupName) {
+        this.renderGroups[groupName].clear();
+        this.entities = this.entities.aremove!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName);
+    }
+
+    Entity[] getEntities() {
+        return entities;
+    }
+
+    invariant {
+        //assert(this.entities.all!(e => e.world.get() is this));
     }
 
     void addPointLight(PointLight pointLight) {
         this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
     }
 
-    void render() {
-        auto notTransparents = Array!Entity(0);
-        auto transparents = Array!Entity(0);
-        scope (exit) {
-            notTransparents.destroy();
-            transparents.destroy();
-        }
-        foreach (r; this.entities) {
-            r.collect!(mesh => mesh.mat.config.transparency == true)(transparents, notTransparents);
-        }
-        notTransparents.each!(e => e.render());
-        transparents.sort!((a,b) => dot(camera.pos - a.pos, camera.rot.column[2]) > dot(camera.pos - b.pos, camera.rot.column[2]));
-        transparents.each!(e => e.render());
+    void clearPointLight() {
+        this.pointLightBlock.num = 0;
     }
 
-    const(Uniform) delegate() getUniform(UniformDemand demand) {
-        switch (demand) {
-        case UniformDemand.View:
-            return () => this.camera.viewMatrix;
-        case UniformDemand.Proj:
-            return () => this.camera.projMatrix;
-        case UniformDemand.Light:
-            return () => this.getPointLightBlockBuffer;
-        default:
-            assert(false);
+    void addRenderGroup(string name, IRenderGroup group) {
+        this.renderGroups[name] = group;
+    }
+
+    void render() {
+        foreach_reverse (groupName; this.renderGroups.keys) {
+            this.render(groupName);
         }
+    }
+
+    void render(string groupName) {
+        this.renderGroups[groupName].render();
     }
 
     void queryCollide(ref Array!CollisionInfoByQuery result, Entity colEntry) {
@@ -118,4 +137,26 @@ class World {
         if (infos.length == 0) return None!CollisionInfoRay;
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
+
+    const(Uniform) delegate() getUniform(UniformDemand demand) {
+        switch (demand) {
+        case UniformDemand.View:
+            return () => this.camera.viewMatrix;
+        case UniformDemand.Proj:
+            return () => this.camera.projMatrix;
+        case UniformDemand.Light:
+            return () => this.getPointLightBlockBuffer;
+        default:
+            assert(false);
+        }
+    }
+
+    private UniformBuffer!PointLightBlock getPointLightBlockBuffer() {
+        PointLightBlock* buffer = this.pointLightBlockBuffer.map(BufferAccess.Write);
+        buffer.num = this.pointLightBlock.num;
+        buffer.lights = this.pointLightBlock.lights;
+        this.pointLightBlockBuffer.unmap();
+        return this.pointLightBlockBuffer;
+    }
+
 }

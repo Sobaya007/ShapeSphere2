@@ -11,21 +11,27 @@ public {
 import std.algorithm;
 
 class Entity {
-    private Maybe!Mesh mesh;
-    private Maybe!CollisionEntry colEntry;
-    private World world;
-    private Entity parent;
-    private Entity[] children;
-    private Object3D _obj;
-    private Maybe!Variant userData;
-    private string name;
-    bool visible;
 
+    import sbylib.utils.Functions;
+
+    mixin buildReadonly!(Maybe!Mesh, "mesh");
+    mixin buildReadonly!(Object3D, "obj");
+    mixin buildReadonly!(Maybe!World, "world");
+    string name;
+    private Maybe!CollisionEntry colEntry;
+    private Maybe!Entity parent;
+    private Entity[] children;
+    private Maybe!Variant userData;
+    bool visible; // Materialに書くと、Materialが同じでVisiblityが違う物体が実現できない
+
+    /*
+       Create/Destroy
+     */
     this(string file = __FILE__, int line = __LINE__){
         this._obj = new Object3D(this);
-        this.visible = true;
         import std.conv;
         this.name = file ~ " : " ~ line.to!string;
+        this.visible = true;
     }
 
     this(Geometry geom, Material mat, string file = __FILE__, int line = __LINE__) {
@@ -45,113 +51,104 @@ class Entity {
     }
 
     void destroy() {
-        this.mesh.destroy();
-        foreach (child; this.children) {
-            child.destroy();
-        }
+        this.traverse!((Entity e) => e.mesh.destroy);
     }
 
-    Maybe!Mesh getMesh() {
-        return this.mesh;
+
+    /*
+       User Data access
+     */
+
+    Maybe!T getUserData(T)() {
+        return this.userData.fmapAnd!((Variant v) => wrapPointer(v.peek!T));
     }
 
-    inout(Object3D) obj() @property inout {
-        return this._obj;
+    Maybe!string getUserDataType() {
+        return this.userData.fmap!((Variant v) => v.type.stringof);
     }
 
-    World getWorld() {
-        return this.world;
-    }
-
-    string getName() {
-        return this.name;
-    }
-
-    void setName(string name) {
-        this.name = name;
-    }
-
-    void setWorld(World world) in {
-        assert(world);
-    } body {
-        this.world = world;
-        this.onSetWorld(world);
-        foreach (child; this.children) {
-            child.setWorld(world);
-        }
-    }
-
-    Maybe!Variant getUserData() {
-        return this.userData;
-    }
-
-    void setUserData(T)(T userData) in {
-        //assert(this.parent is null);
-    } body {
+    void setUserData(T)(T userData) {
         this.userData = wrap(Variant(userData));
     }
 
-    void clearChildren() {
-        foreach (child; this.children) {
-            child.parent = null;
-        }
+
+    /*
+       Parent/Child Access
+     */
+
+    void addChild(Entity entity) {
+        entity.parent = Just(this);
+        entity.obj.onSetParent(this);
+        this.children ~= entity;
+        this.world.add(entity);
+    }
+
+    void clearChildren() out {
+        assert(this.children.length == 0);
+    } body {
+        this.children.each!(child => child.remove());
+        this.children.each!(child => child.parent = None!Entity);
         this.children = null;
     }
 
-    void addChild(Entity entity) in {
-        assert(entity !is null);
-    } body {
-        this.children ~= entity;
-        entity.setParent(this);
-        if (this.world is null) return;
-        entity.setWorld(world);
+    Maybe!Entity getParent() {
+        return this.parent;
     }
 
-    void buildBVH() {
-        buildBVH((bvh) {});
+    Entity getRootParent() {
+        return this.parent.getRootParent().getOrElse(this);
     }
 
-    void buildBVH(void delegate(Entity) func) {
-        this.mesh.apply!((m) {
-            auto bvh = new Entity(new CollisionBVH(m.geom.createCollisionPolygon()));
-            addChild(bvh);
-            func(bvh);
-        });
+    Entity[] getChildren() {
+        return this.children;
+    }
 
-        foreach(child; this.children) {
-            child.buildBVH(func);
-        }
+    invariant {
+        //assert(this.children.all!(child => child.parent.isJust));
+        //assert(this.children.all!(child => child.parent.get() == this));
     }
 
     /*
-    void collect(bool function(Mesh) cond)(ref Array!Entity result) {
-        if (this.mesh && cond(this.mesh)) {
-            result ~= this;
-        }
-        foreach (child; this.children) {
-            child.collect!(cond)(result);
-        }
-    }
-    */
+       World Access
+     */
 
-    void collect(bool function(Mesh) cond)(ref Array!Entity trueResult, ref Array!Entity falseResult) {
-        if (this.mesh.isJust) {
-            if (cond(this.mesh.get)) {
-                trueResult ~= this;
-            } else {
-                falseResult ~= this;
-            }
-        }
-        foreach (child; this.children) {
-            child.collect!(cond)(trueResult, falseResult);
-        }
+    void remove() {
+        this.world.remove(this);
+        this._world = None!World;
+    }
+
+    void setWorld(Maybe!World world) {
+        this._world = world;
+        this.mesh.onSetWorld(world);
     }
 
     void render() in {
-        assert(this.world);
+        assert(this.world.isJust, this.toString());
     } body {
         if (!this.visible) return;
         this.mesh.render();
+    }
+
+
+    void traverse(alias func)() {
+        func(this);
+        foreach (child; this.children) {
+            child.traverse!(func);
+        }
+    }
+
+    void traverse(void delegate(Entity) func) {
+        func(this);
+        foreach (child; this.children) {
+            child.traverse(func);
+        }
+    }
+
+    void buildBVH() {
+        this.traverse((Entity e) {
+            auto polygons = e.mesh.geom.createCollisionPolygon();
+            e.colEntry = polygons.fmap!((CollisionGeometry[] p) => new CollisionEntry(new CollisionBVH(p), e));
+        });
     }
 
     void collide(ref Array!CollisionInfo result, Entity entity) {
@@ -190,91 +187,58 @@ class Entity {
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 
-    Entity getParent() {
-        return this.parent;
-    }
-
-    Entity getRootParent() {
-        if (this.parent is null) return this;
-        return this.parent.getRootParent();
-    }
-
-    uint getChildNum() {
-        uint res = 0;
-        if (this.parent !is null) res++;
-        foreach (child; this.children) {
-            res += child.getChildNum();
-        }
-        return res;
-    }
-
-    Entity[] getChildren() {
-        return this.children;
-    }
-
-    void remove() {
-        this.world.remove(this);
-    }
-
-    private void onSetWorld(World world) {
-        this.mesh.onSetWorld(world);
-    }
-
-    private void setParent(Entity entity) {
-        this.parent = entity;
-        this._obj.onSetParent(entity);
-    }
-
-    private void setMesh(Mesh mesh) in {
-        assert(mesh.getOwner() == this);
+    private void setMesh(Mesh m) in {
+        assert(m.getOwner() == this);
+        assert(this.world.isNone);
     } body {
-        this.mesh = Just(mesh);
-        if (this.world is null) return;
-        this.mesh.onSetWorld(this.world);
+        this._mesh = Just(m);
+    }
+
+    override string toString() {
+        import std.format, std.range;
+        import sbylib.utils.Functions;
+        auto result = format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s\n"(name, this.mesh.toString(), this.colEntry.toString(), this.userData.toString);
+        if (children.length > 0) {
+            result ~= format!"Children(%d):\n%s"(this.children.length, this.children.map!(child => child.toString()).join("\n").indent(3));
+        }
+        return result;
     }
 
     alias obj this;
 }
 
-class EntityTemp(Geom, Mat) {
-    alias M = MeshTemp!(Geom, Mat);
-    private M mesh;
-    Entity entity;
+class TypedEntity(G, M) {
 
-    this(Geom g, string file = __FILE__, int line = __LINE__) {
-        this.entity = new Entity(file, line);
-        this.mesh = new M(g, this);
-        this.entity.setMesh(this.mesh);
-    }
+    import sbylib.utils.Functions;
 
-    this(Geom g, Mat m, string file = __FILE__, int line = __LINE__) {
-        this.entity = new Entity(file, line);
-        this.mesh = new M(g, m, this);
-        this.entity.setMesh(this.mesh);
-    }
+    mixin Proxy;
 
-    this(Geom g, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-        this.entity = new Entity(colGeom, file, line);
-        this.mesh = new M(g, this);
-        this.entity.setMesh(this.mesh);
-    }
-
-    this(Geom g, Mat m, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-        this.entity = new Entity(colGeom, file, line);
-        this.mesh = new M(g, m, this);
-        this.entity.setMesh(this.mesh);
-    }
-
-    M getMesh() {
-        return this.mesh;
-    }
-
-//    override void setMesh(Geometry geom, Material mat) {
-//        assert(cast(Geom)geom);
-//        assert(cast(Mat)mat);
-//        this.mesh = new M(cast(Geom)geom, cast(Mat)mat, this);
-//        super.setMesh(mesh);
-//    }
+    @Proxied TypedMesh!(G, M) mesh;
+    @Proxied Entity entity;
 
     alias entity this;
+}
+
+auto makeEntity(string file = __FILE__, int line = __LINE__) {
+    return new Entity(file, line);
+}
+
+auto makeEntity(G, M)(G g, M m, string file = __FILE__, int line = __LINE__) {
+    auto entity = new TypedEntity!(G, M);
+    entity.entity = new Entity(file, line);
+    entity.mesh = new TypedMesh!(G, M)(g, m, entity.entity);
+    entity.entity.setMesh(entity.mesh);
+    return entity;
+}
+
+auto makeEntity(CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
+    return new Entity(colGeom, file, line);
+}
+
+auto makeEntity(G, M)(G g, M m, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
+    auto entity = new TypedEntity!(G, M);
+    entity.entity = new Entity(colGeom, file, line);
+    entity.mesh = new TypedMesh!(G, M)(g, m, entity.entity);
+    entity.entity.setMesh(entity.mesh);
+    return entity;
 }

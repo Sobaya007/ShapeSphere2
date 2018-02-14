@@ -17,7 +17,7 @@ class Player : CommandReceiver {
     alias SphereTypes = AliasSeq!(ElasticSphere, NeedleSphere, SpringSphere);
 
     alias Mat = ConditionalMaterial!(LambertMaterial, PlayerMaterial);
-    alias PlayerEntity = EntityTemp!(GeometryN, Mat);
+    alias PlayerEntity = TypedEntity!(GeometryN, Mat);
 
     enum TIME_STEP = 0.02;
 

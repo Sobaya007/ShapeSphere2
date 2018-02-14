@@ -51,13 +51,13 @@ class ElasticSphere2 {
         })) / positions.length;
     }) aVel;
     private ChangeObservedArray!vec3 positions, velocities;
-    bool ground;
+    Maybe!vec3 contactNormal;
 
     this() {
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
         mat.config.faceMode = FaceMode.Front;
-        mat.config.transparency = true;
+        mat.config.renderGroupName = "transparent";
         this(mat);
     }
 
@@ -70,7 +70,7 @@ class ElasticSphere2 {
         this.force = vec3(0);
         this.geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         this.entity = new Entity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
-        this.entity.setName("ElasticSphere");
+        this.entity.name = "ElasticSphere";
         this.particleList = geom.vertices.map!(p => new ElasticParticle(p.position)).array;
         auto p = this.particleList.map!(p => &p.position).array;
         auto v = this.particleList.map!(p => &p.velocity).array;
@@ -142,7 +142,7 @@ class ElasticSphere2 {
     }
     Maybe!WallContact getWallContact() {
         auto colInfos = Array!CollisionInfo(0);
-        Game.getMap().getPolygon().collide(colInfos, this.entity);
+        Game.getMap().getStageEntity().collide(colInfos, this.entity);
         scope (exit) {
             colInfos.destroy();
         }
@@ -178,10 +178,10 @@ class ElasticSphere2 {
             }
         }
         float baloonForce = this.calcBaloonForce();
-        this.ground = false;
+        this.contactNormal = None!vec3;
         foreach (ref particle; this.particleList) {
             particle.force += particle.normal * baloonForce;
-            particle.force.y -= GRAVITY * MASS;
+            if (this.contactNormal.isNone) particle.force.y -= GRAVITY * MASS;
             particle.velocity += particle.force * FORCE_COEF;
             move(particle);
             collision(particle, collisionEntities);
@@ -293,7 +293,7 @@ class ElasticSphere2 {
 
     private void collision(ElasticParticle particle, Entity[] collisionEntities) {
         auto colInfos = Array!CollisionInfo(0);
-        Game.getMap().getPolygon().collide(colInfos, particle.entity);
+        Game.getMap().getStageEntity().collide(colInfos, particle.entity);
         foreach (entity; collisionEntities) {
             entity.collide(colInfos, particle.entity);
         }
@@ -306,12 +306,14 @@ class ElasticSphere2 {
             if (depth < 0) continue;
             auto po = particle.velocity - dot(particle.velocity, n) * n;
             particle.velocity -= po * FRICTION;
-            this.ground = true;
+            if (this.contactNormal.isNone) this.contactNormal = Just(normalize(n));
+            else this.contactNormal += normalize(n);
             if (dot(particle.velocity, n) < 0) {
                 particle.velocity -= n * dot(n, particle.velocity) * 1;
             }
             particle.position += n * depth;
         }
+        this.contactNormal = this.contactNormal.fmap!((vec3 n) => normalize(n));
     }
 
     private void end(ElasticParticle particle) {

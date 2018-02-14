@@ -2,7 +2,6 @@ module sbylib.collision.geometry.CollisionPolygon;
 
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
-import sbylib.utils.Lazy;
 import sbylib.utils.Change;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.Vertex;
@@ -62,5 +61,9 @@ class CollisionPolygon : CollisionGeometry {
 
     Entity getOwner() {
         return this.owner;
+    }
+
+    override string toString() {
+        return typeof(this).stringof;
     }
 }

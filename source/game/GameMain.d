@@ -13,12 +13,6 @@ void gameMain(string[] args) {
 
     screen.setClearColor(vec4(0.2));
 
-    core.addProcess({
-        if (core.getKey[KeyButton.Escape]) {
-            core.end();
-        }
-    }, "po");
-
     core.addProcess(&AnimationManager().step, "Animation Manager");
 
     setGameTransition(args);

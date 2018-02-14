@@ -1,20 +1,18 @@
 module sbylib.entity.utils.ColorEntity;
 
-import sbylib.entity.Entity;
-import sbylib.geometry.geometry2d.Rect;
-import sbylib.material.ColorMaterial;
-import sbylib.math.Vector;
+public {
+    import sbylib.entity.Entity;
+    import sbylib.math.Vector;
+}
 
-EntityTemp!(GeometryRect, ColorMaterial) ColorEntity(
+auto makeColorEntity(
         vec4 color,
         float width,
         float height) {
-    auto geom = Rect.create(width, height);
-    auto mat = new ColorMaterial;
-    mat.color = color;
-    mat.config.transparency = true;
-    mat.config.depthWrite = false;
-    auto entity = new EntityTemp!(GeometryRect, ColorMaterial)(geom, mat);
-
+    import sbylib.geometry.geometry2d.Rect;
+    import sbylib.material.ColorMaterial;
+    auto entity = makeEntity(Rect.create(width, height), new ColorMaterial(color));
+    entity.renderGroupName = "transparent";
+    entity.depthWrite = false;
     return entity;
 }

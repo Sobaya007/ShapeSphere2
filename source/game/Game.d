@@ -17,13 +17,18 @@ static:
     private Player player;
 
     private Map map;
+
     private Message message;
+
+    private RenderTarget backBuffer;
 
     void initialize(string[] args) {
         this.commandManager = selectCommandManager(args);
         this.world2d = new World;
         this.world3d = new World;
         this.message = new Message;
+        this.backBuffer = new RenderTarget(512, 512);
+        this.backBuffer.attachTexture!ubyte(FrameBufferAttachType.Color0);
     }
 
     void initializePlayer(Camera camera) in {
@@ -64,6 +69,10 @@ static:
 
     Message getMessge() {
         return this.message;
+    }
+
+    RenderTarget getBackBuffer() {
+        return this.backBuffer;
     }
 
     void update() {

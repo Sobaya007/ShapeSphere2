@@ -17,7 +17,7 @@ class Message : CommandReceiver {
 
     this() {
         this.entity = new Entity();
-        this.img = ImageEntity(ImagePath("message.png"), 1, 1);
+        this.img = makeImageEntity(ImagePath("message.png"), 1, 1);
 
         this.addCommand(new ButtonCommand(() => Controller().justPressed(CButton.Decide), &this.onDecisideJustPressed));
     }
@@ -32,10 +32,10 @@ class Message : CommandReceiver {
     } body {
         float currentWidth = this.text.getWidth().getOrElse(0);
         float currentHeight = this.text.getHeight().getOrElse(0);
-        auto text = TextEntity(message, 0.1, Label.OriginX.Left, Label.OriginY.Top);
+        auto text = makeTextEntity(message, 0.1, Label.OriginX.Left, Label.OriginY.Top);
         text.setWrapWidth(1);
-        text.pos = vec3(-text.getWidth()/2, text.getHeight()/2, 0.5);
-        text.letters.each!((Letter letter) => letter.getEntity().visible = false);
+        text.pos = vec3(-text.getWidth()/2, text.getHeight()/2, -0.5);
+        text.letters.each!((Letter letter) => letter.visible = false);
         float arrivalWidth = text.getWidth();
         float arrivalHeight = text.getHeight();
         this.img.scale = vec3(0);
@@ -54,7 +54,7 @@ class Message : CommandReceiver {
                 ),
                 new Animation!float(
                     (float time) {
-                        text.letters[cast(int)time].getEntity.visible = true;
+                        text.letters[cast(int)time].visible = true;
                     },
                     setting(
                         0f,

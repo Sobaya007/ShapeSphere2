@@ -25,7 +25,7 @@ class Sphere {
             return res;
         }).array;
         auto index = vertexIndex[1];
-        auto g = new GeometryN(vertex, index);
+        auto g = new GeometryN(vertex, index.idup);
         return g;
     }
 

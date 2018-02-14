@@ -1,8 +1,11 @@
 module sbylib.render.Renderer;
 
-import sbylib.core.World;
-import sbylib.render.RenderTarget;
-import sbylib.render.Viewport;
+public {
+    import sbylib.core.World;
+    import sbylib.render.RenderTarget;
+    import sbylib.render.Viewport;
+    import sbylib.entity.Entity;
+}
 
 class Renderer {
 
@@ -10,6 +13,13 @@ class Renderer {
         viewport.set();
         renderTarget.renderBegin();
         world.render();
+        renderTarget.renderEnd();
+    }
+
+    void render(World world, IRenderTarget renderTarget, IViewport viewport, string renderGroupName) {
+        viewport.set();
+        renderTarget.renderBegin();
+        world.render(renderGroupName);
         renderTarget.renderEnd();
     }
 }

@@ -58,8 +58,8 @@ class NeedleSphere : BaseSphere {
         auto geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
-        this.entity = new Player.PlayerEntity(geom, mat, new CollisionCapsule(MAX_RADIUS, vec3(0), vec3(0)));
-        this.particleList = entity.getMesh().geom.vertices.map!(p => new NeedleParticle(p.position)).array;
+        this.entity = makeEntity(geom, mat, new CollisionCapsule(MAX_RADIUS, vec3(0), vec3(0)));
+        this.particleList = entity.geom.vertices.map!(p => new NeedleParticle(p.position)).array;
         NeedlePair[] pairs = this.generatePairs(geom, this.particleList);
         foreach(pair; pairs) {
             pair.p0.next ~= pair.p1;
@@ -68,11 +68,6 @@ class NeedleSphere : BaseSphere {
         foreach (p; particleList) {
             p.isStinger = p.next.all!(a => a.isStinger == false);
         }
-        auto cmat = new ColorMaterial;
-        cmat.color = vec4(1,0,0,1);
-        this.line = new Entity(Capsule.create(0.1, vec3(0), vec3(0,3,0)), cmat);
-        this.line.visible = false;
-        this.entity.addChild(this.line);
     }
 
     void initialize(ElasticSphere elasticSphere) {
@@ -139,7 +134,7 @@ class NeedleSphere : BaseSphere {
     private void collision() {
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
-        Game.getMap().getPolygon().collide(colInfos, this.entity);
+        Game.getMap().getStageEntity().collide(colInfos, this.entity);
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
         auto lastContactNormal = this.contactNormal;
@@ -148,23 +143,19 @@ class NeedleSphere : BaseSphere {
         Maybe!size_t lastWallIndex;
         foreach (i, colInfo; colInfos) {
             contacts ~= Contact(colInfo, this);
-            colInfo.getOther(this.entity).getParent().getUserData().apply!((Variant data) {
-                if (auto matNamePtr = data.peek!string) {
-                    auto matName = *matNamePtr;
-                    import std.algorithm;
-                    if (matName.canFind("Sand")) {
-                        auto nc = normalize(colInfo.getPushVector(this.entity));
-                        if (this.contactNormal.isNone || nc.y < this.contactNormal.y) {
-                            this.contactNormal = Just(nc);
-                            if (this.contactNormal != lastContactNormal) {
-                                newWallIndex = Just(i);
-                            } else {
-                                lastWallIndex = Just(i);
-                            }
-                        }
+            auto matName = colInfo.getOther(this.entity).getUserData!(string).getOrElse("");
+            import std.algorithm;
+            if (matName.canFind("Sand")) {
+                auto nc = normalize(colInfo.getPushVector(this.entity));
+                if (this.contactNormal.isNone || nc.y < this.contactNormal.y) {
+                    this.contactNormal = Just(nc);
+                    if (this.contactNormal != lastContactNormal) {
+                        newWallIndex = Just(i);
+                    } else {
+                        lastWallIndex = Just(i);
                     }
                 }
-            });
+            }
         }
         if (newWallIndex.isJust) {
             contacts[newWallIndex.get].wall = SAND_WALL;
@@ -220,7 +211,7 @@ class NeedleSphere : BaseSphere {
     }
 
     private void updateGeometry() {
-        auto geom = this.entity.getMesh().geom;
+        auto geom = this.entity.geom;
         auto vs = geom.vertices;
         foreach (ref v; vs) {
             v.normal = vec3(0);

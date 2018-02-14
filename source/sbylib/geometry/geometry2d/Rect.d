@@ -48,7 +48,7 @@ class Rect {
             auto v = new VertexT(tuple.expand);
             vertices ~= v;
         }
-        auto g = new GeometryRect(vertices, indices);
+        auto g = new GeometryRect(vertices, indices.idup);
         return g;
     }
 }

@@ -2,16 +2,14 @@ module plot.circle.CircleMaterial;
 
 import sbylib;
 
-class CircleMaterialUniformKeeper : UniformKeeper {
+class CircleMaterial : Material {
 
-    mixin MaterialUtils.declare;
+    mixin declare;
 
     uvec3 color;
 
-    void constructor() {
-        this.color = new uvec3("color");
+    this() {
+        mixin(autoAssignCode);
         this.color = vec3(1);
     }
 }
-
-alias CircleMaterial = MaterialTemp!CircleMaterialUniformKeeper;

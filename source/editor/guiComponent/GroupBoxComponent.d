@@ -31,8 +31,8 @@ public:
         _content.zIndex = 1;
 
         auto geom = Rect.create(width, _content.height + 2*_borderSize, Rect.OriginX.Left, Rect.OriginY.Top);
-        auto entity = new EntityTemp!(GeometryRect, GroupBoxComponentMaterial)(geom);
-        this.material = entity.getMesh().mat;
+        auto entity = makeEntity(geom, new GroupBoxComponentMaterial);
+        this.material = entity.mat;
 
         this.material.borderColor = _borderColor;
         this.material.borderSize = _borderSize;

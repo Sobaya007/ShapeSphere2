@@ -11,7 +11,7 @@ class ConfigManager {
 
     mixin Signal;
     mixin Signal!(ConfigPath, string, JSONValue);
-    mixin Utils.Singleton;
+    mixin Singleton;
 
     private ConfigFile[] files;
 
@@ -78,6 +78,7 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
         if (this.path != path) return;
         if (this.name != name) return;
         this.value = conv(value);
+        this.initialized = true;
     }
 
     auto conv(JSONValue value) {
@@ -137,8 +138,8 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
     auto ref getValue() {
         if (!initialized) {
             this.initialize();
-            this.initialized = true;
         }
+        assert(initialized, name ~ " was not found in " ~ path);
         return this.value;
     }
 

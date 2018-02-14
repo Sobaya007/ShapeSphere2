@@ -23,10 +23,6 @@ class VertexArray {
         this.id = vao;
     }
 
-    ~this() {
-        this.destroy();
-    }
-
     void destroy() out {
         GlFunction.checkError();
     } body {

@@ -17,32 +17,40 @@ class GameMainScene : SceneBase {
         auto core = Core();
         auto window = core.getWindow();
         auto screen = window.getScreen();
-        this.viewport = new AutomaticViewport(window);
         auto world2d = Game.getWorld2D();
         auto world3d = Game.getWorld3D();
-        auto texture = Utils.generateTexture(ImageLoader.load(ImagePath("uv.png")));
+
+
+        this.viewport = new AutomaticViewport(window);
+
 
         /* Camera Settings */
         Camera camera = new PerspectiveCamera(1, 60.deg, 0.1, 200);
         camera.pos = vec3(3, 2, 9);
         camera.lookAt(vec3(0,2,0));
         world3d.setCamera(camera);
+
+
+        world3d.addRenderGroup("Crystal", new TransparentRenderGroup(camera));
+
+
         world2d.setCamera(new OrthoCamera(2,2,-1,1));
+
 
         /* Player Settings */
         Game.initializePlayer(camera);
         auto player = Game.getPlayer();
         Game.getCommandManager().setReceiver(player);
-        //characters.each!(character => player.collisionEntities ~= character.collisionArea);
         core.addProcess((proc) {
             player.step();
-            //characters.each!(character => character.step());
         }, "player update");
         core.addProcess(&Game.update, "game update");
+
 
         auto map = new Map;
         map.testStage2();
         Game.initializeMap(map);
+
 
         /* Label Settings */
         if (Game.getCommandManager().isPlaying()) {
@@ -60,50 +68,61 @@ class GameMainScene : SceneBase {
             }, "label update");
         }
 
+
         /* Compass Settings */
         auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));
         world2d.add(compass);
         compass.pos = vec3(0.75, -0.75, 0);
 
-        /* Light Settings */
-        PointLight pointLight;
-        pointLight.pos = vec3(0,2,0);
-        pointLight.diffuse = vec3(1);
-        world3d.addPointLight(pointLight);
-
-        /* Joy Stick Settings */
-        core.addProcess((proc) {
-            if (core.getJoyStick().canUse) {
-                //writeln(core.getJoyStick());
-            }
-        }, "joy state");
 
         /* FPS Observe */
         auto fpsCounter = new FpsCounter!100();
-        auto fpsLabel = TextEntity("FPS = ", 0.1, Label.OriginX.Left, Label.OriginY.Top);
+        auto fpsLabel = makeTextEntity("FPS = ", 0.1, Label.OriginX.Left, Label.OriginY.Top);
         fpsLabel.pos.xy = vec2(-1,1);
         fpsLabel.setBackColor(vec4(1));
         world2d.add(fpsLabel);
         core.addProcess((proc) {
             fpsCounter.update();
             fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
+            window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
         }, "fps update");
 
+
         /* Key Input */
-        core.addProcess((proc) {
-            if (core.getKey[KeyButton.Escape]) {
-                Game.getCommandManager().save();
-                core.end();
+        core.getKey().justPressed(KeyButton.Escape).add({
+            Game.getCommandManager().save();
+            core.end();
+        });
+        core.getKey().justPressed(KeyButton.KeyP).add({ConfigManager().load();});
+        core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
+        core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
+
+        import core.thread;
+        new Thread({
+            while (true) {
+                try {
+                    write(" > ");
+                    import std.string;
+                    auto line = readln.chomp;
+                    Pattern(line)
+                    .match!((l) => l == "player.pos")(player.getCenter().toString)
+                    .match!((l) => l == "world3d.entities")(world3d.getEntities.map!(e => e.toString).join("\n"))
+                    .other("no match pattern for '" ~ line ~ "'")
+                    .writeln;
+                } catch (Error e) {
+                    e.writeln;
+                }
             }
-            if (core.getKey[KeyButton.KeyP]) ConfigManager().load();
-            if (core.getKey[KeyButton.Key0]) player.setCenter(vec3(0));
-            if (core.getKey.justPressed(KeyButton.KeyF)) core.getWindow().toggleFullScreen();
-        }, "po");
+        }).start();
     }
 
     override void render() {
-        renderer.render(Game.getWorld3D(), screen, viewport);
+        renderer.render(Game.getWorld3D(), screen, viewport, "regular");
+        renderer.render(Game.getWorld3D(), screen, viewport, "transparent");
+        screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
+        renderer.render(Game.getWorld3D(), screen, viewport, "Crystal");
         screen.clear(ClearMode.Depth);
-        renderer.render(Game.getWorld2D(), screen, viewport);
+        renderer.render(Game.getWorld2D(), screen, viewport, "regular");
+        renderer.render(Game.getWorld2D(), screen, viewport, "transparent");
     }
 }

@@ -24,6 +24,7 @@ import std.stdio, std.string;
 import std.algorithm;
 import std.array;
 import std.stdio;
+import std.concurrency;
 
 /*
    SbyLibを動かすための準備をするクラスです。
@@ -32,7 +33,7 @@ import std.stdio;
 
 class Core {
 
-    mixin Utils.Singleton;
+    mixin Singleton;
 
     static class Config {
         uint windowWidth;
@@ -105,6 +106,9 @@ class Core {
         //各種初期化
 
         mainLoop();
+
+        import core.stdc.stdlib;
+        exit(0);
     }
 
     void end() {

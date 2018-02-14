@@ -30,7 +30,7 @@ public:
     // zIndexが大きいほど手前で描画される
     this(Entity entity = null, bool createColEntryFlag = true) {
         _entity = entity is null ? new Entity : entity;
-        if (_entity.getMesh.isJust && createColEntryFlag) {
+        if (_entity.mesh.isJust && createColEntryFlag) {
             _entity.buildBVH();
         }
         _entity.setUserData(cast(IControllable)this);

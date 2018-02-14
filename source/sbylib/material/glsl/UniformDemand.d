@@ -10,7 +10,8 @@ enum UniformDemand {
     World,
     View,
     Proj,
-    Light
+    Light,
+    DebugCounter
 }
 
 string getUniformDemandName(UniformDemand u) {
@@ -23,6 +24,8 @@ string getUniformDemandName(UniformDemand u) {
         return "projMatrix";
     case UniformDemand.Light:
         return "Light";
+    case UniformDemand.DebugCounter:
+        return "DebugCounter";
     }
 }
 
@@ -37,5 +40,7 @@ Statement[] getUniformDemandDeclare(UniformDemand u) {
         new BlockDeclare(PointLightDeclareCode),
         new BlockDeclare(PointLightBlockDeclareCode)];
         return results;
+    case UniformDemand.DebugCounter:
+        return [new VariableDeclare(format!"uniform int %s;"(getUniformDemandName(u)))];
     }
 }

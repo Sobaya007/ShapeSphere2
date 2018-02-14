@@ -12,7 +12,7 @@ class ResetBehavior : CameraController.Behavior {
     private long count;
 
     mixin DeclareConfig!(float, "RESET_SPEED_RATE", "camera.json");
-    mixin DeclareConfig!(float, "CHASE_TARGET_Y", "camera.json");
+    mixin DeclareConfig!(float, "CHASE_CAMERA_Y", "camera.json");
     mixin DeclareConfig!(long, "RESET_PERIOD_FRAME", "camera.json");
 
     void initialize() {
@@ -27,7 +27,7 @@ class ResetBehavior : CameraController.Behavior {
         vel = (arrival - camera.pos) * 0.1;
         vel.y = 0;
         camera.pos += vel;
-        auto ay = target.y + CHASE_TARGET_Y;
+        auto ay = target.y + CHASE_CAMERA_Y;
         camera.pos.y = (camera.pos.y - ay) * RESET_SPEED_RATE + ay;
         camera.lookAt(target);
         if (this.count-- == 0) {

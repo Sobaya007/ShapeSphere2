@@ -3,6 +3,8 @@ module sbylib.utils.Maybe;
 import std.traits;
 import std.format;
 import std.conv;
+import std.range;
+import std.algorithm;
 
 struct Maybe(T) {
 
@@ -10,6 +12,12 @@ struct Maybe(T) {
 
     private T value;
     private bool _none = true;
+
+    invariant {
+        static if (is(typeof(value is null))) {
+            assert(_none || value !is null);
+        }
+    }
 
     private this(T value) {
         this.value = value;
@@ -40,7 +48,7 @@ struct Maybe(T) {
         }
     }
 
-    T get() in {
+    auto ref get() inout in {
         assert(!_none, "this is none");
     } body {
         return this.value;
@@ -54,11 +62,11 @@ struct Maybe(T) {
         return None!T;
     }
 
-    bool isJust() {
+    bool isJust() inout {
         return !_none;
     }
 
-    bool isNone() {
+    bool isNone() inout {
         return _none;
     }
 
@@ -68,8 +76,14 @@ struct Maybe(T) {
         return this.value > value;
     }
 
+    Maybe!T opOpAssign(string op, S)(S value) {
+        if (this.isNone) return this;
+        mixin("this.value " ~ op ~ "= value;");
+        return this;
+    }
+
     string toString() {
-        if (this.isJust) return format!"Some(%s)"(this.value.to!string);
+        if (this.isJust) return format!"Just(%s)"(this.value.to!string);
         return "None";
     }
 }
@@ -104,7 +118,7 @@ auto match(alias funJust, alias funNone, T)(Maybe!T m) {
 }
 
 Maybe!T Just(T)(T v) in {
-    static if (is(typeof(v == null))) {
+    static if (is(typeof(v == null)) && !isArray!(T)) {
         assert(v != null);
     }
 } body {
@@ -115,9 +129,15 @@ Maybe!T None(T)() {
     return Maybe!T(true);
 }
 
-auto wrap(T)(T value) {
+auto wrapPointer(T)(T value) if (isPointer!T){
+    if (value is null) {
+        return None!(PointerTarget!T);
+    } else {
+        return Just(*value);
+    }
+}
 
-    import std.traits;
+auto wrap(T)(T value) {
     static if (isPointer!T) {
         if (value is null) {
             return None!(T);
@@ -139,6 +159,15 @@ auto wrap(T)(T value) {
     } else {
         return Just(value);
     }
+}
+
+auto wrapCast(T, S)(Maybe!S m) {
+    return m.fmapAnd!((S s) => wrap(cast(T)s));
+}
+
+// InputRange!(Maybe!T) -> InputRange!T
+auto catMaybe(Range)(Range r) if (isInputRange!Range && isInstanceOf!(Maybe, ElementType!Range)) {
+    return r.filter!(m => m.isJust).map!(m => m.get);
 }
 
 unittest {

@@ -3,19 +3,19 @@ module model.xfile.loader.XMaterial;
 import sbylib;
 
 interface MaterialBuilder {
-    Material buildMaterial(XMaterial);
+    Material buildMaterial(immutable(XMaterial));
 }
 
 class DefaultMaterialBuilder : MaterialBuilder {
 
-    override Material buildMaterial(XMaterial xmat) {
-        if (xmat.hasTexture()) {
+    override Material buildMaterial(immutable(XMaterial) xmat) {
+        if (xmat.textureFileName.isJust) {
             PhongTextureMaterial material = new PhongTextureMaterial;
             material.diffuse = xmat.diffuse.xyz;
             material.specular = xmat.specular;
             material.ambient = vec4(xmat.ambient, 1.0);
             material.power = xmat.power;
-            material.texture = Utils.generateTexture(ImageLoader.load(ImagePath(xmat.getTextureFileName)));
+            material.texture = generateTexture(ImageLoader.load(ImagePath(xmat.textureFileName.get)));
             return material;
         } else {
             PhongMaterial material = new PhongMaterial;
@@ -28,30 +28,34 @@ class DefaultMaterialBuilder : MaterialBuilder {
     }
 }
 
-class XMaterial {
+immutable class XMaterial {
+immutable:
     vec4 diffuse;
     vec3 specular;
     vec3 ambient;
     float power;
     string name;
+    Maybe!string textureFileName;
 
-    private bool _hasTexture = false;
-    private string _textureFileName;
-
-    bool hasTexture() {
-        return _hasTexture;
+    this(vec4 diffuse, vec3 specular, vec3 ambient, float power, string name, string textureFileName) {
+        this.diffuse = diffuse;
+        this.specular = specular;
+        this.ambient = ambient;
+        this.power = power;
+        this.name = name;
+        this.textureFileName = Just(textureFileName);
     }
 
-    void setTectureFileName(string name) {
-        this._hasTexture = true;
-        this._textureFileName = name;
+    this(vec4 diffuse, vec3 specular, vec3 ambient, float power, string name) {
+        this.diffuse = diffuse;
+        this.specular = specular;
+        this.ambient = ambient;
+        this.power = power;
+        this.name = name;
+        this.textureFileName = None!string;
     }
 
-    string getTextureFileName() {
-        return _textureFileName;
-    }
-
-    override string toString() {
+    string toString() {
         return toString(0);
     }
 

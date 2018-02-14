@@ -2,10 +2,17 @@ module model.xfile.loader.XGeometry;
 
 import sbylib;
 
-class XGeometry {
+immutable class XGeometry {
+immutable:
     vec3[] positions;
     vec3[] normals;
     vec2[] uvs;
+
+    this(immutable(vec3[]) positions, immutable(vec3[]) normals, immutable(vec2[]) uvs) {
+        this.positions = positions;
+        this.normals = normals;
+        this.uvs = uvs;
+    }
 
     VertexNT[] buildVertices() {
         auto num = this.positions.length;
@@ -20,7 +27,7 @@ class XGeometry {
         return vertices;
     }
 
-    override string toString() {
+    string toString() {
         return toString(0);
     }
 

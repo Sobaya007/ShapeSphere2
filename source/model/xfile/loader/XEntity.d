@@ -4,11 +4,24 @@ import sbylib;
 
 import model.xfile.loader;
 
-class XEntity {
+immutable class XEntity {
+immutable:
 
-    XEntity[] children;
-    XGeometry geometry;
-    XLeviathan[] leviathans;
+    immutable(XEntity)[] children;
+    Maybe!(immutable(XGeometry)) geometry;
+    immutable(XLeviathan)[] leviathans;
+
+    this(immutable(XEntity[]) children) {
+        this.children = children;
+        this.geometry = None!(immutable(XGeometry));
+        this.leviathans = null;
+    }
+
+    this(immutable(XGeometry) geometry, immutable(XLeviathan)[] leviathans) {
+        this.children = null;
+        this.geometry = Just(geometry);
+        this.leviathans = leviathans;
+    }
 
     /*
         XEntityをEntityに変換する。
@@ -23,16 +36,17 @@ class XEntity {
         foreach(child; this.children) {
             entity.addChild(child.buildEntity(materialBuilder));
         }
-        if (this.geometry !is null) {
-            VertexNT[] vertices = this.geometry.buildVertices();
+        if (this.geometry.isJust) {
+            VertexNT[] vertices = this.geometry.get().buildVertices();
+            auto vertexGroup = new VertexGroupNT(vertices);
             foreach(leviathan; this.leviathans) {
-                entity.addChild(leviathan.buildEntity(vertices, materialBuilder));
+                entity.addChild(leviathan.buildEntity(vertexGroup, materialBuilder));
             }
         }
         return entity;
     }
 
-    override string toString() {
+    string toString() {
         return toString(0);
     }
 
@@ -45,14 +59,14 @@ class XEntity {
         return "XEntity(\n%schildren: %s,\n%sgeometry: %s,\n%sleviathans: %s\n%s)".format(
             tab2,
             "[%s\n%s]".format(
-                this.children.map!(a => "\n" ~ tab3 ~ (a is null ? a.to!string : a.toString(depth + 2))).join(", "),
+                this.children.map!(a => "\n" ~ tab3 ~ a.toString(depth + 2)).join(", "),
                 tab2
             ),
             tab2,
-            this.geometry.pipe!(a => a is null ? "null" : a.toString(depth + 1)),
+            this.geometry.pipe!(a => a.fmap!((immutable(XGeometry) a) => a.toString(depth+1)).getOrElse("null")),
             tab2,
             "[%s\n%s]".format(
-                this.leviathans.map!(a => "\n" ~ tab3 ~ (a is null ? a.to!string : a.toString(depth + 2))).join(", "),
+                this.leviathans.map!(a => "\n" ~ tab3 ~ a.toString(depth + 2)).join(", "),
                 tab2
             ),
             tab1

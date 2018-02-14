@@ -4,6 +4,7 @@ import sbylib.camera.Camera;
 import sbylib.wrapper.gl.VertexArray;
 import sbylib.collision.CollisionEntry;
 import std.traits;
+import sbylib.utils.Functions;
 
 public {
     import sbylib.geometry.Geometry;
@@ -29,7 +30,7 @@ class Mesh {
         this.mat = mat;
         this.owner = owner;
         this.vao = new VertexArray;
-        this.vao.setup(mat.shader, geom.getBuffers(), geom.getIndexBuffer());
+        this.vao.setup(mat.program, geom.getBuffers(), geom.getIndexBuffer());
     }
 
     void destroy() {
@@ -44,8 +45,10 @@ class Mesh {
         this.geom.render(this.vao);
     }
 
-    void onSetWorld(World world) {
-        foreach (demand; this.mat.getDemands()) {
+    void onSetWorld(Maybe!World world) {
+        this.uniforms = null;
+        if (world.isNone) return;
+        foreach (demand; this.mat.getUniformDemands) {
             final switch (demand) {
             case UniformDemand.World:
                 this.uniforms ~= () => this.owner.worldMatrix.get();
@@ -53,7 +56,10 @@ class Mesh {
             case UniformDemand.View:
             case UniformDemand.Proj:
             case UniformDemand.Light:
-                this.uniforms ~= world.getUniform(demand);
+                this.uniforms ~= world.get().getUniform(demand);
+                break;
+            case UniformDemand.DebugCounter:
+                this.uniforms ~= () => this.mat.debugCounter;
                 break;
             }
         }
@@ -67,16 +73,20 @@ class Mesh {
     Entity getOwner() {
         return this.owner;
     }
+
+    override string toString() {
+        import std.format;
+        import sbylib.utils.Functions;
+        return format!"Geom(%s),Mat(%s)"(geom.toString(), mat.toString());
+    }
 }
 
-class MeshTemp(G, M) : Mesh {
+class TypedMesh(G, M) : Mesh {
 
-    G geom;
-    M mat;
+    mixin Proxy;
 
-    this(G geom, Entity owner) {
-        this(geom, new M, owner);
-    }
+    @Proxied G geom;
+    @Proxied M mat;
 
     this(G geom, M mat, Entity owner) {
         super(geom, mat, owner);

@@ -72,8 +72,8 @@ class SpringSphere : BaseSphere {
         auto mat = new Player.Mat();
         mat.ambient = vec3(1);
         this.capsule = new CollisionCapsule(RADIUS, vec3(0), vec3(0));
-        this.entity = new Player.PlayerEntity(geom, mat, this.capsule);
-        this.particleList = entity.getMesh().geom.vertices.map!(p => new SpringParticle(p.position)).array;
+        this.entity = makeEntity(geom, mat, this.capsule);
+        this.particleList = entity.geom.vertices.map!(p => new SpringParticle(p.position)).array;
         this.transform = new Transform;
         this.wait = new Wait;
         this.jump = new Jump;
@@ -175,7 +175,7 @@ class SpringSphere : BaseSphere {
     }
 
     private void updateGeometry() {
-        auto geom = this.entity.getMesh().geom;
+        auto geom = this.entity.geom;
         auto vs = geom.vertices;
         foreach (ref v; vs) {
             v.normal = vec3(0);

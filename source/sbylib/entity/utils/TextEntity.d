@@ -1,17 +1,19 @@
 module sbylib.entity.utils.TextEntity;
 
-public import sbylib.entity.Entity;
-public import sbylib.animation.Animation;
-public import sbylib.math.Vector;
+public {
+    import sbylib.entity.Entity;
+    import sbylib.animation.Animation;
+    import sbylib.math.Vector;
+    import sbylib.character.Label;
+}
 
 import sbylib.wrapper.freetype.Font;
-import sbylib.wrapper.freetype.FontLoader;
-import sbylib.character.Label;
-import sbylib.utils.Path;
 
 private Font font;
 
-Label TextEntity(dstring text, float height, Label.OriginX originX = Label.OriginX.Center, Label.OriginY originY = Label.OriginY.Center) {
+auto makeTextEntity(dstring text, float height, Label.OriginX originX = Label.OriginX.Center, Label.OriginY originY = Label.OriginY.Center) {
+    import sbylib.wrapper.freetype.FontLoader;
+    import sbylib.utils.Path;
     if (font is null) font = FontLoader.load(FontPath("WaonJoyo-R.otf"), 256);
     auto label = new Label(font, height);
     label.setOrigin(originX, originY);

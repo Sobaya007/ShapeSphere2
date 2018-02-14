@@ -16,9 +16,9 @@ class Dialog(dstring explainMessage) : SceneProtoType {
 
     this() {
         super();
-        this.main = ColorEntity(vec4(1,1,1,0.5), 1.5, 1.5);
+        this.main = makeColorEntity(vec4(1,1,1,0.5), 1.5, 1.5);
 
-        this.explain = TextEntity(explainMessage, 0.3, Label.OriginX.Center, Label.OriginY.Top);
+        this.explain = makeTextEntity(explainMessage, 0.3, Label.OriginX.Center, Label.OriginY.Top);
         this.explain.pos = vec3(0, 0.8, 0);
         this.main.addChild(this.explain);
 
@@ -66,7 +66,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
 
         this(dstring text, vec2 pos, vec3 color) {
             this.color = color;
-            this.label = TextEntity(text, 0.2, Label.OriginX.Center, Label.OriginY.Center);
+            this.label = makeTextEntity(text, 0.2, Label.OriginX.Center, Label.OriginY.Center);
             this.label.pos = vec3(pos, 0);
             this.label.setColor(vec4(color, 1));
         }

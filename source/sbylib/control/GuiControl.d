@@ -9,7 +9,6 @@ import sbylib.camera.OrthoCamera;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Quaternion;
-import sbylib.utils.Lazy;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
@@ -128,13 +127,15 @@ private:
 
     Maybe!IControllable getCollidedControllable() {
         import std.algorithm, std.math, std.array;
-        Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
-        return this.world.rayCast(this.ray).fmap!((CollisionInfoRay colInfo) {
+        this.ray.build(this.mouse.getPos(), this.camera);
+        return this.world.rayCast(this.ray).fmapAnd!((CollisionInfoRay colInfo) {
             auto entity = colInfo.entity;
-            while(entity.getUserData().isNone) {
-                entity = entity.getParent;
+            while(entity.getUserData!(IControllable).isNone) {
+                auto parent = entity.getParent;
+                if (parent.isNone) return None!IControllable;
+                entity = parent.get();
             }
-            return *entity.getUserData.get.peek!IControllable;
+            return entity.getUserData!(IControllable);
         });
     }
 

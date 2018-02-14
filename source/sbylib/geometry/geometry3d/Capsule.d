@@ -22,7 +22,7 @@ class Capsule {
             getNorthernIndices(tCut, pCut)
           ~ getSouthernIndices(tCut, pCut)
           ~ getPollIndices(tCut, pCut);
-        return new GeometryNT(vertices, indices);
+        return new GeometryNT(vertices, indices.idup);
     }
 
     public static GeometryCapsule create(float radius, vec3 start, vec3 end, uint tCut = 20, uint pCut = 20) {
@@ -39,7 +39,7 @@ class Capsule {
         foreach (ref v; vertices) {
             v.position = r * v.position + c;
         }
-        return new GeometryNT(vertices, indices);
+        return new GeometryNT(vertices, indices.idup);
     }
 
     private static VertexNT[] northern(float radius, float length, uint tCut, uint pCut) {

@@ -1,16 +1,17 @@
 module sbylib.wrapper.gl.UniformTexture;
 
-import derelict.opengl;
-import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.gl.Functions;
-import sbylib.wrapper.gl.Uniform;
-import sbylib.wrapper.gl.Program;
-import sbylib.wrapper.gl.Texture;
-import std.string;
+public {
+    import sbylib.wrapper.gl.Uniform;
+    import sbylib.wrapper.gl.Texture;
+}
 
 alias utexture = UniformTexture;
 
 class UniformTexture : Uniform {
+
+    import derelict.opengl;
+    import sbylib.wrapper.gl.Program;
+    import sbylib.wrapper.gl.Functions;
 
     private string name;
     Texture value;
@@ -41,6 +42,7 @@ class UniformTexture : Uniform {
     private uint getLocation(const Program program) const out {
         GlFunction.checkError();
     } body {
+        import std.string;
         int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
         //assert(uLoc != -1, name ~ " is not found or used.");
         return uLoc;

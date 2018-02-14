@@ -1,9 +1,9 @@
 module sbylib.geometry.Face;
 
 class Face {
-    uint[] indexList;
+    immutable(uint[]) indexList;
 
-    this (uint[] indexList) {
+    this (immutable(uint[]) indexList) {
         assert(indexList.length == 2 || indexList.length == 3);
         this.indexList = indexList;
     }

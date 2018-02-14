@@ -14,13 +14,13 @@ class RenderConfig {
     BlendFactor srcFactor, dstFactor;
     BlendEquation blendEquation;
     bool depthWrite, depthTest;
-    bool transparency;
     float lineWidth;
+    string renderGroupName;
 
     this() {
         this.depthFunc = TestFunc.Less;
         this.polygonMode = PolygonMode.Fill;
-        this.faceMode = FaceMode.FrontBack;
+        this.faceMode = FaceMode.Front;
         this.stencilFunc = stencilFunc.Always;
         this.stencilValue = 1;
         this.stencilMask = 1;
@@ -32,8 +32,8 @@ class RenderConfig {
         this.blendEquation = BlendEquation.Add;
         this.depthWrite = true;
         this.depthTest = true;
-        this.transparency = false;
         this.lineWidth = 1f;
+        this.renderGroupName = "regular";
     }
 
     void set() {

@@ -4,18 +4,25 @@ import sbylib;
 
 import model.xfile.loader;
 
-class XLeviathan {
+immutable class XLeviathan {
+immutable:
     XMaterial material;
     uint[] indices;
 
-    Entity buildEntity(VertexNT[] vertices, MaterialBuilder materialBuilder) {
+    this(immutable(XMaterial) material, immutable(uint[]) indices) {
+        this.material = material;
+        this.indices = indices;
+    }
+
+    Entity buildEntity(VertexGroupNT vertexGroup, MaterialBuilder materialBuilder) {
         import std.range, std.array;
-        Geometry geometry = new GeometryNT(vertices, this.indices);
+        auto faceGroup = new FaceGroup!(Prim.Triangle)(this.indices);
+        Geometry geometry = new GeometryNT(vertexGroup, faceGroup);
         Material material = materialBuilder.buildMaterial(this.material);
         return new Entity(geometry, material);
     }
 
-    override string toString() {
+    string toString() {
         return toString(0);
     }
 
@@ -27,7 +34,7 @@ class XLeviathan {
 
         return "XLeviathan(\n%smaterial: %s,\n%sindices: %s\n%s)".format(
             tab2,
-            this.material.pipe!(a => a is null ? "null" : a.toString(depth + 1)),
+            this.material.pipe!(a => material.toString(depth+1)),
             tab2,
             "[%s\n%s]".format(
                 this.indices.map!(a => "\n" ~ tab3 ~ a.to!string).join(", "),

@@ -40,7 +40,7 @@ public:
         normalRequired   ... trueなら、法線情報がないときにassertion
         uvRequired       ... trueなら、UV座標の情報がないときにassertion
     */
-    XEntity load(ModelPath path, bool materialRequired = true, bool normalRequired = true, bool uvRequired = true) {
+    immutable(XEntity) load(ModelPath path, bool materialRequired = true, bool normalRequired = true, bool uvRequired = true) {
         this.materialRequired = materialRequired;
         this.normalRequired   = normalRequired;
         this.uvRequired       = uvRequired;
@@ -51,24 +51,27 @@ public:
     }
 
 private:
-    XEntity makeEntity(XFrameNode parent, mat4 transformMat) {
-        XEntity entity = new XEntity;
-
+    immutable(XEntity) makeEntity(XFrameNode parent, mat4 transformMat) {
         mat4 mat = transformMat * mat4.transpose(parent.frameTransformMatrix.matrix);
 
+        immutable(XEntity)[] children;
         if (parent.mesh !is null) {
-            entity.children ~= makeEntity(parent.mesh, mat);
+            children ~= makeEntity(parent.mesh, mat);
         }
         foreach(xFrame; parent.frames) {
-            entity.children ~= makeEntity(xFrame, mat);
+            children ~= makeEntity(xFrame, mat);
         }
 
-        return entity;
+        return new immutable(XEntity)(children);
     }
 
-    XEntity makeEntity(XMeshNode xMesh, mat4 transformMat) {
-        XEntity entity = new XEntity;
-        entity.geometry = new XGeometry;
+    immutable(XEntity) makeEntity(XMeshNode xMesh, mat4 transformMat) {
+        struct Geom {
+            vec3[] positions;
+            vec3[] normals;
+            vec2[] uvs;
+        }
+        Geom geom;
 
         vec3[] vertices = xMesh.vertices.map!(
             v => transformMat * vec4(v, 1.0)
@@ -77,7 +80,7 @@ private:
         ).array;
         uint[][] faceIndices = xMesh.faces.to!(uint[][]);
 
-        entity.geometry.positions = faceIndices.join.map!(
+        geom.positions = faceIndices.join.map!(
             i => vertices[i]
         ).array;
 
@@ -101,7 +104,7 @@ private:
             normalIndices = xMesh.meshNormals.indices.to!(uint[][]); // 3*面の数
         }
 
-        entity.geometry.normals = normalIndices.join.map!(
+        geom.normals = normalIndices.join.map!(
             i => normals[i]
         ).array;
 
@@ -117,7 +120,7 @@ private:
         if (xMesh.meshTextureCoords !is null) {
             vec2[] uvs = xMesh.meshTextureCoords.uvs;
             assert(uvs.length == vertices.length, "頂点の個数とUV情報の個数が合わないよ");
-            entity.geometry.uvs = faceIndices.join.map!(
+            geom.uvs = faceIndices.join.map!(
                 i => uvs[i]
             ).array;
         }
@@ -131,41 +134,36 @@ private:
                 )
             );
         }
-        XMaterial[] materials;
+        immutable(XMaterial)[] materials;
         uint[] materialIndices;
         if (xMesh.meshMaterialList !is null) {
             materials = xMesh.meshMaterialList.materials.map!(m => makeMaterial(m)).array;
             materialIndices = xMesh.meshMaterialList.indices;
         }
 
-        entity.leviathans = new XLeviathan[materials.length];
+        immutable(XLeviathan)[] leviathans;
         foreach(i; 0..materials.length) {
-            entity.leviathans[i] = new XLeviathan;
-            entity.leviathans[i].material = materials[i];
-            entity.leviathans[i].indices = materialIndices.enumerate.filter!(
-                a => a.value == i
-            ).map!"cast(uint)a.index".map!(
-                j => iota(3*j, 3*(j+1))
-            ).join.array;
+            leviathans ~= new immutable(XLeviathan)(
+                materials[i],
+                materialIndices.enumerate.filter!(
+                    a => a.value == i
+                ).map!"cast(uint)a.index".map!(
+                    j => iota(3*j, 3*(j+1))
+                ).join.array.idup
+            );
         }
 
-        return entity;
+        return new immutable(XEntity)(new immutable(XGeometry)(geom.positions.idup, geom.normals.idup, geom.uvs.idup), leviathans);
     }
 
-    XMaterial makeMaterial(XMaterialNode xMaterialNode) {
-        XMaterial material = new XMaterial;
-
-        material.name = xMaterialNode.name;
-        material.diffuse = xMaterialNode.faceColor;
-        material.specular = xMaterialNode.specularColor;
-        material.ambient = xMaterialNode.emissiveColor;
-        material.power = xMaterialNode.power;
+    immutable(XMaterial) makeMaterial(XMaterialNode xMaterialNode) {
+        XMaterial material;
 
         if (xMaterialNode.textureFileName !is null) {
-            material.setTectureFileName(xMaterialNode.textureFileName.name);
+            return new immutable(XMaterial)(xMaterialNode.faceColor, xMaterialNode.specularColor, xMaterialNode.emissiveColor, xMaterialNode.power, xMaterialNode.name, xMaterialNode.textureFileName.name);
+        } else {
+            return new immutable(XMaterial)(xMaterialNode.faceColor, xMaterialNode.specularColor, xMaterialNode.emissiveColor, xMaterialNode.power, xMaterialNode.name);
         }
-
-        return material;
     }
 
 

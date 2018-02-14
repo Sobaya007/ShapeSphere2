@@ -11,13 +11,27 @@ import std.algorithm;
 import std.stdio;
 
 interface IRenderTarget {
-    void renderBegin();
-    void renderEnd();
+
+    const(FrameBuffer) getFrameBuffer();
+    int getWidth();
+    int getHeight();
+
+    final void renderBegin() {
+        getFrameBuffer().bind(FrameBufferBindType.Both);
+    }
+
+    final void renderEnd() {
+        getFrameBuffer().unbind(FrameBufferBindType.Both);
+    }
+
+    final void blitsTo(IRenderTarget dstRenderTarget, ClearMode[] mode...) {
+        auto dst = dstRenderTarget.getFrameBuffer();
+        this.getFrameBuffer().blitsTo(dst, 0, 0, this.getWidth(), this.getHeight(), 0, 0, dstRenderTarget.getWidth(), dstRenderTarget.getHeight(), TextureFilter.Linear, mode);
+    }
+
     void setClearColor(vec4);
     void setClearStencil(int);
     void clear(ClearMode[]...);
-    int getWidth();
-    int getHeight();
 }
 
 class RenderTarget : IRenderTarget {
@@ -34,12 +48,12 @@ class RenderTarget : IRenderTarget {
     }
 
     void attachTexture(T)(FrameBufferAttachType attachType) {
-        Texture tex = new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.RGBA, this.width, this.height, ImageFormat.RGBA, cast(T*)null);
+        Texture tex = new Texture(TextureTarget.Tex2D, 0, this.getInternalFormat(attachType), this.width, this.height, ImageFormat.RGBA, cast(T*)null);
         this.attach(tex, attachType);
     }
 
     void attachRenderBuffer(FrameBufferAttachType attachType) {
-        RenderBuffer rbo = new RenderBuffer();
+        RenderBuffer rbo = new RenderBuffer(this.width, this.height, this.getInternalFormat(attachType));
         this.attach(rbo, attachType);
     }
 
@@ -60,20 +74,25 @@ class RenderTarget : IRenderTarget {
         this.textures[attachType] = texture;
     }
 
+    private ImageInternalFormat getInternalFormat(FrameBufferAttachType attachType) {
+        switch (attachType) {
+            case FrameBufferAttachType.Color0, FrameBufferAttachType.Color1, FrameBufferAttachType.Color2:
+                return ImageInternalFormat.RGBA;
+            case FrameBufferAttachType.Depth:
+                return ImageInternalFormat.Depth;
+            case FrameBufferAttachType.DepthStencil:
+                return ImageInternalFormat.DepthStencil;
+            default:
+                assert(false);
+        }
+    }
+
     Texture getColorTexture()  {
         return textures[FrameBufferAttachType.Color0];
     }
 
     Texture getDepthTexture()  {
         return textures[FrameBufferAttachType.Depth];
-    }
-
-    override void renderBegin() {
-        this.frameBuffer.bind(FrameBufferBindType.Both);
-    }
-
-    override void renderEnd() {
-        this.frameBuffer.unbind(FrameBufferBindType.Both);
     }
 
     override void setClearColor(vec4 color) {
@@ -91,7 +110,13 @@ class RenderTarget : IRenderTarget {
         if (clearMode.canFind(ClearMode.Stencil)) {
             GlFunction.clearStencil(this.clearStencil);
         }
+        this.renderBegin();
         GlFunction.clear(clearMode);
+        this.renderEnd();
+    }
+
+    override const(FrameBuffer) getFrameBuffer() {
+        return this.frameBuffer;
     }
 
     override int getWidth() {

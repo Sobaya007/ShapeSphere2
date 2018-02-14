@@ -25,8 +25,8 @@ public:
         LabelComponent label
     ) {
         auto geom = Rect.create(width, height, Rect.OriginX.Left, Rect.OriginY.Top);
-        auto entity = new EntityTemp!(GeometryRect, ButtonComponentMaterial)(geom);
-        this.material = entity.getMesh().mat;
+        auto entity = makeEntity(geom, new ButtonComponentMaterial);
+        this.material = entity.mat;
         this.material.darkColor = _darkColor;
         this.material.lightColor = _lightColor;
         this.material.borderColor = _borderColor;

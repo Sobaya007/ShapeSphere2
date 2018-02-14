@@ -4,7 +4,6 @@ import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.geometry3d.Capsule;
-import sbylib.utils.Lazy;
 import sbylib.utils.Change;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionGeometry;
@@ -51,5 +50,9 @@ class CollisionCapsule : CollisionGeometry {
 
     Entity getOwner() {
         return this.owner;
+    }
+
+    override string toString() {
+        return typeof(this).stringof;
     }
 }

@@ -8,7 +8,6 @@ import sbylib.math.Angle;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Quaternion;
-import sbylib.utils.Lazy;
 import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.utils.Functions;
@@ -50,7 +49,7 @@ class BasicControl {
     }
 
     private void none() {
-        Utils.getRay(this.mouse.getPos(), this.camera, this.ray);
+        this.ray.build(this.mouse.getPos(), this.camera);
         auto colInfo = this.world.rayCast(this.ray);
         if (colInfo.isNone) return;
         this.entity = colInfo.get.entity.getRootParent();
