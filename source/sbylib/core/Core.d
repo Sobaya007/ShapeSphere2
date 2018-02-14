@@ -106,6 +106,9 @@ class Core {
         //各種初期化
 
         mainLoop();
+
+        import core.stdc.stdlib;
+        exit(0);
     }
 
     void end() {
