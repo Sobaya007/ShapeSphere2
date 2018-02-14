@@ -13,7 +13,6 @@ enum RunMode {
     Material,
     XFileLoad,
     Framebuffer,
-    Mouse,
     Gui,
     Text,
     Clipboard,
@@ -37,9 +36,6 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Material:
         materialExample();
-        break;
-    case RunMode.Mouse:
-        mouseExample();
         break;
     case RunMode.Text:
         textExample();
