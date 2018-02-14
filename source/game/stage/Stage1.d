@@ -1,6 +1,6 @@
 module game.stage.Stage1;
 
-import std.json, std.algorithm, std.array, std.file;
+import std.json, std.algorithm, std.array, std.file, std.range;
 
 import sbylib;
 
@@ -13,7 +13,7 @@ import model.xfile.loader;
 import std.concurrency;
 import core.thread;
 
-class Stage1 : Stage{
+class Stage1 : Stage {
     private Area[] areas;
 
     private Area area;
@@ -24,8 +24,11 @@ class Stage1 : Stage{
         this.areas = value.array().map!(v => new Area(v.object())).array;
         this.area = this.areas[0];
         Game.getWorld3D().add(this.area.stageEntity);
+        Game.getWorld3D().add(this.area.characterEntity);
 
         Core().addProcess(&step, "Stage1");
+
+        Core().getKey().justPressed(KeyButton.KeyL).add(&update);
     }
 
     void step() {
@@ -40,6 +43,14 @@ class Stage1 : Stage{
         return this.area.characterEntity;
     }
 
+    void update() {
+        Game.getWorld3D.clearPointLight();
+        auto path = "Resource/stage/Stage1.json";
+        auto value = parseJSON(readText(path)).array();
+        foreach (a, v; zip(this.areas, value)) {
+            a.update(v.object());
+        }
+    }
 }
 
 class Area {
@@ -61,6 +72,7 @@ class Area {
         this.characters = obj["NPC"].array().map!(v => new Character(v.object())).array;
 
         this.characters.each!(c => this.characterEntity.addChild(c.entity));
+        this.characters.each!(c => Game.getPlayer().collisionEntities ~= c.collisionArea);
 
         auto paths = obj["Model"].as!(string[]);
 
@@ -97,6 +109,36 @@ class Area {
         });
         writeln("BVH construction was finished.");
     }
+
+    void update(JSONValue[string] obj) {
+        updateLights(obj["Lights"].array());
+        updateCrystals(obj["Crystals"].array());
+    }
+
+    void updateLights(JSONValue[] data) {
+        foreach (l, v; zip(this.lights, data)) {
+            l.update(v.object());
+        }
+        if (this.lights.length < data.length) {
+            this.lights ~= data[this.lights.length..$].map!(v => new Light(v.object())).array;
+        }
+        if (data.length < this.lights.length) {
+            this.lights[data.length..$].each!(l => l.remove());
+            this.lights = this.lights[0..data.length];
+        }
+    }
+
+    void updateCrystals(JSONValue[] data) {
+        foreach (l, v; zip(this.crystals, data)) {
+            l.update(v.object());
+        }
+        if (this.crystals.length < data.length) {
+            this.crystals ~= data[this.crystals.length..$].map!(v => new Crystal(v.object())).array;
+        }
+        if (data.length < this.crystals.length) {
+            this.crystals[data.length..$].each!(l => l.remove());
+        }
+    }
 }
 
 class Move {
@@ -123,9 +165,16 @@ class Shape {
 class Light {
 
     this(JSONValue[string] obj) {
+        update(obj);
+    }
+
+    void update(JSONValue[string] obj) {
         auto pos = vec3(obj["pos"].as!(float[]));
         auto color = vec3(obj["color"].as!(float[]));
         Game.getWorld3D().addPointLight(PointLight(pos, color));
+    }
+
+    void remove() {
     }
 }
 
@@ -142,7 +191,19 @@ class Crystal {
         this.entity.pos = pos;
         Game.getWorld3D().add(entity);
         Game.getWorld3D().addPointLight(PointLight(pos, color));
+    }
 
+    void update(JSONValue[string] obj) {
+        auto pos = vec3(obj["pos"].as!(float[]));
+        auto color = vec3(obj["color"].as!(float[]));
+
+        this.entity.pos = pos;
+        Game.getWorld3D().addPointLight(PointLight(pos, color));
+    }
+
+    void remove() {
+        this.entity.remove();
+        this.entity.destroy();
     }
 }
 

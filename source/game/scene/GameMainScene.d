@@ -24,6 +24,9 @@ class GameMainScene : SceneBase {
         this.viewport = new AutomaticViewport(window);
 
 
+        screen.setClearColor(vec4(0,0,0,1));
+
+
         /* Camera Settings */
         Camera camera = new PerspectiveCamera(1, 60.deg, 0.1, 200);
         camera.pos = vec3(3, 2, 9);
