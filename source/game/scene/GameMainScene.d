@@ -83,7 +83,7 @@ class GameMainScene : SceneBase {
         world2d.add(fpsLabel);
         core.addProcess((proc) {
             fpsCounter.update();
-            //fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
+            fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
             window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
         }, "fps update");
 
