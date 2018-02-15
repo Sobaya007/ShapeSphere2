@@ -1,14 +1,15 @@
 module sbylib.material.Material;
 
 public {
+    import sbylib.wrapper.gl.Constants;
     import sbylib.wrapper.gl.Uniform;
+    import sbylib.material.RenderConfig;
 }
 
 class Material {
 
     import sbylib.wrapper.gl;
     import sbylib.material.glsl;
-    import sbylib.material.RenderConfig;
     import sbylib.utils.Functions;
     const Program program;
     @Proxied RenderConfig config;

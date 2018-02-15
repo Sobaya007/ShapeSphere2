@@ -35,7 +35,13 @@ class PointLight {
     alias entity this;
 
     this(vec3 pos, vec3 diffuse) {
-        this.entity = makeEntity();
+        import sbylib.geometry.geometry3d.Sphere;
+        import sbylib.material.WireframeMaterial;
+        debug {
+            this.entity = makeEntity(Sphere.create(3, 2), new WireframeMaterial(vec4(vec3(1) - diffuse, 1)));
+        } else {
+            this.entity = makeEntity();
+        }
         this.entity.pos = pos;
         this.diffuse = diffuse;
         auto buffer = PointLightManager().useBlock(BufferAccess.Both);

@@ -13,3 +13,4 @@ import sbylib.material.NormalMaterial;
 import sbylib.material.TextMaterial;
 import sbylib.material.TextureMaterial;
 import sbylib.material.UvMaterial;
+import sbylib.material.WireframeMaterial;
