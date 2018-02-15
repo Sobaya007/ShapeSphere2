@@ -47,7 +47,7 @@ class Stage1 : Stage {
     }
 
     void update() {
-        Game.getWorld3D.clearPointLight();
+        PointLightManager().clear();
         auto value = parseJSON(readText(path)).object();
         foreach (name, v; value) {
             import std.algorithm;
@@ -202,7 +202,7 @@ class Light {
     void update(JSONValue[string] obj) {
         auto pos = vec3(obj["pos"].as!(float[]));
         auto color = vec3(obj["color"].as!(float[]));
-        Game.getWorld3D().addPointLight(PointLight(pos, color));
+        Game.getWorld3D().add(new PointLight(pos, color));
     }
 
     void remove() {
@@ -221,7 +221,7 @@ class Crystal {
         this.entity = loaded.buildEntity(new StageMaterialBuilder);
         this.entity.pos = pos;
         Game.getWorld3D().add(entity);
-        Game.getWorld3D().addPointLight(PointLight(pos, color));
+        Game.getWorld3D().add(new PointLight(pos, color));
     }
 
     void update(JSONValue[string] obj) {
@@ -229,7 +229,7 @@ class Crystal {
         auto color = vec3(obj["color"].as!(float[]));
 
         this.entity.pos = pos;
-        Game.getWorld3D().addPointLight(PointLight(pos, color));
+        Game.getWorld3D().add(new PointLight(pos, color));
     }
 
     void remove() {

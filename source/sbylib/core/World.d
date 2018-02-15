@@ -22,13 +22,9 @@ import sbylib.core.RenderGroup;
 class World {
     private Entity[] entities;
     private Camera camera;
-    private PointLightBlock pointLightBlock;
-    private UniformBuffer!PointLightBlock pointLightBlockBuffer;
     private IRenderGroup[string] renderGroups;
 
     this() {
-        this.pointLightBlockBuffer = new UniformBuffer!PointLightBlock("PointLightBlock");
-        this.pointLightBlockBuffer.sendData(this.pointLightBlock, BufferUsage.Dynamic);
         this.renderGroups["regular"] = new RegularRenderGroup;
     }
 
@@ -89,14 +85,6 @@ class World {
         //assert(this.entities.all!(e => e.world.get() is this));
     }
 
-    void addPointLight(PointLight pointLight) {
-        this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
-    }
-
-    void clearPointLight() {
-        this.pointLightBlock.num = 0;
-    }
-
     void addRenderGroup(string name, IRenderGroup group) {
         this.renderGroups[name] = group;
     }
@@ -145,18 +133,9 @@ class World {
         case UniformDemand.Proj:
             return () => this.camera.projMatrix;
         case UniformDemand.Light:
-            return () => this.getPointLightBlockBuffer;
+            return () => PointLightManager().getUniform();
         default:
             assert(false);
         }
     }
-
-    private UniformBuffer!PointLightBlock getPointLightBlockBuffer() {
-        PointLightBlock* buffer = this.pointLightBlockBuffer.map(BufferAccess.Write);
-        buffer.num = this.pointLightBlock.num;
-        buffer.lights = this.pointLightBlock.lights;
-        this.pointLightBlockBuffer.unmap();
-        return this.pointLightBlockBuffer;
-    }
-
 }
