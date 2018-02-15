@@ -47,7 +47,7 @@ void print(Args...)(Args args) pure nothrow @nogc @trusted
 
 // Singleton パターン
 mixin template Singleton() {
-    private static typeof(this) _instance;
+    private static __gshared typeof(this) _instance;
     static typeof(this) opCall() {
         if(_instance is null) _instance = new typeof(this)();
         return _instance;

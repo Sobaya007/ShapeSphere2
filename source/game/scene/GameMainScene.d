@@ -107,15 +107,25 @@ class GameMainScene : SceneBase {
         new Thread({
             while (true) {
                 try {
+                    void write(string str) {
+                        import std.stdio: stdWrite = write;
+                        stdWrite("\033[35m");
+                        stdWrite(str);
+                        stdWrite("\033[39m");
+                    }
+                    void writeln(string str) {
+                        write(str ~ '\n');
+                    }
                     write(" > ");
                     import std.string;
                     auto line = readln.chomp;
-                    Pattern(line)
+                    auto res = Pattern(line)
                     .match!((l) => l == "player.pos")(player.getCenter().toString)
                     .match!((l) => l == "world3d.entities")(world3d.getEntities.map!(e => e.toString).join("\n"))
-                    .match!((l) => l == "add Crystal here")({stage1.addCrystal(player.getCenter); return "Successfully Added Crystal";}())
-                    .other("no match pattern for '" ~ line ~ "'")
-                    .writeln;
+                    .match!((l) => l == "add crystal here")({stage1.addCrystal(player.getCenter); return "Successfully Added Crystal";}())
+                    .match!((l) => l == "add light here")({stage1.addLight(player.getCenter); return "Successfully Added Light";}())
+                    .other("no match pattern for '" ~ line ~ "'");
+                    writeln(res);
                 } catch (Error e) {
                     e.writeln;
                 }

@@ -61,6 +61,13 @@ class Stage1 : Stage {
         write(path, root.toJSON(true));
         Core().addProcess((proc) { update(); proc.kill(); }, "update stage");
     }
+
+    void addLight(vec3 pos) {
+        auto root = parseJSON(readText(path));
+        this.area.addLight(root[this.area.name], pos);
+        write(path, root.toJSON(true));
+        Core().addProcess((proc) { update(); proc.kill(); }, "update stage");
+    }
 }
 
 class Area {
@@ -155,6 +162,13 @@ class Area {
         obj["pos"] = JSONValue(pos.array[]);
         obj["color"] = JSONValue(vec3(1).array[]);
         area["Crystals"].array ~= obj;
+    }
+
+    void addLight(ref JSONValue area, vec3 pos) {
+        auto obj = parseJSON("{}");
+        obj["pos"] = JSONValue(pos.array[]);
+        obj["color"] = JSONValue(vec3(1).array[]);
+        area["Lights"].array ~= obj;
     }
 }
 
