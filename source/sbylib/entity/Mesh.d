@@ -21,11 +21,10 @@ class Mesh {
     private const(Uniform) delegate()[] uniforms;
     private Entity owner;
 
-    invariant {
+    this(Geometry geom, Material mat, Entity owner) in {
         assert(geom !is null);
-    }
-
-    this(Geometry geom, Material mat, Entity owner) {
+        assert(mat !is null);
+    } body {
         this.geom = geom;
         this.mat = mat;
         this.owner = owner;
@@ -37,10 +36,7 @@ class Mesh {
         this.vao.destroy();
     }
 
-    void render() in {
-        assert(this.geom);
-        assert(this.mat);
-    } body{
+    void render() {
         this.mat.set(this.uniforms);
         this.geom.render(this.vao);
     }

@@ -24,12 +24,10 @@ import std.algorithm;
    - WorldがEntityを持っている⇔ EntityはWorldを持っている
    - WorldがEntityに接続される直前、EntityはWorldと未接続でなければならない
    - WorldとEntityの接続が断たれるとき、EntityはWorldに接続されていなければならない
-
-   3. Worldと親子
-
    - EntityがWorldとの接続を持っているとき、その親と全ての子はそのWorldとの接続を持っている
 
-   4. データの解放
+
+   3. データの解放
 
    - Entityはどこかで解放(destroy)される必要がある
    - Entityが解放する直前、Worldと未接続である必要がある
@@ -49,6 +47,8 @@ class Entity {
     private Maybe!Variant userData;
     bool visible; // Materialに書くと、Materialが同じでVisiblityが違う物体が実現できない
     void delegate()[] onAdd;
+
+    alias obj this;
 
     /*
        Create/Destroy
@@ -90,7 +90,7 @@ class Entity {
             デストラクタでやらないのは、他スレッドでGCが起動してデストラクタが起動した場合にOpenGLの命令を呼べなくなるから
      */
     void destroy() in {
-        assert(this.isWorldConnected == false);
+        assert(this.isWorldConnected == false, "Calling 'destroy' must be after 'remove'");
     } body {
         this.mesh.destroy();
     }
@@ -132,8 +132,8 @@ class Entity {
     */
     void addChild(Entity child) in {
         import std.array;
-        assert(child.isParentConnected == false);
-        assert(child.isWorldConnected == false);
+        assert(child.isParentConnected == false, "addChild's argument must not have parent.");
+        assert(child.isWorldConnected == false, "addChild's argument must not be added to World.");
     } out {
         import std.array;
         assert(child.isParentConnected == true);
@@ -212,17 +212,19 @@ class Entity {
         this.children.length = 0;
     }
 
-    void setWorld(World world) {
+    package(sbylib) void setWorld(World world) in {
+        assert(this.world.isNone);
+    } body {
         this._world = Just(world);
         this.mesh.setWorld(world);
         this.onAdd.each!(f => f());
     }
 
-    void unsetWorld() {
+    package(sbylib) void unsetWorld() {
         this._world = None!World;
     }
 
-    void setMesh(Mesh m) in {
+    package(sbylib) void setMesh(Mesh m) in {
         assert(m.getOwner() == this);
         assert(this.world.isNone);
     } body {
@@ -343,6 +345,4 @@ class Entity {
         }
         return result;
     }
-
-    alias obj this;
 }
