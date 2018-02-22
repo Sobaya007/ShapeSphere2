@@ -23,7 +23,7 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         GlFunction.checkError();
     }
 
-    ~this() out {
+    void destroy() out {
         GlFunction.checkError();
     } body {
         glDeleteVertexArrays(1, &this.id);

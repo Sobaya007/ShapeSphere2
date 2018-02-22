@@ -47,6 +47,10 @@ class RenderTarget : IRenderTarget {
         this.height = height;
     }
 
+    void destroy() {
+        this.frameBuffer.destroy();
+    }
+
     void attachTexture(T)(FrameBufferAttachType attachType) {
         Texture tex = new Texture(TextureTarget.Tex2D, 0, this.getInternalFormat(attachType), this.width, this.height, ImageFormat.RGBA, cast(T*)null);
         this.attach(tex, attachType);

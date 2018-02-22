@@ -42,17 +42,21 @@ class PointLight {
         } else {
             this.entity = makeEntity();
         }
-        this.entity.pos = pos;
+        this.pos = pos;
         this.diffuse = diffuse;
-        auto buffer = PointLightManager().useBlock(BufferAccess.Both);
-        this.index = buffer.num++;
-        assert(buffer.num <= MAX_LIGHT_NUM);
-        buffer.lights[this.index] = Struct(pos, diffuse);
+        this.entity.onAdd ~= {
+            auto buffer = PointLightManager().useBlock(BufferAccess.Both);
+            this.index = buffer.num++;
+            assert(buffer.num <= MAX_LIGHT_NUM);
+            buffer.lights[this.index] = Struct(this.worldPos, diffuse);
 
-        this.pos.addChangeCallback({
-            auto buffer = PointLightManager().useBlock(BufferAccess.Write);
-            buffer.lights[this.index].pos = this.pos.get();
-        });
+            this.worldPos.addChangeCallback({
+                auto buffer = PointLightManager().useBlock(BufferAccess.Write);
+                buffer.lights[this.index].pos = this.worldPos.get();
+            });
+            PointLightManager().lights ~= this;
+        };
+
     }
 
     private struct Struct {
@@ -83,6 +87,7 @@ class PointLightManager {
 
     enum BlockName = "PointLightBlock";
     private UBlock block;
+    private PointLight[] lights;
 
 
     private auto useBlock(BufferAccess access) {
@@ -118,6 +123,9 @@ class PointLightManager {
     void clear() {
         auto buffer = useBlock(BufferAccess.Write);
         buffer.num = 0;
+        import std.algorithm;
+        this.lights.each!(light => light.remove());
+        this.lights.length = 0;
     }
 
     private struct Struct {

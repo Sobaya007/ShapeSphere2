@@ -39,14 +39,13 @@ class GameMainScene : SceneBase {
 
         world2d.setCamera(new OrthoCamera(2,2,-1,1));
 
+        Game.initializeScene(this);
+
 
         /* Player Settings */
         Game.initializePlayer(camera);
         auto player = Game.getPlayer();
         Game.getCommandManager().setReceiver(player);
-        core.addProcess((proc) {
-            player.step();
-        }, "player update");
         core.addProcess(&Game.update, "game update");
 
 

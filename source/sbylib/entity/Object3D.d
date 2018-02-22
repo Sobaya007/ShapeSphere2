@@ -10,6 +10,7 @@ import sbylib.entity.Entity;
 class Object3D {
     alias WorldMatrix = Depends!((mat4 parent, vec3 pos, mat3 rot, vec3 scale) => parent * mat4.makeTRS(pos, rot, scale), umat4);
     alias ViewMatrix = Depends!((mat4 parent, vec3 pos, mat3 rot, vec3 scale) => parent * mat4.makeInvertTRS(pos, rot, scale), umat4);
+    alias WorldPos = Depends!((mat4 world) => world.column[3].xyz);
     ChangeObserved!vec3 pos;
     ChangeObserved!mat3 rot;
     ChangeObserved!vec3 scale;
@@ -18,6 +19,7 @@ class Object3D {
     private ChangeObserved!(mat4) parentViewMatrix;
     WorldMatrix worldMatrix;
     ViewMatrix viewMatrix;
+    WorldPos worldPos;
 
     this(Entity owner) {
         this.owner = owner;
@@ -35,6 +37,8 @@ class Object3D {
 
         this.worldMatrix.depends(this.parentWorldMatrix, this.pos, this.rot, this.scale);
         this.viewMatrix.depends(this.parentViewMatrix, this.pos, this.rot, this.scale);
+
+        this.worldPos.depends(this.worldMatrix);
     }
 
     void lookAt(vec3 target, vec3 up = vec3(0,1,0)) {
@@ -50,5 +54,6 @@ class Object3D {
     void onSetParent(Entity parent) {
         this.worldMatrix.depends(parent.worldMatrix, this.pos, this.rot, this.scale);
         this.viewMatrix.depends(parent.viewMatrix, this.pos, this.rot, this.scale);
+        this.worldPos.depends(this.worldMatrix);
     }
 }

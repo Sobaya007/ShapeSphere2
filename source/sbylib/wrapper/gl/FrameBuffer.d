@@ -22,7 +22,7 @@ class FrameBuffer {
         this.id = id;
     }
 
-    ~this() out {
+    void destroy() const out {
         GlFunction.checkError();
     } body {
         glDeleteBuffers(1, &id);

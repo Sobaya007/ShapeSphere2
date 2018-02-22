@@ -24,7 +24,7 @@ class Program {
         assert(this.getLinkStatus, getLogString());
     }
 
-    ~this() out {
+    void destroy() out {
         GlFunction.checkError();
     } body {
         glDeleteProgram(id);

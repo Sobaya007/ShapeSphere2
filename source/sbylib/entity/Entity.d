@@ -18,11 +18,12 @@ class Entity {
     mixin buildReadonly!(Object3D, "obj");
     mixin buildReadonly!(Maybe!World, "world");
     string name;
-    private Maybe!CollisionEntry colEntry;
+    Maybe!CollisionEntry colEntry;
     private Maybe!Entity parent;
     private Entity[] children;
     private Maybe!Variant userData;
     bool visible; // Materialに書くと、Materialが同じでVisiblityが違う物体が実現できない
+    void delegate()[] onAdd;
 
     /*
        Create/Destroy
@@ -51,7 +52,7 @@ class Entity {
     }
 
     void destroy() {
-        this.traverse!((Entity e) => e.mesh.destroy);
+        this.mesh.destroy();
     }
 
 
@@ -120,6 +121,11 @@ class Entity {
     void setWorld(Maybe!World world) {
         this._world = world;
         this.mesh.onSetWorld(world);
+        if (world.isJust) {
+            foreach (f; onAdd) {
+                f();
+            }
+        }
     }
 
     void render() in {

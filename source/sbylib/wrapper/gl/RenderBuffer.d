@@ -26,7 +26,7 @@ class RenderBuffer {
         this.allocate(width, height, format);
     }
 
-    ~this() out {
+    void destroy() out {
         GlFunction.checkError();
     } body {
         glDeleteRenderbuffers(1, &id);

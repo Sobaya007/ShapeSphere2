@@ -63,7 +63,6 @@ class World {
         import std.format;
         auto num = this.entities.length;
         this.entities = this.entities.aremove!(e => e == entity);
-        //assert(this.entities.length == num-1, format!"before: %d, after: %d\nremoved was %s"(num, this.entities.length, entity.toString));
         entity.setWorld(None!World);
         auto groupName = entity.mesh.mat.config.renderGroupName;
         if (groupName.isJust) {
