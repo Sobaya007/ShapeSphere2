@@ -78,6 +78,15 @@ class GameMainScene : SceneBase {
         world2d.add(compass);
         compass.pos = vec3(0.75, -0.75, 0);
 
+        /* FPS Observe */
+        auto fpsCounter = new FpsCounter!100();
+        auto fpsLabel = addLabel();
+        core.addProcess((proc) {
+            fpsCounter.update();
+            fpsLabel.renderText(format!"FPS: %d"(fpsCounter.getFPS()).to!dstring);
+            window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
+        }, "fps update");
+
         /* Control navigation */
         addLabel("A/D: Rotate Camera");
         addLabel("Space: Press Character");
@@ -92,16 +101,7 @@ class GameMainScene : SceneBase {
         addLabel("0: Warp to Origin");
         addLabel("F: Toggle Fullscreen");
         addLabel("T: Toggle Debug Wireframe");
-
-        /* FPS Observe */
-        auto fpsCounter = new FpsCounter!100();
-        auto fpsLabel = addLabel();
-        core.addProcess((proc) {
-            fpsCounter.update();
-            fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
-            window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
-        }, "fps update");
-
+        addLabel("N: Toggle this message");
 
         /* Key Input */
         core.getKey().justPressed(KeyButton.Escape).add({
@@ -111,6 +111,7 @@ class GameMainScene : SceneBase {
         core.getKey().justPressed(KeyButton.KeyP).add({ConfigManager().load();});
         core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
         core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
+        core.getKey().justPressed(KeyButton.KeyN).add({labels.each!(l => l.traverse!((Entity e) => e.visible = !e.visible));});
 
         import game.stage.Stage1;
         auto stage1 = cast(Stage1)Game.getMap().stage;
