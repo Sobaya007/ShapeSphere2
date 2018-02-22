@@ -52,7 +52,6 @@ class GuiControl {
 
     void add(IControllable controllable) {
         this.controllables ~= controllable;
-        this.world.add(controllable.getEntity());
     }
 
 private:

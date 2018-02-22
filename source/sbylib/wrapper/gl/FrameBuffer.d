@@ -9,6 +9,7 @@ immutable FrameBuffer DefaultFrameBuffer = new immutable FrameBuffer(true);
 class FrameBuffer {
 
     private immutable uint id;
+    private bool alive = true;
 
     private immutable this(bool b) {
         this.id = 0;
@@ -22,19 +23,30 @@ class FrameBuffer {
         this.id = id;
     }
 
-    void destroy() const out {
+    ~this() {
+        assert(!alive);
+    }
+
+    void destroy() in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
+        alive = false;
         glDeleteBuffers(1, &id);
     }
 
-    void bind(FrameBufferBindType type) const out {
+    void bind(FrameBufferBindType type) const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindFramebuffer(type, this.id);
     }
 
-    void unbind(FrameBufferBindType type) const out {
+    void unbind(FrameBufferBindType type) const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindFramebuffer(type, 0);

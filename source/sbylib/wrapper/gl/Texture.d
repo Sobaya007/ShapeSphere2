@@ -12,6 +12,7 @@ class Texture {
 
     immutable uint id;
     private immutable TextureTarget target;
+    private bool alive = true;
     private bool allocated;
 
     this(TextureTarget target) {
@@ -31,6 +32,10 @@ class Texture {
         this.allocate(mipmapLevel, iformat, width, height, format, data);
     }
 
+    ~this() {
+        assert(!alive);
+    }
+
     void allocate(Type)(uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, ImageFormat format, Type* data) in {
         if (this.target == TextureTarget.Rect || this.target == TextureTarget.ProxyRect) {
             assert(mipmapLevel == 0);
@@ -43,7 +48,12 @@ class Texture {
         this.allocated = true;
     }
 
-    void destroy() {
+    void destroy() in {
+        assert(alive);
+    } out {
+        GlFunction.checkError();
+    } body {
+        alive = false;
         glDeleteTextures(1, &id);
     }
 
@@ -70,13 +80,17 @@ class Texture {
         this.unbind();
     }
 
-    void bind() const out {
+    void bind() const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindTexture(this.target, this.id);
     }
 
-    void unbind() const out {
+    void unbind() const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body{
         glBindTexture(this.target, 0);

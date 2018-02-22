@@ -38,7 +38,6 @@ public:
         label.x = width/2;
         label.y = -height/2;
         label.zIndex = 1;
-        label.entity.setUserData(null);
         entity.addChild(label.entity);
 
         setTrigger({});

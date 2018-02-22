@@ -12,6 +12,7 @@ import std.ascii;
 class Program {
 
     package immutable uint id;
+    private bool alive = true;
 
     this(const Shader[] shaders) out {
         GlFunction.checkError();
@@ -24,15 +25,27 @@ class Program {
         assert(this.getLinkStatus, getLogString());
     }
 
-    void destroy() out {
+    ~this() {
+        // Material Exampleにて爆発。
+        // なんか謎のMaterial解放が原因っぽい。
+        // とりあえずめんどいので放置。
+        //assert(!alive);
+    }
+
+    void destroy() in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
+        alive = false;
         glDeleteProgram(id);
     }
 
     inout {
 
-        void use() out {
+        void use() in {
+            assert(alive);
+        } out {
             GlFunction.checkError();
         } body {
             glUseProgram(id);
@@ -52,14 +65,18 @@ class Program {
             buffer.asAttribute(attr.dim, loc);
         }
 
-        bool hasAttribute(string name) out {
+        bool hasAttribute(string name) in {
+            assert(alive);
+        } out {
             GlFunction.checkError();
         } body {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);
             return vLoc != -1;
         }
 
-        uint getAttribLocation(string name) out {
+        uint getAttribLocation(string name) in {
+            assert(alive);
+        } out {
             GlFunction.checkError();
         } body {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);

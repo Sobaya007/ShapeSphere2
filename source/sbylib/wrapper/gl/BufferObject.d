@@ -13,6 +13,7 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     import derelict.opengl;
 
     protected immutable uint id;
+    private bool alive = true;
 
     this() out {
         GlFunction.checkError();
@@ -23,20 +24,31 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         GlFunction.checkError();
     }
 
-    void destroy() out {
+    ~this() {
+        assert(!alive);
+    }
+
+    void destroy() in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
+        this.alive = false;
         glDeleteVertexArrays(1, &this.id);
     }
 
 
-    override void bind() const out {
+    override void bind() const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindBuffer(Type, this.id);
     }
 
-    override void unbind() const out {
+    override void unbind() const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindBuffer(Type, 0);

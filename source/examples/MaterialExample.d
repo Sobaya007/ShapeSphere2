@@ -30,21 +30,21 @@ void materialExample() {
 
 
     auto polyEntity = makeEntity(Plane.create(10,10), new Check4);
-    polyEntity.mat.size = 0.02;
-    polyEntity.mat.size1 = 0.01;
-    polyEntity.mat.size2 = 0.01;
-    polyEntity.mat.size11 = 0.005;
-    polyEntity.mat.size12 = 0.005;
-    polyEntity.mat.size21 = 0.005;
-    polyEntity.mat.size22 = 0.005;
-    polyEntity.mat.ambient111 = vec3(0.5, 0.2, 0.2);
-    polyEntity.mat.ambient112 = vec3(0.2, 0.5, 0.2);
-    polyEntity.mat.ambient121 = vec3(0.2, 0.2, 0.5);
-    polyEntity.mat.ambient122 = vec3(0.5, 0.5, 0.5);
-    polyEntity.mat.ambient211 = vec3(0.8, 0.5, 0.5);
-    polyEntity.mat.ambient212 = vec3(0.5, 0.8, 0.5);
-    polyEntity.mat.ambient221 = vec3(0.5, 0.5, 0.8);
-    polyEntity.mat.ambient222 = vec3(0.8, 0.8, 0.8);
+    polyEntity.size = 0.02;
+    polyEntity.size1 = 0.01;
+    polyEntity.size2 = 0.01;
+    polyEntity.size11 = 0.005;
+    polyEntity.size12 = 0.005;
+    polyEntity.size21 = 0.005;
+    polyEntity.size22 = 0.005;
+    polyEntity.ambient111 = vec3(0.5, 0.2, 0.2);
+    polyEntity.ambient112 = vec3(0.2, 0.5, 0.2);
+    polyEntity.ambient121 = vec3(0.2, 0.2, 0.5);
+    polyEntity.ambient122 = vec3(0.5, 0.5, 0.5);
+    polyEntity.ambient211 = vec3(0.8, 0.5, 0.5);
+    polyEntity.ambient212 = vec3(0.5, 0.8, 0.5);
+    polyEntity.ambient221 = vec3(0.5, 0.5, 0.8);
+    polyEntity.ambient222 = vec3(0.8, 0.8, 0.8);
     world.add(polyEntity);
 
 

@@ -91,12 +91,6 @@ class PointLightManager {
 
 
     private auto useBlock(BufferAccess access) {
-        if (block is null) {
-            block = new UBlock(BlockName);
-            auto s = Struct();
-            s.num = 0;
-            block.sendData(s);
-        }
         struct Po {
 
             private UBlock block;
@@ -113,11 +107,21 @@ class PointLightManager {
 
             alias buffer this;
         }
-        return Po(block, access);
+        return Po(getBlock(), access);
+    }
+
+    private UBlock getBlock() {
+        if (block is null) {
+            block = new UBlock(BlockName);
+            auto s = Struct();
+            s.num = 0;
+            block.sendData(s);
+        }
+        return block;
     }
 
     Uniform getUniform() {
-        return this.block;
+        return this.getBlock();
     }
 
     void clear() {

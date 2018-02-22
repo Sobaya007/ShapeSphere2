@@ -126,7 +126,6 @@ public:
         _labelComponent.x = width/2;
         _labelComponent.y = -height/2;
         _labelComponent.zIndex = 1;
-        _labelComponent.entity.setUserData(null);
         _labelComponent.setFontColor(fontColor);
         entity.addChild(_labelComponent.entity);
 
@@ -221,7 +220,6 @@ public:
         labelComponent.x = width/2;
         labelComponent.y = -height/2;
         labelComponent.zIndex = 1;
-        labelComponent.entity.setUserData(null);
         entity.addChild(labelComponent.entity);
         super(entity);
     }
