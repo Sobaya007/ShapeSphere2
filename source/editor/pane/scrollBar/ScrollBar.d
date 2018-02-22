@@ -45,6 +45,7 @@ public:
         _entity.pos.y = pane.height;
 
         control.add(this);
+        world.add(_entity);
     }
 
     override Entity getEntity() {
