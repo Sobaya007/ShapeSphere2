@@ -22,10 +22,12 @@ import std.typecons;
 
 interface Geometry {
     void render(VertexArray vao);
+    void destroy();
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
     IndexBuffer getIndexBuffer();
     void updateBuffer();
     CollisionGeometry[] createCollisionPolygon();
+    CollisionCapsule createCollisionCapsule();
 
     string toString();
 }
@@ -51,6 +53,11 @@ class VertexGroup(Attribute[] Attributes) {
             buffer.sendData(data, BufferUsage.Static);
             this.buffers ~= tuple(attr, buffer);
         }}
+    }
+
+    void destroy() {
+        import std.algorithm;
+        buffers.each!(buffer => buffer[1].destroy());
     }
 
     void updateBuffer() {
@@ -108,6 +115,10 @@ class FaceGroup(Prim Mode) {
         }
         this.faces = faces;
     }
+
+    void destroy() {
+        this.ibo.destroy();
+    }
 }
 
 class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
@@ -131,6 +142,11 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
     this(VertexGroupA vertexGroup, FaceGroupP faceGroup) {
         this.vertexGroup = vertexGroup;
         this.faceGroup = faceGroup;
+    }
+
+    void destroy() {
+        vertexGroup.destroy();
+        faceGroup.destroy();
     }
 
     override void render(VertexArray vao) {
@@ -158,6 +174,18 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
             colPolygons ~= poly;
         }
         return colPolygons;
+    }
+
+    override CollisionCapsule createCollisionCapsule() {
+        auto vertices = this.vertexGroup.vertices.map!(v => v.position).array;
+        auto basisCandidates = mostDispersionBasis(vertices);
+        auto basis = basisCandidates.maxElement!(bc => length(vertices.maxElement!(v => dot(v, bc)) - vertices.minElement!(v => dot(v, bc))));
+        auto minV = vertices.minElement!(v => dot(v, basis));
+        auto maxV = vertices.maxElement!(v => dot(v, basis));
+        auto center = (minV + maxV) / 2;
+        auto radius = vertices.map!(v => length((v - center) - dot(v - center, basis) * basis)).maxElement;
+
+        return new CollisionCapsule(radius, minV + basis * radius, maxV - basis * radius);
     }
 
     VertexA[] vertices() {

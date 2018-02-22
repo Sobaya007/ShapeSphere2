@@ -302,7 +302,7 @@ class Crystal {
         auto loaded = loader.load(ModelPath("crystal.x"));
 
         this.entity = loaded.buildEntity(new StageMaterialBuilder);
-        this.entity.buildBVH();
+        this.entity.buildCapsule();
         this.entity.pos = pos;
 
         this.light = new PointLight(vec3(0), color);

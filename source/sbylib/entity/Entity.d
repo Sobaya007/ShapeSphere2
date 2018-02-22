@@ -269,6 +269,25 @@ class Entity {
         });
     }
 
+    void buildCapsule() {
+        this.traverse((Entity e) {
+            auto capsule = e.mesh.geom.createCollisionCapsule();
+            e.colEntry = capsule.fmap!((CollisionGeometry g) => new CollisionEntry(g, e));
+            debug {
+                import sbylib.material.WireframeMaterial;
+                import sbylib.core.Core;
+                Core().addProcess((proc) {
+                    capsule.apply!((capsule) {
+                        auto geom = capsule.createGeometry();
+                        auto mat = new WireframeMaterial(vec4(1));
+                        e.addChild(new Entity(geom, mat));
+                    });
+                    proc.kill();
+                }, "build capsule");
+            }
+        });
+    }
+
     void collide(ref Array!CollisionInfo result, Entity entity) {
         if (this.colEntry.isJust) {
             entity.collide(result, this.colEntry.get);
