@@ -277,7 +277,6 @@ class Light {
         auto pos = vec3(obj["pos"].as!(float[]));
         auto color = vec3(obj["color"].as!(float[]));
         this.light = new PointLight(pos, color);
-        Game.getWorld3D().add(this.light);
     }
 
     void update(JSONValue[string] obj) {

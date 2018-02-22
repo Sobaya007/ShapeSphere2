@@ -45,30 +45,56 @@ class World {
        Entity Management
      */
 
-    void add(Entity entity) out {
-        assert(entity.world.get() is this);
+    /*
+       接続の確立
+       entityとそれ以下の子すべてをWorldと接続
+
+       事前条件:
+            - entityはWorldと未接続
+            - entityは親を持たない
+
+       事後条件:
+            - entityはWorldと接続
+     */
+    void add(Entity entity) in {
+        assert(isConnected(entity) == false);
+        assert(entity.isParentConnected == false);
+    } out {
+        assert(isConnected(entity) == true);
     } body {
-        this.entities ~= entity;
-        entity.setWorld(Just(this));
-        auto groupName = entity.mesh.mat.config.renderGroupName;
-        if (groupName.isJust) {
-            this.renderGroups[groupName.get()].add(entity);
-        }
-        entity.getChildren.each!(e => add(e));
+        entity.traverse((Entity e) {
+            this.entities ~= e;
+            e.setWorld(this);
+            auto groupName = e.mesh.mat.config.renderGroupName;
+            if (groupName.isJust) {
+                this.renderGroups[groupName.get()].add(e);
+            }
+        });
     }
 
+    /*
+       接続の解消
+       entityとそれ以下の子すべてとWorldとの接続を解消
+
+       事前条件:
+            - entityはWorldと接続
+
+       事後条件:
+            - entityはWorldと未接続
+     */
     void remove(Entity entity) in {
-        assert(entity.world.isJust && entity.world.get() is this, entity.toString);
+        assert(isConnected(entity) == true);
+    } out {
+        assert(isConnected(entity) == false);
     } body {
-        import std.format;
-        auto num = this.entities.length;
-        this.entities = this.entities.aremove!(e => e == entity);
-        entity.setWorld(None!World);
-        auto groupName = entity.mesh.mat.config.renderGroupName;
-        if (groupName.isJust) {
-            this.renderGroups[groupName.get()].remove(entity);
-        }
-        entity.getChildren.each!(e => remove(e));
+        entity.traverse((Entity entity) {
+            this.entities = this.entities.aremove!(e => e == entity);
+            entity.unsetWorld();
+            auto groupName = entity.mesh.mat.config.renderGroupName;
+            if (groupName.isJust) {
+                this.renderGroups[groupName.get()].remove(entity);
+            }
+        });
     }
 
     void clear(string groupName) {
@@ -78,10 +104,6 @@ class World {
 
     Entity[] getEntities() {
         return entities;
-    }
-
-    invariant {
-        //assert(this.entities.all!(e => e.world.get() is this));
     }
 
     void addRenderGroup(string name, IRenderGroup group) {
@@ -136,5 +158,15 @@ class World {
         default:
             assert(false);
         }
+    }
+
+    private bool isConnected(Entity e) out (connected) {
+        import std.array;
+        e.getRootParent().traverse((Entity e) {
+            assert((this.entities.find(e).empty == false) == connected);
+        });
+    } body {
+        import std.algorithm, std.array;
+        return this.entities.find(e).empty == false;
     }
 }
