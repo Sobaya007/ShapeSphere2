@@ -12,6 +12,8 @@ class GameMainScene : SceneBase {
 
     mixin SceneBasePack;
 
+    private Label[] labels;
+
     override void initialize() {
         /* Core Settings */
         auto core = Core();
@@ -76,13 +78,24 @@ class GameMainScene : SceneBase {
         world2d.add(compass);
         compass.pos = vec3(0.75, -0.75, 0);
 
+        /* Control navigation */
+        addLabel("A/D: Rotate Camera");
+        addLabel("Space: Press Character");
+        addLabel("X: Transform to Needle");
+        addLabel("C: Transform to Spring");
+        addLabel("Z: Reset Camera");
+        addLabel("R: Look over");
+        addLabel("Arrow: Move");
+        addLabel("Enter: Talk to another Character");
+        addLabel("L: Reload Lights & Crystals");
+        addLabel("P: Warp");
+        addLabel("0: Warp to Origin");
+        addLabel("F: Toggle Fullscreen");
+        addLabel("T: Toggle Debug Wireframe");
 
         /* FPS Observe */
         auto fpsCounter = new FpsCounter!100();
-        auto fpsLabel = makeTextEntity("FPS = ", 0.1, Label.OriginX.Left, Label.OriginY.Top);
-        fpsLabel.pos.xy = vec2(-1,1);
-        fpsLabel.setBackColor(vec4(1));
-        world2d.add(fpsLabel);
+        auto fpsLabel = addLabel();
         core.addProcess((proc) {
             fpsCounter.update();
             fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
@@ -140,5 +153,21 @@ class GameMainScene : SceneBase {
         screen.clear(ClearMode.Depth);
         renderer.render(Game.getWorld2D(), screen, viewport, "regular");
         renderer.render(Game.getWorld2D(), screen, viewport, "transparent");
+    }
+
+    Label addLabel(dstring text = "") {
+        auto factory = LabelFactory();
+        factory.text = text;
+        factory.originX = Label.OriginX.Left;
+        factory.originY = Label.OriginY.Top;
+        factory.fontName = "meiryo.ttc";
+        auto label = factory.make();
+        label.pos.xy = vec2(-1,1 - labels.length * factory.height);
+        label.setBackColor(vec4(vec3(1), 0.4));
+        Game.getWorld2D().add(label);
+
+        labels ~= label;
+
+        return label;
     }
 }

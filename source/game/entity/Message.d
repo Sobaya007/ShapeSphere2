@@ -65,6 +65,7 @@ class Message : CommandReceiver {
                 )
             ])
         ));
+        this.text.remove();
         this.text.destroy();
         this.text = Just(text);
 

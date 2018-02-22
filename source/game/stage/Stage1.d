@@ -22,6 +22,8 @@ class Stage1 : Stage {
 
     private TypedEntity!(GeometryRect, ColorMaterial) fadeRect;
 
+    private debug bool wireVisible = false;
+
     enum path = "Resource/stage/Stage1.json";
 
     this() {
@@ -35,11 +37,29 @@ class Stage1 : Stage {
 
         Core().addProcess(&step, "Stage1");
 
-        Core().getKey().justPressed(KeyButton.KeyL).add(&update);
+        debug {
+            Core().getKey().justPressed(KeyButton.KeyL).add(&update);
 
-        Core().getKey().justPressed(KeyButton.KeyP).add({
-            Game.getPlayer().setCenter(this.area.startPos);
-        });
+            Core().getKey().justPressed(KeyButton.KeyP).add({
+                Game.getPlayer().setCenter(this.area.startPos);
+            });
+
+            Core().getKey().justPressed(KeyButton.KeyT).add({
+                wireVisible = !wireVisible;
+                this.area.entity.traverse((Entity e) {
+                    e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
+                        mat => e.visible = wireVisible
+                    );
+                });
+            });
+            Core().addProcess((proc) {
+                this.area.entity.traverse((Entity e) {
+                    e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
+                        mat => e.visible = wireVisible
+                    );
+                });
+            }, "po");
+        }
 
         this.fadeRect = makeColorEntity(vec4(0), 2,2);
         this.fadeRect.config.renderGroupName = "transparent";

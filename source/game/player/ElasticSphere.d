@@ -83,6 +83,9 @@ class ElasticSphere : BaseSphere {
 
     override void setCenter(vec3 center) {
         elasticSphere2.setCenter(center);
+        foreach (particle; this.elasticSphere2.getParticleList) {
+            particle.velocity = vec3(0);
+        }
     }
 
     override vec3 getCenter() {
