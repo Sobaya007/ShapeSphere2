@@ -3,7 +3,7 @@ module sbylib.light.PointLight;
 public {
     import sbylib.math.Vector; 
     import sbylib.wrapper.gl.UniformBuffer;
-    import sbylib.entity.Entity;
+    import sbylib.entity.TypedEntity;
 }
 import std.format;
 

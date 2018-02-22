@@ -167,7 +167,7 @@ class Area {
         this.entity.addChild(this.stageEntity);
         this.entity.addChild(this.characterEntity);
         this.entity.addChild(this.moveEntity);
-        this.entity.addChild(this.crystalEntity);
+        this.stageEntity.addChild(this.crystalEntity);
         this.entity.addChild(this.lightEntity);
 
         this.paths = obj["Model"].as!(string[]);
@@ -189,10 +189,7 @@ class Area {
     }
 
     void step() {
-        foreach (path; paths) {
-            receive(&onReceive);
-        }
-        paths = null;
+        receiveTimeout(0.msecs, &onReceive);
         this.characters.each!(c => c.step);
         Game.getPlayer().step();
     }
@@ -213,6 +210,8 @@ class Area {
     }
 
     void update(JSONValue[string] obj) {
+        this.lightEntity.remove();
+        this.crystalEntity.remove();
         this.lightEntity.traverse!((Entity e) => e.destroy());
         this.crystalEntity.traverse!((Entity e) => e.destroy());
         this.lightEntity.clearChildren();
@@ -221,6 +220,8 @@ class Area {
         this.crystals = obj["Crystals"].array().map!(v => new Crystal(v.object())).array;
         this.lights.each!(c => this.lightEntity.addChild(c.light));
         this.crystals.each!(c => this.crystalEntity.addChild(c.entity));
+        this.entity.addChild(this.lightEntity);
+        this.entity.addChild(this.crystalEntity);
     }
 
     void addCrystal(ref JSONValue area, vec3 pos) {
@@ -301,6 +302,7 @@ class Crystal {
         auto loaded = loader.load(ModelPath("crystal.x"));
 
         this.entity = loaded.buildEntity(new StageMaterialBuilder);
+        this.entity.buildBVH();
         this.entity.pos = pos;
 
         this.light = new PointLight(vec3(0), color);

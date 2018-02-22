@@ -88,7 +88,9 @@ class World {
         assert(isConnected(entity) == false);
     } body {
         entity.traverse((Entity entity) {
+            auto num = this.entities.length;
             this.entities = this.entities.aremove!(e => e == entity);
+            assert(this.entities.length == num-1);
             entity.unsetWorld();
             auto groupName = entity.mesh.mat.config.renderGroupName;
             if (groupName.isJust) {
@@ -97,8 +99,19 @@ class World {
         });
     }
 
-    void clear(string groupName) {
+    /*
+       グループを全消去
+       groupNameで示されるグループに属するEntityとの接続が全て解除される
+
+       事前条件:
+            - groupNameが正しいグループ名をしていること
+     */
+    void clear(string groupName) in {
+        assert(groupName in this.renderGroups);
+    } body {
         this.renderGroups[groupName].clear();
+        this.entities.filter!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName)
+            .each!(e => e.unsetWorld());
         this.entities = this.entities.aremove!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName);
     }
 

@@ -61,8 +61,12 @@ class Entity {
     }
 
     this(Geometry geom, Material mat, string file = __FILE__, int line = __LINE__) {
+        this(new Mesh(geom, mat, this), file, line);
+    }
+
+    this(Mesh mesh, string file = __FILE__, int line = __LINE__) {
         this(file, line);
-        this.setMesh(new Mesh(geom, mat, this));
+        this._mesh = Just(mesh);
     }
 
     this(CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
@@ -76,9 +80,17 @@ class Entity {
         this.colEntry = Just(new CollisionEntry(colGeom, this));
     }
 
+    /*
+       Entityの破壊
+
+       事前条件:
+            - Worldと未接続
+
+       備考:
+            デストラクタでやらないのは、他スレッドでGCが起動してデストラクタが起動した場合にOpenGLの命令を呼べなくなるから
+     */
     void destroy() in {
-        // Entityが解放する直前、Worldと未接続である必要がある
-        assert(this.world.isNone);
+        assert(this.isWorldConnected == false);
     } body {
         this.mesh.destroy();
     }
@@ -156,7 +168,10 @@ class Entity {
     } body {
 
         // 親子の接続解消
-        this.parent.apply!(parent => parent.children.remove!(child => child is this));
+        import std.algorithm : aremove = remove;
+        this.parent.apply!((parent) {
+            parent.children = parent.children.aremove!(child => child is this);
+        });
         this.parent = None!Entity;
 
         // Worldとの接続解消
@@ -207,6 +222,13 @@ class Entity {
         this._world = None!World;
     }
 
+    void setMesh(Mesh m) in {
+        assert(m.getOwner() == this);
+        assert(this.world.isNone);
+    } body {
+        this._mesh = Just(m);
+    }
+
     Maybe!Entity getParent() {
         return this.parent;
     }
@@ -223,7 +245,6 @@ class Entity {
         if (!this.visible) return;
         this.mesh.render();
     }
-
 
     void traverse(alias func)() {
         func(this);
@@ -308,58 +329,20 @@ class Entity {
         return this.parent.isJust;
     }
 
-    private void setMesh(Mesh m) in {
-        assert(m.getOwner() == this);
-        assert(this.world.isNone);
-    } body {
-        this._mesh = Just(m);
+    override string toString() {
+        import std.format;
+        return toString((Entity e) => format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString));
     }
 
-    override string toString() {
+    string toString(string function(Entity) func) {
         import std.format, std.range;
         import sbylib.utils.Functions;
-        auto result = format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s\n"(name, this.mesh.toString(), this.colEntry.toString(), this.userData.toString);
+        auto result = func(this);
         if (children.length > 0) {
-            result ~= format!"Children(%d):\n%s"(this.children.length, this.children.map!(child => child.toString()).join("\n").indent(3));
+            result ~= format!"\nChildren(%d):\n%s"(this.children.length, this.children.map!(child => child.toString(func)).join("\n").indent(3));
         }
         return result;
     }
 
     alias obj this;
-}
-
-class TypedEntity(G, M) {
-
-    import sbylib.utils.Functions;
-
-    mixin Proxy;
-
-    @Proxied TypedMesh!(G, M) mesh;
-    @Proxied Entity entity;
-
-    alias entity this;
-}
-
-auto makeEntity(string file = __FILE__, int line = __LINE__) {
-    return new Entity(file, line);
-}
-
-auto makeEntity(G, M)(G g, M m, string file = __FILE__, int line = __LINE__) {
-    auto entity = new TypedEntity!(G, M);
-    entity.entity = new Entity(file, line);
-    entity.mesh = new TypedMesh!(G, M)(g, m, entity.entity);
-    entity.entity.setMesh(entity.mesh);
-    return entity;
-}
-
-auto makeEntity(CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-    return new Entity(colGeom, file, line);
-}
-
-auto makeEntity(G, M)(G g, M m, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-    auto entity = new TypedEntity!(G, M);
-    entity.entity = new Entity(colGeom, file, line);
-    entity.mesh = new TypedMesh!(G, M)(g, m, entity.entity);
-    entity.entity.setMesh(entity.mesh);
-    return entity;
 }
