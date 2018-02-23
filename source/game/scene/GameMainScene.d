@@ -139,6 +139,7 @@ class GameMainScene : SceneBase {
                     .match!((l) => l == "add light here")({stage1.addLight(player.getCenter); return "Successfully Added Light";}())
                     .other("no match pattern for '" ~ line ~ "'");
                     writeln(res);
+                    stdout.flush;
                 } catch (Error e) {
                     e.writeln;
                 }
