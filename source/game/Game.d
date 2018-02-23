@@ -6,7 +6,7 @@ public import game.stage.Map;
 public import game.entity.Message;
 public import game.scene.GameMainScene;
 import sbylib;
-import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv;
+import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv, std.datetime.stopwatch;
 
 class Game {
 static:
@@ -22,8 +22,38 @@ static:
     private Message message;
 
     private RenderTarget backBuffer;
-    
+
     private GameMainScene scene;
+
+    private debug StopWatchLabel[] stopWatch;
+
+    private debug class StopWatchLabel {
+
+        private string name;
+        private Label label;
+        private StopWatch sw;
+
+        alias sw this;
+
+        this(string name) {
+            this.name = name;
+            auto factory = LabelFactory();
+            factory.originX = Label.OriginX.Right;
+            factory.originY = Label.OriginY.Top;
+            factory.fontName = "meiryo.ttc";
+            this.label = factory.make();
+            this.label.setBackColor(vec4(0.5));
+            this.label.pos.x = 1;
+
+            if (stopWatch.length == 0) {
+                this.label.pos.y = 1;
+            } else {
+                auto sw = stopWatch[$-1];
+                this.label.pos.y = sw.label.pos.y - sw.label.getHeight;
+            }
+            getWorld2D().add(this.label);
+        }
+    }
 
     void initialize(string[] args) {
         this.commandManager = selectCommandManager(args);
@@ -51,7 +81,6 @@ static:
     } body {
         this.scene = scene;
     }
-
 
     ICommandManager getCommandManager() {
         return commandManager;
@@ -89,6 +118,27 @@ static:
 
     RenderTarget getBackBuffer() {
         return this.backBuffer;
+    }
+
+    debug void timerStart(string str) {
+        auto findResult = stopWatch.find!(sw => sw.name == str);
+        if (findResult.empty) {
+            auto sw = new StopWatchLabel(str);
+            stopWatch ~= sw;
+            sw.start();
+        } else {
+            auto sw = findResult.front;
+            sw.reset();
+            sw.start();
+        }
+    }
+
+    debug void timerStop(string str) {
+        auto findResult = stopWatch.find!(sw => sw.name == str);
+        assert(!findResult.empty);
+        auto sw = findResult.front;
+        assert(sw.running);
+        sw.label.renderText(format!"%s : %3dmsecs"(str, sw.peek.total!"msecs"));
     }
 
     void update() {

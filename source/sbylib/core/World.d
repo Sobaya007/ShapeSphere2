@@ -119,6 +119,10 @@ class World {
         return entities;
     }
 
+    debug int getEntityNum() {
+        return entities.map!(e => e.getDescendantNum).sum;
+    }
+
     void addRenderGroup(string name, IRenderGroup group) {
         this.renderGroups[name] = group;
     }

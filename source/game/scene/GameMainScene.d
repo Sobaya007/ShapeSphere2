@@ -72,46 +72,55 @@ class GameMainScene : SceneBase {
             }, "label update");
         }
 
+        debug {
+            /* Compass Settings */
+            auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));
+            world2d.add(compass);
+            compass.pos = vec3(0.75, -0.75, 0);
 
-        /* Compass Settings */
-        auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));
-        world2d.add(compass);
-        compass.pos = vec3(0.75, -0.75, 0);
+            /* FPS Observe */
+            auto fpsCounter = new FpsCounter!100();
+            auto fpsLabel = addLabel();
+            core.addProcess((proc) {
+                fpsCounter.update();
+                fpsLabel.renderText(format!"FPS: %3d"(fpsCounter.getFPS()).to!dstring);
+                window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
+            }, "fps update");
 
-        /* FPS Observe */
-        auto fpsCounter = new FpsCounter!100();
-        auto fpsLabel = addLabel();
-        core.addProcess((proc) {
-            fpsCounter.update();
-            fpsLabel.renderText(format!"FPS: %d"(fpsCounter.getFPS()).to!dstring);
-            window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
-        }, "fps update");
+            auto numberLabel3D = addLabel();
+            auto numberLabel2D = addLabel();
+            core.addProcess({
+                numberLabel3D.renderText(format!"World3D: %2d"(world3d.getEntityNum));
+                numberLabel2D.renderText(format!"World2D: %2d"(world2d.getEntityNum));
+            }, "label update");
 
-        /* Control navigation */
-        addLabel("A/D: Rotate Camera");
-        addLabel("Space: Press Character");
-        addLabel("X: Transform to Needle");
-        addLabel("C: Transform to Spring");
-        addLabel("Z: Reset Camera");
-        addLabel("R: Look over");
-        addLabel("Arrow: Move");
-        addLabel("Enter: Talk to another Character");
-        addLabel("L: Reload Lights & Crystals");
-        addLabel("P: Warp");
-        addLabel("0: Warp to Origin");
-        addLabel("F: Toggle Fullscreen");
-        addLabel("T: Toggle Debug Wireframe");
-        addLabel("N: Toggle this message");
+            /* Control navigation */
+            addLabel("A/D: Rotate Camera");
+            addLabel("Space: Press Character");
+            addLabel("X: Transform to Needle");
+            addLabel("C: Transform to Spring");
+            addLabel("Z: Reset Camera");
+            addLabel("R: Look over");
+            addLabel("Arrow: Move");
+            addLabel("Enter: Talk to another Character");
+            addLabel("L: Reload Lights & Crystals");
+            addLabel("P: Warp to start pos (written in JSON)");
+            addLabel("0: Warp to Origin");
+            addLabel("O: Reload Config");
+            addLabel("F: Toggle Fullscreen");
+            addLabel("T: Toggle Debug Wireframe");
+            addLabel("N: Toggle this message");
 
-        /* Key Input */
-        core.getKey().justPressed(KeyButton.Escape).add({
-            Game.getCommandManager().save();
-            core.end();
-        });
-        core.getKey().justPressed(KeyButton.KeyP).add({ConfigManager().load();});
-        core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
-        core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
-        core.getKey().justPressed(KeyButton.KeyN).add({labels.each!(l => l.traverse!((Entity e) => e.visible = !e.visible));});
+            /* Key Input */
+            core.getKey().justPressed(KeyButton.Escape).add({
+                Game.getCommandManager().save();
+                core.end();
+            });
+            core.getKey().justPressed(KeyButton.KeyO).add({ConfigManager().load();});
+            core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
+            core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
+            core.getKey().justPressed(KeyButton.KeyN).add({labels.each!(l => l.traverse!((Entity e) => e.visible = !e.visible));});
+        }
 
         import game.stage.Stage1;
         auto stage1 = cast(Stage1)Game.getMap().stage;
@@ -145,9 +154,14 @@ class GameMainScene : SceneBase {
                 }
             }
         }).start();
+
+        debug Game.timerStart("Total");
     }
 
     override void render() {
+        debug Game.timerStop("Total");
+        debug Game.timerStart("Total");
+        debug Game.timerStart("render");
         renderer.render(Game.getWorld3D(), screen, viewport, "regular");
         renderer.render(Game.getWorld3D(), screen, viewport, "transparent");
         screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
@@ -155,6 +169,7 @@ class GameMainScene : SceneBase {
         screen.clear(ClearMode.Depth);
         renderer.render(Game.getWorld2D(), screen, viewport, "regular");
         renderer.render(Game.getWorld2D(), screen, viewport, "transparent");
+        debug Game.timerStop("render");
     }
 
     Label addLabel(dstring text = "") {
@@ -163,6 +178,7 @@ class GameMainScene : SceneBase {
         factory.originX = Label.OriginX.Left;
         factory.originY = Label.OriginY.Top;
         factory.fontName = "meiryo.ttc";
+        factory.height = 0.08;
         auto label = factory.make();
         label.pos.xy = vec2(-1,1 - labels.length * factory.height);
         label.setBackColor(vec4(vec3(1), 0.4));

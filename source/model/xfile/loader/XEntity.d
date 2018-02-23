@@ -10,17 +10,20 @@ immutable:
     immutable(XEntity)[] children;
     Maybe!(immutable(XGeometry)) geometry;
     immutable(XLeviathan)[] leviathans;
+    string name;
 
-    this(immutable(XEntity[]) children) {
+    this(immutable(XEntity[]) children, string name) {
         this.children = children;
         this.geometry = None!(immutable(XGeometry));
         this.leviathans = null;
+        this.name = name;
     }
 
-    this(immutable(XGeometry) geometry, immutable(XLeviathan)[] leviathans) {
+    this(immutable(XGeometry) geometry, immutable(XLeviathan)[] leviathans, string name) {
         this.children = null;
         this.geometry = Just(geometry);
         this.leviathans = leviathans;
+        this.name = name;
     }
 
     /*

@@ -47,6 +47,8 @@ class Entity {
     private Maybe!Variant userData;
     bool visible; // Materialに書くと、Materialが同じでVisiblityが違う物体が実現できない
     void delegate()[] onAdd;
+    void delegate()[] onPreRender;
+    void delegate()[] onPostRender;
 
     alias obj this;
 
@@ -231,6 +233,10 @@ class Entity {
         this._mesh = Just(m);
     }
 
+    Entity[] getChildren() {
+        return children;
+    }
+
     Maybe!Entity getParent() {
         return this.parent;
     }
@@ -241,11 +247,17 @@ class Entity {
         return this.parent.getRootParent().getOrElse(this);
     }
 
+    debug int getDescendantNum() {
+        return children.map!(child => child.getDescendantNum).sum + 1;
+    }
+
     void render() in {
         assert(this.world.isJust, this.toString());
     } body {
         if (!this.visible) return;
+        onPreRender.each!(f => f());
         this.mesh.render();
+        onPostRender.each!(f => f());
     }
 
     void traverse(alias func)() {

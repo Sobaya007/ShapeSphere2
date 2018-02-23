@@ -14,28 +14,26 @@ class Letter {
 
     private LetterEntity entity;
     private LetterInfo info;
-    const float width, height;
 
-    this(Letter letter) {
-        this.info = letter.info;
-        this.entity = makeEntity(letter.geom, letter.mat);
-        this.entity.name = letter.entity.name;
-        this.width = letter.width;
-        this.height = letter.height;
-    }
+    float width, height;
 
-    this(Font font, dchar c, float h) {
-        font.loadChar(c, FontLoadType.Render);
-        this.info = font.characters[c];
-        this.width = h * this.info.width / this.info.height;
-        this.height = h;
-        auto geom = Rect.create(this.width, this.height);
-        this.entity = makeEntity(geom, new TextMaterial);
-        this.entity.texture = this.info.texture;
+    this() {
+        this.entity = makeEntity(Rect.create(1, 1), new TextMaterial);
         this.entity.color = vec4(0,0,0,1);
         this.entity.config.renderGroupName = "transparent";
         this.entity.config.depthTest = false;
+    }
+
+    void setChar(Font font, dchar c, float h) {
+        font.loadChar(c, FontLoadType.Render);
+        this.info = font.characters[c];
+        auto w = h * this.info.width / this.info.height;
+        this.entity.texture = this.info.texture;
+        this.entity.scale.xy = vec2(w, h);
         this.entity.name = "Letter '" ~ cast(char)c ~ "'";
+
+        this.width = w;
+        this.height = h;
     }
 
     LetterEntity getEntity() {

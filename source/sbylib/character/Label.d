@@ -29,6 +29,7 @@ class Label {
     private float size; //1 letter height
     private Letter[dchar] cache;
     private float width, height;
+    private dstring text;
 
     this(Font font, float size) {
         this.font = font;
@@ -85,20 +86,27 @@ class Label {
         return this.height;
     }
 
+    void renderText(string text) {
+        import std.conv;
+        renderText(text.to!dstring);
+    }
+
     void renderText(dstring text) {
-        this.entity.clearChildren();
-        this.letters = [];
-        foreach (c; text) {
-            Letter l;
-            if (c in cache) {
-                l = new Letter(cache[c]);
-            } else {
-                l = new Letter(this.font, c, this.size);
-                cache[c] = l;
+        if (text != text) return;
+        this.text = text;
+        if (text.length > this.entity.getChildren.length) {
+            auto num = text.length - this.entity.getChildren.length;
+            foreach (i; 0..num) {
+                auto l = new Letter;
+                this.entity.addChild(l);
+                this.letters ~= l;
             }
-            this.entity.addChild(l);
-            this.letters ~= l;
         }
+        import std.range;
+        foreach (l, c; zip(letters, text)) {
+            l.setChar(font, c, size);
+        }
+        foreach (l; letters[text.length..$]) l.visible = false;
         this.setColor(this._color);
         this.setBackColor(this.backColor);
         this.lineUp();
