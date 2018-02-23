@@ -1,4 +1,4 @@
-module sbylib.geometry.geometry3d.Poll;
+module sbylib.geometry.geometry3d.Pole;
 
 import std.math;
 import std.algorithm;
@@ -7,16 +7,16 @@ import sbylib.math.Vector;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.Vertex;
 
-alias GeometryPoll = GeometryN;
+alias GeometryPole = GeometryN;
 
-class Poll {
+class Pole {
 
     private this() {}
 
-    public static GeometryPoll create(float radius, float length, uint cut = 20) {
+    public static GeometryPole create(float radius, float length, uint cut = 20) {
 
         VertexN[] vertices;
-        vertices ~= 
+        vertices ~=
             (northCap(radius, length, cut) ~ southCap(radius, length, cut));
         return new GeometryN(vertices, getIndices(cut).idup);
     }

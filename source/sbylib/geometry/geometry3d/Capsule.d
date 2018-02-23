@@ -21,7 +21,7 @@ class Capsule {
         uint[] indices =
             getNorthernIndices(tCut, pCut)
           ~ getSouthernIndices(tCut, pCut)
-          ~ getPollIndices(tCut, pCut);
+          ~ getPoleIndices(tCut, pCut);
         return new GeometryNT(vertices, indices.idup);
     }
 
@@ -33,7 +33,7 @@ class Capsule {
         uint[] indices =
             getNorthernIndices(tCut, pCut)
           ~ getSouthernIndices(tCut, pCut)
-          ~ getPollIndices(tCut, pCut);
+          ~ getPoleIndices(tCut, pCut);
         auto c = (start + end) / 2;
         auto r = mat3.rotFromTo(vec3(0,1,0), normalize(end - start));
         foreach (ref v; vertices) {
@@ -79,7 +79,7 @@ class Capsule {
         }).array;
     }
 
-    private static uint[] getPollIndices(uint tCut, uint pCut) {
+    private static uint[] getPoleIndices(uint tCut, uint pCut) {
         uint[] result;
         uint nhead = tCut * (pCut-1);
         uint shead = 1 + tCut * (pCut * 2 - 1);
