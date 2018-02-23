@@ -86,8 +86,8 @@ class Capsule {
         foreach (i; 0..tCut) {
             auto j = (i+1) % tCut;
             result ~= nhead + i;
-            result ~= shead + i;
             result ~= nhead + j;
+            result ~= shead + i;
             result ~= shead + i;
             result ~= nhead + j;
             result ~= shead + j;
@@ -109,14 +109,14 @@ class Capsule {
             foreach (j; 0..tCut) {
                 auto nj = (j+1) % tCut;
                 result ~= [
-                1 +  j +  i * tCut,
-                1 +  j + ni * tCut,
-                1 + nj + ni * tCut
+                    1 +  j +  i * tCut,
+                    1 + nj + ni * tCut,
+                    1 +  j + ni * tCut
                 ];
                 result ~= [
-                1 + nj + ni * tCut,
-                1 + nj +  i * tCut,
-                1 +  j +  i * tCut
+                    1 + nj + ni * tCut,
+                    1 +  j +  i * tCut,
+                    1 + nj +  i * tCut
                 ];
             }
         }
@@ -137,14 +137,14 @@ class Capsule {
             foreach (j; 0..tCut) {
                 auto nj = (j+1) % tCut; //[0, tCut-1]
                 result ~= [
-                1 +  j +  i * tCut,
-                1 + nj + ni * tCut,
-                1 +  j + ni * tCut
+                    1 +  j +  i * tCut,
+                    1 +  j + ni * tCut,
+                    1 + nj + ni * tCut
                 ];
                 result ~= [
-                1 + nj + ni * tCut,
-                1 +  j +  i * tCut,
-                1 + nj +  i * tCut
+                    1 + nj + ni * tCut,
+                    1 + nj +  i * tCut,
+                    1 +  j +  i * tCut
                 ];
             }
         }

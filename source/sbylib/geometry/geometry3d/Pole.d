@@ -18,7 +18,11 @@ class Pole {
         VertexN[] vertices;
         vertices ~=
             (northCap(radius, length, cut) ~ southCap(radius, length, cut));
-        return new GeometryN(vertices, getIndices(cut).idup);
+        uint[] indices =
+            getSideIndices(cut)
+          ~ getNorthernIndices(cut)
+          ~ getSouthernIndices(cut);
+        return new GeometryN(vertices, indices.idup);
     }
 
     private static VertexN[] northCap(float radius, float length, uint cut) {
@@ -42,15 +46,35 @@ class Pole {
         }).array;
     }
 
-    private static uint[] getIndices(uint cut) {
+    private static uint[] getSideIndices(uint cut) {
         uint[] result;
         foreach (i; 0..cut) {
-            result ~= i;
             result ~= i + cut;
+            result ~= i;
             result ~= (i+1) % cut;
             result ~= i + cut;
             result ~= (i+1) % cut;
             result ~= (i+1) % cut + cut;
+        }
+        return result;
+    }
+
+    private static uint[] getNorthernIndices(uint cut) {
+        uint[] result;
+        foreach(i; 1..cut-1) {
+            result ~= 0;
+            result ~= i+1;
+            result ~= i;
+        }
+        return result;
+    }
+
+    private static uint[] getSouthernIndices(uint cut) {
+        uint[] result;
+        foreach(i; 1..cut-1) {
+            result ~= 0 + cut;
+            result ~= i + cut;
+            result ~= i+1 + cut;
         }
         return result;
     }
