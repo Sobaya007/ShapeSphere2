@@ -22,23 +22,22 @@ class Box {
             const s = i % 2 ? +1 : -1;
             alias swap = (a, i) => vec3(a[(0+i)%3], a[(1+i)%3], a[(2+i)%3]);
             const positions = [
-            vec3(+s, +s, +s),
-            vec3(+s, +s, -s),
-            vec3(+s, -s, +s),
-            vec3(+s, -s, -s)
-            ].map!(a => swap(a, i/2))
-            .map!(a => a * 0.5).array;
+                vec3(+s, +s, +s),
+                vec3(+s, +s, -s),
+                vec3(+s, -s, +s),
+                vec3(+s, -s, -s)
+            ].map!(a => swap(a, i/2)).map!(a => a * 0.5).array;
             const normals = [
-            vec3(+s,0,0),
-            vec3(+s,0,0),
-            vec3(+s,0,0),
-            vec3(+s,0,0)
+                vec3(+s,0,0),
+                vec3(+s,0,0),
+                vec3(+s,0,0),
+                vec3(+s,0,0)
             ].map!(a => swap(a, i/2)).array;
             const uvs = [
-            vec2(0,0),
-            vec2(0,1),
-            vec2(1,0),
-            vec2(1,1)
+                vec2(0,0),
+                vec2(0,1),
+                vec2(1,0),
+                vec2(1,1)
             ];
             foreach(j; [2,1,0,3,1,2]) {
                 auto v = new VertexNT(positions[j], normals[j], uvs[j]);
