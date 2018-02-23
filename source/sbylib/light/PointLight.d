@@ -1,7 +1,7 @@
 module sbylib.light.PointLight;
 
 public {
-    import sbylib.math.Vector; 
+    import sbylib.math.Vector;
     import sbylib.wrapper.gl.UniformBuffer;
     import sbylib.entity.TypedEntity;
 }
@@ -9,7 +9,7 @@ import std.format;
 
 private enum MAX_LIGHT_NUM = 10;
 
-enum PointLightDeclareCode = 
+enum PointLightDeclareCode =
 q{
 struct PointLight {
     vec3 pos;
@@ -17,7 +17,7 @@ struct PointLight {
 };
 };
 
-enum PointLightBlockDeclareCode = 
+enum PointLightBlockDeclareCode =
 format!q{
 uniform PointLightBlock {
     int pointLightNum;
@@ -50,10 +50,10 @@ class PointLight {
             assert(buffer.num <= MAX_LIGHT_NUM);
             buffer.lights[this.index] = Struct(this.worldPos, diffuse);
 
-            this.worldPos.addChangeCallback({
-                auto buffer = PointLightManager().useBlock(BufferAccess.Write);
-                buffer.lights[this.index].pos = this.worldPos.get();
-            });
+            // this.worldPos.addChangeCallback({
+            //     auto buffer = PointLightManager().useBlock(BufferAccess.Write);
+            //     buffer.lights[this.index].pos = this.worldPos.get();
+            // });
             PointLightManager().lights ~= this;
         };
 
