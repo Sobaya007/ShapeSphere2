@@ -7,7 +7,7 @@ public {
 }
 import std.format;
 
-private enum MAX_LIGHT_NUM = 10;
+private enum MAX_LIGHT_NUM = 100;
 
 enum PointLightDeclareCode =
 q{
