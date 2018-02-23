@@ -241,7 +241,7 @@ class Area {
         this.lights.each!(c => this.lightEntity.addChild(c.light));
         this.crystals.each!(c => this.crystalEntity.addChild(c.entity));
         this.entity.addChild(this.lightEntity);
-        this.entity.addChild(this.crystalEntity);
+        this.stageEntity.addChild(this.crystalEntity);
     }
 
     void addCrystal(ref JSONValue area, vec3 pos) {
@@ -357,4 +357,3 @@ class StageMaterialBuilder : MaterialBuilder {
         return material;
     }
 }
-
