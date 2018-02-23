@@ -21,11 +21,10 @@ class Mesh {
     private const(Uniform) delegate()[] uniforms;
     private Entity owner;
 
-    invariant {
+    this(Geometry geom, Material mat, Entity owner) in {
         assert(geom !is null);
-    }
-
-    this(Geometry geom, Material mat, Entity owner) {
+        assert(mat !is null);
+    } body {
         this.geom = geom;
         this.mat = mat;
         this.owner = owner;
@@ -37,17 +36,13 @@ class Mesh {
         this.vao.destroy();
     }
 
-    void render() in {
-        assert(this.geom);
-        assert(this.mat);
-    } body{
+    void render() {
         this.mat.set(this.uniforms);
         this.geom.render(this.vao);
     }
 
-    void onSetWorld(Maybe!World world) {
+    void setWorld(World world) {
         this.uniforms = null;
-        if (world.isNone) return;
         foreach (demand; this.mat.getUniformDemands) {
             final switch (demand) {
             case UniformDemand.World:
@@ -56,7 +51,7 @@ class Mesh {
             case UniformDemand.View:
             case UniformDemand.Proj:
             case UniformDemand.Light:
-                this.uniforms ~= world.get().getUniform(demand);
+                this.uniforms ~= world.getUniform(demand);
                 break;
             case UniformDemand.DebugCounter:
                 this.uniforms ~= () => this.mat.debugCounter;

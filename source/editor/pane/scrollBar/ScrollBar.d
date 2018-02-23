@@ -15,7 +15,7 @@ private:
 
 public:
     this(Pane pane, float contentHeight) {
-        Core core = Core();
+        auto core = Core();
         auto window = core.getWindow();
         auto screen = window.getScreen();
         auto camera = new OrthoCamera(1, 1, -1, 1);
@@ -45,6 +45,7 @@ public:
         _entity.pos.y = pane.height;
 
         control.add(this);
+        world.add(_entity);
     }
 
     override Entity getEntity() {

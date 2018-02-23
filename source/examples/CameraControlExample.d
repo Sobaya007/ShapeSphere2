@@ -40,7 +40,7 @@ void cameraControlExample() {
     core.addProcess(&control.update, "camera control");
 
 
-    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
+    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
 
 
     core.addProcess({

@@ -83,6 +83,9 @@ class ElasticSphere : BaseSphere {
 
     override void setCenter(vec3 center) {
         elasticSphere2.setCenter(center);
+        foreach (particle; this.elasticSphere2.getParticleList) {
+            particle.velocity = vec3(0);
+        }
     }
 
     override vec3 getCenter() {
@@ -175,6 +178,19 @@ class ElasticSphere : BaseSphere {
 
         if (this.getLinearVelocity.xz.length > 0.5) {
             this._lastDirection = vec3(this.getLinearVelocity.xz.normalize, 0).xzy;
+        }
+
+        auto colInfos = Array!CollisionInfo(0);
+        Game.getMap().getMoveEntity().collide(colInfos, this.elasticSphere2.entity);
+        scope (exit) {
+            colInfos.destroy();
+        }
+        foreach (colInfo; colInfos) {
+            import game.stage.Stage1;
+            auto move = colInfo.getOther(this.elasticSphere2.entity).getUserData!(Move);
+            if (move.isNone) continue;
+            auto next = move.get().arrivalName;
+            Game.getMap().transit(next);
         }
     }
 

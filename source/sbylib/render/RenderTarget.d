@@ -35,7 +35,7 @@ interface IRenderTarget {
 }
 
 class RenderTarget : IRenderTarget {
-    private const FrameBuffer frameBuffer;
+    private FrameBuffer frameBuffer;
     private Texture[FrameBufferAttachType] textures;
     private uint width, height;
     private vec4 clearColor = vec4(0, .5, .5, 1);
@@ -45,6 +45,10 @@ class RenderTarget : IRenderTarget {
         this.frameBuffer = new FrameBuffer();
         this.width = width;
         this.height = height;
+    }
+
+    void destroy() {
+        this.frameBuffer.destroy();
     }
 
     void attachTexture(T)(FrameBufferAttachType attachType) {

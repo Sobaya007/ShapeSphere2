@@ -117,7 +117,9 @@ class Core {
 
     Process addProcess(const void delegate(Process) func, string name) {
         auto proc = new Process(func, name);
-        this.processes ~= proc;
+        synchronized(this) {
+            this.processes ~= proc;
+        }
         return proc;
     }
 
@@ -139,7 +141,9 @@ class Core {
             this.key.update();
             this.mouse.update();
             this.joy.update();
-            this.processes.filter!(proc => proc.step());
+            synchronized(this) {
+                this.processes.filter!(proc => proc.step());
+            }
             this.window.swapBuffers();
             this.window.pollEvents();
             stdout.flush();

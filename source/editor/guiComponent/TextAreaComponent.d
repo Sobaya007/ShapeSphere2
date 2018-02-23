@@ -309,9 +309,9 @@ private:
     }
 
     void updateCover() {
-        foreach(entity; _coverEntity.getChildren()) {
-            (cast(TextAreaComponentCoverMaterial)entity.mesh.get().mat).opacity = getCoverOpacity();
-        }
+        _coverEntity.traverse((Entity entity) {
+            entity.mesh.mat.wrapCast!(TextAreaComponentCoverMaterial).apply!(mat => mat.opacity = getCoverOpacity());
+        });
     }
 
     float getCoverOpacity() {

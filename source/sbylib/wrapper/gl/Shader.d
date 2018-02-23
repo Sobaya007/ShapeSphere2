@@ -8,6 +8,7 @@ import std.ascii;
 
 class Shader {
     package immutable uint id;
+    private bool alive = true;
 
     this(string sourceCode, ShaderType type) out {
         GlFunction.checkError();
@@ -17,6 +18,19 @@ class Shader {
         glShaderSource(this.id, 1, &str, null);
         glCompileShader(this.id);
         assert(this.compileSuccess(), getLogString(sourceCode));
+    }
+
+    ~this() {
+        assert(!alive);
+    }
+
+    void destroy() in {
+        assert(alive);
+    } out {
+        GlFunction.checkError();
+    } body {
+        this.alive = false;
+        glDeleteShader(this.id);
     }
 
     inout {

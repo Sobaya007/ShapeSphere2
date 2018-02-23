@@ -22,13 +22,9 @@ import sbylib.core.RenderGroup;
 class World {
     private Entity[] entities;
     private Camera camera;
-    private PointLightBlock pointLightBlock;
-    private UniformBuffer!PointLightBlock pointLightBlockBuffer;
     private IRenderGroup[string] renderGroups;
 
     this() {
-        this.pointLightBlockBuffer = new UniformBuffer!PointLightBlock("PointLightBlock");
-        this.pointLightBlockBuffer.sendData(this.pointLightBlock, BufferUsage.Dynamic);
         this.renderGroups["regular"] = new RegularRenderGroup;
     }
 
@@ -49,52 +45,78 @@ class World {
        Entity Management
      */
 
-    void add(Entity entity) out {
-        assert(entity.world.get() is this);
+    /*
+       接続の確立
+       entityとそれ以下の子すべてをWorldと接続
+
+       事前条件:
+            - entityはWorldと未接続
+            - entityは親を持たない
+
+       事後条件:
+            - entityはWorldと接続
+     */
+    void add(Entity entity) in {
+        assert(isConnected(entity) == false, "add's argument must not be added to World");
+        assert(entity.isParentConnected == false, "add's argument must not have parent");
+    } out {
+        assert(isConnected(entity) == true);
     } body {
-        this.entities ~= entity;
-        entity.setWorld(Just(this));
-        auto groupName = entity.mesh.mat.config.renderGroupName;
-        if (groupName.isJust) {
-            this.renderGroups[groupName.get()].add(entity);
-        }
-        entity.getChildren.each!(e => add(e));
+        entity.traverse((Entity e) {
+            this.entities ~= e;
+            e.setWorld(this);
+            auto groupName = e.mesh.mat.config.renderGroupName;
+            if (groupName.isJust) {
+                this.renderGroups[groupName.get()].add(e);
+            }
+        });
     }
 
+    /*
+       接続の解消
+       entityとそれ以下の子すべてとWorldとの接続を解消
+
+       事前条件:
+            - entityはWorldと接続
+
+       事後条件:
+            - entityはWorldと未接続
+     */
     void remove(Entity entity) in {
-        assert(entity.world.isJust && entity.world.get() is this, entity.toString);
+        assert(isConnected(entity) == true, "remove's argument must be added to this World");
+    } out {
+        assert(isConnected(entity) == false);
     } body {
-        import std.format;
-        auto num = this.entities.length;
-        this.entities = this.entities.aremove!(e => e == entity);
-        //assert(this.entities.length == num-1, format!"before: %d, after: %d\nremoved was %s"(num, this.entities.length, entity.toString));
-        entity.setWorld(None!World);
-        auto groupName = entity.mesh.mat.config.renderGroupName;
-        if (groupName.isJust) {
-            this.renderGroups[groupName.get()].remove(entity);
-        }
-        entity.getChildren.each!(e => remove(e));
+        entity.traverse((Entity entity) {
+            auto num = this.entities.length;
+            this.entities = this.entities.aremove!(e => e == entity);
+            assert(this.entities.length == num-1);
+            entity.unsetWorld();
+            auto groupName = entity.mesh.mat.config.renderGroupName;
+            if (groupName.isJust) {
+                this.renderGroups[groupName.get()].remove(entity);
+            }
+        });
     }
 
-    void clear(string groupName) {
+    /*
+       グループを全消去
+       groupNameで示されるグループに属するEntityとの接続が全て解除される
+
+       事前条件:
+            - groupNameが正しいグループ名をしていること
+     */
+    void clear(string groupName) in {
+        assert(groupName in this.renderGroups, groupName ~ " is invalid group name");
+    } body {
         this.renderGroups[groupName].clear();
+        this.entities.filter!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName)
+            .each!(e => e.unsetWorld());
         this.entities = this.entities.aremove!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName);
     }
 
     Entity[] getEntities() {
         return entities;
-    }
-
-    invariant {
-        //assert(this.entities.all!(e => e.world.get() is this));
-    }
-
-    void addPointLight(PointLight pointLight) {
-        this.pointLightBlock.lights[this.pointLightBlock.num++] = pointLight;
-    }
-
-    void clearPointLight() {
-        this.pointLightBlock.num = 0;
     }
 
     void addRenderGroup(string name, IRenderGroup group) {
@@ -145,18 +167,19 @@ class World {
         case UniformDemand.Proj:
             return () => this.camera.projMatrix;
         case UniformDemand.Light:
-            return () => this.getPointLightBlockBuffer;
+            return () => PointLightManager().getUniform();
         default:
             assert(false);
         }
     }
 
-    private UniformBuffer!PointLightBlock getPointLightBlockBuffer() {
-        PointLightBlock* buffer = this.pointLightBlockBuffer.map(BufferAccess.Write);
-        buffer.num = this.pointLightBlock.num;
-        buffer.lights = this.pointLightBlock.lights;
-        this.pointLightBlockBuffer.unmap();
-        return this.pointLightBlockBuffer;
+    private bool isConnected(Entity e) out (connected) {
+        import std.array;
+        e.getRootParent().traverse((Entity e) {
+            assert((this.entities.find(e).empty == false) == connected);
+        });
+    } body {
+        import std.algorithm, std.array;
+        return this.entities.find(e).empty == false;
     }
-
 }

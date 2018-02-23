@@ -10,6 +10,29 @@ public {
 }
 import std.algorithm;
 
+/*
+   ルール一覧
+
+   1. Entity同士は親子関係を為す
+
+   - 親子関係が確立する直前、子は親を持たない必要がある
+   - 親子関係が確立する直前、親はその子をまだ持っていない必要がある
+
+
+   2. EntityはWorldとの接続を持つ
+
+   - WorldがEntityを持っている⇔ EntityはWorldを持っている
+   - WorldがEntityに接続される直前、EntityはWorldと未接続でなければならない
+   - WorldとEntityの接続が断たれるとき、EntityはWorldに接続されていなければならない
+   - EntityがWorldとの接続を持っているとき、その親と全ての子はそのWorldとの接続を持っている
+
+
+   3. データの解放
+
+   - Entityはどこかで解放(destroy)される必要がある
+   - Entityが解放する直前、Worldと未接続である必要がある
+ */
+
 class Entity {
 
     import sbylib.utils.Functions;
@@ -18,11 +41,14 @@ class Entity {
     mixin buildReadonly!(Object3D, "obj");
     mixin buildReadonly!(Maybe!World, "world");
     string name;
-    private Maybe!CollisionEntry colEntry;
+    Maybe!CollisionEntry colEntry;
     private Maybe!Entity parent;
     private Entity[] children;
     private Maybe!Variant userData;
     bool visible; // Materialに書くと、Materialが同じでVisiblityが違う物体が実現できない
+    void delegate()[] onAdd;
+
+    alias obj this;
 
     /*
        Create/Destroy
@@ -35,8 +61,12 @@ class Entity {
     }
 
     this(Geometry geom, Material mat, string file = __FILE__, int line = __LINE__) {
+        this(new Mesh(geom, mat, this), file, line);
+    }
+
+    this(Mesh mesh, string file = __FILE__, int line = __LINE__) {
         this(file, line);
-        this.setMesh(new Mesh(geom, mat, this));
+        this._mesh = Just(mesh);
     }
 
     this(CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
@@ -50,10 +80,20 @@ class Entity {
         this.colEntry = Just(new CollisionEntry(colGeom, this));
     }
 
-    void destroy() {
-        this.traverse!((Entity e) => e.mesh.destroy);
-    }
+    /*
+       Entityの破壊
 
+       事前条件:
+            - Worldと未接続
+
+       備考:
+            デストラクタでやらないのは、他スレッドでGCが起動してデストラクタが起動した場合にOpenGLの命令を呼べなくなるから
+     */
+    void destroy() in {
+        assert(this.isWorldConnected == false, "Calling 'destroy' must be after 'remove'");
+    } body {
+        this.mesh.destroy();
+    }
 
     /*
        User Data access
@@ -76,50 +116,129 @@ class Entity {
        Parent/Child Access
      */
 
-    void addChild(Entity entity) {
-        entity.parent = Just(this);
-        entity.obj.onSetParent(this);
-        this.children ~= entity;
-        this.world.add(entity);
+    /*
+       親子関係の確立
+
+        事前条件:
+            - childはthisと未接続
+            - childはWorldと未接続
+
+        事後条件:
+            - thisとchildは接続
+            - thisがWorldと接続⇔ childはWorldと接続
+
+        備考:
+            - obj同士の親子関係も確立される
+    */
+    void addChild(Entity child) in {
+        import std.array;
+        assert(child.isParentConnected == false, "addChild's argument must not have parent.");
+        assert(child.isWorldConnected == false, "addChild's argument must not be added to World.");
+    } out {
+        import std.array;
+        assert(child.isParentConnected == true);
+        assert(this.isWorldConnected == child.isWorldConnected);
+    } body {
+
+        // Worldとの接続
+        if (this.world.isJust) {
+            this.world.add(child);
+        }
+
+        // 親子の接続
+        child.parent = Just(this);
+        this.children ~= child;
+        child.obj.onSetParent(this);
+
     }
 
-    void clearChildren() out {
-        assert(this.children.length == 0);
+    /*
+       親子関係及びWorldとの接続の解消
+
+        事後条件:
+            - thisはWorldと未接続
+            - thisに親がいた場合、親との関係は解消されている
+
+        備考:
+            - this以下の親子関係は維持される
+    */
+    void remove() out {
+        assert(this.isWorldConnected == false);
+        assert(this.isParentConnected == false);
     } body {
-        this.children.each!(child => child.remove());
+
+        // 親子の接続解消
+        import std.algorithm : aremove = remove;
+        this.parent.apply!((parent) {
+            parent.children = parent.children.aremove!(child => child is this);
+        });
+        this.parent = None!Entity;
+
+        // Worldとの接続解消
+        if (this.world.isJust) {
+            this.world.remove(this);
+        }
+    }
+
+    /*
+       全ての子のremove
+
+        事後条件:
+            - childrenは全てWorldと未接続
+            - childrenとthisとの親子関係はすべて解消されている
+
+        備考:
+            - chlidren以下の親子関係は維持される
+    */
+    void clearChildren() out {
+        import std.algorithm;
+        assert(children.all!(child => child.isWorldConnected == false));
+        assert(children.all!(child => child.isParentConnected == false));
+    } body {
+
+        /*
+           Worldとの接続解消を先にやると、「Entityの木の中でWorldとの接続状況は統一されていなければならない」というルールに反する(thisはWorldに接続されているが、childrenは接続されていないという状況になり得る)
+           したがって、先に木を分けてからWorldと接続解消する必要がある
+        */
+
+        // 親子の接続解消
         this.children.each!(child => child.parent = None!Entity);
-        this.children = null;
+
+        // Worldとの接続解消
+        if (this.world.isJust) {
+            this.children.each!(child => this.world.remove(child));
+        }
+
+        this.children.length = 0;
+    }
+
+    package(sbylib) void setWorld(World world) in {
+        assert(this.world.isNone);
+    } body {
+        this._world = Just(world);
+        this.mesh.setWorld(world);
+        this.onAdd.each!(f => f());
+    }
+
+    package(sbylib) void unsetWorld() {
+        this._world = None!World;
+    }
+
+    package(sbylib) void setMesh(Mesh m) in {
+        assert(m.getOwner() == this);
+        assert(this.world.isNone);
+    } body {
+        this._mesh = Just(m);
     }
 
     Maybe!Entity getParent() {
         return this.parent;
     }
 
-    Entity getRootParent() {
+    Entity getRootParent() out (res) {
+        assert(res !is null);
+    } body {
         return this.parent.getRootParent().getOrElse(this);
-    }
-
-    Entity[] getChildren() {
-        return this.children;
-    }
-
-    invariant {
-        //assert(this.children.all!(child => child.parent.isJust));
-        //assert(this.children.all!(child => child.parent.get() == this));
-    }
-
-    /*
-       World Access
-     */
-
-    void remove() {
-        this.world.remove(this);
-        this._world = None!World;
-    }
-
-    void setWorld(Maybe!World world) {
-        this._world = world;
-        this.mesh.onSetWorld(world);
     }
 
     void render() in {
@@ -128,7 +247,6 @@ class Entity {
         if (!this.visible) return;
         this.mesh.render();
     }
-
 
     void traverse(alias func)() {
         func(this);
@@ -148,6 +266,25 @@ class Entity {
         this.traverse((Entity e) {
             auto polygons = e.mesh.geom.createCollisionPolygon();
             e.colEntry = polygons.fmap!((CollisionGeometry[] p) => new CollisionEntry(new CollisionBVH(p), e));
+        });
+    }
+
+    void buildCapsule() {
+        this.traverse((Entity e) {
+            auto capsule = e.mesh.geom.createCollisionCapsule();
+            e.colEntry = capsule.fmap!((CollisionGeometry g) => new CollisionEntry(g, e));
+            debug {
+                import sbylib.material.WireframeMaterial;
+                import sbylib.core.Core;
+                Core().addProcess((proc) {
+                    capsule.apply!((capsule) {
+                        auto geom = capsule.createGeometry();
+                        auto mat = new WireframeMaterial(vec4(1));
+                        e.addChild(new Entity(geom, mat));
+                    });
+                    proc.kill();
+                }, "build capsule");
+            }
         });
     }
 
@@ -187,58 +324,44 @@ class Entity {
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 
-    private void setMesh(Mesh m) in {
-        assert(m.getOwner() == this);
-        assert(this.world.isNone);
+    /*
+       thisがWorldと接続されているかを返す
+
+       備考:
+            WorldとEntityが接続されている⇔ WorldがEntityを持っている && EntityがWorldを持っている
+            だが、片方だけが持っているような状態を仮定しないので、片側のみの確認で良い
+     */
+    private bool isWorldConnected() out (connected) {
+        this.getRootParent().traverse((Entity e) {
+            assert(e.world.isJust == connected);
+        });
     } body {
-        this._mesh = Just(m);
+        return this.world.isJust;
+    }
+
+    /*
+       thisがParentと接続されているかを返す
+
+       備考:
+            Parentとthisが接続されている⇔ Parentがthisを持っている && thisがParentを持っている
+            だが、片方だけが持っているような状態を仮定しないので、片側のみの確認で良い
+     */
+    bool isParentConnected() {
+        return this.parent.isJust;
     }
 
     override string toString() {
+        import std.format;
+        return toString((Entity e) => format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString));
+    }
+
+    string toString(string function(Entity) func) {
         import std.format, std.range;
         import sbylib.utils.Functions;
-        auto result = format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s\n"(name, this.mesh.toString(), this.colEntry.toString(), this.userData.toString);
+        auto result = func(this);
         if (children.length > 0) {
-            result ~= format!"Children(%d):\n%s"(this.children.length, this.children.map!(child => child.toString()).join("\n").indent(3));
+            result ~= format!"\nChildren(%d):\n%s"(this.children.length, this.children.map!(child => child.toString(func)).join("\n").indent(3));
         }
         return result;
     }
-
-    alias obj this;
-}
-
-class TypedEntity(G, M) {
-
-    import sbylib.utils.Functions;
-
-    mixin Proxy;
-
-    @Proxied TypedMesh!(G, M) mesh;
-    @Proxied Entity entity;
-
-    alias entity this;
-}
-
-auto makeEntity(string file = __FILE__, int line = __LINE__) {
-    return new Entity(file, line);
-}
-
-auto makeEntity(G, M)(G g, M m, string file = __FILE__, int line = __LINE__) {
-    auto entity = new TypedEntity!(G, M);
-    entity.entity = new Entity(file, line);
-    entity.mesh = new TypedMesh!(G, M)(g, m, entity.entity);
-    entity.entity.setMesh(entity.mesh);
-    return entity;
-}
-
-auto makeEntity(CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-    return new Entity(colGeom, file, line);
-}
-
-auto makeEntity(G, M)(G g, M m, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-    auto entity = new TypedEntity!(G, M);
-    entity.entity = new Entity(colGeom, file, line);
-    entity.mesh = new TypedMesh!(G, M)(g, m, entity.entity);
-    entity.entity.setMesh(entity.mesh);
-    return entity;
 }

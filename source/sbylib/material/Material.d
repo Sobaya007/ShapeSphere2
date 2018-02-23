@@ -1,16 +1,18 @@
 module sbylib.material.Material;
 
 public {
+    import sbylib.wrapper.gl.Constants;
     import sbylib.wrapper.gl.Uniform;
+    import sbylib.material.RenderConfig;
 }
 
 class Material {
 
     import sbylib.wrapper.gl;
     import sbylib.material.glsl;
-    import sbylib.material.RenderConfig;
     import sbylib.utils.Functions;
-    const Program program;
+
+    Program program;
     @Proxied RenderConfig config;
     TypedUniform!int debugCounter;
 
@@ -20,6 +22,10 @@ class Material {
         this.program = new Program(getShaders);
         this.config = new RenderConfig();
         this.debugCounter = new TypedUniform!int("DebugCounter");
+    }
+
+    void destroy() {
+        this.program.destroy();
     }
 
     final void set(const(Uniform) delegate()[] uniforms) {

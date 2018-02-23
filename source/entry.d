@@ -7,10 +7,10 @@ import plot.Main;
 
 enum RunMode {
     Game,
-    Basic,
     Editor,
-    CameraControl,
+    Basic,
     Material,
+    CameraControl,
     XFileLoad,
     Framebuffer,
     Gui,

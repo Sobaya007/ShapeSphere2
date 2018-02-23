@@ -8,10 +8,7 @@ class RenderBuffer {
 
     private immutable uint id;
     private bool allocated;
-
-    invariant {
-        assert(this.id > 0);
-    }
+    private bool alive = true;
 
     this() out {
        GlFunction.checkError(); 
@@ -26,19 +23,30 @@ class RenderBuffer {
         this.allocate(width, height, format);
     }
 
-    ~this() out {
+    ~this() {
+        assert(!alive);
+    }
+
+    void destroy() in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
+        alive = false;
         glDeleteRenderbuffers(1, &id);
     }
 
-    void bind() out {
+    void bind() in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindRenderbuffer(RenderBufferBindType.Both, this.id);
     }
 
-    void unbind() out {
+    void unbind() in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindRenderbuffer(RenderBufferBindType.Both, 0);

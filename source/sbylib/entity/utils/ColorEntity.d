@@ -1,7 +1,7 @@
 module sbylib.entity.utils.ColorEntity;
 
 public {
-    import sbylib.entity.Entity;
+    import sbylib.entity.TypedEntity;
     import sbylib.math.Vector;
 }
 

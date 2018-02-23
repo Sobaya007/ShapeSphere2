@@ -6,5 +6,7 @@ interface Stage {
 
     Entity getStageEntity();
     Entity getCharacterEntity();
+    Entity getMoveEntity();
+    void transit(string);
 
 }

@@ -1,6 +1,8 @@
 module sbylib.material.RenderConfig;
 
-import sbylib.wrapper.gl.Constants;
+public {
+    import sbylib.wrapper.gl.Constants;
+}
 import sbylib.wrapper.gl.Functions;
 
 class RenderConfig {

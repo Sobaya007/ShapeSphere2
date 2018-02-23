@@ -15,11 +15,13 @@ struct Maybe(T) {
 
     invariant {
         static if (is(typeof(value is null))) {
-            assert(_none || value !is null);
+            assert(_none || value !is null, T.stringof);
         }
     }
 
-    private this(T value) {
+    private this(T value) in {
+        static if (is(typeof(value is null))) assert(value !is null);
+    } body {
         this.value = value;
         this._none = false;
     }
@@ -144,8 +146,8 @@ auto wrap(T)(T value) {
         } else {
             return Just(value);
         }
-    } else static if (is(typeof(value == null))) {
-        if (value == null) {
+    } else static if (is(typeof(value is null))) {
+        if (value is null) {
             return None!T;
         } else {
             return Just(value);

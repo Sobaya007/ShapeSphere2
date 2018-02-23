@@ -4,9 +4,9 @@ import sbylib.wrapper.freetype.LetterInfo;
 import sbylib.wrapper.freetype.Font;
 import sbylib.geometry.geometry2d.Rect;
 import sbylib.material.TextMaterial;
-import sbylib.entity.Mesh;
 import sbylib.math.Vector;
 import sbylib.wrapper.freetype.Constants;
+import sbylib.entity.TypedEntity;
 
 class Letter {
 

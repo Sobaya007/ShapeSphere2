@@ -9,16 +9,27 @@ public {
 
 import sbylib.wrapper.freetype.Font;
 
-private Font font;
+struct LabelFactory {
+    dstring text = "";
+    float height = 0.1;
+    Label.OriginX originX = Label.OriginX.Center;
+    Label.OriginY originY = Label.OriginY.Center;
+    string fontName = "WaonJoyo-R.otf";
+    int fontResolution = 256;
+
+    auto make() {
+        import sbylib.utils.Path;
+        import sbylib.utils.Loader;
+        auto font = FontLoader.load(FontPath(fontName), fontResolution);
+        auto label = new Label(font, height);
+        label.setOrigin(originX, originY);
+        label.renderText(text);
+        return label;
+    }
+}
 
 auto makeTextEntity(dstring text, float height, Label.OriginX originX = Label.OriginX.Center, Label.OriginY originY = Label.OriginY.Center) {
-    import sbylib.wrapper.freetype.FontLoader;
-    import sbylib.utils.Path;
-    if (font is null) font = FontLoader.load(FontPath("WaonJoyo-R.otf"), 256);
-    auto label = new Label(font, height);
-    label.setOrigin(originX, originY);
-    label.renderText(text);
-    return label;
+    return LabelFactory(text, height, originX, originY).make();
 }
 
 IAnimation color(Label label, AnimSetting!vec4 evaluator) {

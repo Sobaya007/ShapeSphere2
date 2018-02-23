@@ -34,7 +34,7 @@ public:
         _width = width;
         _height = height;
 
-        Core core = Core();
+        auto core = Core();
 
         auto window = core.getWindow();
         auto screen = window.getScreen();
@@ -59,6 +59,7 @@ public:
         _content.x = 0;
         _content.y = height;
         control.add(_content);
+        world.add(_content.getEntity);
 
         _scrollBar = new ScrollBar(this, _content.height);
     }

@@ -36,7 +36,7 @@ void basicExample() {
     world.add(boxEntity);
 
 
-    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
+    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
 
 
     core.addProcess({

@@ -1,7 +1,7 @@
 module sbylib.entity.utils.ImageEntity;
 
 public {
-    import sbylib.entity.Entity;
+    import sbylib.entity.TypedEntity;
     import sbylib.utils.Path;
     import sbylib.wrapper.freeimage.Image;
     import sbylib.wrapper.gl.Texture;

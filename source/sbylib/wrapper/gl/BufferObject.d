@@ -1,9 +1,7 @@
 module sbylib.wrapper.gl.BufferObject;
 
-import derelict.opengl;
-import sbylib.wrapper.gl.Constants;
+public import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Functions;
-import std.conv;
 
 interface BufferObject(BufferType Type) {
     void bind() const;
@@ -12,7 +10,10 @@ interface BufferObject(BufferType Type) {
 
 class BufferObject(BufferType Type, T) : BufferObject!Type {
 
+    import derelict.opengl;
+
     protected immutable uint id;
+    private bool alive = true;
 
     this() out {
         GlFunction.checkError();
@@ -23,20 +24,31 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
         GlFunction.checkError();
     }
 
-    ~this() out {
+    ~this() {
+        assert(!alive);
+    }
+
+    void destroy() in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
+        this.alive = false;
         glDeleteVertexArrays(1, &this.id);
     }
 
 
-    override void bind() const out {
+    override void bind() const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindBuffer(Type, this.id);
     }
 
-    override void unbind() const out {
+    override void unbind() const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindBuffer(Type, 0);
@@ -53,18 +65,7 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     } else {
         void sendData(S)(S data, BufferUsage freq = BufferUsage.Static) {
             this.bind();
-            //import std.stdio, std.datetime.stopwatch;
-            //writeln("Type = ", Type.stringof);
-            //writeln("T = ", T.stringof);
-            //writeln("S = ", S.stringof);
-            //writeln("length = ", data.length);
-            //writeln("size = ", T.sizeof);
-            //writeln("total = ", data.length * T.sizeof);
-            //writeln("freq = ", freq);
-            //StopWatch sw;
-            //sw.start();
             glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
-            //writeln("time = ", sw.peek);
             GlFunction.checkError();
             this.unbind();
         }

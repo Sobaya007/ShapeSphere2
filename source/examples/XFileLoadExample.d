@@ -49,17 +49,15 @@ void xFileLoadExample() {
     world.add(parentEntity);
 
 
-    PointLight pointLight;
-    pointLight.pos = vec3(10,10,10);
-    pointLight.diffuse = vec3(1);
-    world.addPointLight(pointLight);
+    auto pointLight = new PointLight(vec3(10), vec3(1));
+    world.add(pointLight);
 
 
     auto control = new CameraControl(camera);
     core.addProcess(&control.update, "update");
 
 
-    core.getKey().justPressed(KeyButton.Escape).add(&core.end);
+    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
 
 
     core.addProcess({

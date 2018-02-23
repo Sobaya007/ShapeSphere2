@@ -7,8 +7,6 @@ enum CButton {
     Press,
     Needle,
     Spring,
-    CameraLeft,
-    CameraRight,
     CameraReset,
     LookOver,
     Left,
@@ -54,8 +52,6 @@ class Controller {
         this.buttons[CButton.Press] = Button(KeyButton.Space, JoyButton.B);
         this.buttons[CButton.Needle] = Button(KeyButton.KeyX, JoyButton.X);
         this.buttons[CButton.Spring] = Button(KeyButton.KeyC, JoyButton.Y);
-        this.buttons[CButton.CameraLeft] = Button(KeyButton.KeyQ, JoyButton.L1);
-        this.buttons[CButton.CameraRight] = Button(KeyButton.KeyE, JoyButton.R1);
         this.buttons[CButton.CameraReset] = Button(KeyButton.KeyZ, JoyButton.R3);
         this.buttons[CButton.LookOver] = Button(KeyButton.KeyR, JoyButton.L2);
         this.buttons[CButton.Left] = Button(KeyButton.Left, JoyButton.Left);

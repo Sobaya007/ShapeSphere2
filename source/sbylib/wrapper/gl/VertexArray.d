@@ -14,6 +14,7 @@ import std.format;
 class VertexArray {
 
     immutable uint id;
+    private bool alive = true;
 
     this() out {
         GlFunction.checkError();
@@ -23,19 +24,30 @@ class VertexArray {
         this.id = vao;
     }
 
-    void destroy() out {
+    ~this() {
+        assert(!alive);
+    }
+
+    void destroy() in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
+        this.alive = false;
         glDeleteVertexArrays(1, &this.id);
     }
 
-    void bind() const out {
+    void bind() const in {
+        assert(alive);
+    } out {
         GlFunction.checkError(format!"%d"(this.id));
     } body {
         glBindVertexArray(id);
     }
 
-    void unbind() const out {
+    void unbind() const in {
+        assert(alive);
+    } out {
         GlFunction.checkError();
     } body {
         glBindVertexArray(0);

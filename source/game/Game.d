@@ -4,6 +4,7 @@ public import game.command;
 public import game.player;
 public import game.stage.Map;
 public import game.entity.Message;
+public import game.scene.GameMainScene;
 import sbylib;
 import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv;
 
@@ -21,6 +22,8 @@ static:
     private Message message;
 
     private RenderTarget backBuffer;
+    
+    private GameMainScene scene;
 
     void initialize(string[] args) {
         this.commandManager = selectCommandManager(args);
@@ -42,6 +45,13 @@ static:
     } body {
         this.map = map;
     }
+
+    void initializeScene(GameMainScene) in {
+        assert(this.scene is null);
+    } body {
+        this.scene = scene;
+    }
+
 
     ICommandManager getCommandManager() {
         return commandManager;
@@ -65,6 +75,12 @@ static:
         assert(this.map !is null);
     } body {
         return this.map;
+    }
+
+    GameMainScene getScene() in {
+        assert(this.scene !is null);
+    } body {
+        return this.scene;
     }
 
     Message getMessge() {
