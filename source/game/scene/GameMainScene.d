@@ -145,6 +145,11 @@ class GameMainScene : SceneBase {
                 }
             }
         }).start();
+
+        /* Manipulator */
+        import game.tool.manipulator;
+        auto manipulatorManager = new ManipulatorManager;
+
     }
 
     override void render() {
