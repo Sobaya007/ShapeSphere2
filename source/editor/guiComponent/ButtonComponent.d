@@ -51,7 +51,7 @@ public:
         float fontSize = 0.0,
         vec4 fontColor = vec4(0, 0, 0, 1)
     ) {
-        LabelComponent label = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        LabelComponent label = new LabelComponent(text, fontSize, fontColor, Label.Strategy.Center);
         this(width, height, label);
     }
 

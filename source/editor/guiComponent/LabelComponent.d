@@ -19,17 +19,18 @@ public:
         dstring text,
         float fontSize,
         vec4 fontColor,
-        Label.OriginX originX = Label.OriginX.Left,
-        Label.OriginY originY = Label.OriginY.Top,
+        Label.Strategy strategy = Label.Strategy.Left,
         float wrapWidth = 1e10
     ) {
 
-        auto font = FontLoader.load(FontPath("meiryo.ttc"), 256);
-        auto label = new Label(font, fontSize);
-        label.setColor(fontColor);
-        label.setOrigin(originX, originY);
-        label.setWrapWidth(wrapWidth);
-        label.renderText(text);
+        LabelFactory factory;
+        factory.fontName = "meiryo.ttc";
+        factory.height = fontSize;
+        factory.wrapWidth = wrapWidth;
+        factory.textColor = fontColor;
+        factory.strategy = strategy;
+        factory.text = text;
+        auto label = factory.make();
         _fontSize = fontSize;
 
         this(label);
@@ -48,7 +49,7 @@ public:
     }
 
     void setFontColor(vec4 color) {
-        _label.setColor(color);
+        _label.color = color;
     }
 
     void setText(dstring text) {

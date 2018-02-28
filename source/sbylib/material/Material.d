@@ -13,13 +13,19 @@ class Material {
     import sbylib.utils.Functions;
 
     Program program;
+    private static Program[TypeInfo] programs;
     @Proxied RenderConfig config;
     TypedUniform!int debugCounter;
 
     mixin Proxy;
 
     this() {
-        this.program = new Program(getShaders);
+        if (auto program = typeid(this) in programs) {
+            this.program = *program;
+        } else {
+            this.program = new Program(getShaders);
+            programs[typeid(this)] = this.program;
+        }
         this.config = new RenderConfig();
         this.debugCounter = new TypedUniform!int("DebugCounter");
     }
@@ -30,7 +36,11 @@ class Material {
 
     final void set(const(Uniform) delegate()[] uniforms) {
         this.config.set();
-        this.program.use();
+        static Program before;
+        if (before !is program) {
+            before = program;
+            this.program.use();
+        }
         uint uniformBlockPoint = 0;
         uint textureUnit = 0;
         import std.stdio;

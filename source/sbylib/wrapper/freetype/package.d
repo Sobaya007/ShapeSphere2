@@ -10,4 +10,4 @@ public:
 import sbylib.wrapper.freetype.Constants;
 import sbylib.wrapper.freetype.Font;
 import sbylib.wrapper.freetype.FreeType;
-import sbylib.wrapper.freetype.LetterInfo;
+import sbylib.wrapper.freetype.StringTexture;

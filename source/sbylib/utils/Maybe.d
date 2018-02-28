@@ -172,6 +172,12 @@ auto catMaybe(Range)(Range r) if (isInputRange!Range && isInstanceOf!(Maybe, Ele
     return r.filter!(m => m.isJust).map!(m => m.get);
 }
 
+auto at(T)(T[] array, long index) {
+    if (index < 0) return None!T;
+    if (index >= array.length) return None!T;
+    return Just(array[index]);
+}
+
 unittest {
     auto po = Just(3);
 

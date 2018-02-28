@@ -38,15 +38,16 @@ static:
         this(string name) {
             this.name = name;
             auto factory = LabelFactory();
-            factory.originX = Label.OriginX.Right;
-            factory.originY = Label.OriginY.Top;
-            factory.fontName = "meiryo.ttc";
+            factory.strategy = Label.Strategy.Left;
+            factory.height = 0.07;
+            factory.fontName = "consola.ttf";
+            factory.backColor = vec4(0.5);
+            factory.text = "poyo";
             this.label = factory.make();
-            this.label.setBackColor(vec4(0.5));
-            this.label.pos.x = 1;
+            this.label.right = 1;
 
             if (stopWatch.length == 0) {
-                this.label.pos.y = 1;
+                this.label.top = 0.9;
             } else {
                 auto sw = stopWatch[$-1];
                 this.label.pos.y = sw.label.pos.y - sw.label.getHeight;
@@ -139,6 +140,7 @@ static:
         auto sw = findResult.front;
         assert(sw.running);
         sw.label.renderText(format!"%s : %3dmsecs"(str, sw.peek.total!"msecs"));
+        sw.label.right = 1;
     }
 
     void update() {

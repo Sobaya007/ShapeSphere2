@@ -32,10 +32,14 @@ class Message : CommandReceiver {
     } body {
         float currentWidth = this.text.getWidth().getOrElse(0);
         float currentHeight = this.text.getHeight().getOrElse(0);
-        auto text = makeTextEntity(message, 0.1, Label.OriginX.Left, Label.OriginY.Top);
-        text.setWrapWidth(1);
-        text.pos = vec3(-text.getWidth()/2, text.getHeight()/2, -0.5);
-        text.letters.each!((Letter letter) => letter.visible = false);
+        LabelFactory factory;
+        factory.text = message;
+        factory.height = 0.1;
+        factory.strategy = Label.Strategy.Center;
+        factory.wrapWidth = 1;
+        auto text = factory.make();
+        text.pos.z = -0.5;
+        //text.letters.each!((Letter letter) => letter.visible = false);
         float arrivalWidth = text.getWidth();
         float arrivalHeight = text.getHeight();
         this.img.scale = vec3(0);
@@ -54,12 +58,12 @@ class Message : CommandReceiver {
                 ),
                 new Animation!float(
                     (float time) {
-                        text.letters[cast(int)time].visible = true;
+                        text.renderText(message[0..cast(int)time]);
                     },
                     setting(
                         0f,
-                        cast(float)(text.letters.length-1),
-                        cast(uint)(5 * text.letters.length),
+                        cast(float)(message.length-1),
+                        cast(uint)(5 * message.length),
                         Ease.linear
                     )
                 )

@@ -24,7 +24,7 @@ interface Geometry {
     void render(VertexArray vao);
     void destroy();
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
-    IndexBuffer getIndexBuffer();
+    Maybe!IndexBuffer getIndexBuffer();
     void updateBuffer();
     CollisionGeometry[] createCollisionPolygon();
     CollisionCapsule createCollisionCapsule();
@@ -80,7 +80,7 @@ alias VertexGroupNT = VertexGroup!([Attribute.Position, Attribute.Normal, Attrib
 class FaceGroup(Prim Mode) {
     const Face[] faces;
     const uint indicesCount;
-    private IndexBuffer ibo;
+    IndexBuffer ibo;
 
     this(immutable(uint[]) indices) {
         this.ibo = new IndexBuffer;
@@ -128,20 +128,21 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
     alias FaceGroupP = FaceGroup!(Mode);
 
     VertexGroup!(Attributes) vertexGroup;
-    FaceGroup!(Mode) faceGroup;
+    Maybe!(FaceGroup!(Mode)) faceGroup;
 
     this(VertexA[] vertices) {
-        this(vertices, iota(cast(uint)vertices.length).array);
+        this.vertexGroup = new VertexGroup!(Attributes)(vertices);
+        this.faceGroup = None!(FaceGroup!(Mode));
     }
 
     this(VertexA[] vertices, immutable(uint[]) indices) {
         this.vertexGroup = new VertexGroup!(Attributes)(vertices);
-        this.faceGroup = new FaceGroup!(Mode)(indices);
+        this.faceGroup = Just(new FaceGroup!(Mode)(indices));
     }
 
     this(VertexGroupA vertexGroup, FaceGroupP faceGroup) {
         this.vertexGroup = vertexGroup;
-        this.faceGroup = faceGroup;
+        this.faceGroup = Just(faceGroup);
     }
 
     void destroy() {
@@ -150,13 +151,17 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
     }
 
     override void render(VertexArray vao) {
-        vao.drawElements!uint(Mode, this.faceGroup.indicesCount);
+        if (this.faceGroup.isJust) {
+            vao.drawElements!uint(Mode, this.faceGroup.indicesCount.get());
+        } else {
+            vao.drawArrays(Mode, 0, cast(uint)this.vertexGroup.vertices.length);
+        }
     }
 
     override Tuple!(Attribute, VertexBuffer)[] getBuffers() {
         return this.vertexGroup.buffers;
     }
-    override IndexBuffer getIndexBuffer() {
+    override Maybe!IndexBuffer getIndexBuffer() {
         return this.faceGroup.ibo;
     }
 
@@ -166,7 +171,7 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
 
     override CollisionGeometry[] createCollisionPolygon() {
         CollisionGeometry[] colPolygons;
-        foreach (i, face; this.faceGroup.faces) {
+        foreach (i, face; this.faceGroup.get().faces) {
             auto poly = new CollisionPolygon(
                     this.vertexGroup.vertices[face.indexList[2]].position,
                     this.vertexGroup.vertices[face.indexList[1]].position,
@@ -193,7 +198,7 @@ class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
     }
 
     const(Face[]) faces() const {
-        return this.faceGroup.faces;
+        return this.faceGroup.get().faces;
     }
 
     override string toString() {

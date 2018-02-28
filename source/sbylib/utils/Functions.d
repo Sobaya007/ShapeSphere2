@@ -194,6 +194,100 @@ string indent(string str, int space) {
     return str.split("\n").map!(s => " ".repeat(space).join ~ s).join("\n");
 }
 
+private struct SliceObject {
+    size_t begin, end;
+}
+
+struct RectangleBuffer(T) {
+    import sbylib.utils.Maybe;
+    import std.traits;
+    alias S = ForeachType!(T);
+    private T array;
+    private size_t width, height;
+    private bool flip;
+
+    auto opIndex(long x, long y) {
+        if (x < 0) return None!S;
+        if (y < 0) return None!S;
+        if (x >= width) return None!S;
+        if (y >= height) return None!S;
+        if (flip) y = height-y-1;
+        return Just(array[x+y*width]);
+    }
+
+    void opIndexAssign(S value, long x, long y) {
+        if (x < 0) return;
+        if (y < 0) return;
+        if (x >= width) return;
+        if (y >= height) return;
+        if (flip) y = height-y-1;
+        array[x+y*width] = value;
+    }
+
+    auto slice(size_t ox, size_t oy, size_t w, size_t h) {
+        return RectangleBufferSlice!T(this, ox, oy, w, h);
+    }
+
+    auto flipY() {
+        flip = !flip;
+        return this;
+    }
+
+    auto opSlice(size_t idx)(size_t begin, size_t end) {
+        return SliceObject(begin, end);
+    }
+
+    auto opIndex(SliceObject x, size_t y) {
+        if (flip) y = height-y-1;
+        return array[y*width+x.begin..y*width+x.end];
+    }
+
+    auto opIndexAssign(S[] value, SliceObject x, size_t y) {
+        if (flip) y = height-y-1;
+        array[y*width+x.begin..y*width+x.end] = value;
+    }
+}
+
+struct RectangleBufferSlice(T) {
+    import sbylib.utils.Maybe;
+    import std.traits;
+    alias S = ForeachType!(T);
+    private RectangleBuffer!T rect;
+    private size_t ox, oy, width, height;
+
+    auto opIndex(long x, long y) {
+        if (x < 0) return None!S;
+        if (y < 0) return None!S;
+        if (x >= width) return None!S;
+        if (y >= height) return None!S;
+        return rect[x+ox,y+oy];
+    }
+
+    void opIndexAssign(S value, long x, long y) {
+        if (x < 0) return;
+        if (y < 0) return;
+        if (x >= width) return;
+        if (y >= height) return;
+        rect[x+ox,y+oy] = value;
+    }
+
+    auto opSlice(size_t idx)(size_t begin, size_t end) {
+        return rect.opSlice!(idx)(begin+ox, end+ox);
+    }
+
+    auto opIndex(SliceObject x, size_t y) {
+        return rect.opIndex(x,y+oy);
+    }
+
+    auto opIndexAssign(S[] value, SliceObject x, size_t y) {
+        rect.opIndexAssign(value, x, y+oy);
+    }
+}
+
+auto asRect(T)(T array, size_t width, size_t height) {
+    return RectangleBuffer!T(array, width, height);
+}
+
 enum red    = vec4(1,0,0,1);
 enum green  = vec4(0,1,0,1);
 enum blue   = vec4(0,0,1,1);

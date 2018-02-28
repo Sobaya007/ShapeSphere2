@@ -228,7 +228,7 @@ class Area {
         auto m = entity.buildEntity(new StageMaterialBuilder);
         this.stageEntity.addChild(m);
         m.buildBVH();
-        m.traverse((Entity e) {
+        m.traverse!((Entity e) {
             auto name = e.mesh.mat.wrapCast!(StageMaterial).name;
             if (name.isNone) return;
             e.setUserData(name.get);

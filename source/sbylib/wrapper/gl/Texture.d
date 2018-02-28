@@ -48,6 +48,13 @@ class Texture {
         this.allocated = true;
     }
 
+    void update(Type)(uint mipmapLevel, int offsetX, int offsetY, uint width, uint height, ImageFormat format, Type *data) {
+        this.bind();
+        glTexSubImage2D(this.target, mipmapLevel, offsetX, offsetY, width, height, format, GlFunction.getTypeEnum!Type, data);
+        GlFunction.checkError();
+        this.unbind();
+    }
+
     void destroy() in {
         assert(alive);
     } out {

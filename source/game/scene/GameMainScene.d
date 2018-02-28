@@ -58,12 +58,15 @@ class GameMainScene : SceneBase {
 
         /* Label Settings */
         if (Game.getCommandManager().isPlaying()) {
-            auto font = FontLoader.load(FontPath("HGRPP1.TTC"), 256);
-            auto label = new Label(font, 0.1);
-            label.setOrigin(Label.OriginX.Right, Label.OriginY.Top);
-            label.pos = vec3(1,1,0);
-            label.setColor(vec4(1));
-            label.renderText("REPLAYING...");
+            LabelFactory factory;
+            factory.fontName = "HGRPP1.TTC";
+            factory.height = 0.1;
+            factory.strategy = Label.Strategy.Right;
+            factory.textColor = vec4(1);
+            factory.text = "REPLAYING...";
+            auto label = factory.make();
+            label.right = 1;
+            label.top = 1;
             world2d.add(label);
             core.addProcess((proc) {
                 if (Game.getCommandManager().isPlaying()) return;
@@ -73,25 +76,24 @@ class GameMainScene : SceneBase {
         }
 
         debug {
-            /* Compass Settings */
-            auto compass = new Entity(Rect.create(0.5, 0.5), new CompassMaterial(camera));
-            world2d.add(compass);
-            compass.pos = vec3(0.75, -0.75, 0);
-
             /* FPS Observe */
             auto fpsCounter = new FpsCounter!100();
             auto fpsLabel = addLabel();
             core.addProcess((proc) {
                 fpsCounter.update();
                 fpsLabel.renderText(format!"FPS: %3d"(fpsCounter.getFPS()).to!dstring);
+                fpsLabel.top = 0.9;
+                fpsLabel.left = -1;
                 window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
             }, "fps update");
 
-            auto numberLabel3D = addLabel();
-            auto numberLabel2D = addLabel();
+            auto numberLabel3D = addLabel("world3d");
+            auto numberLabel2D = addLabel("world2d");
             core.addProcess({
                 numberLabel3D.renderText(format!"World3D: %2d"(world3d.getEntityNum));
                 numberLabel2D.renderText(format!"World2D: %2d"(world2d.getEntityNum));
+                numberLabel3D.left = -1;
+                numberLabel2D.left = -1;
             }, "label update");
 
             /* Control navigation */
@@ -175,13 +177,13 @@ class GameMainScene : SceneBase {
     Label addLabel(dstring text = "") {
         auto factory = LabelFactory();
         factory.text = text;
-        factory.originX = Label.OriginX.Left;
-        factory.originY = Label.OriginY.Top;
+        factory.strategy = Label.Strategy.Left;
         factory.fontName = "meiryo.ttc";
         factory.height = 0.08;
+        factory.backColor = vec4(vec3(1), 0.4);
         auto label = factory.make();
-        label.pos.xy = vec2(-1,1 - labels.length * factory.height);
-        label.setBackColor(vec4(vec3(1), 0.4));
+        label.left = -1;
+        label.top = 0.9 - labels.length * factory.height;
         Game.getWorld2D().add(label);
 
         labels ~= label;

@@ -41,7 +41,7 @@ public:
 
         entity.addChild(_content.entity);
 
-        LabelComponent label = new LabelComponent(getShowText(), _borderSize*0.9, _borderColor, Label.OriginX.Center, Label.OriginY.Center);
+        LabelComponent label = new LabelComponent(getShowText(), _borderSize*0.9, _borderColor, Label.Strategy.Center);
 
         auto opener = new ButtonComponent(label.width, _borderSize, label);
         opener.x = _borderSize;

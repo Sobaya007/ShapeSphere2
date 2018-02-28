@@ -2,4 +2,4 @@ module sbylib.character;
 
 public:
 import sbylib.character.Label;
-import sbylib.character.Letter;
+import sbylib.character.Sentence;

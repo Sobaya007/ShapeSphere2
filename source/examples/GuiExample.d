@@ -18,10 +18,7 @@ void guiExample() {
     world.setCamera(camera);
 
 
-    auto font = FontLoader.load(FontPath("HGRPP1.TTC"), 256);
-
-
-    auto timeline = new Timeline(font);
+    auto timeline = new Timeline();
     timeline.add(0);
     world.add(timeline.getEntity());
     timeline.add(0);

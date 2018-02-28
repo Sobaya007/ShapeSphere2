@@ -10,6 +10,7 @@ import derelict.opengl;
 import std.algorithm;
 import std.typecons;
 import std.format;
+import sbylib.utils.Maybe;
 
 class VertexArray {
 
@@ -53,7 +54,7 @@ class VertexArray {
         glBindVertexArray(0);
     }
 
-    void setup(const Program program, Tuple!(Attribute, VertexBuffer)[] buffers, IndexBuffer ibo) {
+    void setup(const Program program, Tuple!(Attribute, VertexBuffer)[] buffers, Maybe!IndexBuffer ibo) {
         this.bind();
         foreach(tuple; buffers) {
             if (!program.hasAttribute(tuple[0].name)) continue;

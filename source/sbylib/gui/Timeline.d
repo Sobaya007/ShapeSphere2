@@ -22,7 +22,7 @@ class Timeline : IControllable {
     private Label maxLabel;
     private Label minLabel;
 
-    this(Font font) {
+    this() {
         this.time = -0.5;
         this.lastWritten = 1;
 
@@ -32,14 +32,22 @@ class Timeline : IControllable {
         this.rect = makeEntity(Rect.create(1,1), new ColorMaterial);
         this.rect.color = vec4(0.4);
         this.rect.buildBVH();
-        this.minLabel = new Label(font, 0.05);
-        this.minLabel.pos = vec3(-0.5, -0.5, -0.1);
-        this.minLabel.setColor(vec4(1));
-        this.minLabel.setOrigin(Label.OriginX.Left, Label.OriginY.Bottom);
-        this.maxLabel = new Label(font, 0.05);
-        this.maxLabel.pos = vec3(-0.5, +0.5, -0.1);
-        this.maxLabel.setColor(vec4(1));
-        this.maxLabel.setOrigin(Label.OriginX.Left, Label.OriginY.Top);
+        LabelFactory factory;
+        factory.fontName = "HGRPP1.TTC";
+        factory.height = 0.05;
+        factory.textColor = vec4(1);
+        factory.strategy = Label.Strategy.Left;
+
+        this.minLabel = factory.make();
+        this.minLabel.left = -0.5;
+        this.minLabel.bottom = -0.5;
+        this.minLabel.pos.z = -0.1;
+
+        this.maxLabel = factory.make();
+        this.maxLabel.left = -0.5;
+        this.maxLabel.top  = +0.5;
+        this.maxLabel.pos.z = -0.1;
+
         this.root = new Entity;
         this.root.addChild(this.line);
         this.root.addChild(this.rect);
