@@ -40,6 +40,7 @@ class ElasticSphere2 {
     private ElasticPair[] pairList;
     private GeometrySphere geom;
     Entity entity;
+    private CollisionCapsule capsule;
     vec3 force;
     private Depends!((const vec3[] positions) => sum(positions) / positions.length) center;
     private Depends!((const vec3[] vels) => sum(vels) / vels.length) lVel;
@@ -69,7 +70,7 @@ class ElasticSphere2 {
         FORCE_COEF.depends(TIME_STEP, MASS, C, K);
         this.force = vec3(0);
         this.geom = Sphere.create(DEFAULT_RADIUS, RECURSION_LEVEL);
-        this.entity = new Entity(geom, mat, new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
+        this.entity = new Entity(geom, mat, this.capsule = new CollisionCapsule(RADIUS, vec3(0), vec3(0)));
         this.entity.name = "ElasticSphere";
         this.particleList = geom.vertices.map!(p => new ElasticParticle(p.position)).array;
         auto p = this.particleList.map!(p => &p.position).array;
@@ -162,7 +163,7 @@ class ElasticSphere2 {
         vec3 g = this.center;
 
         this.rotateParticles(g);
-        this.entity.obj.pos = g;
+        this.entity.pos = g;
 
         //拘束解消
         {
@@ -179,12 +180,20 @@ class ElasticSphere2 {
         }
         float baloonForce = this.calcBaloonForce();
         this.contactNormal = None!vec3;
+
+        auto entities = Array!Entity(0);
+        scope(exit) entities.destroy();
+        Game.getMap().getStageEntity().traverse((Entity e) {
+            if (e.colEntry.isNone) return;
+            entities ~= e;
+        });
+
         foreach (ref particle; this.particleList) {
             particle.force += particle.normal * baloonForce;
             if (this.contactNormal.isNone) particle.force.y -= GRAVITY * MASS;
             particle.velocity += particle.force * FORCE_COEF;
             move(particle);
-            collision(particle, collisionEntities);
+            collision(particle, entities);
             end(particle);
         }
         this.force.y = 0;
@@ -291,14 +300,11 @@ class ElasticSphere2 {
         particle.capsule.setStart(particle.position);
     }
 
-    private void collision(ElasticParticle particle, Entity[] collisionEntities) {
+    private void collision(ElasticParticle particle, ref Array!Entity entities) {
         auto colInfos = Array!CollisionInfo(0);
-        Game.getMap().getStageEntity().collide(colInfos, particle.entity);
-        foreach (entity; collisionEntities) {
-            entity.collide(colInfos, particle.entity);
-        }
-        scope (exit) {
-            colInfos.destroy();
+        scope(exit) colInfos.destroy();
+        foreach (e; entities) {
+            e.collide(colInfos, particle.entity);
         }
         foreach (colInfo; colInfos) {
             auto n = colInfo.getPushVector(particle.entity);
