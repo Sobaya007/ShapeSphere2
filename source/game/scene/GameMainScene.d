@@ -75,6 +75,11 @@ class GameMainScene : SceneBase {
             }, "label update");
         }
 
+        core.getKey().justPressed(KeyButton.Escape).add({
+            Game.getCommandManager().save();
+            core.end();
+        });
+
         debug {
             /* FPS Observe */
             auto fpsCounter = new FpsCounter!100();
@@ -114,14 +119,12 @@ class GameMainScene : SceneBase {
             addLabel("N: Toggle this message");
 
             /* Key Input */
-            core.getKey().justPressed(KeyButton.Escape).add({
-                Game.getCommandManager().save();
-                core.end();
-            });
             core.getKey().justPressed(KeyButton.KeyO).add({ConfigManager().load();});
             core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
             core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
             core.getKey().justPressed(KeyButton.KeyN).add({labels.each!(l => l.traverse!((Entity e) => e.visible = !e.visible));});
+        } else {
+            window.toggleFullScreen();
         }
 
         import game.stage.Stage1;

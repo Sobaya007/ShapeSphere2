@@ -141,6 +141,7 @@ class ElasticSphere2 {
 
         this(vec3 pos, vec3 dir) { this.pos = pos; this.dir = dir;}
     }
+
     Maybe!WallContact getWallContact() {
         auto colInfos = Array!CollisionInfo(0);
         Game.getMap().getStageEntity().collide(colInfos, this.entity);
