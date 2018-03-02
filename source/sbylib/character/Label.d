@@ -14,6 +14,7 @@ import std.math;
 struct LetterInfo {
     Font.LetterInfo info;
     int ox;
+    dchar c;
     alias info this;
 }
 
@@ -109,7 +110,7 @@ class Label {
             while (!text.empty) {
                 auto info = font.getLetterInfo(text.front);
                 if (this.width + info.maxWidth > wrapWidth*font.size) break;
-                infos ~= LetterInfo(info, cast(int)this.width);
+                infos ~= LetterInfo(info, cast(int)this.width, text.front);
                 text = text[1..$];
                 this.width += info.maxWidth;
             }

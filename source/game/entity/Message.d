@@ -58,7 +58,7 @@ class Message : CommandReceiver {
                 ),
                 new Animation!float(
                     (float time) {
-                        text.renderText(message[0..cast(int)time]);
+                        //text.renderText(message[0..cast(int)time]);
                     },
                     setting(
                         0f,

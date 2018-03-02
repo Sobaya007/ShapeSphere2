@@ -33,6 +33,9 @@ static:
         private Label label;
         private StopWatch sw;
 
+        private long[] history;
+        private long sum;
+
         alias sw this;
 
         this(string name) {
@@ -53,6 +56,20 @@ static:
                 this.label.pos.y = sw.label.pos.y - sw.label.getHeight;
             }
             getWorld2D().add(this.label);
+        }
+
+        ulong update(long newValue) {
+            if (history.length < 100) {
+                history ~= newValue;
+                sum += newValue;
+            } else {
+                sum += newValue - history.front;
+                foreach (i; 1..history.length) {
+                    history[i-1] = history[i];
+                }
+                history[$-1] = newValue;
+            }
+            return sum / history.length;
         }
     }
 
@@ -139,7 +156,9 @@ static:
         assert(!findResult.empty);
         auto sw = findResult.front;
         assert(sw.running);
-        sw.label.renderText(format!"%s : %3dmsecs"(str, sw.peek.total!"msecs"));
+        auto dur = sw.peek.total!"msecs";
+        auto ave = sw.update(dur);
+        sw.label.renderText(format!"%s : %3dmsecs"(str, ave));
         sw.label.right = 1;
     }
 

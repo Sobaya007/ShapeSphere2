@@ -16,6 +16,8 @@ class Sentence {
     private LetterEntity entity;
 
     float width, height;
+    private ubyte[] buffer;
+    private LetterInfo[] beforeInfos;
 
     this() {
         this.entity = makeEntity(Rect.create(1, 1), new TextMaterial);
@@ -36,10 +38,25 @@ class Sentence {
         import sbylib.utils;
         auto w = h * maxWidth / maxHeight;
         GlFunction.setPixelUnpackAlign(1);
-        if (width != maxWidth || height != maxHeight) {
-            this.entity.texture.allocate(0, ImageInternalFormat.R, cast(uint)maxWidth+5, cast(uint)maxHeight, ImageFormat.R, (ubyte*).init);
+        if (width != w || height != h) {
+            buffer = new ubyte[maxWidth*maxHeight];
+            this.entity.texture.allocate(0, ImageInternalFormat.R, cast(uint)maxWidth+100, cast(uint)maxHeight, ImageFormat.R, buffer.ptr);
+            this.beforeInfos.length = 0;
         }
-        foreach (info; infos) {
+        foreach (before, info; zip(StoppingPolicy.longest, beforeInfos, infos)) {
+            // modify
+            if (before.c == info.c) continue;
+            if (before != LetterInfo.init) {
+                this.entity.texture.update(
+                    0,
+                    cast(uint)(before.ox+before.offsetX),
+                    cast(uint)(before.offsetY),
+                    cast(uint)before.width,
+                    cast(uint)before.height,
+                    ImageFormat.R,
+                    buffer.ptr
+                );
+            }
             this.entity.texture.update(
                 0,
                 cast(uint)(info.ox+info.offsetX),
@@ -55,6 +72,7 @@ class Sentence {
 
         this.width = w;
         this.height = h;
+        this.beforeInfos = infos;
     }
 
     LetterEntity getEntity() {
