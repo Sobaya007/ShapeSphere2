@@ -39,7 +39,7 @@ class Message : CommandReceiver {
         factory.wrapWidth = 1;
         auto text = factory.make();
         text.pos.z = -0.5;
-        //text.letters.each!((Letter letter) => letter.visible = false);
+        text.traverse!((Entity e) => e.visible = false);
         float arrivalWidth = text.getWidth();
         float arrivalHeight = text.getHeight();
         this.img.scale = vec3(0);
@@ -58,7 +58,7 @@ class Message : CommandReceiver {
                 ),
                 new Animation!float(
                     (float time) {
-                        //text.renderText(message[0..cast(int)time]);
+                        text.renderText(message[0..cast(int)time]);
                     },
                     setting(
                         0f,

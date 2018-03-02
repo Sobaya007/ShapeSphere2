@@ -31,16 +31,16 @@ class Sentence {
 
     void setBuffer(LetterInfo[] infos, float h) {
         import std.algorithm, std.range;
-        auto maxWidth = infos.map!(i => i.maxWidth).sum;
-        auto minHeight = infos.map!(i => i.maxHeight).minElement;
+        if (infos.empty) return;
+        auto totalWidth = infos.back.pen + infos.back.offsetX + infos.back.width;
         auto maxHeight = infos.map!(i => i.maxHeight).maxElement;
-        assert(minHeight == maxHeight);
+        //assert(minHeight == maxHeight);
         import sbylib.utils;
-        auto w = h * maxWidth / maxHeight;
+        auto w = h * totalWidth / maxHeight;
         GlFunction.setPixelUnpackAlign(1);
         if (width != w || height != h) {
-            buffer = new ubyte[maxWidth*maxHeight];
-            this.entity.texture.allocate(0, ImageInternalFormat.R, cast(uint)maxWidth+100, cast(uint)maxHeight, ImageFormat.R, buffer.ptr);
+            buffer = new ubyte[totalWidth*maxHeight];
+            this.entity.texture.allocate(0, ImageInternalFormat.R, cast(uint)totalWidth, cast(uint)maxHeight, ImageFormat.R, buffer.ptr);
             this.beforeInfos.length = 0;
         }
         foreach (before, info; zip(StoppingPolicy.longest, beforeInfos, infos)) {
@@ -49,7 +49,7 @@ class Sentence {
             if (before != LetterInfo.init) {
                 this.entity.texture.update(
                     0,
-                    cast(uint)(before.ox+before.offsetX),
+                    cast(uint)(before.pen+before.offsetX),
                     cast(uint)(before.offsetY),
                     cast(uint)before.width,
                     cast(uint)before.height,
@@ -59,7 +59,7 @@ class Sentence {
             }
             this.entity.texture.update(
                 0,
-                cast(uint)(info.ox+info.offsetX),
+                cast(uint)(info.pen+info.offsetX),
                 cast(uint)(info.offsetY),
                 cast(uint)info.width,
                 cast(uint)info.height,

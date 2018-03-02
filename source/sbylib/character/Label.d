@@ -13,7 +13,7 @@ import std.math;
 
 struct LetterInfo {
     Font.LetterInfo info;
-    int ox;
+    int pen;
     dchar c;
     alias info this;
 }
@@ -103,20 +103,21 @@ class Label {
         import sbylib.wrapper.freetype.StringTexture;
         LetterInfo[][] rows;
         auto text = this.text;
-        auto wrapWidth = this.wrapWidth / this.size;
-        this.width = 0;
+        auto wrapWidth = this.wrapWidth * font.size / this.size;
+        auto pen = 0;
         while (!text.empty) {
+            pen = 0;
             LetterInfo[] infos;
             while (!text.empty) {
                 auto info = font.getLetterInfo(text.front);
-                if (this.width + info.maxWidth > wrapWidth*font.size) break;
-                infos ~= LetterInfo(info, cast(int)this.width, text.front);
+                if (pen + info.advance > wrapWidth) break;
+                infos ~= LetterInfo(info, pen, text.front);
                 text = text[1..$];
-                this.width += info.maxWidth;
+                pen += info.advance;
             }
             rows ~= infos;
         }
-        this.width *= this.size / font.size;
+        this.width = rows.map!(row => row.map!(i => i.advance).sum).maxElement * this.size / font.size;
         this.height = rows.length * this.size;
         if (sentences.length < rows.length) {
             auto newSentences = iota(rows.length-sentences.length).map!(_ => new Sentence).array;
@@ -138,7 +139,7 @@ class Label {
                 this.sentences.each!(s => s.pos.x = (this.width - s.width)/2);
                 break;
         }
-        this.sentences.enumerate.each!(s => s.value.pos.y = this.height/2 - s.index * this.size);
+        this.sentences.enumerate.each!(s => s.value.pos.y = (s.index - this.sentences.length*.25) * -this.size);
         this.sentences.each!(s => s.color = color);
         this.sentences.each!(s => s.backColor = backColor);
     }

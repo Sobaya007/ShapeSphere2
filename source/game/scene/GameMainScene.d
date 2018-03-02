@@ -102,6 +102,7 @@ class GameMainScene : SceneBase {
             }, "label update");
 
             /* Control navigation */
+            addLabel("Esc: Finish Game");
             addLabel("A/D: Rotate Camera");
             addLabel("Space: Press Character");
             addLabel("X: Transform to Needle");

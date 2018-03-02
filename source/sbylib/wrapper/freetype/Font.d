@@ -17,17 +17,20 @@ class Font {
     package(sbylib) this(FT_Face face, int size, FontType fontType) {
         this.face = face;
         this.size = size;
-        assert(!FT_Set_Pixel_Sizes(this.face, 0, size), "Failed to set pixel size!");
+        auto result = FT_Set_Pixel_Sizes(this.face, 0, size);
+        assert(!result, "Failed to set pixel size!");
     }
 
     private void loadChar(dchar c, FontLoadType loadType) {
-        assert (!FT_Load_Char(this.face, c, loadType), "Failed to load character!");
+        auto result = FT_Load_Char(this.face, c, loadType);
+        assert (!result, "Failed to load character!");
     }
 
     struct LetterInfo {
         long offsetX, offsetY;
         long width, height;
-        long maxWidth, maxHeight;
+        long advance;
+        long maxHeight;
         ubyte[] bitmap;
     }
 
@@ -43,12 +46,12 @@ class Font {
         auto width = met.width/64;
         auto height = met.height/64;
 
-        auto baseLineHeight = sz.ascender / 64;
-        auto maxWidth = met.horiAdvance/64;
+        auto ascender = sz.ascender / 64;
+        auto advance = met.horiAdvance/64;
         auto maxHeight = (sz.ascender - sz.descender) / 64;
 
         auto offsetX = bearingX;
-        auto offsetY = baseLineHeight - bearingY;
+        auto offsetY = ascender - bearingY;
 
         auto bm = glyph.bitmap;
 
@@ -56,6 +59,6 @@ class Font {
 
         auto bm2 = bm.buffer[0..width*height].dup;
 
-        return cache[c] = LetterInfo(offsetX, offsetY, width, height, maxWidth, maxHeight, bm2);
+        return cache[c] = LetterInfo(offsetX, offsetY, width, height, advance, maxHeight, bm2);
     }
 }
