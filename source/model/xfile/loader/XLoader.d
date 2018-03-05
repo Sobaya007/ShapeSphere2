@@ -24,6 +24,8 @@ Xファイルのモデルデータを読み込むよ。
 
 class XLoader {
 
+    mixin Singleton;
+
 private:
     XLexer lexer   = new XLexer;
     XParser parser = new XParser;

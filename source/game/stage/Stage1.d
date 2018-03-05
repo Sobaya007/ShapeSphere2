@@ -9,13 +9,12 @@ import game.character;
 import game.stage.StageMaterial;
 import game.stage.CrystalMaterial;
 import game.stage.Stage;
-import model.xfile.loader;
-import std.concurrency;
+import model.xfile.loader.XEntity;
+import model.xfile.loader.XMaterial;
+import std.concurrency, std.typecons;
 import core.thread;
 
 class Stage1 : Stage {
-    private Area[] areas;
-
     private Area area;
 
     private bool paused;
@@ -26,12 +25,11 @@ class Stage1 : Stage {
 
     enum path = "Resource/stage/Stage1.json";
 
+    private JSONValue root;
+
     this() {
-        auto obj = parseJSON(readText(path)).object();
-        foreach (k, v; obj) {
-            this.areas ~= new Area(k, v.object());
-        }
-        this.area = this.areas[0];
+        this.root = parseJSON(readText(path)).object();
+        this.area = this.areas.find!(a => a.name == startArea).front;
         Game.getWorld3D().add(this.area.entity);
         this.area.load();
 
@@ -41,7 +39,7 @@ class Stage1 : Stage {
             Core().getKey().justPressed(KeyButton.KeyL).add(&update);
 
             Core().getKey().justPressed(KeyButton.KeyP).add({
-                Game.getPlayer().setCenter(this.area.startPos);
+                Game.getPlayer().setCenter(this.area.debugPos);
             });
 
             Core().getKey().justPressed(KeyButton.KeyT).add({
@@ -52,6 +50,13 @@ class Stage1 : Stage {
                     );
                 });
             });
+
+            Core().getKey().justPressed(KeyButton.KeyQ).add({
+                auto pos = Game.getPlayer().getCenter();
+                this.area.debugPos = pos;
+                write(path, root.toJSON(true));
+            });
+
             Core().addProcess((proc) {
                 this.area.entity.traverse((Entity e) {
                     e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
@@ -66,6 +71,23 @@ class Stage1 : Stage {
         this.fadeRect.config.depthWrite = false;
         this.fadeRect.pos.z = 1;
         Game.getWorld2D().add(this.fadeRect);
+    }
+
+    auto obj() {
+        return root.object();
+    }
+
+    string startArea() {
+        return obj["StartArea"].str();
+    }
+
+    void startArea(string s) {
+        obj["StartArea"] = s;
+    }
+
+    auto areas() {
+        auto root = obj["Areas"].array;
+        return root.length.iota.map!(i => Area(i, root));
     }
 
     void step() {
@@ -147,66 +169,120 @@ class Stage1 : Stage {
     }
 }
 
-class Area {
-    private string name;
-    private Entity entity;
-    private Entity stageEntity;
-    private Entity characterEntity;
-    private Entity moveEntity;
-    private Entity crystalEntity;
-    private Entity lightEntity;
-    private Move[] moves;
-    private Light[] lights;
-    private Crystal[] crystals;
-    private Character[] characters;
-    private vec3 startPos;
-    private string[] paths;
+struct Area {
+    private size_t index;
+    private JSONValue[] parent;
 
-    this(string name, JSONValue[string] obj) {
-        this.entity = new Entity;
-        this.stageEntity = new Entity;
-        this.characterEntity = new Entity;
-        this.moveEntity = new Entity;
-        this.crystalEntity = new Entity;
-        this.lightEntity = new Entity;
-        this.name = name;
-        this.startPos = vec3(obj["startPos"].as!(float[]));
-        this.moves = obj["Move"].array().map!(v => new Move(v.object())).array;
-        this.lights = obj["Lights"].array().map!(v => new Light(v.object())).array;
-        this.crystals = obj["Crystals"].array().map!(v => new Crystal(v.object())).array;
-        this.characters = obj["NPC"].array().map!(v => new Character(v.object())).array;
+    struct Inst {
+        Entity entity;
+        Entity stageEntity;
+        Entity characterEntity;
+        Entity moveEntity;
+        Entity crystalEntity;
+        Entity lightEntity;
+    }
 
-        this.characters.each!(c => this.characterEntity.addChild(c.entity));
-        this.characters.each!(c => Game.getPlayer().collisionEntities ~= c.collisionArea);
+    private static Inst[] insts;
 
-        this.moves.each!(m => this.moveEntity.addChild(m.entity));
+    alias inst this;
 
-        this.crystals.each!(c => this.crystalEntity.addChild(c.entity));
+    this(size_t index, JSONValue[] parent) {
+        this.index = index;
+        this.parent = parent;
 
-        this.lights.each!(c => this.lightEntity.addChild(c.light));
+        foreach (x; lights) {}
+        foreach (x; crystals) {}
+        foreach (x; moves) {}
+        foreach (x; characters) {}
+    }
 
-        this.entity.addChild(this.stageEntity);
-        this.entity.addChild(this.characterEntity);
-        this.entity.addChild(this.moveEntity);
-        this.stageEntity.addChild(this.crystalEntity);
-        this.entity.addChild(this.lightEntity);
+    void create() {
+        auto entity = new Entity;
+        auto stageEntity = new Entity;
+        auto characterEntity = new Entity;
+        auto moveEntity = new Entity;
+        auto crystalEntity = new Entity;
+        auto lightEntity = new Entity;
 
-        this.paths = obj["Model"].as!(string[]);
+        stageEntity.addChild(crystalEntity);
+        entity.addChild(stageEntity);
+        entity.addChild(characterEntity);
+        entity.addChild(moveEntity);
+        entity.addChild(lightEntity);
+
+        insts ~= Inst(entity, stageEntity, characterEntity, moveEntity, crystalEntity, lightEntity);
+    }
+
+    auto inst() {
+        while (insts.length <= index) create();
+        return insts[index];
+    }
+
+    auto obj() {
+        return parent[index].object();
+    }
+
+    string name() {
+        return obj["name"].str();
+    }
+
+    void name(string n) {
+        obj["name"] = n;
+    }
+
+    auto debugPos() {
+        return vec3(obj["debugPos"].as!(float[]));
+    }
+
+    auto debugPos(vec3 c) {
+        foreach (i; 0..3) {
+            obj["debugPos"].array[i] = c[i];
+        }
+    }
+
+    auto lights() {
+        auto root = obj["Lights"].array();
+        return root.length.iota.map!(i => Light(i, root, this.lightEntity));
+    }
+
+    auto moves() {
+        auto root = obj["Moves"].array();
+        return root.length.iota.map!(i => Move(i, root, this.moveEntity));
+    }
+
+    auto crystals() {
+        auto root = obj["Crystals"].array();
+        return root.length.iota.map!(i => Crystal(i, root, this.crystalEntity));
+    }
+
+    auto characters() {
+        auto root = obj["NPC"].array();
+        return root.length.iota.map!(i => Character(i, root, this.characterEntity));
+    }
+
+    auto paths() {
+        return obj["Models"].array.map!(m => m.str);
     }
 
     void load() {
         import std.concurrency, std.stdio;
         import core.thread;
         spawn(function (immutable(string[]) paths) {
-            auto loader = new XLoader();
-            foreach (path; paths) {
-                writeln("Model Load Start. ModelPath is ", path);
-                auto loaded = loader.load(ModelPath(path));
-                writeln("Model was Loaded.");
-                ownerTid.send(loaded);
-                Thread.sleep(1000.msecs);
+            try {
+                auto loader = new XLoader();
+                foreach (path; paths) {
+                    writeln("Model Load Start. ModelPath is ", path);
+                    auto loaded = loader.load(ModelPath(path));
+                    writeln("Model was Loaded.");
+                    ownerTid.send(loaded);
+                    Thread.sleep(1000.msecs);
+                }
+            } catch (Error e) {
+                writeln(e);
+                import core.stdc.stdlib;
+                exit(1);
             }
-        }, paths.idup);
+        }, paths.array.idup);
     }
 
     void step() {
@@ -225,7 +301,7 @@ class Area {
         import model.xfile.loader;
         import std.stdio;
         writeln("received");
-        auto m = entity.buildEntity(new StageMaterialBuilder);
+        auto m = entity.buildEntity(StageMaterialBuilder());
         this.stageEntity.addChild(m);
         m.buildBVH();
         m.traverse!((Entity e) {
@@ -243,8 +319,6 @@ class Area {
         this.crystalEntity.traverse!((Entity e) => e.destroy());
         this.lightEntity.clearChildren();
         this.crystalEntity.clearChildren();
-        this.lights = obj["Lights"].array().map!(v => new Light(v.object())).array;
-        this.crystals = obj["Crystals"].array().map!(v => new Crystal(v.object())).array;
         this.lights.each!(c => this.lightEntity.addChild(c.light));
         this.crystals.each!(c => this.crystalEntity.addChild(c.entity));
         this.entity.addChild(this.lightEntity);
@@ -266,82 +340,202 @@ class Area {
     }
 }
 
-class Move {
-    Shape shape;
-    const string arrivalName;
+struct Move {
+    private size_t index;
+    private JSONValue[] parent;
+    private Entity moveEntity;
 
-    this(JSONValue[string] obj) {
-        this.shape = new Shape(obj["Shape"].object());
-        shape.setUserData(this);
-        this.arrivalName = obj["to"].str();
+    this(size_t index, JSONValue[] parent, Entity moveEntity) {
+        this.index = index;
+        this.parent = parent;
+        this.moveEntity = moveEntity;
+        shape();
+    }
+
+    auto obj() {
+        return parent[index].object();
+    }
+
+    Shape shape() {
+        return Shape(index, obj["Shape"].object(), this);
+    }
+
+    string arrivalName() {
+        return obj["to"].str();
+    }
+
+    void arrivalName(string s) {
+        obj["to"] = s;
+        shape.setUserData(s);
     }
 
     alias shape this;
 }
 
-class Shape {
-    Entity entity;
+struct Shape {
+    private size_t index;
+    private JSONValue[string] obj;
+    private Move move;
+    private static Entity[] entities;
 
-    this(JSONValue[string] obj) {
+    this(size_t index, JSONValue[string] obj, Move move) {
+        this.index = index;
+        this.obj = obj;
+        this.move = move;
         assert(obj["kind"].str() == "Sphere");
-        auto center = vec3(obj["center"].as!(float[]));
-        auto radius = obj["radius"].as!(float);
-        debug {
-            this.entity = makeEntity(Sphere.create(radius, 2), new WireframeMaterial(vec4(1)), new CollisionCapsule(radius, vec3(0), vec3(0)));
-        } else {
-            this.entity = makeEntity(new CollisionCapsule(radius, center, center));
+        entity();
+    }
+
+    Entity entity() {
+        while (entities.length <= index) {
+            auto capsule = new CollisionCapsule(radius, vec3(0), vec3(0));
+            debug {
+                auto entity = makeEntity(Sphere.create(radius, 2), new WireframeMaterial(vec4(1)), capsule);
+            } else {
+                auto entity = makeEntity(capsule);
+            }
+            entities ~= entity;
+            entity.setUserData(move.arrivalName);
+            this.center = center;
+            move.moveEntity.addChild(entity);
         }
-        this.entity.pos = center;
+        return entities[index];
+    }
+
+    auto center() {
+        return vec3(obj["center"].as!(float[]));
+    }
+
+    auto center(vec3 c) {
+        foreach (i; 0..3) obj["center"].array[i] = c[i];
+        this.entity.pos = c;
+    }
+
+    auto radius() {
+        return obj["radius"].as!(float);
+    }
+
+    auto radius(float r) {
+        obj["radius"] = r;
+        auto capsule = this.entity.colEntry.getGeometry.wrapCast!(CollisionCapsule);
+        if (capsule.isJust) {
+            capsule.get().radius = r;
+        }
     }
 
     alias entity this;
 }
 
-class Light {
+struct Light {
 
-    PointLight light;
+    private static PointLight[] lights;
 
-    this(JSONValue[string] obj) {
-        auto pos = vec3(obj["pos"].as!(float[]));
-        auto color = vec3(obj["color"].as!(float[]));
-        this.light = new PointLight(pos, color);
+    private JSONValue[] parent;
+    private size_t index;
+    private Entity lightEntity;
+
+    this(size_t index, JSONValue[] parent, Entity lightEntity) {
+        this.parent = parent;
+        this.index = index;
+        this.lightEntity = lightEntity;
+        light();
     }
 
-    void update(JSONValue[string] obj) {
-        auto pos = vec3(obj["pos"].as!(float[]));
-        auto color = vec3(obj["color"].as!(float[]));
-        this.light.pos = pos;
-        this.light.diffuse = color;
+    auto obj() {
+        return parent[index].object();
+    }
+    
+    auto light() {
+        while (lights.length <= index) {
+            auto light = new PointLight(pos, color);
+            lights ~= light;
+            this.pos = pos;
+            this.color = color;
+            lightEntity.addChild(light);
+        }
+        return lights[index];
     }
 
-    void remove() {
+    vec3 pos() {
+        return vec3(obj["pos"].as!(float[]));
     }
+
+    void pos(vec3 p) {
+        obj["pos"] = p.array[];
+        light.pos = pos;
+    }
+
+    vec3 color() {
+        return vec3(obj["color"].as!(float[]));
+    }
+
+    void color(vec3 c) {
+        obj["color"] = c.array[];
+        light.diffuse = c;
+    }
+
+    alias light this;
 }
 
-class Crystal {
-    private Entity entity;
-    private PointLight light;
+struct Crystal {
+    private size_t index;
+    private JSONValue[] parent;
+    private Entity crystalEntity;
+    private static Tuple!(Entity, PointLight)[] reserved;
 
-    this(JSONValue[string] obj) {
-        auto pos = vec3(obj["pos"].as!(float[]));
-        auto color = vec3(obj["color"].as!(float[]));
-        auto loader = new XLoader;
-        auto loaded = loader.load(ModelPath("crystal.x"));
-
-        this.entity = loaded.buildEntity(new StageMaterialBuilder);
-        this.entity.buildCapsule();
-        this.entity.pos = pos;
-
-        this.light = new PointLight(vec3(0), color);
-        this.entity.addChild(light);
+    this(size_t index, JSONValue[] parent, Entity crystalEntity) {
+        this.index = index;
+        this.parent = parent;
+        this.crystalEntity = crystalEntity;
+        entity();
     }
 
-    void update(JSONValue[string] obj) {
-        auto pos = vec3(obj["pos"].as!(float[]));
-        auto color = vec3(obj["color"].as!(float[]));
+    void create() {
+        auto loaded = XLoader().load(ModelPath("crystal.x"));
 
-        this.entity.pos = pos;
-        light.pos = pos;
+        auto entity = loaded.buildEntity(StageMaterialBuilder());
+        entity.buildCapsule();
+
+        auto light = new PointLight(vec3(0), vec3(0));
+        entity.addChild(light);
+
+        crystalEntity.addChild(entity);
+
+        reserved ~= tuple(entity, light);
+
+        this.pos = pos;
+        this.color = color;
+    }
+
+    Entity entity() {
+        while (reserved.length <= index) create();
+        return reserved[index][0];
+    }
+
+    PointLight light() {
+        while (reserved.length <= index) create();
+        return reserved[index][1];
+    }
+
+    auto obj() {
+        return parent[index].object();
+    }
+    
+    vec3 pos() {
+        return vec3(obj["pos"].as!(float[]));
+    }
+
+    void pos(vec3 p) {
+        obj["pos"] = p.array[];
+        entity.pos = pos;
+    }
+
+    vec3 color() {
+        return vec3(obj["color"].as!(float[]));
+    }
+
+    void color(vec3 p) {
+        obj["color"] = p.array[];
         light.diffuse = color;
     }
 
@@ -351,7 +545,56 @@ class Crystal {
     }
 }
 
+struct Character {
+    private size_t index;
+    private JSONValue[] parent;
+    private Entity characterEntity;
+    import game.character.Character : Chara = Character;
+    private static Chara[] characters;
+
+    alias character this;
+
+    this(size_t index, JSONValue[] parent, Entity crystalEntity) {
+        this.index = index;
+        this.parent = parent;
+        this.characterEntity = characterEntity;
+    }
+
+    Chara character() {
+        while (characters.length <= index) {
+            auto c = new Chara;
+            c.serif = serif;
+            c.setCenter(pos);
+        }
+        return characters[index];
+    }
+
+    auto obj() {
+        return parent[index].object();
+    }
+    
+    vec3 pos() {
+        return vec3(obj["pos"].as!(float[]));
+    }
+
+    void pos(vec3 p) {
+        obj["pos"] = p.array[];
+        character.setCenter(p);
+    }
+
+    dstring serif() {
+        return obj["serif"].as!dstring;
+    }
+
+    void serif(dstring serif) {
+        obj["serif"] = serif;
+        character.serif = serif;
+    }
+}
+
 class StageMaterialBuilder : MaterialBuilder {
+
+    mixin Singleton;
     override Material buildMaterial(immutable(XMaterial) xmat) {
         import std.string;
         if (xmat.name.startsWith("Crystal")) return new CrystalMaterial;

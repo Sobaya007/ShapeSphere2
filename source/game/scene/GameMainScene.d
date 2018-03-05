@@ -112,7 +112,8 @@ class GameMainScene : SceneBase {
             addLabel("Arrow: Move");
             addLabel("Enter: Talk to another Character");
             addLabel("L: Reload Lights & Crystals");
-            addLabel("P: Warp to start pos (written in JSON)");
+            addLabel("P: Warp to debug pos (written in JSON)");
+            addLabel("Q: Save current pos as debug pos");
             addLabel("0: Warp to Origin");
             addLabel("O: Reload Config");
             addLabel("F: Toggle Fullscreen");
@@ -130,6 +131,21 @@ class GameMainScene : SceneBase {
 
         import game.stage.Stage1;
         auto stage1 = cast(Stage1)Game.getMap().stage;
+
+        /* Console */
+        LabelFactory factory;
+        factory.fontName = "consola.ttf";
+        factory.wrapWidth = 2;
+        factory.height = 0.1;
+        factory.strategy = Label.Strategy.Left;
+        factory.backColor = vec4(0,0,0,1);
+        factory.textColor = vec4(1,1,1,1);
+        factory.text = "Waiting...";
+        auto consoleLabel = factory.make();
+        labels ~= consoleLabel;
+        world2d.add(consoleLabel);
+        consoleLabel.left = -1;
+        consoleLabel.bottom = -1;
 
         import core.thread;
         new Thread({
