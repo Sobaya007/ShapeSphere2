@@ -16,8 +16,8 @@ class Title : SceneProtoType {
 
     this() {
         this.text = makeTextEntity("タイトル"d, 0.4);
-        auto newGame = Selection("New Game"d, vec2(0.9, -0.6));
-        auto loadGame = Selection("Load Game"d, vec2(0.85, -0.75));
+        auto newGame = Selection("New Game"d, vec2(0.5, -0.6));
+        auto loadGame = Selection("Load Game"d, vec2(0.45, -0.75));
         selections = [newGame, loadGame];
         super();
         addEntity(text);
@@ -106,7 +106,7 @@ class Title : SceneProtoType {
             factory.textColor = vec4(0);
             this.label = factory.make();
             this.basePos = basePos;
-            this.label.right = basePos.x;
+            this.label.pos.x = basePos.x;
             this.label.pos.y = basePos.y;
         }
 

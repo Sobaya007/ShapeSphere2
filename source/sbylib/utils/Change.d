@@ -123,7 +123,6 @@ struct ChangeObserved(T) {
         } body {
             auto r = mixin(Member ~ "()");
             static if (!isConst) {
-                //writeln("onChange called : ", Member);
                 this.onChange();
             }
             return r;
@@ -139,30 +138,23 @@ struct ChangeObserved(T) {
     void set(ArgType)(ArgType value) if (isAssignable!(Type, ArgType)) {
         this.value = value;
         this.onChange();
-        //writeln("onChange called : set");
     }
 
     void opAssign(ArgType)(ArgType value, string file = __FILE__, int line = __LINE__ ) if (isAssignable!(Type, ArgType)) {
         if (this.value == value) return;
-        //writeln("before: ", value);
-        //writeln("after: ", this.value);
         this.value = value;
         this.onChange();
-        //writeln("onChange called : opAssign, ", ArgType.stringof);
-        //writeln(file, " : ", line);
     }
 
     const(CoreType) opOpAssign(string op, Type2)(Type2 value) {
         auto result = mixin(Value ~ op ~ "= value");
         this.onChange();
-        //writeln("onChange called : opOpAssign");
         return result;
     }
 
     void opIndexAssign(Type2)(Type2 value, size_t i) {
         this.value[i] = value;
         this.onChange();
-        //writeln("onChange called : opIndexAssign");
     }
 
     bool opEquals(ArgType)(ref ArgType arg) {
@@ -186,7 +178,6 @@ struct ChangeObserved(T) {
         auto r = mixin(op ~ "this.value");
         static if (op == "++" || op == "--") {
             this.onChange();
-            //writeln("onChange called : opUnary");
         }
         return r;
     }
@@ -205,7 +196,6 @@ struct ChangeObserved(T) {
                     mixin(Member ~ "(args);");
                     static if (!isConst) {
                         this.onChange();
-                        //writeln("5onChange called : ", member);
                     }
                 }
             } else {
@@ -213,7 +203,6 @@ struct ChangeObserved(T) {
                     auto result = mixin(Member ~ "(args)");
                     static if (!isConst) {
                         this.onChange();
-                        //writeln("4onChange called : ", member);
                     }
                     return ChangeObserved!R(result, this.callbacks);
                 }
@@ -234,7 +223,6 @@ struct ChangeObserved(T) {
                     if (mixin(Member~" == arg")) return ChangeObserved!T(mixin(Member), this.callbacks);
                     auto result = mixin(Member ~ " = arg");
                     this.onChange();
-                    //writeln("3onChange called : ", member);
                     return ChangeObserved!T(result, this.callbacks);
                 }
             } else static if (isTemplate!(mixin(Member))) {
@@ -249,13 +237,11 @@ struct ChangeObserved(T) {
                         mixin(InstancedMember ~ "(args);");
                         static if (!isConst) {
                             this.onChange();
-                            //writeln("2onChange called : ", member);
                         }
                     } else {
                         auto result = mixin(InstancedMember ~ "(args)");
                         static if (!isConst) {
                             this.onChange();
-                            //writeln("1onChange called : ", member);
                         }
                         static if (isCopyable!R) {
                             return ChangeObserved!R(result, this.callbacks);
@@ -317,7 +303,6 @@ struct Depends(alias Function, Type = ReturnType!Function) {
         this.needsUpdate = true;
         this.initialized = true;
         this.onChange();
-        //writeln("onChange called : depends");
     }
 
     Type get()  in {

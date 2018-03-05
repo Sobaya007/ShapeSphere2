@@ -106,7 +106,6 @@ class Label {
     private void lineUp() {
         import std.array, std.algorithm, std.range;
         if (this.text.empty) return;
-        import sbylib.wrapper.freetype.StringTexture;
         LetterInfo[][] rows;
         auto text = this.text;
         auto wrapWidth = this.wrapWidth * font.size / this.size;

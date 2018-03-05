@@ -54,7 +54,7 @@ class VertexArray {
         glBindVertexArray(0);
     }
 
-    void setup(const Program program, Tuple!(Attribute, VertexBuffer)[] buffers, Maybe!IndexBuffer ibo) {
+    void setup(const Program program, Tuple!(Attribute, VertexBuffer)[] buffers, IndexBuffer ibo) {
         this.bind();
         foreach(tuple; buffers) {
             if (!program.hasAttribute(tuple[0].name)) continue;

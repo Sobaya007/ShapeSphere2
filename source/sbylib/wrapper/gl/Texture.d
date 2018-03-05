@@ -48,10 +48,8 @@ class Texture {
         GlFunction.checkError();
         this.unbind();
         this.allocated = true;
-        debug {
-            this.width = width;
-            this.height = height;
-        }
+        this.width = width;
+        this.height = height;
     }
 
     void update(Type)(uint mipmapLevel, int offsetX, int offsetY, uint width, uint height, ImageFormat iformat, Type *data) {
