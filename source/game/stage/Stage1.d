@@ -198,10 +198,7 @@ struct Area {
         this.index = index;
         this.parent = parent;
 
-        foreach (x; lights) {}
-        foreach (x; crystals) {}
-        foreach (x; moves) {}
-        foreach (x; characters) {}
+        lights.each!(e => e.light());
     }
 
     void create() {
@@ -466,6 +463,8 @@ struct Light {
             this.pos = pos;
             this.color = color;
             lightEntity.addChild(light);
+            import std.stdio;
+            writeln("poyo");
         }
         return lights[index];
     }
