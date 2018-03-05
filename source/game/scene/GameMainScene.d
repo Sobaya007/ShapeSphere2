@@ -149,6 +149,9 @@ class GameMainScene : SceneBase {
         /* Manipulator */
         import game.tool.manipulator;
         auto manipulatorManager = new ManipulatorManager;
+        core.addProcess((proc) {
+            manipulatorManager.update();
+        }, "manipulator update");
 
     }
 

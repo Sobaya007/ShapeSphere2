@@ -1,7 +1,6 @@
 module game.tool.manipulator.Manipulator;
 
 import sbylib;
-import game.Game;
 import game.tool.manipulator;
 
 class Manipulator {
@@ -19,24 +18,29 @@ public:
 
     void setTarget(Entity target) {
         this.target = target;
-        entity.pos = target.pos.get;
+        this.entity.pos = target.worldPos.get;
     }
 
 private:
     void buildEntity() {
         this.entity = new Entity;
-        this.entity.pos = vec3(20, 2, 5);
+        this.entity.pos = vec3(20, 2, 5);//
 
         this.entity.addChild(createArrow(vec3(1, 0, 0), vec3(0.6, 0.1, 0.1)));
         this.entity.addChild(createArrow(vec3(0, 1, 0), vec3(0.1, 0.6, 0.1)));
         this.entity.addChild(createArrow(vec3(0, 0, 1), vec3(0.1, 0.1, 0.6)));
+
+        this.entity.buildBVH();
+        this.entity.traverse!((Entity e) {
+            e.name = "manipulator";
+        });
     }
 
     Entity createArrow(vec3 direction, vec3 diffuse) {
-        auto arrow = makeEntity(Pole.create(0.2, 5, 16), new LambertMaterial);
+        auto arrow = makeEntity(Pole.create(0.2, 10, 16), new LambertMaterial);
         auto head = makeEntity(Pole.create(0.4, 0.5, 16), new LambertMaterial);
 
-        head.pos = vec3(0, 5/2.0, 0);
+        head.pos = vec3(0, 10/2.0, 0);
         arrow.addChild(head);
         arrow.rot = mat3.rotFromTo(vec3(0, 1, 0), direction);
 
