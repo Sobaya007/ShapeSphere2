@@ -49,7 +49,8 @@ public:
 
         string src = readText(path);
         XFrameNode root = this.parser.run(this.lexer.run(src));
-        return makeEntity(root, mat4.identity, path);
+        import std.path;
+        return makeEntity(root, mat4.identity, path.baseName);
     }
 
 private:
@@ -151,7 +152,8 @@ private:
                     a => a.value == i
                 ).map!"cast(uint)a.index".map!(
                     j => iota(3*j, 3*(j+1))
-                ).join.array.idup
+                ).join.array.idup,
+                name
             );
         }
 

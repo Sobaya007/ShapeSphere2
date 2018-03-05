@@ -186,4 +186,25 @@ class World {
         import std.algorithm, std.array;
         return this.entities.find(e).empty == false;
     }
+
+    Maybe!Entity findByName(string name) {
+        import std.array;
+        auto result = entities.find!(e => e.name == name);
+        if (result.empty) return None!Entity;
+        return Just(result.front);
+    }
+
+    auto getEntityNames() {
+        import std.array;
+        return entities.map!(e => e.name).array;
+    }
+
+    override string toString() {
+        return toString((Entity e) => e.toString, true);
+    }
+
+    string toString(string function(Entity) func, bool recursive) {
+        import std.array;
+        return entities.map!(e => e.toString(func, recursive)).join('\n');
+    }
 }

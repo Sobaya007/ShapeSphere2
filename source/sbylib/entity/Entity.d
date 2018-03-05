@@ -237,6 +237,13 @@ class Entity {
         return children;
     }
 
+    Maybe!Entity findByName(string name) {
+        import std.array;
+        auto result = children.find!(e => e.name == name);
+        if (result.empty) return None!Entity;
+        return Just(result.front);
+    }
+
     Maybe!Entity getParent() {
         return this.parent;
     }
@@ -363,16 +370,20 @@ class Entity {
     }
 
     override string toString() {
-        import std.format;
-        return toString((Entity e) => format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString));
+        return toString(true);
     }
 
-    string toString(string function(Entity) func) {
+    string toString(bool recursive) {
+        import std.format;
+        return toString((Entity e) => format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString), recursive);
+    }
+
+    string toString(string function(Entity) func, bool recursive) {
         import std.format, std.range;
         import sbylib.utils.Functions;
         auto result = func(this);
-        if (children.length > 0) {
-            result ~= format!"\nChildren(%d):\n%s"(this.children.length, this.children.map!(child => child.toString(func)).join("\n").indent(3));
+        if (recursive && children.length > 0) {
+            result ~= format!"\nChildren(%d):\n%s"(this.children.length, this.children.map!(child => child.toString(func, recursive)).join("\n").indent(3));
         }
         return result;
     }

@@ -96,6 +96,14 @@ class Stage1 : Stage {
         }
     }
 
+    override void pause() {
+        paused = true;
+    }
+
+    override void resume() {
+        paused = false;
+    }
+
     override Entity getStageEntity() {
         return this.area.stageEntity;
     }
@@ -211,6 +219,12 @@ struct Area {
         entity.addChild(lightEntity);
 
         insts ~= Inst(entity, stageEntity, characterEntity, moveEntity, crystalEntity, lightEntity);
+
+        this.entity.name = name ~" entity";
+        this.stageEntity.name = name ~" stageEntity";
+        this.characterEntity.name = name ~" characterEntity";
+        this.moveEntity.name = name ~" moveEntity";
+        this.lightEntity.name = name ~" lightEntity";
     }
 
     auto inst() {

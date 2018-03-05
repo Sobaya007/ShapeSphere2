@@ -79,19 +79,19 @@ class Key {
     }
 
     KeyEvent isPressed(KeyButton button) {
-        return KeyEvent(&addIsPressedCallback, button, this.buttons[button] && callbackFlag);
+        return KeyEvent(&addIsPressedCallback, button, this.buttons[button]);
     }
 
     KeyEvent isReleased(KeyButton button) {
-        return KeyEvent(&addIsReleasedCallback, button, !this.buttons[button] && callbackFlag);
+        return KeyEvent(&addIsReleasedCallback, button, !this.buttons[button]);
     }
 
     KeyEvent justPressed(KeyButton button) {
-        return KeyEvent(&addJustPressedCallback, button, this.buttons[button] && !this.before[button] && callbackFlag);
+        return KeyEvent(&addJustPressedCallback, button, this.buttons[button] && !this.before[button]);
     }
 
     KeyEvent justReleased(KeyButton button) {
-        return KeyEvent(&addJustReleasedCallback, button, !this.buttons[button] && this.before[button] && callbackFlag);
+        return KeyEvent(&addJustReleasedCallback, button, !this.buttons[button] && this.before[button]);
     }
 
     auto justPressedKey() {

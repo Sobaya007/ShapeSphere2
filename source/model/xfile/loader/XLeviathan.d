@@ -8,10 +8,12 @@ immutable class XLeviathan {
 immutable:
     XMaterial material;
     uint[] indices;
+    string name;
 
-    this(immutable(XMaterial) material, immutable(uint[]) indices) {
+    this(immutable(XMaterial) material, immutable(uint[]) indices, string name) {
         this.material = material;
         this.indices = indices;
+        this.name = name;
     }
 
     Entity buildEntity(VertexGroupNT vertexGroup, MaterialBuilder materialBuilder) {
@@ -19,7 +21,9 @@ immutable:
         auto faceGroup = new FaceGroup!(Prim.Triangle)(this.indices);
         Geometry geometry = new GeometryNT(vertexGroup, faceGroup);
         Material material = materialBuilder.buildMaterial(this.material);
-        return new Entity(geometry, material);
+        auto e = new Entity(geometry, material);
+        e.name = name;
+        return e;
     }
 
     string toString() {

@@ -46,6 +46,7 @@ immutable:
                 entity.addChild(leviathan.buildEntity(vertexGroup, materialBuilder));
             }
         }
+        entity.name = name;
         return entity;
     }
 
