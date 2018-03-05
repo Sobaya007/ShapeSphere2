@@ -222,6 +222,7 @@ class Area {
         this.stageEntity.addChild(m);
         m.buildBVH();
         m.traverse!((Entity e) {
+            e.name = "stage";
             auto name = e.mesh.mat.wrapCast!(StageMaterial).name;
             if (name.isNone) return;
             e.setUserData(name.get);
@@ -324,6 +325,7 @@ class Crystal {
         this.entity = loaded.buildEntity(new StageMaterialBuilder);
         this.entity.buildCapsule();
         this.entity.pos = pos;
+        this.entity.traverse!((Entity e) => e.name = "crystal");
 
         this.light = new PointLight(vec3(0), color);
         this.entity.addChild(light);
