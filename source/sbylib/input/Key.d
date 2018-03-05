@@ -16,7 +16,7 @@ class Key {
     private Callback[][KeyButton] isReleasedCallback;
     private Callback[][KeyButton] justPressedCallback;
     private Callback[][KeyButton] justReleasedCallback;
-
+    private bool callbackFlag = true;
 
     package(sbylib) this(Window window) {
         this.window = window;
@@ -34,12 +34,21 @@ class Key {
         foreach (button; EnumMembers!(KeyButton)) {
             this.before[button] = this.buttons[button];
             this.buttons[button] = this.window.getKey(button);
+            if (!this.callbackFlag) continue;
             import std.algorithm : each;
             if (this.isPressed(button)) this.isPressedCallback[button].each!(cb => cb());
             if (this.isReleased(button)) this.isReleasedCallback[button].each!(cb => cb());
             if (this.justPressed(button)) this.justPressedCallback[button].each!(cb => cb());
             if (this.justReleased(button)) this.justReleasedCallback[button].each!(cb => cb());
         }
+    }
+
+    void preventCallback() {
+        this.callbackFlag = false;
+    }
+
+    void allowCallback() {
+        this.callbackFlag = true;
     }
 
     private void addIsPressedCallback(KeyButton button, Callback cb) {
@@ -70,19 +79,27 @@ class Key {
     }
 
     KeyEvent isPressed(KeyButton button) {
-        return KeyEvent(&addIsPressedCallback, button, this.buttons[button]);
+        return KeyEvent(&addIsPressedCallback, button, this.buttons[button] && callbackFlag);
     }
 
     KeyEvent isReleased(KeyButton button) {
-        return KeyEvent(&addIsReleasedCallback, button, !this.buttons[button]);
+        return KeyEvent(&addIsReleasedCallback, button, !this.buttons[button] && callbackFlag);
     }
 
     KeyEvent justPressed(KeyButton button) {
-        return KeyEvent(&addJustPressedCallback, button, this.buttons[button] && !this.before[button]);
+        return KeyEvent(&addJustPressedCallback, button, this.buttons[button] && !this.before[button] && callbackFlag);
     }
 
     KeyEvent justReleased(KeyButton button) {
-        return KeyEvent(&addJustReleasedCallback, button, !this.buttons[button] && this.before[button]);
+        return KeyEvent(&addJustReleasedCallback, button, !this.buttons[button] && this.before[button] && callbackFlag);
+    }
+
+    auto justPressedKey() {
+        import sbylib.utils.Maybe;
+        foreach (key; EnumMembers!(KeyButton)) {
+            if (buttons[key] && !before[key]) return Just(key);
+        }
+        return None!KeyButton;
     }
 
     alias opIndex = isPressed;

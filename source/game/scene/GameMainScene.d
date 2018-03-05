@@ -13,6 +13,7 @@ class GameMainScene : SceneBase {
     mixin SceneBasePack;
 
     private Label[] labels;
+    private debug int consoleMode = 0;
 
     override void initialize() {
         /* Core Settings */
@@ -125,57 +126,16 @@ class GameMainScene : SceneBase {
             core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
             core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
             core.getKey().justPressed(KeyButton.KeyN).add({labels.each!(l => l.traverse!((Entity e) => e.visible = !e.visible));});
+            core.getKey().justPressed(KeyButton.KeyI).add({consoleMode = 1;});
+
+            /* Console */
+            createConsole();
         } else {
             window.toggleFullScreen();
         }
 
         import game.stage.Stage1;
         auto stage1 = cast(Stage1)Game.getMap().stage;
-
-        /* Console */
-        LabelFactory factory;
-        factory.fontName = "consola.ttf";
-        factory.wrapWidth = 2;
-        factory.height = 0.1;
-        factory.strategy = Label.Strategy.Left;
-        factory.backColor = vec4(0,0,0,1);
-        factory.textColor = vec4(1,1,1,1);
-        factory.text = "Waiting...";
-        auto consoleLabel = factory.make();
-        labels ~= consoleLabel;
-        world2d.add(consoleLabel);
-        consoleLabel.left = -1;
-        consoleLabel.bottom = -1;
-
-        import core.thread;
-        new Thread({
-            while (true) {
-                try {
-                    void write(string str) {
-                        import std.stdio: stdWrite = write;
-                        stdWrite("\033[35m");
-                        stdWrite(str);
-                        stdWrite("\033[39m");
-                    }
-                    void writeln(string str) {
-                        write(str ~ '\n');
-                    }
-                    write(" > ");
-                    import std.string;
-                    auto line = readln.chomp;
-                    auto res = Pattern(line)
-                        .match!((l) => l == "player.pos")(player.getCenter().toString)
-                        .match!((l) => l == "world3d.entities")(world3d.getEntities.map!(e => e.toString).join("\n"))
-                        .match!((l) => l == "add crystal here")({stage1.addCrystal(player.getCenter); return "Successfully Added Crystal";}())
-                        .match!((l) => l == "add light here")({stage1.addLight(player.getCenter); return "Successfully Added Light";}())
-                        .other("no match pattern for '" ~ line ~ "'");
-                    writeln(res);
-                    stdout.flush;
-                } catch (Error e) {
-                    e.writeln;
-                }
-            }
-        }).start();
 
         debug Game.timerStart("Total");
     }
@@ -194,12 +154,12 @@ class GameMainScene : SceneBase {
         debug Game.timerStop("render");
     }
 
-    Label addLabel(dstring text = "") {
+    debug Label addLabel(dstring text = "") {
         auto factory = LabelFactory();
         factory.text = text;
         factory.strategy = Label.Strategy.Left;
         factory.fontName = "meiryo.ttc";
-        factory.height = 0.08;
+        factory.height = 0.06;
         factory.backColor = vec4(vec3(1), 0.4);
         auto label = factory.make();
         label.left = -1;
@@ -209,5 +169,81 @@ class GameMainScene : SceneBase {
         labels ~= label;
 
         return label;
+    }
+
+    debug void createConsole() {
+        LabelFactory factory;
+        factory.fontName = "consola.ttf";
+        factory.height = 0.06;
+        factory.strategy = Label.Strategy.Left;
+        factory.backColor = vec4(0,0,0,0);
+        factory.textColor = vec4(1,1,1,1);
+        factory.text = "Waiting...";
+        auto consoleLabel = factory.make();
+        consoleLabel.left = -1;
+        consoleLabel.bottom = -1;
+        labels ~= consoleLabel;
+        Game.getWorld2D.add(consoleLabel);
+        auto rect = makeColorEntity(vec4(0,0,0,0.5), 2, factory.height*6);
+        rect.pos.y = -1+factory.height*3;
+        Game.getWorld2D.add(rect);
+        auto text = "";
+        size_t cursor = 0;
+
+        import std.ascii, std.array;
+        string slice(string s, size_t i, size_t j) {
+            if (i > j) return "";
+            if (i < 0) return "";
+            if (j > s.length) return "";
+            return s[i..j];
+        }
+
+        void render() {
+            auto t = slice(text,0,cursor)~'|'~slice(text,cursor, text.length);
+            auto ts = t.split('\n');
+            consoleLabel.renderText(ts[0..$-1].map!(t=>" "~t).join('\n')~'\n'~(consoleMode?'>':':')~ts[$-1]);
+            consoleLabel.left = -1;
+            consoleLabel.bottom = -1;
+        }
+        Core().addProcess({
+            if (consoleMode == 0) return;
+            if (consoleMode == 1) {
+                consoleMode++;
+                render();
+                return;
+            }
+            Core().getKey().preventCallback();
+            auto mKey = Core().getKey().justPressedKey();
+            if (mKey.isNone) return;
+            auto key = mKey.get();
+            if (isPrintable(key)) {
+                text = text.empty ? (cast(char)key).toLower.to!string : slice(text,0,cursor)~(cast(char)key).toLower~slice(text,cursor, text.length);
+                cursor++;
+            } else if (key == KeyButton.Enter) {
+                auto lines = text.split('\n');
+                if (!lines.empty) interpret(lines.back);
+                if (lines.length < 5) {
+                    text ~= '\n';
+                    cursor = text.length;
+                } else {
+                    text = lines[$-5..$].join('\n')~'\n';
+                    cursor = text.length;
+                }
+            } else if (key == KeyButton.BackSpace) {
+                text = text.empty ? text : slice(text,0,cursor-1)~slice(text,cursor, text.length);
+                cursor = max(0, cursor-1);
+            } else if (key == KeyButton.Left) {
+                cursor = max(0, cursor-1);
+            } else if (key == KeyButton.Right) {
+                cursor = min(text.length, cursor+1);
+            } else if (key == KeyButton.Escape) {
+                consoleMode = false;
+                Core().getKey().allowCallback();
+            }
+            render();
+        }, "");
+    }
+
+    debug void interpret(string str) {
     }
 }

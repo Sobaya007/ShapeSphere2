@@ -43,11 +43,11 @@ class Font {
 
         auto bearingX = met.horiBearingX/64;
         auto bearingY = met.horiBearingY/64;
-        auto width = met.width/64;
-        auto height = met.height/64;
+        auto width = glyph.bitmap.width;
+        auto height = glyph.bitmap.rows;
 
         auto ascender = sz.ascender / 64;
-        auto advance = met.horiAdvance/64;
+        auto advance = glyph.advance.x/64;
         auto maxHeight = (sz.ascender - sz.descender) / 64;
 
         auto offsetX = bearingX;

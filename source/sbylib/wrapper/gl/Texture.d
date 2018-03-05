@@ -15,7 +15,7 @@ class Texture {
     private bool alive = true;
     private bool allocated;
 
-    private debug uint width, height;
+    private uint width, height;
 
     this(TextureTarget target) {
         uint id;
@@ -57,6 +57,8 @@ class Texture {
     void update(Type)(uint mipmapLevel, int offsetX, int offsetY, uint width, uint height, ImageFormat iformat, Type *data) {
         this.bind();
         import std.algorithm;
+        offsetX = max(0, offsetX);
+        offsetY = max(0, offsetY);
         width  = min(width,  this.width  - offsetX);
         height = min(height, this.height - offsetY);
         glTexSubImage2D(this.target, mipmapLevel, offsetX, offsetY, width, height, iformat, GlFunction.getTypeEnum!Type, data);

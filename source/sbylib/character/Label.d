@@ -32,6 +32,7 @@ class Label {
     private float size; //1 letter height
     private float width, height;
     private dstring text;
+    private dstring[] textByRow;
     private Sentence[] sentences;
     private Strategy strategy;
 
@@ -105,17 +106,26 @@ class Label {
         auto text = this.text;
         auto wrapWidth = this.wrapWidth * font.size / this.size;
         auto pen = 0;
+        this.textByRow = null;
         while (!text.empty) {
             pen = 0;
             LetterInfo[] infos;
+            dstring rowString;
             while (!text.empty) {
+                if (text.front == '\n') {
+                    rowString ~= '\n';
+                    text.popFront;
+                    break;
+                }
                 auto info = font.getLetterInfo(text.front);
                 if (pen + info.advance > wrapWidth) break;
                 infos ~= LetterInfo(info, pen, text.front);
+                rowString ~= text.front;
                 text = text[1..$];
                 pen += info.advance;
             }
             rows ~= infos;
+            textByRow ~= rowString;
         }
         this.width = rows.map!(row => row.map!(i => i.advance).sum).maxElement * this.size / font.size;
         this.height = rows.length * this.size;
@@ -139,7 +149,7 @@ class Label {
                 this.sentences.each!(s => s.pos.x = (this.width - s.width)/2);
                 break;
         }
-        this.sentences.enumerate.each!(s => s.value.pos.y = (s.index - this.sentences.length*.25) * -this.size);
+        this.sentences.enumerate.each!(s => s.value.pos.y = s.index * -this.size + this.height/2 - this.size / 2);
         this.sentences.each!(s => s.color = color);
         this.sentences.each!(s => s.backColor = backColor);
     }

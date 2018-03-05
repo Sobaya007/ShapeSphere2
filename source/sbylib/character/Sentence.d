@@ -33,6 +33,7 @@ class Sentence {
         import std.algorithm, std.range;
         if (infos.empty) return;
         auto totalWidth = infos.back.pen + infos.back.offsetX + infos.back.width;
+        auto minHeight = infos.map!(i => i.maxHeight).maxElement;
         auto maxHeight = infos.map!(i => i.maxHeight).maxElement;
         //assert(minHeight == maxHeight);
         import sbylib.utils;
