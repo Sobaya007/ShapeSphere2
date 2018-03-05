@@ -27,6 +27,7 @@ class Sentence {
         this.entity.texture = new Texture(TextureTarget.Tex2D);
         this.entity.texture.setWrapS(TextureWrap.ClampToEdge);
         this.entity.texture.setWrapT(TextureWrap.ClampToEdge);
+        this.entity.name = "Sentence";
     }
 
     void setBuffer(LetterInfo[] infos, float h) {
@@ -70,8 +71,6 @@ class Sentence {
         }
         GlFunction.setPixelUnpackAlign(4);
         this.entity.scale.xy = vec2(w, h);
-        import std.conv;
-        this.entity.name = infos.map!(i => i.c.to!string).join;
 
         this.width = w;
         this.height = h;

@@ -187,11 +187,8 @@ class World {
         return this.entities.find(e).empty == false;
     }
 
-    Maybe!Entity findByName(string name) {
-        import std.array;
-        auto result = entities.find!(e => e.name == name);
-        if (result.empty) return None!Entity;
-        return Just(result.front);
+    auto findByName(string name) {
+        return entities.filter!(e => e.name == name);
     }
 
     auto getEntityNames() {

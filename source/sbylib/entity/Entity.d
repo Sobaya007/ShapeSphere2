@@ -237,11 +237,8 @@ class Entity {
         return children;
     }
 
-    Maybe!Entity findByName(string name) {
-        import std.array;
-        auto result = children.find!(e => e.name == name);
-        if (result.empty) return None!Entity;
-        return Just(result.front);
+    auto findByName(string name) {
+        return children.filter!(e => e.name == name);
     }
 
     Maybe!Entity getParent() {
@@ -299,7 +296,9 @@ class Entity {
                     capsule.apply!((capsule) {
                         auto geom = capsule.createGeometry();
                         auto mat = new WireframeMaterial(vec4(1));
-                        e.addChild(new Entity(geom, mat));
+                        auto debugEntity = new Entity(geom, mat);
+                        debugEntity.name = "Debug Wire Capsule";
+                        e.addChild(debugEntity);
                     });
                     proc.kill();
                 }, "build capsule");
@@ -375,15 +374,15 @@ class Entity {
 
     string toString(bool recursive) {
         import std.format;
-        return toString((Entity e) => format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString), recursive);
+        return toString((Entity e) => format!"name      : %s\nMesh      : %s\nCollision : %s\nData      : %s\nChildren  : %d"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString, e.children.length), recursive);
     }
 
     string toString(string function(Entity) func, bool recursive) {
         import std.format, std.range;
         import sbylib.utils.Functions;
-        auto result = func(this) ~ format!"\nChildren(%d)"(children.length).indent(3);
+        auto result = func(this);
         if (recursive && children.length > 0) {
-            result ~= format!"\n%s"(this.children.map!(child => child.toString(func, recursive)).join("\n").indent(3));
+            result ~= this.children.map!(child => child.toString(func, recursive)).join("\n").indent(3);
         }
         return result;
     }

@@ -69,6 +69,7 @@ class Stage1 : Stage {
         this.fadeRect.config.renderGroupName = "transparent";
         this.fadeRect.config.depthWrite = false;
         this.fadeRect.pos.z = 1;
+        this.fadeRect.name = "Fade Rect";
         Game.getWorld2D().add(this.fadeRect);
     }
 
@@ -394,6 +395,7 @@ struct Shape {
             auto capsule = new CollisionCapsule(radius, vec3(0), vec3(0));
             debug {
                 auto entity = makeEntity(Sphere.create(radius, 2), new WireframeMaterial(vec4(1)), capsule);
+                entity.name = "Move:"~move.arrivalName;
             } else {
                 auto entity = makeEntity(capsule);
             }

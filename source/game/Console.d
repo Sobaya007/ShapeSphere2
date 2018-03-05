@@ -20,7 +20,7 @@ debug class Console {
         factory.fontName = "RictyDiminished-Regular-Powerline.ttf";
         factory.height = 0.06;
         factory.strategy = Label.Strategy.Left;
-        factory.backColor = vec4(0,0,0,0);
+        factory.backColor = vec4(0,0,0,0.5);
         factory.textColor = vec4(1,1,1,1);
         factory.text = ":";
 
@@ -59,6 +59,8 @@ debug class Console {
             auto shift = Core().getKey().isPressed(KeyButton.LeftShift) || Core().getKey().isPressed(KeyButton.RightShift);
             auto c = shift ? cast(char)key : (cast(char)key).toLower;
             if (c == '.' && shift) c = '>';
+            if (key == KeyButton.LeftBracket) c = '[';
+            if (key == KeyButton.RightBracket) c = ']';
             text.back = slice(text.back,0,cursor)~c~slice(text.back,cursor, text.back.length);
             cursor++;
         } else if (key == KeyButton.Enter) {
@@ -66,16 +68,10 @@ debug class Console {
             if (!input.empty) {
                 history ~= input;
                 historyCursor = history.length;
-                string[] output = interpret(input)
+                text ~= interpret(input)
                     .split("\n")
-                    .sort
-                    .group
-                    .map!(p => p[0].repeat(p[1]).enumerate.map!(a=>a.value~(a.index==0 ? "" : a.index.to!string)).array)
-                    .join
-                    .map!(s => " ".repeat(4).join~s)
+                    .map!(s => s.indent(4))
                     .array;
-                text ~= output;
-                text ~= interpret(input);
             }
             text ~= "";
             cursor = 0;
@@ -104,11 +100,7 @@ debug class Console {
             auto cs = candidates(text.back);
             if (!cs.empty) {
                 string[] output = cs
-                    .sort
-                    .group
-                    .map!(p => p[0].repeat(p[1]).enumerate.map!(a=>a.value~(a.index==0 ? "" : a.index.to!string)).array)
-                    .join
-                    .map!(s => " ".repeat(4).join~s)
+                    .map!(s => s.indent(4))
                     .array;
                 text ~= output;
                 text ~= cs.reduce!commonPrefix;
@@ -146,8 +138,18 @@ debug class Console {
     }
 
     private string interpret(World world, string[] tokens) {
-        if (tokens.empty) return world.toString((Entity e) => e.name, false);
-        auto child = world.findByName(tokens.front);
+        if (tokens.empty) return world.toString((Entity e) => e.name, false).split("\n").sort.group.map!(p => p[1] == 1 ? p[0] : format!"%s[%d]"(p[0], p[1])).join("\n");
+        import std.regex;
+        auto r = ctRegex!"\\[([0-9]*)\\]";
+        auto c = matchFirst(tokens.front, r);
+        Maybe!Entity child;
+        if (!c.empty) {
+            auto res = world.findByName(c.pre).drop(c.hit.dropOne.dropBackOne.to!int);
+            child = res.empty ? None!Entity : Just(res.front);
+        } else {
+            auto res = world.findByName(tokens.front);
+            child = res.empty ? None!Entity : Just(res.front);
+        }
         if (child.isNone) return format!"No match name for '%s'"(tokens.front);
         return interpret(child.get(), tokens.dropOne);
     }
@@ -161,18 +163,28 @@ debug class Console {
             case "scale": return entity.scale.toString;
             default:
         }
-        auto child = entity.findByName(token);
+        import std.regex;
+        auto r = ctRegex!"\\[([0-9]*)\\]";
+        auto c = matchFirst(tokens.front, r);
+        Maybe!Entity child;
+        if (!c.empty) {
+            auto res = entity.findByName(c.pre).drop(c.hit.dropOne.dropBackOne.to!int);
+            child = res.empty ? None!Entity : Just(res.front);
+        } else {
+            auto res = entity.findByName(tokens.front);
+            child = res.empty ? None!Entity : Just(res.front);
+        }
         if (child.isNone) return format!"No match name for '%s'"(token);
         return interpret(child.get(), tokens.dropOne);
     }
 
     private string[] candidates(string[] strs, string head) {
-        return strs.filter!(s => s.toLower.startsWith(head.toLower)).array;
+        return strs.sort.group.map!(g => g[1] == 1 ? g[0] : g[0]~"[").filter!(s => s.toLower.startsWith(head.toLower)).array;
     }
 
     private string[] candidates(string str) {
         auto tokens = str.split('>');
-        if (tokens.empty) return [];
+        if (tokens.empty) return ["world3d", "world2d"];
         if (tokens.length == 1) return candidates(["world3d", "world2d"], tokens.front);
         if (tokens.front == "world3d") {
             return candidates(Game.getWorld3D, tokens.dropOne).map!(c => "world3d>"~c).array;
@@ -185,14 +197,14 @@ debug class Console {
     private string[] candidates(World world, string[] tokens) {
         if (tokens.length == 1) return candidates(world.getEntityNames, tokens.front);
         auto child = world.findByName(tokens.front);
-        if (child.isNone) return [];
-        return candidates(child.get(), tokens.dropOne).map!(c => tokens.front~">"~c).array;
+        if (child.empty) return [];
+        return candidates(child.front, tokens.dropOne).map!(c => tokens.front~">"~c).array;
     }
 
     private string[] candidates(Entity entity, string[] tokens) {
         if (tokens.length == 1) return candidates(["pos", "rot", "scale"]~entity.getChildren.map!(c=>c.name).array, tokens.front);
         auto child = entity.findByName(tokens.front);
-        if (child.isNone) return [];
-        return candidates(child.get(), tokens.dropOne).map!(c => tokens.front~">"~c).array;
+        if (child.empty) return [];
+        return candidates(child.front, tokens.dropOne).map!(c => tokens.front~">"~c).array;
 }
     }

@@ -45,6 +45,7 @@ class Label {
         this.backColor = backColor;
         this.text = text;
         this.entity = new Entity;
+        this.entity.name = "Label";
         this.width = this.height = 0;
         this.renderText(text);
     }
@@ -78,6 +79,8 @@ class Label {
         this.text = text;
         this.width = this.height = 0;
         this.lineUp();
+        import std.conv;
+        this.name = "Label '"~text.to!string~"'";
     }
 
     float left(float value) {
