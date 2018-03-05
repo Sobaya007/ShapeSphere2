@@ -189,9 +189,9 @@ class ElasticSphere : BaseSphere {
         }
         foreach (colInfo; colInfos) {
             import game.stage.Stage1;
-            auto move = colInfo.getOther(this.elasticSphere2.entity).getUserData!(Move);
+            auto move = colInfo.getOther(this.elasticSphere2.entity).getUserData!(string);
             if (move.isNone) continue;
-            auto next = move.get().arrivalName;
+            auto next = move.get();
             Game.getMap().transit(next);
         }
     }

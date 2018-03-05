@@ -22,7 +22,7 @@ debug class Console {
         factory.strategy = Label.Strategy.Left;
         factory.backColor = vec4(0,0,0,0);
         factory.textColor = vec4(1,1,1,1);
-        factory.text = "Waiting...";
+        factory.text = ":";
 
         this.label = factory.make();
         label.left = -1;
@@ -74,6 +74,7 @@ debug class Console {
                     .map!(s => " ".repeat(4).join~s)
                     .array;
                 text ~= output;
+                text ~= interpret(input);
             }
             text ~= "";
             cursor = 0;
@@ -96,10 +97,19 @@ debug class Console {
             mode = 0;
             Core().getKey().allowCallback();
             Game.getMap().resume();
+            text = [""];
+            cursor = 0;
         } else if (key == KeyButton.Tab) {
             auto cs = candidates(text.back);
             if (!cs.empty) {
-                text ~= cs.map!(c => " ".repeat(4).join~c).array;
+                string[] output = cs
+                    .sort
+                    .group
+                    .map!(p => p[0].repeat(p[1]).enumerate.map!(a=>a.value~(a.index==0 ? "" : a.index.to!string)).array)
+                    .join
+                    .map!(s => " ".repeat(4).join~s)
+                    .array;
+                text ~= output;
                 text ~= cs.reduce!commonPrefix;
                 cursor = text.back.length;
             }

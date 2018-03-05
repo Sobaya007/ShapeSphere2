@@ -28,7 +28,6 @@ class Character {
             mat.config.depthWrite = false;
             mat.config.faceMode = FaceMode.Front;
             this.elasticSphere = new ElasticSphere2(mat);
-            this.elasticSphere.setCenter(vec3(2, 10, 2));
         }
         this.collisionArea = new Entity(new CollisionCapsule(1.2, vec3(0), vec3(0)));
         this.collisionArea.name = "Character's Collision Area";

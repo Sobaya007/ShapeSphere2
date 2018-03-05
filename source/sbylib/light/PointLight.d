@@ -48,12 +48,12 @@ class PointLight {
             auto buffer = PointLightManager().useBlock(BufferAccess.Both);
             this.index = buffer.num++;
             assert(buffer.num <= MAX_LIGHT_NUM);
-            buffer.lights[this.index] = Struct(this.worldPos, diffuse);
+            buffer.lights[this.index] = Struct(this.worldPos, this.diffuse);
 
-            // this.worldPos.addChangeCallback({
-            //     auto buffer = PointLightManager().useBlock(BufferAccess.Write);
-            //     buffer.lights[this.index].pos = this.worldPos.get();
-            // });
+            this.worldPos.addChangeCallback({
+                auto buffer = PointLightManager().useBlock(BufferAccess.Write);
+                buffer.lights[this.index].pos = this.worldPos.get();
+            });
             PointLightManager().lights ~= this;
         };
 

@@ -37,7 +37,6 @@ class Stage1 : Stage {
 
         debug {
             Core().getKey().justPressed(KeyButton.KeyL).add(&update);
-
             Core().getKey().justPressed(KeyButton.KeyP).add({
                 Game.getPlayer().setCenter(this.area.debugPos);
             });
@@ -152,12 +151,8 @@ class Stage1 : Stage {
 
     void update() {
         Core().addProcess((Process proc) {
-            PointLightManager().clear();
-            auto value = parseJSON(readText(path)).object();
-            foreach (name, v; value) {
-                import std.algorithm;
-                this.areas.find!(a => a.name == name).front.update(v.object());
-            }
+            this.root = parseJSON(readText(path)).object();
+            this.area = this.areas.find!(a => a.name == this.area.name).front;
             proc.kill();
         }, "stage update");
     }
@@ -198,7 +193,11 @@ struct Area {
         this.index = index;
         this.parent = parent;
 
-        lights.each!(e => e.light());
+        // 悲しみの初期化処理
+        characters.each!(x => x.character());
+        moves.each!(x => x.shape());
+        crystals.each!(x => x.light());
+        lights.each!(x => x.light());
     }
 
     void create() {
@@ -217,11 +216,12 @@ struct Area {
 
         insts ~= Inst(entity, stageEntity, characterEntity, moveEntity, crystalEntity, lightEntity);
 
-        this.entity.name = name ~" entity";
-        this.stageEntity.name = name ~" stageEntity";
-        this.characterEntity.name = name ~" characterEntity";
-        this.moveEntity.name = name ~" moveEntity";
-        this.lightEntity.name = name ~" lightEntity";
+        entity.name = name ~" entity";
+        crystalEntity.name = name ~" crystalEntity";
+        stageEntity.name = name ~" stageEntity";
+        characterEntity.name = name ~" characterEntity";
+        moveEntity.name = name ~" moveEntity";
+        lightEntity.name = name ~" lightEntity";
     }
 
     auto inst() {
@@ -323,19 +323,6 @@ struct Area {
         writeln("BVH construction was finished.");
     }
 
-    void update(JSONValue[string] obj) {
-        this.lightEntity.remove();
-        this.crystalEntity.remove();
-        this.lightEntity.traverse!((Entity e) => e.destroy());
-        this.crystalEntity.traverse!((Entity e) => e.destroy());
-        this.lightEntity.clearChildren();
-        this.crystalEntity.clearChildren();
-        this.lights.each!(c => this.lightEntity.addChild(c.light));
-        this.crystals.each!(c => this.crystalEntity.addChild(c.entity));
-        this.entity.addChild(this.lightEntity);
-        this.stageEntity.addChild(this.crystalEntity);
-    }
-
     void addCrystal(ref JSONValue area, vec3 pos) {
         auto obj = parseJSON("{}");
         obj["pos"] = JSONValue(pos.array[]);
@@ -360,7 +347,7 @@ struct Move {
         this.index = index;
         this.parent = parent;
         this.moveEntity = moveEntity;
-        shape();
+        this.arrivalName = arrivalName;
     }
 
     auto obj() {
@@ -387,14 +374,21 @@ struct Shape {
     private size_t index;
     private JSONValue[string] obj;
     private Move move;
-    private static Entity[] entities;
+    private static Entity[][Entity] _entities;
 
     this(size_t index, JSONValue[string] obj, Move move) {
         this.index = index;
         this.obj = obj;
         this.move = move;
         assert(obj["kind"].str() == "Sphere");
-        entity();
+
+        this.center = center;
+        this.radius = radius;
+    }
+
+    ref Entity[] entities() {
+        if (move.moveEntity !in _entities) _entities[move.moveEntity] = [];
+        return _entities[move.moveEntity];
     }
 
     Entity entity() {
@@ -439,7 +433,7 @@ struct Shape {
 
 struct Light {
 
-    private static PointLight[] lights;
+    private static PointLight[][Entity] _lights;
 
     private JSONValue[] parent;
     private size_t index;
@@ -449,22 +443,24 @@ struct Light {
         this.parent = parent;
         this.index = index;
         this.lightEntity = lightEntity;
-        light();
+        this.pos = pos;
+        this.color = color;
     }
 
     auto obj() {
         return parent[index].object();
+    }
+
+    auto ref lights() {
+        if (lightEntity !in _lights) _lights[lightEntity] = [];
+        return _lights[lightEntity];
     }
     
     auto light() {
         while (lights.length <= index) {
             auto light = new PointLight(pos, color);
             lights ~= light;
-            this.pos = pos;
-            this.color = color;
             lightEntity.addChild(light);
-            import std.stdio;
-            writeln("poyo");
         }
         return lights[index];
     }
@@ -494,13 +490,15 @@ struct Crystal {
     private size_t index;
     private JSONValue[] parent;
     private Entity crystalEntity;
-    private static Tuple!(Entity, PointLight)[] reserved;
+    private static Tuple!(Entity, PointLight)[][Entity] _reserved;
 
     this(size_t index, JSONValue[] parent, Entity crystalEntity) {
         this.index = index;
         this.parent = parent;
         this.crystalEntity = crystalEntity;
-        entity();
+
+        this.pos = pos;
+        this.color = color;
     }
 
     void create() {
@@ -515,9 +513,11 @@ struct Crystal {
         crystalEntity.addChild(entity);
 
         reserved ~= tuple(entity, light);
+    }
 
-        this.pos = pos;
-        this.color = color;
+    auto ref reserved() {
+        if (crystalEntity !in _reserved) _reserved[crystalEntity] = [];
+        return _reserved[crystalEntity];
     }
 
     Entity entity() {
@@ -563,14 +563,21 @@ struct Character {
     private JSONValue[] parent;
     private Entity characterEntity;
     import game.character.Character : Chara = Character;
-    private static Chara[] characters;
+    private static Chara[][Entity] _characters;
 
     alias character this;
 
-    this(size_t index, JSONValue[] parent, Entity crystalEntity) {
+    this(size_t index, JSONValue[] parent, Entity characterEntity) {
         this.index = index;
         this.parent = parent;
         this.characterEntity = characterEntity;
+
+        this.pos = pos;
+    }
+
+    auto ref characters() {
+        if (characterEntity !in _characters) _characters[characterEntity] = [];
+        return _characters[characterEntity];
     }
 
     Chara character() {
@@ -578,6 +585,8 @@ struct Character {
             auto c = new Chara;
             c.serif = serif;
             c.setCenter(pos);
+            characters ~= c;
+            characterEntity.addChild(c.entity);
         }
         return characters[index];
     }

@@ -134,9 +134,9 @@ class Label {
             sentences ~= newSentences;
             newSentences.each!(s => this.entity.addChild(s));
         }
-        sentences.each!(s => s.visible = true);
+        sentences.each!(s => s.traverse!((Entity e) => e.visible = true));
         if (sentences.length > rows.length)
-            sentences[rows.length..$].each!(s => s.visible = false);
+            sentences[rows.length..$].each!(s => s.traverse!((Entity e) => e.visible = false));
         zip(rows, sentences).each!(t => t[1].setBuffer(t[0], this.size));
         final switch (this.strategy) {
             case Strategy.Left:
