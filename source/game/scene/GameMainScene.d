@@ -121,6 +121,7 @@ class GameMainScene : SceneBase {
             addLabel("F: Toggle Fullscreen");
             addLabel("T: Toggle Debug Wireframe");
             addLabel("N: Toggle this message");
+            addLabel("I: Goto Console Mode");
 
             /* Key Input */
             core.getKey().justPressed(KeyButton.KeyO).add({ConfigManager().load();});

@@ -45,6 +45,7 @@ class Label {
         this.backColor = backColor;
         this.text = text;
         this.entity = new Entity;
+        this.width = this.height = 0;
         this.renderText(text);
     }
 
@@ -75,6 +76,7 @@ class Label {
     void renderText(dstring text) {
         if (text != text) return;
         this.text = text;
+        this.width = this.height = 0;
         this.lineUp();
     }
 

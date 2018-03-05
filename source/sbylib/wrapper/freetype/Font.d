@@ -27,6 +27,7 @@ class Font {
     }
 
     struct LetterInfo {
+        dchar c;
         long offsetX, offsetY;
         long width, height;
         long advance;
@@ -59,6 +60,6 @@ class Font {
 
         auto bm2 = bm.buffer[0..width*height].dup;
 
-        return cache[c] = LetterInfo(offsetX, offsetY, width, height, advance, maxHeight, bm2);
+        return cache[c] = LetterInfo(c, offsetX, offsetY, width, height, advance, maxHeight, bm2);
     }
 }

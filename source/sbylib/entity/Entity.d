@@ -381,7 +381,7 @@ class Entity {
     string toString(string function(Entity) func, bool recursive) {
         import std.format, std.range;
         import sbylib.utils.Functions;
-        auto result = format!"%s\nChildren(%d)"(func(this), children.length);
+        auto result = func(this) ~ format!"\nChildren(%d)"(children.length).indent(3);
         if (recursive && children.length > 0) {
             result ~= format!"\n%s"(this.children.map!(child => child.toString(func, recursive)).join("\n").indent(3));
         }

@@ -158,14 +158,12 @@ class Stage1 : Stage {
     }
 
     void addCrystal(vec3 pos) {
-        auto root = parseJSON(readText(path));
         this.area.addCrystal(root[this.area.name], pos);
         write(path, root.toJSON(true));
         Core().addProcess((proc) { update(); proc.kill(); }, "update stage");
     }
 
     void addLight(vec3 pos) {
-        auto root = parseJSON(readText(path));
         this.area.addLight(root[this.area.name], pos);
         write(path, root.toJSON(true));
         Core().addProcess((proc) { update(); proc.kill(); }, "update stage");
@@ -571,8 +569,6 @@ struct Character {
         this.index = index;
         this.parent = parent;
         this.characterEntity = characterEntity;
-
-        this.pos = pos;
     }
 
     auto ref characters() {
@@ -587,6 +583,7 @@ struct Character {
             c.setCenter(pos);
             characters ~= c;
             characterEntity.addChild(c.entity);
+            Game.getPlayer().collisionEntities ~= c.collisionArea;
         }
         return characters[index];
     }

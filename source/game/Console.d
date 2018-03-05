@@ -27,6 +27,7 @@ debug class Console {
         this.label = factory.make();
         label.left = -1;
         label.bottom = -1;
+        label.pos.z = 0.1;
         Game.getWorld2D.add(label);
 
         this.text = [""];

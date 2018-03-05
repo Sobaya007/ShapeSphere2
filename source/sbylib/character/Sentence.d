@@ -70,6 +70,8 @@ class Sentence {
         }
         GlFunction.setPixelUnpackAlign(4);
         this.entity.scale.xy = vec2(w, h);
+        import std.conv;
+        this.entity.name = infos.map!(i => i.c.to!string).join;
 
         this.width = w;
         this.height = h;

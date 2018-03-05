@@ -10,14 +10,25 @@ class Message : CommandReceiver {
 
     Entity entity;
 
-    private Maybe!Label text;
+    private Label text;
     private Entity img;
     private void delegate() onFinish;
     private Maybe!AnimationProcedure procedure;
 
     this() {
-        this.entity = new Entity();
+
+        LabelFactory factory;
+        factory.height = 0.1;
+        factory.strategy = Label.Strategy.Center;
+        factory.wrapWidth = 1;
+        this.text = factory.make();
+        text.pos.z = -0.5;
+
         this.img = makeImageEntity(ImagePath("message.png"), 1, 1);
+
+        this.entity = new Entity();
+        this.entity.addChild(text);
+        this.entity.addChild(img);
 
         this.addCommand(new ButtonCommand(() => Controller().justPressed(CButton.Decide), &this.onDecisideJustPressed));
     }
@@ -30,15 +41,9 @@ class Message : CommandReceiver {
     void setMessage(dstring message) in {
         assert(this.procedure.hasFinished.getOrElse(true));
     } body {
-        float currentWidth = this.text.getWidth().getOrElse(0);
-        float currentHeight = this.text.getHeight().getOrElse(0);
-        LabelFactory factory;
-        factory.text = message;
-        factory.height = 0.1;
-        factory.strategy = Label.Strategy.Center;
-        factory.wrapWidth = 1;
-        auto text = factory.make();
-        text.pos.z = -0.5;
+        float currentWidth = this.text.getWidth();
+        float currentHeight = this.text.getHeight();
+        text.renderText(message);
         text.traverse!((Entity e) => e.visible = false);
         float arrivalWidth = text.getWidth();
         float arrivalHeight = text.getHeight();
@@ -62,20 +67,13 @@ class Message : CommandReceiver {
                     },
                     setting(
                         0f,
-                        cast(float)(message.length-1),
+                        message.length + 0.5f,
                         cast(uint)(5 * message.length),
                         Ease.linear
                     )
                 )
             ])
         ));
-        this.text.remove();
-        this.text.destroy();
-        this.text = Just(text);
-
-        this.entity.clearChildren();
-        this.entity.addChild(text);
-        this.entity.addChild(this.img);
     }
 
     private void onDecisideJustPressed() {
