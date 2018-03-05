@@ -11,13 +11,14 @@ private:
     ViewportMouse mouse;
 
     CollisionRay ray;
-    Maybe!Entity selectedEntity;
+
+    bool isMoving = false;
+    bool isAddedToWorld = false;
 
 public:
 
     this() {
         this.manipulator = new Manipulator();
-        Game.getWorld3D.add(this.manipulator.entity);
 
         this.mouse = new ViewportMouse(Game.getScene.viewport);
         this.ray = new CollisionRay();
@@ -32,16 +33,41 @@ private:
         if (this.mouse.justPressed()) {
             auto mouseButton = this.mouse.justPressedButton();
             if (mouseButton == MouseButton.Button1) {
-                this.selectedEntity = getCollidedEntity();
+                auto entity = getCollidedEntity();
 
-                this.selectedEntity.apply!(a => this.manipulator.setTarget(a));
+                entity.match!(
+                    (Entity e) {
+                        if (e.getUserData!(Manipulator.Axis).isJust) {
+                            this.manipulator.setAxis(e);
+
+                            this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
+                            this.isMoving = this.manipulator.setRay(this.ray);
+                        } else {
+                            bool isTarget = false;
+                            isTarget |= e.name == "crystal";
+
+                            if (isTarget) {
+                                show();
+                            } else {
+                                hide();
+                            }
+
+                            this.manipulator.setTarget(e);
+                            this.isMoving = false;
+                        }
+                    },
+                    () {
+                        this.isMoving = false;
+                    }
+                );
             }
         }
-        if (this.mouse.justReleased()) {
-            auto mouseButton = this.mouse.justReleasedButton();
-            if (mouseButton == MouseButton.Button1) {
 
-            }
+        if (this.mouse.isPressed(MouseButton.Button1) && this.isMoving) {
+            this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
+            this.manipulator.updateRay(this.ray);
+        } else {
+            this.isMoving = false;
         }
     }
 
@@ -53,6 +79,18 @@ private:
         return Game.getWorld3D.rayCast(this.ray).fmap!((CollisionInfoRay colInfo) {
             return colInfo.entity;//.getRootParent;
         });
+    }
+
+    void show() {
+        if (isAddedToWorld) return;
+        Game.getWorld3D.add(this.manipulator.entity);
+        isAddedToWorld = true;
+    }
+
+    void hide() {
+        if (!isAddedToWorld) return;
+        Game.getWorld3D.remove(this.manipulator.entity);
+        isAddedToWorld = false;
     }
 
 
