@@ -90,9 +90,9 @@ struct Maybe(T) {
     }
 }
 
-Maybe!S fmap(alias fun, T, S = ReturnType!fun)(Maybe!T m) {
-    if (m.isNone) return None!S;
-    return Just(fun(m.get));
+auto fmap(alias fun, T)(Maybe!T m) {
+    if (m.isJust) return Just(fun(m.get));
+    return None!(typeof(return).Type);
 }
 
 T getOrElse(T)(Maybe!T m, T defaultValue) {
