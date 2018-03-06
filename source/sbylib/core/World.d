@@ -119,6 +119,10 @@ class World {
         return entities;
     }
 
+    debug int getEntityNum() {
+        return entities.map!(e => e.getDescendantNum).sum;
+    }
+
     void addRenderGroup(string name, IRenderGroup group) {
         this.renderGroups[name] = group;
     }
@@ -181,5 +185,23 @@ class World {
     } body {
         import std.algorithm, std.array;
         return this.entities.find(e).empty == false;
+    }
+
+    auto findByName(string name) {
+        return entities.filter!(e => e.name == name);
+    }
+
+    auto getEntityNames() {
+        import std.array;
+        return entities.map!(e => e.name).array;
+    }
+
+    override string toString() {
+        return toString((Entity e) => e.toString, true);
+    }
+
+    string toString(string function(Entity) func, bool recursive) {
+        import std.array;
+        return entities.map!(e => e.toString(func, recursive)).join('\n');
     }
 }

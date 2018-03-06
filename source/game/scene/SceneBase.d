@@ -19,6 +19,7 @@ class SceneProtoType : SceneBase {
         this.fadeRect.config.renderGroupName = "transparent";
         this.fadeRect.config.depthWrite = false;
         this.fadeRect.pos.z = 1;
+        this.fadeRect.name = "Fade Rect";
 
         this.world = new World;
         this.camera = camera;

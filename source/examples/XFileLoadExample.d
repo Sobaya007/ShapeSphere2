@@ -2,8 +2,6 @@ module examples.XFileLoadExample;
 
 import sbylib;
 
-import model.xfile.loader;
-
 void xFileLoadExample() {
     auto core = Core();
     auto window = core.getWindow();

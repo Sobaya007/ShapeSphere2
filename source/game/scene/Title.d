@@ -16,8 +16,8 @@ class Title : SceneProtoType {
 
     this() {
         this.text = makeTextEntity("タイトル"d, 0.4);
-        auto newGame = Selection("New Game"d, vec2(0.9, -0.6));
-        auto loadGame = Selection("Load Game"d, vec2(0.85, -0.75));
+        auto newGame = Selection("New Game"d, vec2(0.5, -0.6));
+        auto loadGame = Selection("Load Game"d, vec2(0.45, -0.75));
         selections = [newGame, loadGame];
         super();
         addEntity(text);
@@ -46,7 +46,7 @@ class Title : SceneProtoType {
                     )
                 ),
                 multi(selections.map!(s =>
-                    s.label.color(
+                    s.label.colorAnimation(
                         setting(
                             vec4(0),
                             vec4(0.5),
@@ -64,7 +64,7 @@ class Title : SceneProtoType {
                             Ease.easeInOut
                         )
                     ),
-                    this.selections[0].label.color(
+                    this.selections[0].label.colorAnimation(
                         setting(
                             vec4(0.5),
                             vec4(1),
@@ -99,10 +99,15 @@ class Title : SceneProtoType {
         private vec2 basePos;
         private Maybe!AnimationProcedure animation;
         this(dstring text, vec2 basePos) {
-            this.label = makeTextEntity(text, 0.15, Label.OriginX.Right, Label.OriginY.Center);
+            LabelFactory factory;
+            factory.text = text;
+            factory.height = 0.15;
+            factory.strategy = Label.Strategy.Right;
+            factory.textColor = vec4(0);
+            this.label = factory.make();
             this.basePos = basePos;
-            this.label.pos = vec3(basePos, 0);
-            this.label.setColor(vec4(0));
+            this.label.pos.x = basePos.x;
+            this.label.pos.y = basePos.y;
         }
 
         void select() {
@@ -116,9 +121,9 @@ class Title : SceneProtoType {
                             Ease.easeInOut
                         )
                     ),
-                    this.label.color(
+                    this.label.colorAnimation(
                         setting(
-                            this.label.getColor,
+                            this.label.color,
                             vec4(1),
                             10,
                             Ease.linear
@@ -142,9 +147,9 @@ class Title : SceneProtoType {
                             Ease.easeInOut
                         )
                     ),
-                    this.label.color(
+                    this.label.colorAnimation(
                         setting(
-                            this.label.getColor,
+                            this.label.color,
                             vec4(0.5),
                             10,
                             Ease.linear

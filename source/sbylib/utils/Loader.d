@@ -2,6 +2,7 @@ module sbylib.utils.Loader;
 
 import std.typecons;
 import sbylib.utils.Path;
+import sbylib.utils.Functions;
 
 class ImageLoader {
     import FreeImage = sbylib.wrapper.freeimage.ImageLoader;
@@ -34,6 +35,27 @@ static:
         auto result = FreeType.FontLoader.load(path, size);
         if (writeCache) {
             cache[tuple(path, size)] = result;
+        }
+        return result;
+    }
+}
+
+class XLoader {
+    import sbylib.model.xfile.loader.XLoader : OriginalLoader = XLoader;
+    import sbylib.model.xfile.loader.XEntity;
+    import std.typecons;
+
+    mixin Singleton;
+static:
+    private Rebindable!(immutable(XEntity))[ModelPath] cache;
+
+    immutable(XEntity) load(ModelPath path, bool materialRequired=true, bool normalRequired=true, bool uvRequred=true, bool useCache=true, bool writeCache=true) {
+        if (useCache) {
+            if (auto r = path in cache) return *r;
+        }
+        auto result = OriginalLoader().load(path, materialRequired, normalRequired, uvRequred);
+        if (writeCache) {
+            cache[path] = result;
         }
         return result;
     }

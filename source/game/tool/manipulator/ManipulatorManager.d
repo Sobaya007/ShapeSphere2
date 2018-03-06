@@ -43,8 +43,8 @@ private:
                             this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
                             this.isMoving = this.manipulator.setRay(this.ray);
                         } else {
-                            bool isTarget = false;
-                            isTarget |= e.name == "crystal";
+                            bool isTarget = false; //
+                            isTarget |= e.getUserData!string.fmap!((string str) => str == "crystal").getOrElse(false);
 
                             if (isTarget) {
                                 show();

@@ -47,6 +47,8 @@ class Entity {
     private Maybe!Variant userData;
     bool visible; // Materialに書くと、Materialが同じでVisiblityが違う物体が実現できない
     void delegate()[] onAdd;
+    void delegate()[] onPreRender;
+    void delegate()[] onPostRender;
 
     alias obj this;
 
@@ -231,6 +233,14 @@ class Entity {
         this._mesh = Just(m);
     }
 
+    Entity[] getChildren() {
+        return children;
+    }
+
+    auto findByName(string name) {
+        return children.filter!(e => e.name == name);
+    }
+
     Maybe!Entity getParent() {
         return this.parent;
     }
@@ -241,11 +251,17 @@ class Entity {
         return this.parent.getRootParent().getOrElse(this);
     }
 
+    debug int getDescendantNum() {
+        return children.map!(child => child.getDescendantNum).sum + 1;
+    }
+
     void render() in {
         assert(this.world.isJust, this.toString());
     } body {
         if (!this.visible) return;
+        onPreRender.each!(f => f());
         this.mesh.render();
+        onPostRender.each!(f => f());
     }
 
     void traverse(alias func)() {
@@ -280,7 +296,9 @@ class Entity {
                     capsule.apply!((capsule) {
                         auto geom = capsule.createGeometry();
                         auto mat = new WireframeMaterial(vec4(1));
-                        e.addChild(new Entity(geom, mat));
+                        auto debugEntity = new Entity(geom, mat);
+                        debugEntity.name = "Debug Wire Capsule";
+                        e.addChild(debugEntity);
                     });
                     proc.kill();
                 }, "build capsule");
@@ -351,16 +369,20 @@ class Entity {
     }
 
     override string toString() {
-        import std.format;
-        return toString((Entity e) => format!"name       : %s\nMesh       : %s\nCollision : %s\nData      : %s"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString));
+        return toString(true);
     }
 
-    string toString(string function(Entity) func) {
+    string toString(bool recursive) {
+        import std.format;
+        return toString((Entity e) => format!"name      : %s\nMesh      : %s\nCollision : %s\nData      : %s\nChildren  : %d"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString, e.children.length), recursive);
+    }
+
+    string toString(string function(Entity) func, bool recursive) {
         import std.format, std.range;
         import sbylib.utils.Functions;
         auto result = func(this);
-        if (children.length > 0) {
-            result ~= format!"\nChildren(%d):\n%s"(this.children.length, this.children.map!(child => child.toString(func)).join("\n").indent(3));
+        if (recursive && children.length > 0) {
+            result ~= this.children.map!(child => child.toString(func, recursive)).join("\n").indent(3);
         }
         return result;
     }

@@ -15,6 +15,8 @@ class Texture {
     private bool alive = true;
     private bool allocated;
 
+    private uint width, height;
+
     this(TextureTarget target) {
         uint id;
         glGenTextures(1, &id);
@@ -46,6 +48,20 @@ class Texture {
         GlFunction.checkError();
         this.unbind();
         this.allocated = true;
+        this.width = width;
+        this.height = height;
+    }
+
+    void update(Type)(uint mipmapLevel, int offsetX, int offsetY, uint width, uint height, ImageFormat iformat, Type *data) {
+        this.bind();
+        import std.algorithm;
+        offsetX = max(0, offsetX);
+        offsetY = max(0, offsetY);
+        width  = min(width,  this.width  - offsetX);
+        height = min(height, this.height - offsetY);
+        glTexSubImage2D(this.target, mipmapLevel, offsetX, offsetY, width, height, iformat, GlFunction.getTypeEnum!Type, data);
+        GlFunction.checkError();
+        this.unbind();
     }
 
     void destroy() in {

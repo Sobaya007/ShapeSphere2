@@ -1,9 +1,11 @@
-module model.xfile.node.XTextureFilenameNode;
+module sbylib.model.xfile.node.XMeshTextureCoordsNode;
 
-import model.xfile.node;
+import sbylib.math.Vector;
 
-class XTextureFilenameNode : XNode {
-    string name;
+import sbylib.model.xfile.node;
+
+class XMeshTextureCoordsNode : XNode {
+    vec2[] uvs;
 
     override string toString() {
         return toString(0);
@@ -15,9 +17,9 @@ class XTextureFilenameNode : XNode {
         string tab2 = '\t'.repeat(depth + 1).array;
         string tab3 = '\t'.repeat(depth + 2).array;
 
-        return "XTextureFilenameNode(\n%sname: %s\n%s)".format(
+        return "XMeshTextureCoordsNode(\n%suvs: %s\n%s)".format(
             tab2,
-            this.name,
+            toStringArray(depth, this.uvs),
             tab1
         );
     }

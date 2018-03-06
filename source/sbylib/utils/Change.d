@@ -1,5 +1,7 @@
 module sbylib.utils.Change;
 
+import std.stdio;
+
 mixin template ImplChangeCallback() {
     private void delegate()[] callbacks;
 
@@ -120,7 +122,9 @@ struct ChangeObserved(T) {
             }
         } body {
             auto r = mixin(Member ~ "()");
-            static if (isConst) this.onChange();
+            static if (!isConst) {
+                this.onChange();
+            }
             return r;
         }
     } else {
@@ -136,7 +140,8 @@ struct ChangeObserved(T) {
         this.onChange();
     }
 
-    void opAssign(ArgType)(ArgType value) if (isAssignable!(Type, ArgType)) {
+    void opAssign(ArgType)(ArgType value, string file = __FILE__, int line = __LINE__ ) if (isAssignable!(Type, ArgType)) {
+        if (this.value == value) return;
         this.value = value;
         this.onChange();
     }
@@ -171,7 +176,9 @@ struct ChangeObserved(T) {
 
     auto opUnary(string op)() {
         auto r = mixin(op ~ "this.value");
-        static if (op == "++" || op == "--") this.onChange();
+        static if (op == "++" || op == "--") {
+            this.onChange();
+        }
         return r;
     }
 
@@ -187,12 +194,16 @@ struct ChangeObserved(T) {
             static if (is(R == void)) {
                 void opDispatch(Args...)(Args args) {
                     mixin(Member ~ "(args);");
-                    static if (!isConst) this.onChange();
+                    static if (!isConst) {
+                        this.onChange();
+                    }
                 }
             } else {
                 ChangeObserved!R opDispatch(Args...)(Args args) {
                     auto result = mixin(Member ~ "(args)");
-                    static if (!isConst) this.onChange();
+                    static if (!isConst) {
+                        this.onChange();
+                    }
                     return ChangeObserved!R(result, this.callbacks);
                 }
             }
@@ -209,6 +220,7 @@ struct ChangeObserved(T) {
                 }
 
                 ChangeObserved!T opDispatch(Arg)(Arg arg) {
+                    if (mixin(Member~" == arg")) return ChangeObserved!T(mixin(Member), this.callbacks);
                     auto result = mixin(Member ~ " = arg");
                     this.onChange();
                     return ChangeObserved!T(result, this.callbacks);
@@ -223,10 +235,14 @@ struct ChangeObserved(T) {
                     static assert(!isRef);
                     static if (is(R == void)) {
                         mixin(InstancedMember ~ "(args);");
-                        static if (!isConst) this.onChange();
+                        static if (!isConst) {
+                            this.onChange();
+                        }
                     } else {
                         auto result = mixin(InstancedMember ~ "(args)");
-                        static if (!isConst) this.onChange();
+                        static if (!isConst) {
+                            this.onChange();
+                        }
                         static if (isCopyable!R) {
                             return ChangeObserved!R(result, this.callbacks);
                         } else {

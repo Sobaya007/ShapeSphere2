@@ -122,7 +122,7 @@ public:
         this.material.value = 0;
         this.material.size = vec2(width, height);
 
-        _labelComponent = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        _labelComponent = new LabelComponent(text, fontSize, fontColor, Label.Strategy.Center);
         _labelComponent.x = width/2;
         _labelComponent.y = -height/2;
         _labelComponent.zIndex = 1;
@@ -216,7 +216,7 @@ public:
         this.material.borderSize = _borderSize;
         this.material.value = 0;
         this.material.size = vec2(width, height);
-        auto labelComponent = new LabelComponent(text, fontSize, fontColor, Label.OriginX.Center, Label.OriginY.Center);
+        auto labelComponent = new LabelComponent(text, fontSize, fontColor, Label.Strategy.Center);
         labelComponent.x = width/2;
         labelComponent.y = -height/2;
         labelComponent.zIndex = 1;

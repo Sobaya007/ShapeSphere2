@@ -1,9 +1,6 @@
-module model.xfile.loader.XLoader;
+module sbylib.model.xfile.loader.XLoader;
 
 import sbylib;
-import model.xfile.node;
-import model.xfile.converter;
-import model.xfile.loader;
 
 import std.range, std.array, std.algorithm;
 
@@ -23,6 +20,8 @@ Xファイルのモデルデータを読み込むよ。
 
 
 class XLoader {
+
+    mixin Singleton;
 
 private:
     XLexer lexer   = new XLexer;
@@ -47,25 +46,26 @@ public:
 
         string src = readText(path);
         XFrameNode root = this.parser.run(this.lexer.run(src));
-        return makeEntity(root, mat4.identity);
+        import std.path;
+        return makeEntity(root, mat4.identity, path.baseName);
     }
 
 private:
-    immutable(XEntity) makeEntity(XFrameNode parent, mat4 transformMat) {
+    immutable(XEntity) makeEntity(XFrameNode parent, mat4 transformMat, string name) {
         mat4 mat = transformMat * mat4.transpose(parent.frameTransformMatrix.matrix);
 
         immutable(XEntity)[] children;
         if (parent.mesh !is null) {
-            children ~= makeEntity(parent.mesh, mat);
+            children ~= makeEntity(parent.mesh, mat, name);
         }
         foreach(xFrame; parent.frames) {
-            children ~= makeEntity(xFrame, mat);
+            children ~= makeEntity(xFrame, mat, name);
         }
 
-        return new immutable(XEntity)(children);
+        return new immutable(XEntity)(children, name);
     }
 
-    immutable(XEntity) makeEntity(XMeshNode xMesh, mat4 transformMat) {
+    immutable(XEntity) makeEntity(XMeshNode xMesh, mat4 transformMat, string name) {
         struct Geom {
             vec3[] positions;
             vec3[] normals;
@@ -149,11 +149,12 @@ private:
                     a => a.value == i
                 ).map!"cast(uint)a.index".map!(
                     j => iota(3*j, 3*(j+1))
-                ).join.array.idup
+                ).join.array.idup,
+                name
             );
         }
 
-        return new immutable(XEntity)(new immutable(XGeometry)(geom.positions.idup, geom.normals.idup, geom.uvs.idup), leviathans);
+        return new immutable(XEntity)(new immutable(XGeometry)(geom.positions.idup, geom.normals.idup, geom.uvs.idup), leviathans, name);
     }
 
     immutable(XMaterial) makeMaterial(XMaterialNode xMaterialNode) {

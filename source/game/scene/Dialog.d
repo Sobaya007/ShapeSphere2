@@ -18,8 +18,8 @@ class Dialog(dstring explainMessage) : SceneProtoType {
         super();
         this.main = makeColorEntity(vec4(1,1,1,0.5), 1.5, 1.5);
 
-        this.explain = makeTextEntity(explainMessage, 0.3, Label.OriginX.Center, Label.OriginY.Top);
-        this.explain.pos = vec3(0, 0.8, 0);
+        this.explain = makeTextEntity(explainMessage,0.3);
+        this.explain.top = 0.8;
         this.main.addChild(this.explain);
 
         this.selections = [
@@ -44,8 +44,8 @@ class Dialog(dstring explainMessage) : SceneProtoType {
         this.hasSelectorMoved = false;
         this.selector = 0;
 
-        this.selections[0].label.setColor(vec4(1,0.5,0.5,1) * 0.5);
-        this.selections[1].label.setColor(vec4(0.5,0.5,1,1) * 0.5);
+        this.selections[0].label.color = vec4(1,0.5,0.5,1) * 0.5;
+        this.selections[1].label.color = vec4(0.5,0.5,1,1) * 0.5;
     }
 
     void changeSelector(int d) {
@@ -66,16 +66,16 @@ class Dialog(dstring explainMessage) : SceneProtoType {
 
         this(dstring text, vec2 pos, vec3 color) {
             this.color = color;
-            this.label = makeTextEntity(text, 0.2, Label.OriginX.Center, Label.OriginY.Center);
+            this.label = makeTextEntity(text, 0.2);
             this.label.pos = vec3(pos, 0);
-            this.label.setColor(vec4(color, 1));
+            this.label.color = vec4(color, 1);
         }
 
         void select() {
             this.animation = Just(AnimationManager().startAnimation(
-                this.label.color(
+                this.label.colorAnimation(
                     setting(
-                        this.label.getColor,
+                        this.label.color,
                         vec4(color, 1),
                         10,
                         Ease.linear
@@ -89,9 +89,9 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                 this.animation.get.finish();
             }
             this.animation = Just(AnimationManager().startAnimation(
-                this.label.color(
+                this.label.colorAnimation(
                     setting(
-                        this.label.getColor,
+                        this.label.color,
                         vec4(color * 0.5, 1),
                         10,
                         Ease.linear

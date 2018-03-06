@@ -1,4 +1,4 @@
-module model.xfile.loader.XMaterial;
+module sbylib.model.xfile.loader.XMaterial;
 
 import sbylib;
 

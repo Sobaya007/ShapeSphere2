@@ -29,7 +29,7 @@ class SpringSphere : BaseSphere {
         uint P_CUT = 80;
         float PERIOD = 0.4;
         float DAMPING_RATIO = 0.3; //減衰比
-        float MAX_LENGTH = 10;
+        float MAX_LENGTH = 50;
         float MAX_SPIRAL = 5;
         float BASE_LENGTH = 5;
         float SHRINK_LENGTH = 1;

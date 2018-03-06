@@ -80,7 +80,7 @@ alias VertexGroupNT = VertexGroup!([Attribute.Position, Attribute.Normal, Attrib
 class FaceGroup(Prim Mode) {
     const Face[] faces;
     const uint indicesCount;
-    private IndexBuffer ibo;
+    IndexBuffer ibo;
 
     this(immutable(uint[]) indices) {
         this.ibo = new IndexBuffer;

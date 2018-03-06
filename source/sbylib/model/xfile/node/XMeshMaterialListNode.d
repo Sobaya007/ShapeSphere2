@@ -1,6 +1,6 @@
-module model.xfile.node.XMeshMaterialListNode;
+module sbylib.model.xfile.node.XMeshMaterialListNode;
 
-import model.xfile.node;
+import sbylib.model.xfile.node;
 
 class XMeshMaterialListNode : XNode {
     XMaterialNode[] materials;

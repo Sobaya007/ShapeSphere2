@@ -23,17 +23,17 @@ void clipboardExample() {
 
     // label
     auto font = FontLoader.load(FontPath("meiryo.ttc"), 256);
-    auto label = new Label(font, 0.2);
-    label.setOrigin(Label.OriginX.Center, Label.OriginY.Center);
-    label.entity.pos = vec3(0);
-    label.setWrapWidth(size);
-    label.setColor(vec4(0,0,0,1));
-    label.renderText(labelText);
+    LabelFactory factory;
+    factory.fontName = "meiryo.ttc";
+    factory.height = 0.2;
+    factory.wrapWidth = size;
+    factory.text = labelText;
+    auto label = factory.make();
     world.add(label);
 
 
     auto backEntity = makeEntity(Rect.create(size, size), new ColorMaterial(vec4(1)));
-    backEntity.pos = label.getPos(Label.OriginX.Center, Label.OriginY.Center);
+    backEntity.pos = label.pos.get();
     backEntity.pos.z -= 0.1;
     world.add(backEntity);
 

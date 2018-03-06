@@ -8,5 +8,7 @@ interface Stage {
     Entity getCharacterEntity();
     Entity getMoveEntity();
     void transit(string);
+    void pause();
+    void resume();
 
 }

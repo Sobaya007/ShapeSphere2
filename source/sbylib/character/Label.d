@@ -7,74 +7,58 @@ import sbylib.entity.Mesh;
 import sbylib.material.TextMaterial;
 import sbylib.entity.Object3D;
 import sbylib.math.Vector;
-import sbylib.character.Letter;
+import sbylib.character.Sentence;
 import std.typecons;
 import std.math;
+
+struct LetterInfo {
+    Font.LetterInfo info;
+    int pen;
+    dchar c;
+    alias info this;
+}
 
 class Label {
 
     alias entity this;
 
-    enum OriginX {Center, Left, Right}
-    enum OriginY {Center, Top, Bottom}
+    enum Strategy {Center, Left, Right}
 
     Entity entity;
-    Letter[] letters;
     private vec4 _color;
     private vec4 backColor;
     private Font font;
-    private OriginX originX;
-    private OriginY originY;
     private float wrapWidth;
     private float size; //1 letter height
-    private Letter[dchar] cache;
     private float width, height;
+    private dstring text;
+    private dstring[] textByRow;
+    private Sentence[] sentences;
+    private Strategy strategy;
 
-    this(Font font, float size) {
+    this(Font font, float size, float wrapWidth, Strategy strategy, vec4 color, vec4 backColor, dstring text) {
         this.font = font;
-        this.originX = OriginX.Center;
-        this.originY = OriginY.Center;
-        this.wrapWidth = 1145141919.810;
         this.size = size;
-        this.backColor = vec4(0);
-        this._color = vec4(0,0,0,1);
+        this.wrapWidth = wrapWidth;
+        this.strategy = strategy;
+        this._color = color;
+        this.backColor = backColor;
+        this.text = text;
         this.entity = new Entity;
+        this.entity.name = "Label";
+        this.width = this.height = 0;
+        this.renderText(text);
     }
 
-    void setColor(vec4 _color) {
-        this._color = _color;
-        foreach (l; this.letters) {
-            auto mat = cast(TextMaterial)l.getEntity().mat;
-            mat.color = _color;
-        }
-    }
-
-    void setBackColor(vec4 _color) {
-        this.backColor = _color;
-        foreach (l; this.letters) {
-            auto mat = cast(TextMaterial)l.getEntity().mat;
-            mat.backColor = _color;
-        }
-    }
-
-    vec4 getColor() {
+    vec4 color() {
         return this._color;
     }
 
-    void setSize(float size) {
-        this.size = size;
-        this.lineUp();
-    }
-
-    void setWrapWidth(float wrapWidth) {
-        this.wrapWidth = wrapWidth;
-        this.lineUp();
-    }
-
-    void setOrigin(OriginX x, OriginY y) {
-        this.originX = x;
-        this.originY = y;
-        this.lineUp();
+    vec4 color(vec4 newColor) {
+        this._color = newColor;
+        import std.algorithm;
+        this.sentences.each!(s => s.color = color);
+        return newColor;
     }
 
     float getWidth() {
@@ -85,91 +69,93 @@ class Label {
         return this.height;
     }
 
+    void renderText(string text) {
+        import std.conv;
+        renderText(text.to!dstring);
+    }
+
     void renderText(dstring text) {
-        this.entity.clearChildren();
-        this.letters = [];
-        foreach (c; text) {
-            Letter l;
-            if (c in cache) {
-                l = new Letter(cache[c]);
-            } else {
-                l = new Letter(this.font, c, this.size);
-                cache[c] = l;
-            }
-            this.entity.addChild(l);
-            this.letters ~= l;
-        }
-        this.setColor(this._color);
-        this.setBackColor(this.backColor);
+        if (text != text) return;
+        this.text = text;
+        this.width = this.height = 0;
         this.lineUp();
+        import std.conv;
+        this.name = "Label '"~text.to!string~"'";
     }
 
-    vec3 getPos(OriginX ox, OriginY oy) {
-        return this.obj.pos + vec3(offsetX(this.originX,this.width) - offsetX(OriginX.Center,this.width), offsetY(this.originY) - offsetY(OriginY.Center), 0);
+    float left(float value) {
+        this.pos.x = value + this.width/2;
+        return value;
     }
 
-    Letter[] getLetters() {
-        return this.letters;
+    float right(float value) {
+        this.pos.x = value - this.width/2;
+        return value;
     }
 
-    struct RowInfo {
-        Letter[] letters;
-        float width;
+    float top(float value) {
+        this.pos.y = value - this.height/2;
+        return value;
+    }
+
+    float bottom(float value) {
+        this.pos.y = value + this.height/2;
+        return value;
     }
 
     private void lineUp() {
-        auto rows = getRows(null, this.letters, null, 0);
-        this.width = 0;
-        foreach (row; rows) {
-            this.width = fmax(this.width, row.width);
-        }
-        this.height = rows.length * this.size;
-        auto y = this.offsetY(this.originY);
-        alias h = this.size;
-        foreach (row; rows) {
-            if (row.letters.length == 0) continue;
-            float x = this.offsetX(this.originX, row.width);
-            int count = 0;
-            foreach (l; row.letters) {
-                auto w = h * l.getInfo().width / l.getInfo().height;
-                x += w/2;
-                l.getEntity().obj.pos = vec3(x, y, 0);
-                x += w/2;
+        import std.array, std.algorithm, std.range;
+        if (this.text.empty) return;
+        LetterInfo[][] rows;
+        auto text = this.text;
+        auto wrapWidth = this.wrapWidth * font.size / this.size;
+        auto pen = 0;
+        this.textByRow = null;
+        while (!text.empty) {
+            pen = 0;
+            LetterInfo[] infos;
+            dstring rowString;
+            while (!text.empty) {
+                if (text.front == '\n') {
+                    rowString ~= '\n';
+                    text.popFront;
+                    break;
+                }
+                auto info = font.getLetterInfo(text.front);
+                if (pen + info.advance > wrapWidth) break;
+                infos ~= LetterInfo(info, pen, text.front);
+                rowString ~= text.front;
+                text = text[1..$];
+                pen += info.advance;
             }
-            y -= h;
+            rows ~= infos;
+            textByRow ~= rowString;
         }
-    }
-
-    private RowInfo[] getRows(Letter[] buffer, Letter[] rest, RowInfo[] rows, float w) {
-        if (rest.length == 0) return rows ~ RowInfo(buffer, w);
-        auto l = rest[0];
-        auto dw = this.size * l.getInfo().width / l.getInfo().height;
-        rest = rest[1..$];
-        if (w + dw < this.wrapWidth) return getRows(buffer ~ l, rest, rows, w + dw);
-        rows ~= RowInfo(buffer, w);
-        return getRows([l], rest, rows, dw);
-    }
-
-    private float offsetX(OriginX ox, float fullWidth) {
-        final switch (ox) {
-        case OriginX.Left:
-            return 0;
-        case OriginX.Center:
-            return -fullWidth / 2;
-        case OriginX.Right:
-            return -fullWidth;
+        this.width = rows.map!(row => row.map!(i => i.advance).sum).maxElement * this.size / font.size;
+        this.height = rows.length * this.size;
+        if (sentences.length < rows.length) {
+            auto newSentences = iota(rows.length-sentences.length).map!(_ => new Sentence).array;
+            sentences ~= newSentences;
+            newSentences.each!(s => this.entity.addChild(s));
         }
-    }
-
-    private float offsetY(OriginY oy) {
-        final switch (oy) {
-        case OriginY.Top:
-            return -this.size / 2;
-        case OriginY.Center:
-            return this.height / 2 - this.size / 2;
-        case OriginY.Bottom:
-            return this.height - this.size / 2;
+        sentences.each!(s => s.traverse!((Entity e) => e.visible = true));
+        if (sentences.length > rows.length)
+            sentences[rows.length..$].each!(s => s.traverse!((Entity e) => e.visible = false));
+        zip(rows, sentences).each!(t => t[1].setBuffer(t[0], this.size));
+        final switch (this.strategy) {
+            case Strategy.Left:
+                this.sentences.each!(s => s.pos.x = (s.width - this.width)/2);
+                break;
+            case Strategy.Center:
+                this.sentences.each!(s => s.pos.x = 0);
+                break;
+            case Strategy.Right:
+                this.sentences.each!(s => s.pos.x = (this.width - s.width)/2);
+                break;
         }
+        this.sentences.enumerate.each!(s => s.value.pos.y = s.index * -this.size + this.height/2 - this.size / 2);
+        this.sentences.each!(s => s.color = color);
+        this.sentences.each!(s => s.backColor = backColor);
     }
 
     alias entity this;

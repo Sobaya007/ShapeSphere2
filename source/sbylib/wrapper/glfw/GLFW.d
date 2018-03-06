@@ -17,7 +17,8 @@ class GLFW {
             DerelictGLFW3.load();
         }
         glfwSetErrorCallback(&errorCallback);
-        assert(glfwInit(),"Failed to initialize GLFW");
+        auto initResult = glfwInit();
+        assert(initResult,"Failed to initialize GLFW");
     }
 
     public static void terminate() {
