@@ -126,4 +126,7 @@ class Player : CommandReceiver {
         return this.sphere.lastDirection();
     }
 
+    debug auto collisionCount() {
+        return (cast(ElasticSphere)this.spheres.find!(s => s.instanceof!ElasticSphere).front).elasticSphere2.collisionCount;
+    }
 }

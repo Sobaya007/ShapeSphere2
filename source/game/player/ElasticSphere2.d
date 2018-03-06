@@ -17,7 +17,6 @@ class ElasticSphere2 {
         uint RECURSION_LEVEL = 2;
         float DEFAULT_RADIUS = 0.5;
         float RADIUS = 2.0f;
-        uint ITERATION_COUNT = 20;
     }
 
     private {
@@ -25,6 +24,7 @@ class ElasticSphere2 {
         mixin DeclareConfig!(float, "GRAVITY", "elastic.json");
         mixin DeclareConfig!(float, "BALOON_COEF", "elastic.json");
         mixin DeclareConfig!(float, "MAX_VELOCITY", "elastic.json");
+        mixin DeclareConfig!(uint, "ITERATION_COUNT", "elastic.json");
         mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "TIME_STEP", "elastic.json"); 
         mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "ZETA", "elastic.json"); 
         mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "OMEGA", "elastic.json"); 
@@ -53,6 +53,8 @@ class ElasticSphere2 {
     }) aVel;
     private ChangeObservedArray!vec3 positions, velocities;
     Maybe!vec3 contactNormal;
+
+    debug size_t collisionCount;
 
     this() {
         auto mat = new Player.Mat();
@@ -166,18 +168,21 @@ class ElasticSphere2 {
         this.rotateParticles(g);
         this.entity.pos = g;
 
+
         //拘束解消
         {
             //隣との距離を計算
             foreach (pair; this.pairList) {
                 pair.init();
             }
+            debug Game.startTimer("elastic solve");
             foreach (k; 0..ITERATION_COUNT){
                 //隣との拘束
                 foreach (pair; this.pairList) {
                     pair.solve();
                 }
             }
+            debug Game.stopTimer("elastic solve");
         }
         float baloonForce = this.calcBaloonForce();
         this.contactNormal = None!vec3;
@@ -186,8 +191,12 @@ class ElasticSphere2 {
         scope(exit) entities.destroy();
         Game.getMap().getStageEntity().traverse((Entity e) {
             if (e.colEntry.isNone) return;
-            entities ~= e;
+            auto info = Array!CollisionInfo(0);
+            e.collide(info, this.entity);
+            if (info.length > 0)
+                entities ~= e;
         });
+        debug collisionCount = entities.length;
 
         foreach (ref particle; this.particleList) {
             particle.force += particle.normal * baloonForce;
@@ -345,7 +354,7 @@ class ElasticSphere2 {
         foreach (i,v; vs) {
             auto p = this.particleList[i];
             v.normal = safeNormalize(v.normal);
-            v.position = (this.entity.obj.viewMatrix * vec4(p.position.get, 1)).xyz;
+            v.position = (this.entity.viewMatrix * vec4(p.position.get, 1)).xyz;
         }
         geom.updateBuffer();
     }

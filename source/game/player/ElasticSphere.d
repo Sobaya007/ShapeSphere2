@@ -27,7 +27,7 @@ class ElasticSphere : BaseSphere {
         float AIR_SIDE_PUSH_FORCE = 10;
         float SLOW_SIDE_PUSH_FORCE = 2;
     }
-    private ElasticSphere2 elasticSphere2;
+    ElasticSphere2 elasticSphere2;
     private flim pushCount;
     private Player parent;
     private CameraController camera;
@@ -41,8 +41,8 @@ class ElasticSphere : BaseSphere {
         this.pushCount = flim(0.0, 0.0, 1);
         this.elasticSphere2 = new ElasticSphere2();
         this.elasticSphere2.entity.setUserData(parent);
-        debug this.elasticSphere2.entity.traverse!((Entity e) => e.onPreRender ~= () => Game.timerStart("player.render()"));
-        debug this.elasticSphere2.entity.traverse!((Entity e) => e.onPostRender ~= () => Game.timerStop("player.render()"));
+        debug this.elasticSphere2.entity.traverse!((Entity e) => e.onPreRender ~= () => Game.startTimer("player.render()"));
+        debug this.elasticSphere2.entity.traverse!((Entity e) => e.onPostRender ~= () => Game.stopTimer("player.render()"));
         Game.getWorld3D().add(this.elasticSphere2.entity);
         this._lastDirection = vec3(normalize((camera.pos - this.getCenter).xz), 0).xzy;
     }

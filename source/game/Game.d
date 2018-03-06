@@ -138,7 +138,7 @@ static:
         return this.backBuffer;
     }
 
-    debug void timerStart(string str) {
+    debug void startTimer(string str) {
         auto findResult = stopWatch.find!(sw => sw.name == str);
         if (findResult.empty) {
             auto sw = new StopWatchLabel(str);
@@ -151,7 +151,7 @@ static:
         }
     }
 
-    debug void timerStop(string str) {
+    debug void stopTimer(string str) {
         auto findResult = stopWatch.find!(sw => sw.name == str);
         assert(!findResult.empty);
         auto sw = findResult.front;

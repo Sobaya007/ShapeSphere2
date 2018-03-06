@@ -95,11 +95,14 @@ class GameMainScene : SceneBase {
 
             auto numberLabel3D = addLabel("world3d");
             auto numberLabel2D = addLabel("world2d");
+            auto collisionCountLabel = addLabel("col");
             core.addProcess({
                 numberLabel3D.renderText(format!"World3D: %2d"(world3d.getEntityNum));
                 numberLabel2D.renderText(format!"World2D: %2d"(world2d.getEntityNum));
+                collisionCountLabel.renderText(format!"Player's collision: %2d"(Game.getPlayer().collisionCount));
                 numberLabel3D.left = -1;
                 numberLabel2D.left = -1;
+                collisionCountLabel.left = -1;
             }, "label update");
 
             /* Control navigation */
@@ -140,13 +143,13 @@ class GameMainScene : SceneBase {
         import game.stage.Stage1;
         auto stage1 = cast(Stage1)Game.getMap().stage;
 
-        debug Game.timerStart("Total");
+        debug Game.startTimer("Total");
     }
 
     override void render() {
-        debug Game.timerStop("Total");
-        debug Game.timerStart("Total");
-        debug Game.timerStart("render");
+        debug Game.stopTimer("Total");
+        debug Game.startTimer("Total");
+        debug Game.startTimer("render");
         renderer.render(Game.getWorld3D(), screen, viewport, "regular");
         renderer.render(Game.getWorld3D(), screen, viewport, "transparent");
         screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
@@ -154,7 +157,7 @@ class GameMainScene : SceneBase {
         screen.clear(ClearMode.Depth);
         renderer.render(Game.getWorld2D(), screen, viewport, "regular");
         renderer.render(Game.getWorld2D(), screen, viewport, "transparent");
-        debug Game.timerStop("render");
+        debug Game.stopTimer("render");
     }
 
     debug Label addLabel(dstring text = "") {

@@ -296,13 +296,13 @@ struct Area {
     void step() {
         receiveTimeout(0.msecs, &onReceive);
 
-        debug Game.timerStart("character.step()");
+        debug Game.startTimer("character.step()");
         this.characters.each!(c => c.step);
-        debug Game.timerStop("character.step()");
+        debug Game.stopTimer("character.step()");
 
-        debug Game.timerStart("player.step()");
+        debug Game.startTimer("player.step()");
         Game.getPlayer().step();
-        debug Game.timerStop("player.step()");
+        debug Game.stopTimer("player.step()");
     }
 
     void onReceive(immutable XEntity entity) {
