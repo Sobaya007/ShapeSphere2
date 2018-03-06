@@ -90,14 +90,10 @@ private:
         arrow.diffuse = diffuse;
         head.diffuse = diffuse;
 
-        // arrow.traverse!((Entity e) {
-        //     e.name = this.name;
-        //     e.setUserData(axis);
-        // });
-        arrow.name = this.name; //
-        arrow.setUserData(axis); //
-        head.name = this.name; //
-        head.setUserData(axis); //
+        arrow.traverse((Entity e) {
+            e.name = this.name;
+            e.setUserData(axis);
+        });
 
         return arrow;
     }
@@ -114,7 +110,7 @@ private:
         float d2 = dot(p2 - p1, v2);
         float dv = dot(v1, v2);
 
-        if (dv.abs == 1.0) {
+        if (dv.abs > 1.0 - 1e-5) {
             // 平行
             return false;
         }
