@@ -14,5 +14,6 @@ auto makeColorEntity(
     auto entity = makeEntity(Rect.create(width, height), new ColorMaterial(color));
     entity.renderGroupName = "transparent";
     entity.depthWrite = false;
+    entity.name = "Color Entity";
     return entity;
 }

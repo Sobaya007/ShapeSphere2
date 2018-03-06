@@ -1,8 +1,8 @@
-module model.xfile.node.XMeshNode;
+module sbylib.model.xfile.node.XMeshNode;
 
 import sbylib.math.Vector;
 
-import model.xfile.node;
+import sbylib.model.xfile.node;
 
 class XMeshNode : XNode {
     vec3[] vertices;

@@ -10,6 +10,7 @@ import derelict.opengl;
 import std.algorithm;
 import std.typecons;
 import std.format;
+import sbylib.utils.Maybe;
 
 class VertexArray {
 

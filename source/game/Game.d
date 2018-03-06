@@ -6,7 +6,7 @@ public import game.stage.Map;
 public import game.entity.Message;
 public import game.scene.GameMainScene;
 import sbylib;
-import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv;
+import std.getopt, std.file, std.regex, std.algorithm, std.format, std.path, std.array, std.stdio, std.conv, std.datetime.stopwatch;
 
 class Game {
 static:
@@ -22,8 +22,56 @@ static:
     private Message message;
 
     private RenderTarget backBuffer;
-    
+
     private GameMainScene scene;
+
+    private debug StopWatchLabel[] stopWatch;
+
+    private debug class StopWatchLabel {
+
+        private string name;
+        private Label label;
+        private StopWatch sw;
+
+        private long[] history;
+        private long sum;
+
+        alias sw this;
+
+        this(string name) {
+            this.name = name;
+            auto factory = LabelFactory();
+            factory.strategy = Label.Strategy.Left;
+            factory.height = 0.07;
+            factory.fontName = "consola.ttf";
+            factory.backColor = vec4(0.5);
+            factory.text = "poyo";
+            this.label = factory.make();
+            this.label.right = 1;
+
+            if (stopWatch.length == 0) {
+                this.label.top = 0.9;
+            } else {
+                auto sw = stopWatch[$-1];
+                this.label.pos.y = sw.label.pos.y - sw.label.getHeight;
+            }
+            getWorld2D().add(this.label);
+        }
+
+        ulong update(long newValue) {
+            if (history.length < 100) {
+                history ~= newValue;
+                sum += newValue;
+            } else {
+                sum += newValue - history.front;
+                foreach (i; 1..history.length) {
+                    history[i-1] = history[i];
+                }
+                history[$-1] = newValue;
+            }
+            return sum / history.length;
+        }
+    }
 
     void initialize(string[] args) {
         this.commandManager = selectCommandManager(args);
@@ -51,7 +99,6 @@ static:
     } body {
         this.scene = scene;
     }
-
 
     ICommandManager getCommandManager() {
         return commandManager;
@@ -89,6 +136,30 @@ static:
 
     RenderTarget getBackBuffer() {
         return this.backBuffer;
+    }
+
+    debug void timerStart(string str) {
+        auto findResult = stopWatch.find!(sw => sw.name == str);
+        if (findResult.empty) {
+            auto sw = new StopWatchLabel(str);
+            stopWatch ~= sw;
+            sw.start();
+        } else {
+            auto sw = findResult.front;
+            sw.reset();
+            sw.start();
+        }
+    }
+
+    debug void timerStop(string str) {
+        auto findResult = stopWatch.find!(sw => sw.name == str);
+        assert(!findResult.empty);
+        auto sw = findResult.front;
+        assert(sw.running);
+        auto dur = sw.peek.total!"msecs";
+        auto ave = sw.update(dur);
+        sw.label.renderText(format!"%s : %3dmsecs"(str, ave));
+        sw.label.right = 1;
     }
 
     void update() {

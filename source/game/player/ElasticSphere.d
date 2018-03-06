@@ -41,6 +41,8 @@ class ElasticSphere : BaseSphere {
         this.pushCount = flim(0.0, 0.0, 1);
         this.elasticSphere2 = new ElasticSphere2();
         this.elasticSphere2.entity.setUserData(parent);
+        debug this.elasticSphere2.entity.traverse!((Entity e) => e.onPreRender ~= () => Game.timerStart("player.render()"));
+        debug this.elasticSphere2.entity.traverse!((Entity e) => e.onPostRender ~= () => Game.timerStop("player.render()"));
         Game.getWorld3D().add(this.elasticSphere2.entity);
         this._lastDirection = vec3(normalize((camera.pos - this.getCenter).xz), 0).xzy;
     }
@@ -187,9 +189,9 @@ class ElasticSphere : BaseSphere {
         }
         foreach (colInfo; colInfos) {
             import game.stage.Stage1;
-            auto move = colInfo.getOther(this.elasticSphere2.entity).getUserData!(Move);
+            auto move = colInfo.getOther(this.elasticSphere2.entity).getUserData!(string);
             if (move.isNone) continue;
-            auto next = move.get().arrivalName;
+            auto next = move.get();
             Game.getMap().transit(next);
         }
     }

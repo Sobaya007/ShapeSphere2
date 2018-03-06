@@ -124,11 +124,15 @@ private:
         /* Label Settings */
         if (Game.getCommandManager().isPlaying()) {
             auto font = FontLoader.load(FontPath("HGRPP1.TTC"), 256);
-            auto label = new Label(font, 0.1);
-            label.setOrigin(Label.OriginX.Right, Label.OriginY.Top);
-            label.pos = vec3(1,1,0);
-            label.setColor(vec4(1));
-            label.renderText("REPLAYING...");
+            LabelFactory factory;
+            factory.fontName = "HGRPP1.TTC";
+            factory.height = 0.1;
+            factory.strategy = Label.Strategy.Right;
+            factory.textColor = vec4(1);
+            factory.text = "REPLAYING...";
+            auto label = factory.make();
+            label.right = 1;
+            label.top = 1;
             world2d.add(label);
             core.addProcess((proc) {
                 if (Game.getCommandManager().isPlaying()) return;
@@ -145,9 +149,9 @@ private:
 
         /* FPS Observe */
         auto fpsCounter = new FpsCounter!100();
-        auto fpsLabel = makeTextEntity("FPS = ", 0.1, Label.OriginX.Left, Label.OriginY.Top);
+        auto fpsLabel = makeTextEntity("FPS = ", 0.1);
         fpsLabel.pos.xy = vec2(-1,1);
-        fpsLabel.setBackColor(vec4(1));
+        //fpsLabel.setBackColor(vec4(1));
         world2d.add(fpsLabel);
         core.addProcess((proc) {
             import std.conv;

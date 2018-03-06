@@ -1,9 +1,9 @@
-module model.xfile.node.XNode;
+module sbylib.model.xfile.node.XNode;
 
 import sbylib.math.Matrix;
 
-import model.xfile.node;
-import model.xfile.converter.XToken;
+import sbylib.model.xfile.node;
+import sbylib.model.xfile.converter.XToken;
 
 abstract class XNode {
     XToken headToken;

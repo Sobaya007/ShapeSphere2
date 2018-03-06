@@ -1,4 +1,4 @@
-module model.xfile.converter.XToken;
+module sbylib.model.xfile.converter.XToken;
 
 import std.string;
 

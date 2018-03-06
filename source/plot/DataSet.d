@@ -50,10 +50,13 @@ class DataSet {
             mat.ambient = color;
             auto entity = new Entity(geom, mat);
             lineMesh[key] = entity;
-            Label label = new Label(font, 0.05);
-            label.renderText(key.to!dstring);
-            label.entity.obj.pos = vec3(0.9, baseY, 0);
-            label.setColor(vec4(color, 1));
+            LabelFactory factory;
+            factory.fontName = "consola.ttf";
+            factory.height = 0.05;
+            factory.text = key.to!dstring;
+            factory.textColor = vec4(color, 1);
+            auto label = factory.make();
+            label.pos.xy = vec2(0.9, baseY);
             labels[key] = label;
 
             baseY -= 0.1;

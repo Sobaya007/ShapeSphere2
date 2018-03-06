@@ -42,13 +42,12 @@ class Rect {
         vec2(1,1),
         vec2(0,1)
         ];
-        auto indices = iota(4u).array;
         VertexT[] vertices;
         foreach(tuple; zip(positions, uvs)) {
             auto v = new VertexT(tuple.expand);
             vertices ~= v;
         }
-        auto g = new GeometryRect(vertices, indices.idup);
+        auto g = new GeometryRect(vertices);
         return g;
     }
 }

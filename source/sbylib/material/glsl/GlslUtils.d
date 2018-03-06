@@ -134,15 +134,3 @@ static:
         return ast;
     }
 }
-
-unittest {
-    import std.stdio, std.file;
-    auto file1 = readText("./source/sbylib/material/lambert/LambertMaterial.frag");
-    auto file2 = readText("./source/sbylib/material/normal/NormalMaterial.frag");
-    auto frag1 = GlslUtils.generateFragmentAST(new Ast(file1));
-    auto frag2 = GlslUtils.generateFragmentAST(new Ast(file2));
-    frag1.name = "A";
-    frag2.name = "B";
-    auto merged = GlslUtils.mergeASTs([frag1, frag2]);
-    writeln(merged.getCode());
-}

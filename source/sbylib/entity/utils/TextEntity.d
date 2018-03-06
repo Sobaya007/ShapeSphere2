@@ -10,31 +10,33 @@ public {
 import sbylib.wrapper.freetype.Font;
 
 struct LabelFactory {
-    dstring text = "";
-    float height = 0.1;
-    Label.OriginX originX = Label.OriginX.Center;
-    Label.OriginY originY = Label.OriginY.Center;
     string fontName = "WaonJoyo-R.otf";
+    float height = 0.1;
     int fontResolution = 256;
+    Label.Strategy strategy = Label.Strategy.Center;
+    float wrapWidth = float.infinity;
+    vec4 textColor = vec4(0,0,0,1);
+    vec4 backColor = vec4(0);
+    dstring text = "";
 
     auto make() {
         import sbylib.utils.Path;
         import sbylib.utils.Loader;
         auto font = FontLoader.load(FontPath(fontName), fontResolution);
-        auto label = new Label(font, height);
-        label.setOrigin(originX, originY);
-        label.renderText(text);
-        return label;
+        return new Label(font, height, wrapWidth, strategy, textColor, backColor, text);
     }
 }
 
-auto makeTextEntity(dstring text, float height, Label.OriginX originX = Label.OriginX.Center, Label.OriginY originY = Label.OriginY.Center) {
-    return LabelFactory(text, height, originX, originY).make();
+auto makeTextEntity(dstring text, float height) {
+    LabelFactory factory;
+    factory.text = text;
+    factory.height = height;
+    return factory.make();
 }
 
-IAnimation color(Label label, AnimSetting!vec4 evaluator) {
+IAnimation colorAnimation(Label label, AnimSetting!vec4 evaluator) {
     return
         new Animation!vec4((vec4 color) {
-            label.setColor(color);
+            label.color = color;
         }, evaluator);
 }

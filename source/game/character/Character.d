@@ -17,26 +17,17 @@ class Character {
     Entity collisionArea;
     private Entity activeArea;
     private int count;
-    private dstring serif;
+    dstring serif;
 
     alias elasticSphere this;
 
-    this(JSONValue[string] obj) {
-        auto serif = obj["serif"].str().to!(dstring);
-        auto pos = vec3(obj["pos"].as!(float[]));
-        this(serif);
-        this.setCenter(pos);
-    }
-
-    this(dstring serif) {
-        this.serif = serif;
+    this() {
         {
             auto mat = new CharacterMaterial();
             mat.config.renderGroupName = "transparent";
             mat.config.depthWrite = false;
             mat.config.faceMode = FaceMode.Front;
             this.elasticSphere = new ElasticSphere2(mat);
-            this.elasticSphere.setCenter(vec3(2, 10, 2));
         }
         this.collisionArea = new Entity(new CollisionCapsule(1.2, vec3(0), vec3(0)));
         this.collisionArea.name = "Character's Collision Area";

@@ -55,9 +55,9 @@ public:
         this.material.borderSize = _borderSize;
         this.material.size = vec2(width, height);
 
-        _label = new LabelComponent(_text, textSize, _textColor, Label.OriginX.Left, Label.OriginY.Top, width - _borderSize*2);
-        _label.x = _borderSize;
-        _label.y = -_borderSize;
+        _label = new LabelComponent(_text, textSize, _textColor, Label.Strategy.Left, width - _borderSize*2);
+        _label.getLabel().left = _borderSize;
+        _label.getLabel().top = -_borderSize;
         _label.zIndex = 1;
 
         entity.addChild(_label.entity);
@@ -276,36 +276,37 @@ private:
 
     void refreshCover() {
         _coverEntity.clearChildren();
-        auto letters = _label.getLabel.getLetters;
-        foreach(i, letter; letters) {
-            if (i < _leftIndex) continue;
-            if (i >= _rightIndex) continue;
+        // ごめんむり
+        //auto letters = _label.getLabel.getLetters;
+        //foreach(i, letter; letters) {
+        //    if (i < _leftIndex) continue;
+        //    if (i >= _rightIndex) continue;
 
-            auto geom = letter.getEntity.geom;
-            auto entity = makeEntity(geom, new TextAreaComponentCoverMaterial);
-            entity.color = _coverColor;
-            entity.opacity = getCoverOpacity();
-            entity.pos = letter.getEntity.pos.get();
-            _coverEntity.addChild(entity);
-        }
-        {
-            // selectIndexの位置に関するcoverの設置
-            float x = letters
-                .take(_selectedIndex)
-                .map!"a.getEntity.obj.pos.x + a.width/2"
-                .fold!"b"(0f);
-            float y = letters
-                .take(_selectedIndex)
-                .map!"cast(float)a.getEntity.obj.pos.y"
-                .fold!"b"(-_label.getFontSize/2);
-            auto geom = Rect.create(2, _label.getFontSize, Rect.OriginX.Left, Rect.OriginY.Center);
-            auto entity = makeEntity(geom, new TextAreaComponentCoverMaterial);
-            entity.color = _coverColor;
-            entity.opacity = getCoverOpacity();
-            entity.pos.x = x;
-            entity.pos.y = y;
-            _coverEntity.addChild(entity);
-        }
+        //    auto geom = letter.getEntity.geom;
+        //    auto entity = makeEntity(geom, new TextAreaComponentCoverMaterial);
+        //    entity.color = _coverColor;
+        //    entity.opacity = getCoverOpacity();
+        //    entity.pos = letter.getEntity.pos.get();
+        //    _coverEntity.addChild(entity);
+        //}
+        //{
+        //    // selectIndexの位置に関するcoverの設置
+        //    float x = letters
+        //        .take(_selectedIndex)
+        //        .map!"a.getEntity.obj.pos.x + a.width/2"
+        //        .fold!"b"(0f);
+        //    float y = letters
+        //        .take(_selectedIndex)
+        //        .map!"cast(float)a.getEntity.obj.pos.y"
+        //        .fold!"b"(-_label.getFontSize/2);
+        //    auto geom = Rect.create(2, _label.getFontSize, Rect.OriginX.Left, Rect.OriginY.Center);
+        //    auto entity = makeEntity(geom, new TextAreaComponentCoverMaterial);
+        //    entity.color = _coverColor;
+        //    entity.opacity = getCoverOpacity();
+        //    entity.pos.x = x;
+        //    entity.pos.y = y;
+        //    _coverEntity.addChild(entity);
+        //}
     }
 
     void updateCover() {

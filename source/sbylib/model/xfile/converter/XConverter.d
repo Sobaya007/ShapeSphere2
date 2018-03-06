@@ -1,4 +1,4 @@
-module model.xfile.converter.XConverter;
+module sbylib.model.xfile.converter.XConverter;
 
 // Converter: S -> T
 
