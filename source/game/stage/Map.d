@@ -2,7 +2,6 @@ module game.stage.Map;
 
 import sbylib;
 import game.Game;
-import model.xfile.loader;
 import game.character;
 import std.json, std.file, std.stdio;;
 import game.stage.StageMaterial;

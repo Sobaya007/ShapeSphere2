@@ -1,8 +1,6 @@
-module model.xfile.loader.XLeviathan;
+module sbylib.model.xfile.loader.XLeviathan;
 
 import sbylib;
-
-import model.xfile.loader;
 
 immutable class XLeviathan {
 immutable:

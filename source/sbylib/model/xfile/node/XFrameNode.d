@@ -1,8 +1,8 @@
-module model.xfile.node.XFrameNode;
+module sbylib.model.xfile.node.XFrameNode;
 
 import sbylib.math.Matrix;
 
-import model.xfile.node;
+import sbylib.model.xfile.node;
 
 class XFrameNode : XNode {
     string name;

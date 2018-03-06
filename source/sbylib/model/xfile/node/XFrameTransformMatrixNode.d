@@ -1,8 +1,8 @@
-module model.xfile.node.XFrameTransformMatrixNode;
+module sbylib.model.xfile.node.XFrameTransformMatrixNode;
 
 import sbylib.math.Matrix;
 
-import model.xfile.node;
+import sbylib.model.xfile.node;
 
 class XFrameTransformMatrixNode : XNode {
     mat4 matrix;

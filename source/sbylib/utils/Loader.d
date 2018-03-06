@@ -41,8 +41,8 @@ static:
 }
 
 class XLoader {
-    import model.xfile.loader.XLoader : OriginalLoader = XLoader;
-    import model.xfile.loader.XEntity;
+    import sbylib.model.xfile.loader.XLoader : OriginalLoader = XLoader;
+    import sbylib.model.xfile.loader.XEntity;
     import std.typecons;
 
     mixin Singleton;

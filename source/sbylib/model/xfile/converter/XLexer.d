@@ -1,6 +1,6 @@
-module model.xfile.converter.XLexer;
+module sbylib.model.xfile.converter.XLexer;
 
-import model.xfile.converter;
+import sbylib.model.xfile.converter;
 
 import std.conv,
        std.range,

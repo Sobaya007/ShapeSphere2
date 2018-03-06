@@ -1,8 +1,6 @@
-module model.xfile.loader.XEntity;
+module sbylib.model.xfile.loader.XEntity;
 
 import sbylib;
-
-import model.xfile.loader;
 
 immutable class XEntity {
 immutable:

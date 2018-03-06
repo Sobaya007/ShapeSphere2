@@ -1,8 +1,8 @@
-module model.xfile.node.XMeshNormalsNode;
+module sbylib.model.xfile.node.XMeshNormalsNode;
 
 import sbylib.math.Vector;
 
-import model.xfile.node;
+import sbylib.model.xfile.node;
 
 class XMeshNormalsNode : XNode {
     vec3[] normals;

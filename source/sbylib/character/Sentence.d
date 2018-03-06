@@ -41,7 +41,7 @@ class Sentence {
         auto w = h * totalWidth / maxHeight;
         GlFunction.setPixelUnpackAlign(1);
         if (width != w || height != h) {
-            buffer = new ubyte[totalWidth*maxHeight];
+            buffer = new ubyte[cast(size_t)(totalWidth*maxHeight)];
             this.entity.texture.allocate(0, ImageInternalFormat.R, cast(uint)totalWidth, cast(uint)maxHeight, ImageFormat.R, buffer.ptr);
             this.beforeInfos.length = 0;
         }

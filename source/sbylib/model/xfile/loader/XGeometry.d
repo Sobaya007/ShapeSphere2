@@ -1,4 +1,4 @@
-module model.xfile.loader.XGeometry;
+module sbylib.model.xfile.loader.XGeometry;
 
 import sbylib;
 

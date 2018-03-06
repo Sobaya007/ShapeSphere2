@@ -6,7 +6,6 @@ import game.command;
 import game.scene;
 import game.Game;
 import game.Console;
-import model.xfile.loader;
 import std.stdio, std.getopt, std.file, std.array, std.algorithm, std.conv, std.format, std.path, std.regex, std.typecons;
 
 class GameMainScene : SceneBase {

@@ -11,7 +11,7 @@ debug class Console {
     Label label;
     private string[] text;
     private string[] history;
-    private long cursor, historyCursor;
+    private int cursor, historyCursor;
 
     alias label this;
 
@@ -67,7 +67,7 @@ debug class Console {
             auto input = text.back;
             if (!input.empty) {
                 history ~= input;
-                historyCursor = history.length;
+                historyCursor = cast(int)history.length;
                 text ~= interpret(input)
                     .split("\n")
                     .map!(s => s.indent(4))
@@ -85,11 +85,11 @@ debug class Console {
         } else if (key == KeyButton.Up) {
             historyCursor = max(0, historyCursor-1);
             text.back = history[historyCursor];
-            cursor = text.back.length;
+            cursor = cast(int)text.back.length;
         } else if (key == KeyButton.Down) {
             historyCursor = min(history.length, historyCursor+1);
             text.back = historyCursor < history.length ? history[historyCursor] : "";
-            cursor = text.back.length;
+            cursor = cast(int)text.back.length;
         } else if (key == KeyButton.Escape) {
             mode = 0;
             Core().getKey().allowCallback();
@@ -104,7 +104,7 @@ debug class Console {
                     .array;
                 text ~= output;
                 text ~= cs.reduce!commonPrefix;
-                cursor = text.back.length;
+                cursor = cast(int)text.back.length;
             }
         }
         text = text.tail(LINE_NUM);

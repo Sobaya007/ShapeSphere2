@@ -9,8 +9,6 @@ import game.character;
 import game.stage.StageMaterial;
 import game.stage.CrystalMaterial;
 import game.stage.Stage;
-import model.xfile.loader.XEntity;
-import model.xfile.loader.XMaterial;
 import std.concurrency, std.typecons;
 import core.thread;
 
@@ -308,7 +306,6 @@ struct Area {
     }
 
     void onReceive(immutable XEntity entity) {
-        import model.xfile.loader;
         import std.stdio;
         writeln("received");
         auto m = entity.buildEntity(StageMaterialBuilder());

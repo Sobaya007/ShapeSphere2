@@ -1,9 +1,6 @@
-module model.xfile.loader.XLoader;
+module sbylib.model.xfile.loader.XLoader;
 
 import sbylib;
-import model.xfile.node;
-import model.xfile.converter;
-import model.xfile.loader;
 
 import std.range, std.array, std.algorithm;
 

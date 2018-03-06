@@ -13,6 +13,7 @@ import sbylib.input;
 import sbylib.light;
 import sbylib.material;
 import sbylib.math;
+import sbylib.model.xfile;
 import sbylib.render;
 import sbylib.geometry;
 import sbylib.gui;

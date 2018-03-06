@@ -1,10 +1,10 @@
-module model.xfile.converter.XParser;
+module sbylib.model.xfile.converter.XParser;
 
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 
-import model.xfile.converter;
-import model.xfile.node;
+import sbylib.model.xfile.converter;
+import sbylib.model.xfile.node;
 
 import std.conv,
        std.range,

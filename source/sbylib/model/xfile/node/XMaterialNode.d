@@ -1,8 +1,8 @@
-module model.xfile.node.XMaterialNode;
+module sbylib.model.xfile.node.XMaterialNode;
 
 import sbylib.math.Vector;
 
-import model.xfile.node;
+import sbylib.model.xfile.node;
 
 class XMaterialNode : XNode {
     string name;
