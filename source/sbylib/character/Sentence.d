@@ -59,6 +59,7 @@ class Sentence {
                     buffer.ptr
                 );
             }
+            if (info.bitmap.ptr is null) continue;
             this.entity.texture.update(
                 0,
                 cast(uint)(info.pen+info.offsetX),
