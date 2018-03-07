@@ -41,7 +41,7 @@ class CameraController {
         static foreach (Type; BehaviorTypes) {
             this.behaviors ~= new Type(this);
         }
-        this.entity = new Entity(new CollisionCapsule(2, vec3(0), vec3(0)));
+        this.entity = new Entity(new CollisionCapsule(1, vec3(0), vec3(0)));
         this.camera.addChild(this.entity);
     }
 

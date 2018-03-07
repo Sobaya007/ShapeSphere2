@@ -356,7 +356,9 @@ class ElasticSphere2 {
             v.normal = safeNormalize(v.normal);
             v.position = (this.entity.viewMatrix * vec4(p.position.get, 1)).xyz;
         }
+        debug Game.startTimer("elastic update");
         geom.updateBuffer();
+        debug Game.stopTimer("elastic update");
     }
 
     //山登りで探索

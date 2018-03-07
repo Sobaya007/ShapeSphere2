@@ -10,7 +10,7 @@ targetPath "bin"
 
 dflags "-gs"
 
-buildRequirements "disallowOptimization" "disallowInlining"
+//buildRequirements "disallowOptimization" "disallowInlining"
 
 buildType "syntax" {
 buildOptions "debugMode" "debugInfo"
