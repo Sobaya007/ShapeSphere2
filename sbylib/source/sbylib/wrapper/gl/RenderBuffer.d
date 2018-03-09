@@ -23,10 +23,6 @@ class RenderBuffer {
         this.allocate(width, height, format);
     }
 
-    ~this() {
-        assert(!alive);
-    }
-
     void destroy() in {
         assert(alive);
     } out {

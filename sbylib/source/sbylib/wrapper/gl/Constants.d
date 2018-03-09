@@ -70,6 +70,8 @@ enum ImageInternalFormat {
     RG = GL_RG,
     RGB = GL_RGB,
     RGBA = GL_RGBA,
+    RGBA16F = GL_RGBA16F,
+    RGBA32F = GL_RGBA32F,
     Depth = GL_DEPTH_COMPONENT24,
     DepthStencil = GL_DEPTH_STENCIL
 };

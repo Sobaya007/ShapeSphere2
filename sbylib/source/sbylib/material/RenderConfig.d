@@ -13,6 +13,7 @@ class RenderConfig {
     uint stencilValue;
     uint stencilMask;
     StencilWrite sfail, dpfail, pass;
+    bool blend;
     BlendFactor srcFactor, dstFactor;
     BlendEquation blendEquation;
     bool depthWrite, depthTest;
@@ -32,6 +33,7 @@ class RenderConfig {
         this.srcFactor = BlendFactor.SrcAlpha;
         this.dstFactor = BlendFactor.OneMinusSrcAlpha;
         this.blendEquation = BlendEquation.Add;
+        this.blend = true;
         this.depthWrite = true;
         this.depthTest = true;
         this.lineWidth = 1f;
@@ -44,6 +46,8 @@ class RenderConfig {
         GlFunction.stencil(this.stencilFunc, this.stencilValue, this.stencilMask, this.sfail, this.dpfail, this.pass);
         GlFunction.blendFunc(this.srcFactor, this.dstFactor);
         GlFunction.blendEquation(this.blendEquation);
+        if (blend) GlFunction.enable(Capability.Blend);
+        else GlFunction.disable(Capability.Blend);
         GlFunction.depthWrite(this.depthWrite);
         GlFunction.depthTest(this.depthTest);
         GlFunction.lineWidth(this.lineWidth);

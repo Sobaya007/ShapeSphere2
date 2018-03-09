@@ -52,12 +52,12 @@ class RenderTarget : IRenderTarget {
     }
 
     void attachTexture(T)(FrameBufferAttachType attachType) {
-        Texture tex = new Texture(TextureTarget.Tex2D, 0, this.getInternalFormat(attachType), this.width, this.height, ImageFormat.RGBA, cast(T*)null);
+        Texture tex = new Texture(TextureTarget.Tex2D, 0, this.getInternalFormat!T(attachType), this.width, this.height, ImageFormat.RGBA, cast(T*)null);
         this.attach(tex, attachType);
     }
 
-    void attachRenderBuffer(FrameBufferAttachType attachType) {
-        RenderBuffer rbo = new RenderBuffer(this.width, this.height, this.getInternalFormat(attachType));
+    void attachRenderBuffer(T)(FrameBufferAttachType attachType) {
+        RenderBuffer rbo = new RenderBuffer(this.width, this.height, this.getInternalFormat!T(attachType));
         this.attach(rbo, attachType);
     }
 
@@ -78,10 +78,14 @@ class RenderTarget : IRenderTarget {
         this.textures[attachType] = texture;
     }
 
-    private ImageInternalFormat getInternalFormat(FrameBufferAttachType attachType) {
+    private ImageInternalFormat getInternalFormat(Type)(FrameBufferAttachType attachType) {
         switch (attachType) {
             case FrameBufferAttachType.Color0, FrameBufferAttachType.Color1, FrameBufferAttachType.Color2:
-                return ImageInternalFormat.RGBA;
+                static if (is(Type == float)) {
+                    return ImageInternalFormat.RGBA32F;
+                } else {
+                    return ImageInternalFormat.RGBA;
+                }
             case FrameBufferAttachType.Depth:
                 return ImageInternalFormat.Depth;
             case FrameBufferAttachType.DepthStencil:

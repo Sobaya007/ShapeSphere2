@@ -121,14 +121,12 @@ static:
     void blendFunc(BlendFactor src, BlendFactor dst) out {
         checkError();
     } body {
-        enable(Capability.Blend);
         glBlendFunc(src, dst);
     }
 
     void blendEquation(BlendEquation eq) out {
         checkError();
     } body {
-        enable(Capability.Blend);
         glBlendEquation(eq);
     }
 

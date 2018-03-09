@@ -3,6 +3,7 @@ description "Game library for sobaya."
 copyright "Copyright © 2017, Sobaya"
 authors "Sobaya"
 targetType "library"
+targetPath "../bin"
 
 dependency "derelict-gl3" version="~>2.0.0-alpha.5"
 dependency "derelict-glfw3" version="~>4.0.0-alpha.6"
