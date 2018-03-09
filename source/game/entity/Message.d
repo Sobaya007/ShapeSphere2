@@ -58,7 +58,7 @@ class Message : CommandReceiver {
                         vec3(currentWidth, currentHeight,1),
                         vec3(arrivalWidth, arrivalHeight, 1),
                         30,
-                        Ease.easeInOut
+                        &Ease.easeInOut
                     )
                 ),
                 new Animation!float(
@@ -69,7 +69,7 @@ class Message : CommandReceiver {
                         0f,
                         message.length + 0.5f,
                         cast(uint)(5 * message.length),
-                        Ease.linear
+                        &Ease.linear
                     )
                 )
             ])

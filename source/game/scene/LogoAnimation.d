@@ -22,7 +22,7 @@ class LogoAnimation : SceneProtoType {
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
                         60,
-                        Ease.linear
+                        &Ease.linear
                     )
                 ),
                 image.rotate(
@@ -30,7 +30,7 @@ class LogoAnimation : SceneProtoType {
                         Radian(0.deg),
                         Radian(360.deg),
                         60,
-                        Ease.easeInOut
+                        &Ease.easeInOut
                     )
                 ),
                 fade(
@@ -38,7 +38,7 @@ class LogoAnimation : SceneProtoType {
                         vec4(0,0,0,0),
                         vec4(0,0,0,1),
                         60,
-                        Ease.linear
+                        &Ease.linear
                     )
                 ),
             ]),

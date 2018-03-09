@@ -30,7 +30,7 @@ class StartNewGame : SceneProtoType {
                     vec4(0),
                     vec4(0,0,0,1),
                     60,
-                    Ease.linear
+                    &Ease.linear
                 )
             )
         ).onFinish(&this.finish);

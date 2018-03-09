@@ -34,7 +34,7 @@ class Title : SceneProtoType {
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
                         60,
-                        Ease.linear
+                        &Ease.linear
                     )
                 ),
                 text.rotate(
@@ -42,7 +42,7 @@ class Title : SceneProtoType {
                         Radian(0.deg),
                         Radian(360.deg),
                         60,
-                        Ease.linear
+                        &Ease.linear
                     )
                 ),
                 multi(selections.map!(s =>
@@ -51,7 +51,7 @@ class Title : SceneProtoType {
                             vec4(0),
                             vec4(0.5),
                             60,
-                            Ease.linear
+                            &Ease.linear
                         )
                     )).array
                 ),
@@ -61,7 +61,7 @@ class Title : SceneProtoType {
                             this.selections[0].label.pos.xy,
                             this.selections[0].basePos - vec2(0.05,0),
                             10,
-                            Ease.easeInOut
+                            &Ease.easeInOut
                         )
                     ),
                     this.selections[0].label.colorAnimation(
@@ -69,7 +69,7 @@ class Title : SceneProtoType {
                             vec4(0.5),
                             vec4(1),
                             10,
-                            Ease.linear
+                            &Ease.linear
                         )
                     )
                 ])
@@ -118,7 +118,7 @@ class Title : SceneProtoType {
                             this.label.pos.xy,
                             basePos - vec2(0.05,0),
                             10,
-                            Ease.easeInOut
+                            &Ease.easeInOut
                         )
                     ),
                     this.label.colorAnimation(
@@ -126,7 +126,7 @@ class Title : SceneProtoType {
                             this.label.color,
                             vec4(1),
                             10,
-                            Ease.linear
+                            &Ease.linear
                         )
                     )
                 ])
@@ -144,7 +144,7 @@ class Title : SceneProtoType {
                             this.label.pos.xy,
                             basePos,
                             10,
-                            Ease.easeInOut
+                            &Ease.easeInOut
                         )
                     ),
                     this.label.colorAnimation(
@@ -152,7 +152,7 @@ class Title : SceneProtoType {
                             this.label.color,
                             vec4(0.5),
                             10,
-                            Ease.linear
+                            &Ease.linear
                         )
                     )
                 ])

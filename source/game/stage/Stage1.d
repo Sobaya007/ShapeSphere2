@@ -122,7 +122,7 @@ class Stage1 : Stage {
                     vec4(0,0,0,0),
                     vec4(0,0,0,1),
                     60,
-                    Ease.linear
+                    &Ease.linear
                 )
             )
         ).onFinish({
@@ -141,7 +141,7 @@ class Stage1 : Stage {
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
                         60,
-                        Ease.linear
+                        &Ease.linear
                     )
                 )
             );

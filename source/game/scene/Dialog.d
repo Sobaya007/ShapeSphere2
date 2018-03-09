@@ -78,7 +78,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                         this.label.color,
                         vec4(color, 1),
                         10,
-                        Ease.linear
+                        &Ease.linear
                     )
                 )
             ));
@@ -94,7 +94,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                         this.label.color,
                         vec4(color * 0.5, 1),
                         10,
-                        Ease.linear
+                        &Ease.linear
                     )
                 )
             ));
