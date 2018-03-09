@@ -53,14 +53,40 @@ debug class Console {
         this.mode = 1;
     }
 
+    struct CharPair {
+        char normalChar;
+        char shiftChar;
+    }
+
+    enum CharList = [
+        KeyButton.Key1         : CharPair('1' , '!' ),
+        KeyButton.Key2         : CharPair('2' , '"' ),
+        KeyButton.Key3         : CharPair('3' , '#' ),
+        KeyButton.Key4         : CharPair('4' , '$' ),
+        KeyButton.Key5         : CharPair('5' , '%' ),
+        KeyButton.Key6         : CharPair('6' , '&' ),
+        KeyButton.Key7         : CharPair('7' , '\''),
+        KeyButton.Key8         : CharPair('8' , '(' ),
+        KeyButton.Key9         : CharPair('9' , ')' ),
+        KeyButton.Comma        : CharPair(',' , '<' ),
+        KeyButton.Minus        : CharPair('-' , '=' ),
+        KeyButton.Period       : CharPair('.' , '>' ),
+        KeyButton.Slash        : CharPair('/' , '?' ),
+        KeyButton.Semicolon    : CharPair(';' , '+' ),
+        KeyButton.LeftBracket  : CharPair('[' , '{' ),
+        KeyButton.RightBracket : CharPair(']' , '}' ),
+        KeyButton.AtMark       : CharPair('@' , '`' ),
+        KeyButton.Hat          : CharPair('^' , '~' ),
+        KeyButton.BackSlash1   : CharPair('\\', '|' ),
+        KeyButton.BackSlash2   : CharPair('\\', '_' )
+    ];
+
     private void handle(KeyButton key) {
         import std.ascii;
         if (isPrintable(key)) {
             auto shift = Core().getKey().isPressed(KeyButton.LeftShift) || Core().getKey().isPressed(KeyButton.RightShift);
             auto c = shift ? cast(char)key : (cast(char)key).toLower;
-            if (c == '.' && shift) c = '>';
-            if (key == KeyButton.LeftBracket) c = '[';
-            if (key == KeyButton.RightBracket) c = ']';
+            if (auto r = key in CharList) c = shift ? r.shiftChar : r.normalChar;
             text.back = slice(text.back,0,cursor)~c~slice(text.back,cursor, text.back.length);
             cursor++;
         } else if (key == KeyButton.Enter) {
@@ -128,6 +154,14 @@ debug class Console {
     private string interpret(string str) {
         auto tokens = str.split('>');
         if (tokens.empty) return "";
+        if (str.count('=') == 1) {
+            if (tokens.back.canFind('=') == false)
+                return "Invalid Syntax: the position of '=' is wrong.";
+            else {
+                auto last = tokens.back;
+                tokens = tokens.dropBackOne ~ last.split('=');
+            }
+        }
 
         if (tokens.front == "world3d") {
             return interpret(Game.getWorld3D, tokens.dropOne);
@@ -138,44 +172,42 @@ debug class Console {
     }
 
     private string interpret(World world, string[] tokens) {
-        if (tokens.empty) return world.toString((Entity e) => e.name, false).split("\n").sort.group.map!(p => p[1] == 1 ? p[0] : format!"%s[%d]"(p[0], p[1])).join("\n");
-        import std.regex;
-        auto r = ctRegex!"\\[([0-9]*)\\]";
-        auto c = matchFirst(tokens.front, r);
-        Maybe!Entity child;
-        if (!c.empty) {
-            auto res = world.findByName(c.pre).drop(c.hit.dropOne.dropBackOne.to!int);
-            child = res.empty ? None!Entity : Just(res.front);
-        } else {
-            auto res = world.findByName(tokens.front);
-            child = res.empty ? None!Entity : Just(res.front);
-        }
+        if (tokens.empty) return getInfo(world);
+        auto child = search(world, tokens.front);
         if (child.isNone) return format!"No match name for '%s'"(tokens.front);
         return interpret(child.get(), tokens.dropOne);
     }
 
     private string interpret(Entity entity, string[] tokens) {
-        if (tokens.empty) return entity.toString(false);
+        if (tokens.empty) return getInfo(entity);
         auto token = tokens.front;
-        switch (token) {
-            case "pos": return entity.pos.toString;
-            case "rot": return entity.rot.toString;
-            case "scale": return entity.scale.toString;
-            default:
-        }
-        import std.regex;
-        auto r = ctRegex!"\\[([0-9]*)\\]";
-        auto c = matchFirst(tokens.front, r);
-        Maybe!Entity child;
-        if (!c.empty) {
-            auto res = entity.findByName(c.pre).drop(c.hit.dropOne.dropBackOne.to!int);
-            child = res.empty ? None!Entity : Just(res.front);
+        tokens.popFront();
+        if (tokens.front == "=") {
+            switch (token) {
+                case "pos": return entity.pos.toString;
+                case "rot": return entity.rot.toString;
+                case "scale": return entity.scale.toString;
+                default:
+            }
         } else {
-            auto res = entity.findByName(tokens.front);
-            child = res.empty ? None!Entity : Just(res.front);
+            switch (token) {
+                case "pos": return entity.pos.toString;
+                case "rot": return entity.rot.toString;
+                case "scale": return entity.scale.toString;
+                default:
+            }
         }
+        auto child = search(entity, token);
         if (child.isNone) return format!"No match name for '%s'"(token);
-        return interpret(child.get(), tokens.dropOne);
+        return interpret(child.get(), tokens);
+    }
+
+    private string getInfo(World world) {
+        return world.toString((Entity e) => e.name, false).split("\n").sort.group.map!(p => p[1] == 1 ? p[0] : format!"%s[%d]"(p[0], p[1])).join("\n");
+    }
+
+    private string getInfo(Entity entity) {
+        return entity.toString(false);
     }
 
     private string[] candidates(string[] strs, string head) {
@@ -196,15 +228,28 @@ debug class Console {
 
     private string[] candidates(World world, string[] tokens) {
         if (tokens.length == 1) return candidates(world.getEntityNames, tokens.front);
-        auto child = world.findByName(tokens.front);
-        if (child.empty) return [];
-        return candidates(child.front, tokens.dropOne).map!(c => tokens.front~">"~c).array;
+        auto child = search(world, tokens.front);
+        if (child.isNone) return [];
+        return candidates(child.get, tokens.dropOne).map!(c => tokens.front~">"~c).array;
     }
 
     private string[] candidates(Entity entity, string[] tokens) {
         if (tokens.length == 1) return candidates(["pos", "rot", "scale"]~entity.getChildren.map!(c=>c.name).array, tokens.front);
-        auto child = entity.findByName(tokens.front);
-        if (child.empty) return [];
-        return candidates(child.front, tokens.dropOne).map!(c => tokens.front~">"~c).array;
-}
+        auto child = search(entity, tokens.front);
+        if (child.isNone) return [];
+        return candidates(child.get, tokens.dropOne).map!(c => tokens.front~">"~c).array;
     }
+
+    private Maybe!Entity search(Container)(Container container, string name) {
+        import std.regex;
+        auto r = ctRegex!"\\[([0-9]*)\\]";
+        auto c = matchFirst(name, r);
+        if (!c.empty) {
+            auto res = container.findByName(c.pre).drop(c.hit.dropOne.dropBackOne.to!int);
+            return res.empty ? None!Entity : Just(res.front);
+        } else {
+            auto res = container.findByName(name);
+            return res.empty ? None!Entity : Just(res.front);
+        }
+    }
+}
