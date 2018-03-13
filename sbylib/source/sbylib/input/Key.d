@@ -16,7 +16,6 @@ class Key {
     private Callback[][KeyButton] isReleasedCallback;
     private Callback[][KeyButton] justPressedCallback;
     private Callback[][KeyButton] justReleasedCallback;
-    private bool callbackFlag = true;
 
     package(sbylib) this(Window window) {
         this.window = window;
@@ -34,21 +33,12 @@ class Key {
         foreach (button; EnumMembers!(KeyButton)) {
             this.before[button] = this.buttons[button];
             this.buttons[button] = this.window.getKey(button);
-            if (!this.callbackFlag) continue;
             import std.algorithm : each;
             if (this.isPressed(button)) this.isPressedCallback[button].each!(cb => cb());
             if (this.isReleased(button)) this.isReleasedCallback[button].each!(cb => cb());
             if (this.justPressed(button)) this.justPressedCallback[button].each!(cb => cb());
             if (this.justReleased(button)) this.justReleasedCallback[button].each!(cb => cb());
         }
-    }
-
-    void preventCallback() {
-        this.callbackFlag = false;
-    }
-
-    void allowCallback() {
-        this.callbackFlag = true;
     }
 
     private void addIsPressedCallback(KeyButton button, Callback cb) {

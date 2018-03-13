@@ -41,7 +41,7 @@ debug class Console {
             render();
             return;
         }
-        Core().getKey().preventCallback();
+        Controller().available = false;
         Game.getMap().pause();
         auto mKey = Core().getKey().justPressedKey();
         if (mKey.isNone) return;
@@ -118,7 +118,7 @@ debug class Console {
             cursor = cast(int)text.back.length;
         } else if (key == KeyButton.Escape) {
             mode = 0;
-            Core().getKey().allowCallback();
+            Controller().available = true;
             Game.getMap().resume();
             text = [""];
             cursor = 0;
