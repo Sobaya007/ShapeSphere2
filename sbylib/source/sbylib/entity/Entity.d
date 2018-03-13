@@ -237,10 +237,6 @@ class Entity {
         return children;
     }
 
-    auto findByName(string name) {
-        return children.filter!(e => e.name == name);
-    }
-
     Maybe!Entity getParent() {
         return this.parent;
     }

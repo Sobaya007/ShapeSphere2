@@ -6,6 +6,9 @@ import std.conv;
 import std.range;
 import std.algorithm;
 
+
+enum RefuseNullType(T) = isPointer!T || is(T == class) || is(T == interface) || is(T == function) || is(T == delegate);
+
 struct Maybe(T) {
 
     alias Type = T;
@@ -14,13 +17,13 @@ struct Maybe(T) {
     private bool _none = true;
 
     invariant {
-        static if (is(typeof(value is null))) {
+        static if (RefuseNullType!(T)) {
             assert(_none || value !is null, T.stringof);
         }
     }
 
     private this(T value) in {
-        static if (is(typeof(value is null))) assert(value !is null);
+        static if (RefuseNullType!(T)) assert(value !is null);
     } body {
         this.value = value;
         this._none = false;
@@ -146,7 +149,7 @@ auto wrap(T)(T value) {
         } else {
             return Just(value);
         }
-    } else static if (is(typeof(value is null))) {
+    } else static if (RefuseNullType!(T)) {
         if (value is null) {
             return None!T;
         } else {
