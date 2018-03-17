@@ -34,7 +34,7 @@ class Stage1 : Stage {
         Core().addProcess(&step, "Stage1");
 
         debug {
-            Core().getKey().justPressed(KeyButton.KeyL).add(&update);
+            Core().getKey().justPressed(KeyButton.KeyL).add(&reload);
             Core().getKey().justPressed(KeyButton.KeyP).add({
                 Game.getPlayer().setCenter(this.area.debugPos);
             });
@@ -148,7 +148,7 @@ class Stage1 : Stage {
         });
     }
 
-    void update() {
+    void reload() {
         Core().addProcess((Process proc) {
             this.root = parseJSON(readText(path)).object();
             this.area = this.areas.find!(a => a.name == this.area.name).front;
@@ -156,16 +156,18 @@ class Stage1 : Stage {
         }, "stage update");
     }
 
+    override void save() {
+        write(path, root.toJSON(true));
+    }
+
     void addCrystal(vec3 pos) {
         this.area.addCrystal(root[this.area.name], pos);
-        write(path, root.toJSON(true));
-        Core().addProcess((proc) { update(); proc.kill(); }, "update stage");
+        this.save();
     }
 
     void addLight(vec3 pos) {
         this.area.addLight(root[this.area.name], pos);
-        write(path, root.toJSON(true));
-        Core().addProcess((proc) { update(); proc.kill(); }, "update stage");
+        this.save();
     }
 }
 
@@ -211,7 +213,7 @@ struct Area {
         entity.addChild(moveEntity);
         entity.addChild(lightEntity);
 
-        insts ~= Inst(entity, stageEntity, characterEntity, moveEntity, crystalEntity, lightEntity);
+        insts[index] = Inst(entity, stageEntity, characterEntity, moveEntity, crystalEntity, lightEntity);
 
         entity.name = name ~" entity";
         crystalEntity.name = name ~" crystalEntity";
@@ -222,7 +224,8 @@ struct Area {
     }
 
     auto inst() {
-        while (insts.length <= index) create();
+        if (insts.length <= index) insts.length = index+1;
+        if (insts[index] == Inst.init) create();
         return insts[index];
     }
 
@@ -324,6 +327,7 @@ struct Area {
         obj["pos"] = JSONValue(pos.array[]);
         obj["color"] = JSONValue(vec3(1).array[]);
         area["Crystals"].array ~= obj;
+        crystals.each!(x => x.light());
     }
 
     void addLight(ref JSONValue area, vec3 pos) {
@@ -331,6 +335,7 @@ struct Area {
         obj["pos"] = JSONValue(pos.array[]);
         obj["color"] = JSONValue(vec3(1).array[]);
         area["Lights"].array ~= obj;
+        lights.each!(x => x.light());
     }
 }
 
@@ -442,6 +447,10 @@ struct Light {
         this.lightEntity = lightEntity;
         this.pos = pos;
         this.color = color;
+
+        this.light.pos.addChangeCallback({
+            this.pos = this.light.pos;
+        });
     }
 
     auto obj() {
@@ -498,7 +507,7 @@ struct Crystal {
         this.color = color;
     }
 
-    void create() {
+    void create(size_t index) {
         auto loaded = XLoader().load(ModelPath("crystal.x"));
 
         auto entity = loaded.buildEntity(StageMaterialBuilder());
@@ -510,6 +519,13 @@ struct Crystal {
         crystalEntity.addChild(entity);
 
         reserved ~= tuple(entity, light);
+
+        auto parent = this.parent;
+        auto crystalEntity = this.crystalEntity;
+        entity.pos.addChangeCallback({
+            vec3 p = entity.pos;
+            Crystal(index, parent, crystalEntity).pos = p;
+        });
     }
 
     auto ref reserved() {
@@ -518,12 +534,12 @@ struct Crystal {
     }
 
     Entity entity() {
-        while (reserved.length <= index) create();
+        while (reserved.length <= index) create(reserved.length);
         return reserved[index][0];
     }
 
     PointLight light() {
-        while (reserved.length <= index) create();
+        while (reserved.length <= index) create(reserved.length);
         return reserved[index][1];
     }
 

@@ -96,9 +96,15 @@ debug class Console {
 
     private void handle(KeyButton key) {
         import std.ascii;
-        if (isPrintable(key)) {
+        auto shift = Core().getKey().isPressed(KeyButton.LeftShift) || Core().getKey().isPressed(KeyButton.RightShift);
+        auto ctrl = Core().getKey().isPressed(KeyButton.LeftControl) || Core().getKey().isPressed(KeyButton.RightControl);
+        if (ctrl && shift && key == KeyButton.Semicolon) {
+            this.label.size *= 1.01;
+        } else if (ctrl && shift && key == KeyButton.Minus) {
+            this.label.size /= 1.01;
+        } else if (isPrintable(key)) {
 
-            insertToCursor(getChar(key));
+            insertToCursor(getChar(key, shift));
 
         } else if (key == KeyButton.Enter) {
 
@@ -156,8 +162,7 @@ debug class Console {
         text = text.tail(LINE_NUM);
     }
 
-    private char getChar(KeyButton key) {
-        auto shift = Core().getKey().isPressed(KeyButton.LeftShift) || Core().getKey().isPressed(KeyButton.RightShift);
+    private char getChar(KeyButton key, bool shift) {
         if (auto r = key in CharList) return shift ? r.shiftChar : r.normalChar;
         if (shift) return cast(char)key;
         return cast(char)key.toLower;
@@ -193,13 +198,13 @@ debug class Console {
     private string interpret(string str) {
         auto tokens = (">" ~ str).splitter!(Yes.keepSeparators)(ctRegex!"[>=]").array;
 
-        return new RootSelection().interpret(tokens);
+        return new RootSelection().interpret(TokenList(tokens));
     }
 
     private string[] candidates(string str) {
         auto tokens = (">" ~ str).splitter!(Yes.keepSeparators)(ctRegex!"[>=]").array;
 
-        return new RootSelection().candidates(tokens, "");
+        return new RootSelection().candidates(TokenList(tokens), "");
     }
 
     private string slice(string s, size_t i, size_t j) {

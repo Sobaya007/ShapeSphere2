@@ -89,8 +89,6 @@ struct ChangeObserved(T) {
         this.callbacks = onChange;
     }
 
-    @disable this(this);
-
     invariant {
         static if (isPointer!Type
                 || is(Type == class)
@@ -140,9 +138,15 @@ struct ChangeObserved(T) {
         this.onChange();
     }
 
-    void opAssign(ArgType)(ArgType value, string file = __FILE__, int line = __LINE__ ) if (isAssignable!(Type, ArgType)) {
+    void opAssign(ArgType)(ArgType value) if (isAssignable!(Type, ArgType)) {
         if (this.value == value) return;
         this.value = value;
+        this.onChange();
+    }
+
+    void opAssign(ArgType)(ArgType value) if (isPointer!(Type) && isAssignable!(PointerTarget!Type, ArgType)) {
+        if (*this.value == value) return;
+        *this.value = value;
         this.onChange();
     }
 

@@ -76,11 +76,6 @@ class GameMainScene : SceneBase {
             }, "label update");
         }
 
-        core.getKey().justPressed(KeyButton.Escape).add({
-            Game.getCommandManager().save();
-            core.end();
-        });
-
         debug {
             /* FPS Observe */
             auto fpsCounter = new FpsCounter!100();

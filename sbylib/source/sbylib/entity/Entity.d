@@ -277,7 +277,8 @@ class Entity {
     void buildBVH() {
         this.traverse((Entity e) {
             auto polygons = e.mesh.geom.createCollisionPolygon();
-            e.colEntry = polygons.fmap!((CollisionGeometry[] p) => new CollisionEntry(new CollisionBVH(p), e));
+            import std.array;
+            e.colEntry = polygons.fmapAnd!((CollisionGeometry[] p) => p.empty ? None!CollisionEntry : Just(new CollisionEntry(new CollisionBVH(p), e)));
         });
     }
 

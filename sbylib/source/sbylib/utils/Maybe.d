@@ -91,6 +91,12 @@ struct Maybe(T) {
         if (this.isJust) return format!"Just(%s)"(this.value.to!string);
         return "None";
     }
+
+    alias empty = isNone;
+
+    alias front = get;
+
+    alias popFront = take;
 }
 
 Maybe!S fmap(alias fun, T, S = ReturnType!fun)(Maybe!T m) {
@@ -98,9 +104,9 @@ Maybe!S fmap(alias fun, T, S = ReturnType!fun)(Maybe!T m) {
     return Just(fun(m.get));
 }
 
-T getOrElse(T)(Maybe!T m, T defaultValue) {
-    if (m.isNone) return defaultValue;
-    return m.get;
+T getOrElse(Range, T)(Range m, T defaultValue) {
+    if (m.empty) return defaultValue;
+    return m.front;
 }
 
 Maybe!S fmapAnd(alias fun, T, S = ReturnType!fun.Type)(Maybe!T m) {

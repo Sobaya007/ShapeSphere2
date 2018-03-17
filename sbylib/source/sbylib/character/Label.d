@@ -29,7 +29,7 @@ class Label {
     private vec4 backColor;
     private Font font;
     private float wrapWidth;
-    private float size; //1 letter height
+    float size; //1 letter height
     private float width, height;
     private dstring text;
     private dstring[] textByRow;

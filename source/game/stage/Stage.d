@@ -10,5 +10,6 @@ interface Stage {
     void transit(string);
     void pause();
     void resume();
+    void save();
 
 }
