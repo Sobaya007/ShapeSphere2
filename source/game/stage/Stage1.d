@@ -33,6 +33,11 @@ class Stage1 : Stage {
 
         Core().addProcess(&step, "Stage1");
 
+        import game.effect.Effect;
+        import game.effect.StartEffect;
+
+        EffectManager().start(new StartEffect);
+
         debug {
             Core().getKey().justPressed(KeyButton.KeyL).add(&reload);
             Core().getKey().justPressed(KeyButton.KeyP).add({

@@ -23,7 +23,7 @@ class Player : CommandReceiver {
 
     private BaseSphere sphere;
     private BaseSphere[] spheres;
-    package CameraController camera;
+    CameraController camera;
     Entity[] collisionEntities;
 
     this(Camera camera) {

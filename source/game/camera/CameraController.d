@@ -9,7 +9,7 @@ class CameraController {
 
     alias BehaviorTypes = AliasSeq!(ChaseBehavior, ResetBehavior, LookOverBehavior, FocusBehavior);
 
-    package interface Behavior {
+    interface Behavior {
         void step();
         void turn(vec2);
 
@@ -50,7 +50,7 @@ class CameraController {
         chase.initialize();
     }
 
-    package T transit(T)() out (res) {
+    T transit(T)() out (res) {
         assert(res !is null);
     } body {
         return cast(T)(this.behavior = this.behaviors.find!(b => b.instanceof!T).front);
