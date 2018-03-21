@@ -14,6 +14,7 @@ enum Prim {
     Triangle = GL_TRIANGLES,
     TriangleStrip = GL_TRIANGLE_STRIP,
     TriangleFan = GL_TRIANGLE_FAN, 
+    Point = GL_POINTS,
     Line = GL_LINES,
     LineLoop = GL_LINE_LOOP,
     LineStrip = GL_LINE_STRIP

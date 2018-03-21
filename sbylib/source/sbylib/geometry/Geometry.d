@@ -107,6 +107,7 @@ class FaceGroup(Prim Mode) {
                 face = new Face([indices[0], indices[i+1], indices[i+2]]);
             }
             break;
+        case Prim.Point:
         case Prim.Line:
         case Prim.LineStrip:
         case Prim.LineLoop:

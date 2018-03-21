@@ -57,7 +57,7 @@ class Material {
     protected abstract Shader[] getShaders();
     abstract const(Uniform) delegate()[] getUniforms();
 
-    mixin template commonDeclare() {
+    mixin template commonDeclare(bool vertexShaderAutoGen) {
 ;
         import sbylib.material.glsl;
         import sbylib.wrapper.gl;
@@ -67,9 +67,7 @@ class Material {
 
         private static void initializeShader() {
             auto fragAST = generateFragmentAST();
-            auto vertAST = GlslUtils.generateVertexAST(fragAST);
-            import std.stdio;
-            //writeln(fragAST.getCode);
+            auto vertAST = vertexShaderAutoGen ? GlslUtils.generateVertexAST(fragAST) : new Ast(readText(VERT_PATH));
             demands = GlslUtils.requiredUniformDemands([vertAST, fragAST]);
             vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
             fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);
@@ -117,21 +115,22 @@ class Material {
         }
     }
 
-    mixin template declare(string file = __FILE__) {
+    mixin template declare(bool vertexShaderAutoGen = true, string file = __FILE__) {
         import std.file, std.path, std.string;
         import sbylib.utils.Path;
         import sbylib.material.glsl;
 
 
-        enum FRAG_ROOT = ShaderPath(baseName(file).replace(".d", ".frag"));
+        enum VERT_PATH = ShaderPath(baseName(file).replace(".d", ".vert"));
+        enum FRAG_PATH = ShaderPath(baseName(file).replace(".d", ".frag"));
 
         alias config this;
 
-        mixin commonDeclare;
+        mixin commonDeclare!(vertexShaderAutoGen);
 
         static Ast generateFragmentAST() {
             import sbylib.material.glsl;
-            auto fragSource = readText(FRAG_ROOT);
+            auto fragSource = readText(FRAG_PATH);
             auto fragAST = GlslUtils.generateFragmentAST(new Ast(fragSource));
             return fragAST;
         }
@@ -172,11 +171,12 @@ class Material {
         import sbylib.utils.Path;
         import sbylib.material.glsl;
 
-        enum FRAG_ROOT = ShaderPath(baseName(file).replace(".d", ".frag"));
+        enum VERT_PATH = ShaderPath(baseName(file).replace(".d", ".vert"));
+        enum FRAG_PATH = ShaderPath(baseName(file).replace(".d", ".frag"));
 
         alias config this;
 
-        mixin commonDeclare;
+        mixin commonDeclare!(true);
 
         private A a;
         private B b;
@@ -189,7 +189,7 @@ class Material {
             auto ast2 = B.generateFragmentAST();
             ast2.name = MaterialName2;
             fragASTs ~= ast2;
-            auto mainAst = GlslUtils.generateFragmentAST(new Ast(readText(FRAG_ROOT)));
+            auto mainAst = GlslUtils.generateFragmentAST(new Ast(readText(FRAG_PATH)));
             mainAst.name = "main";
             auto fragAST = GlslUtils.mergeASTs(fragASTs ~ mainAst);
             fragAST = GlslUtils.generateFragmentAST(fragAST);
