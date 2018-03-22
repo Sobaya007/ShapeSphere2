@@ -10,12 +10,12 @@ class StartEffect : Effect {
     StartEffectEntity entity;
     Fragment[] fragmentList;
 
-    this() {
+    this(string str) {
         const viewport = Game.getScene().viewport;
         const screenAspect = viewport.getWidth / viewport.getHeight;
         const FRAG_HEIGHT = 0.01;
         const FRAG_WIDTH = FRAG_HEIGHT * Core().getWindow.getHeight / Core().getWindow.getWidth;
-        auto mat = new StartEffectMaterial();
+        auto mat = new StartEffectMaterial(str);
         const H = 0.3;
         const W = H * mat.aspectRatio;
         auto X_DIV = W/FRAG_WIDTH;
@@ -100,10 +100,10 @@ class StartEffect : Effect {
         ufloat lineRate;
         float aspectRatio;
 
-        this() {
+        this(string str) {
             mixin(autoAssignCode);
             super();
-            auto texture = new StringTexture(FontLoader.load(FontPath("meiryo.ttc"), 512), "山田太郎はホモ");
+            auto texture = new StringTexture(FontLoader.load(FontPath("meiryo.ttc"), 512), str);
             this.texture = texture;
             this.config.faceMode = FaceMode.FrontBack;
             this.config.renderGroupName = "transparent";

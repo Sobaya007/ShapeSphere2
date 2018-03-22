@@ -204,5 +204,6 @@
             "name": "Area2"
         }
     ],
-    "StartArea": "Area1"
+    "StartArea": "Area1",
+    "StageName": "クリスタル採掘場"
 }

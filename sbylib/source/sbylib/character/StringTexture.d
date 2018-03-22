@@ -25,7 +25,7 @@ class StringTexture {
         setBuffer(font, str);
     }
 
-    void setBuffer(Font font, string str) {
+    void setBuffer(String)(Font font, String str) if (isSomeString!(String)) {
         import std.algorithm, std.array;
         setBuffer(str.map!(c => font.getLetterInfo(c)).array);
     }

@@ -44,7 +44,7 @@ class Stage1 : Stage {
             });
 
             Core().getKey().justPressed(KeyButton.KeyU).add({
-                EffectManager().start(new StartEffect);
+                EffectManager().start(new StartEffect(this.stageName));
             });
 
             Core().getKey().justPressed(KeyButton.KeyT).add({
@@ -81,6 +81,10 @@ class Stage1 : Stage {
 
     auto obj() {
         return root.object();
+    }
+
+    string stageName() {
+        return obj["StageName"].str();
     }
 
     string startArea() {
