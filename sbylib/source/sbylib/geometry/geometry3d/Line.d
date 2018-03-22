@@ -9,7 +9,7 @@ import sbylib.math.Vector;
 import std.range;
 import std.algorithm;
 
-alias GeometryLine = GeometryTemp!([Attribute.Position, Attribute.UV], Prim.Line);
+alias GeometryLine = TypedGeometry!([Attribute.Position, Attribute.UV], Prim.Line);
 
 class Line {
 

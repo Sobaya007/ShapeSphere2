@@ -10,7 +10,7 @@ import std.range;
 
 class LineGroup(Prim p) 
 if (p == Prim.Line || p == Prim.LineStrip || p == Prim.LineLoop) {
-    alias GeometryLineGroup = GeometryTemp!([Attribute.Position], p);
+    alias GeometryLineGroup = TypedGeometry!([Attribute.Position], p);
 
     static GeometryLineGroup create(uint size) {
         auto indices = iota(size).array;

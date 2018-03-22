@@ -45,7 +45,7 @@ class DataSet {
                 auto y = data.time * 0.01 + .2;
                 vertices ~= new VertexP(vec3(cast(float)i / value.length * 0.9 + 0.05, data.time * 0.01 + .2, 0));
             }
-            auto geom = new GeometryTemp!([Attribute.Position], Prim.LineStrip)(vertices);
+            auto geom = new TypedGeometry!([Attribute.Position], Prim.LineStrip)(vertices);
             auto mat = new LambertMaterial();
             mat.ambient = color;
             auto entity = new Entity(geom, mat);

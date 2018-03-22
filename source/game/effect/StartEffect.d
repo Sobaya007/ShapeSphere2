@@ -6,55 +6,64 @@ import sbylib;
 
 class StartEffect : Effect {
 
-    Entity entity;
+    alias StartEffectEntity = TypedEntity!(TypedGeometry!([Attribute.Position, Attribute.UV], Prim.Point), StartEffectMaterial);
+    StartEffectEntity entity;
     Fragment[] fragmentList;
 
     this() {
-        this.entity = new Entity;
-        enum W = 2;
-        enum H = 1;
-        enum FRAG_SIZE = 0.01;
-        enum X_DIV = W/FRAG_SIZE;
-        enum Y_DIV = H/FRAG_SIZE;
-        auto mat = new StartEffectMaterial(ImageLoader.load(ImagePath("d.png")));
-        mat.size = FRAG_SIZE * Core().getWindow.getHeight;
+        const viewport = Game.getScene().viewport;
+        const screenAspect = viewport.getWidth / viewport.getHeight;
+        const FRAG_HEIGHT = 0.01;
+        const FRAG_WIDTH = FRAG_HEIGHT * Core().getWindow.getHeight / Core().getWindow.getWidth;
+        auto mat = new StartEffectMaterial();
+        const H = 0.3;
+        const W = H * mat.aspectRatio;
+        auto X_DIV = W/FRAG_WIDTH;
+        auto Y_DIV = H/FRAG_HEIGHT;
+        mat.fragWidth = FRAG_WIDTH/W;
+        mat.fragHeight = FRAG_HEIGHT/H;
+        mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
+
         VertexT[] vertices;
         foreach (i; 0..X_DIV) {
             auto u1 = i / X_DIV;
-            auto x1 = (u1-0.5)*W;
-            auto u2 = (i+1) / X_DIV;
-            auto x2 = (u2-0.5)*W;
+            auto x1 = (u1-0.5)*W + FRAG_WIDTH/2;
             foreach (j; 0..Y_DIV) {
                 auto v1 = j / Y_DIV;
-                auto y1 = (v1-0.5)*H;
-                auto v2 = (j+1) / Y_DIV;
-                auto y2 = (v2-0.5)*H;
+                auto y1 = (v1-0.5)*H + FRAG_HEIGHT/2;
                 auto vertex = new VertexT(vec3(x1,y1,0), vec2(u1,v1));
                 vertices ~= vertex;
                 fragmentList ~= Fragment(vertex);
             }
         }
-        auto geom = new GeometryTemp!([Attribute.Position, Attribute.UV], Prim.Point)(vertices);
+        auto geom = new TypedGeometry!([Attribute.Position, Attribute.UV], Prim.Point)(vertices);
         this.entity = makeEntity(geom, mat);
         Game.getWorld2D().add(entity);
 
         AnimationManager().startAnimation(sequence(
-            animation((float alpha) => mat.textAlpha = alpha, setting(0.0f, 1.0f, 60.frame, &Ease.linear)),
+            multi(
+                animation((float alpha) => mat.textAlpha = alpha, setting(0.0f, 1.0f, 120.frame, &Ease.linear)),
+                animation((float lineRate) => mat.lineRate = lineRate, setting(0.0f, 1.0f, 120.frame, &Ease.linear)),
+            ),
+            wait(30.frame),
             animation(&po)
         ));
     }
 
     override void step() {
     }
+
     void po(void delegate() kill) {
         foreach (ref frag; fragmentList) {
             frag.step();
         }
         entity.mesh.geom.updateBuffer();
+        entity.mat.textAlpha -= 0.01;
+        if (entity.mat.textAlpha.value < 0) kill();
     }
 
     override bool done() {
-        return false;
+        return entity.mat.textAlpha.value < 0;
     }
 
     private struct Fragment {
@@ -85,17 +94,25 @@ class StartEffect : Effect {
         mixin declare!(false);
 
         private utexture texture;
-        private ufloat size;
+        private ufloat fragWidth, fragHeight;
+        private ufloat sizeInPixel;
         ufloat textAlpha;
+        ufloat lineRate;
+        float aspectRatio;
 
-        this(Image image) {
+        this() {
             mixin(autoAssignCode);
             super();
-            this.texture = new StringTexture(FontLoader.load(FontPath("meiryo.ttc"), 256), "test");
+            auto texture = new StringTexture(FontLoader.load(FontPath("meiryo.ttc"), 512), "山田太郎はホモ");
+            this.texture = texture;
             this.config.faceMode = FaceMode.FrontBack;
             this.config.renderGroupName = "transparent";
             this.config.depthTest = false;
+            //this.config.srcFactor = BlendFactor.SrcAlpha;
+            //this.config.dstFactor = BlendFactor.One;
             GlFunction.enable(Capability.ProgramPointSize);
+            this.aspectRatio = texture.aspectRatio;
+            //this.aspectRatio = img.getWidth / img.getHeight;
         }
     }
 }

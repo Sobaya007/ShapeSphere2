@@ -53,7 +53,7 @@ class SceneBase {
     protected Maybe!SelectCallback _select;
     protected Renderer renderer;
     protected Screen screen;
-    protected IViewport viewport;
+    public IViewport viewport;
     private State state;
     public Maybe!SceneTransition transition;
 

@@ -6,7 +6,7 @@ import sbylib.math.Vector;
 import sbylib.wrapper.gl.Attribute;
 import sbylib.wrapper.gl.Constants;
 
-alias GeometryPlane = GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV], Prim.TriangleStrip);
+alias GeometryPlane = TypedGeometry!([Attribute.Position, Attribute.Normal, Attribute.UV], Prim.TriangleStrip);
 
 class Plane {
 

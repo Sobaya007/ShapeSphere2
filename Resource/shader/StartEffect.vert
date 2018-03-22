@@ -5,12 +5,12 @@ in vec2 _uv;
 
 out vec2 uv;
 
-uniform float size;
+uniform float sizeInPixel;
 
 void main() {
     gl_Position = vec4(_position, 1);
     
     uv = _uv;
 
-    gl_PointSize = size;
+    gl_PointSize = sizeInPixel;
 }

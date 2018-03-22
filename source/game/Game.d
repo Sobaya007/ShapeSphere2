@@ -94,7 +94,7 @@ static:
         this.map = map;
     }
 
-    void initializeScene(GameMainScene) in {
+    void initializeScene(GameMainScene scene) in {
         assert(this.scene is null);
     } body {
         this.scene = scene;

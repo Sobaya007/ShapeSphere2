@@ -106,6 +106,28 @@ class ManualAnimation : IAnimationWithPeriod {
     }
 }
 
+class WaitAnimation : IAnimationWithPeriod {
+
+    private Frame _period;
+    private Frame lastFrame;
+
+    this(Frame period) {
+        this._period = period;
+    }
+
+    override void eval(Frame frame) {
+        this.lastFrame = frame;
+    }
+
+    override bool done() {
+        return lastFrame > period;
+    }
+
+    override Frame period() {
+        return _period;
+    }
+}
+
 class MultiAnimation(Base) : Base {
 
     private Base[] animations;
@@ -203,4 +225,8 @@ auto sequence(Animations...)(Animations animations) {
         args ~= a;
     }
     return new SequenceAnimation(args);
+}
+
+auto wait(Frame period) {
+    return new WaitAnimation(period);
 }

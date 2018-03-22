@@ -5,6 +5,7 @@ import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.freetype.Font;
 import sbylib.character.Label;
+import std.traits;
 
 class StringTexture {
 
@@ -19,7 +20,7 @@ class StringTexture {
         this.texture.setWrapT(TextureWrap.ClampToEdge);
     }
     
-    this(Font font, string str) {
+    this(String)(Font font, String str) if (isSomeString!(String)) {
         this();
         setBuffer(font, str);
     }

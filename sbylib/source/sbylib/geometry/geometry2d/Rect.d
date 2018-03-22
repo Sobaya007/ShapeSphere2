@@ -9,7 +9,7 @@ import std.algorithm;
 import std.range;
 import std.array;
 
-alias GeometryRect = GeometryTemp!([Attribute.Position, Attribute.UV], Prim.TriangleFan);
+alias GeometryRect = TypedGeometry!([Attribute.Position, Attribute.UV], Prim.TriangleFan);
 
 class Rect {
 

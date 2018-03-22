@@ -32,10 +32,10 @@ interface Geometry {
     string toString();
 }
 
-alias GeometryP = GeometryTemp!([Attribute.Position]);
-alias GeometryN = GeometryTemp!([Attribute.Position, Attribute.Normal]);
-alias GeometryT = GeometryTemp!([Attribute.Position, Attribute.UV]);
-alias GeometryNT = GeometryTemp!([Attribute.Position, Attribute.Normal, Attribute.UV]);
+alias GeometryP = TypedGeometry!([Attribute.Position]);
+alias GeometryN = TypedGeometry!([Attribute.Position, Attribute.Normal]);
+alias GeometryT = TypedGeometry!([Attribute.Position, Attribute.UV]);
+alias GeometryNT = TypedGeometry!([Attribute.Position, Attribute.Normal, Attribute.UV]);
 
 class VertexGroup(Attribute[] Attributes) {
     alias VertexA = Vertex!(Attributes);
@@ -122,7 +122,7 @@ class FaceGroup(Prim Mode) {
     }
 }
 
-class GeometryTemp(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
+class TypedGeometry(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
     enum Attributes = A;
     alias VertexA = Vertex!(Attributes);
     alias VertexGroupA = VertexGroup!(Attributes);

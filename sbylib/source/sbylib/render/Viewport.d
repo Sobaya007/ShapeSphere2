@@ -5,10 +5,10 @@ import sbylib.wrapper.gl.Functions;
 
 interface IViewport {
     void set();
-    int getX();
-    int getY();
-    uint getWidth();
-    uint getHeight();
+    int getX() const;
+    int getY() const;
+    uint getWidth() const;
+    uint getHeight() const;
 }
 
 class Viewport : IViewport {
@@ -26,16 +26,16 @@ class Viewport : IViewport {
         GlFunction.setViewport(x,y,w,h);
     }
 
-    override int getX() {
+    override int getX() const {
         return this.x;
     }
-    override int getY() {
+    override int getY() const {
         return this.y;
     }
-    override uint getWidth() {
+    override uint getWidth() const{
         return this.w;
     }
-    override uint getHeight() {
+    override uint getHeight() const {
         return this.h;
     }
 }
@@ -77,16 +77,16 @@ class AutomaticViewport : IViewport {
         GlFunction.setViewport(x,y,w,h);
     }
 
-    override int getX() {
+    override int getX() const {
         return this.x;
     }
-    override int getY() {
+    override int getY() const {
         return this.y;
     }
-    override uint getWidth() {
+    override uint getWidth() const {
         return this.w;
     }
-    override uint getHeight() {
+    override uint getHeight() const {
         return this.h;
     }
 }
