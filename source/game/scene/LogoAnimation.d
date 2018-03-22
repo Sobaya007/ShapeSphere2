@@ -16,12 +16,12 @@ class LogoAnimation : SceneProtoType {
 
     override void initialize() {
         AnimationManager().startAnimation(
-            sequence([
+            sequence(
                 fade(
                     setting(
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
-                        60,
+                        60.frame,
                         &Ease.linear
                     )
                 ),
@@ -29,7 +29,7 @@ class LogoAnimation : SceneProtoType {
                     setting(
                         Radian(0.deg),
                         Radian(360.deg),
-                        60,
+                        60.frame,
                         &Ease.easeInOut
                     )
                 ),
@@ -37,11 +37,11 @@ class LogoAnimation : SceneProtoType {
                     setting(
                         vec4(0,0,0,0),
                         vec4(0,0,0,1),
-                        60,
+                        60.frame,
                         &Ease.linear
                     )
                 ),
-            ]),
+            ),
         ).onFinish(&this.finish);
     }
 }

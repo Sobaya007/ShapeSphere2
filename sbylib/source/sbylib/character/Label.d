@@ -11,13 +11,6 @@ import sbylib.character.Sentence;
 import std.typecons;
 import std.math;
 
-struct LetterInfo {
-    Font.LetterInfo info;
-    int pen;
-    dchar c;
-    alias info this;
-}
-
 class Label {
 
     alias entity this;
@@ -106,14 +99,14 @@ class Label {
     private void lineUp() {
         import std.array, std.algorithm, std.range;
         if (this.text.empty) return;
-        LetterInfo[][] rows;
+        Font.LetterInfo[][] rows;
         auto text = this.text;
         auto wrapWidth = this.wrapWidth * font.size / this.size;
         auto pen = 0;
         this.textByRow = null;
         while (!text.empty) {
             pen = 0;
-            LetterInfo[] infos;
+            Font.LetterInfo[] infos;
             dstring rowString;
             while (!text.empty) {
                 if (text.front == '\n') {
@@ -123,7 +116,7 @@ class Label {
                 }
                 auto info = font.getLetterInfo(text.front);
                 if (pen + info.advance > wrapWidth) break;
-                infos ~= LetterInfo(info, pen, text.front);
+                infos ~= info;
                 rowString ~= text.front;
                 text = text[1..$];
                 pen += info.advance;

@@ -33,14 +33,14 @@ class AnimationManager {
 }
 
 class AnimationProcedure {
-    private uint frame;
+    private Frame frame;
     private IAnimation animation;
  
     private Maybe!(void delegate()) finishCallback = None!(void delegate());
 
     this(IAnimation animation) {
         this.animation = animation;
-        this.frame = 0;
+        this.frame = 0.frame;
     }
 
     void onFinish(void delegate() finishCallback) {
@@ -56,11 +56,11 @@ class AnimationProcedure {
         }
     }
 
-    void finish() {
-        this.frame = this.animation.getPeriod + 1;
+    deprecated void finish() {
+        //this.frame = this.animation.getPeriod + 1;
     }
 
     bool hasFinished() {
-        return this.frame > this.animation.getPeriod;
+        return this.animation.done;
     }
 }

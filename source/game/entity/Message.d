@@ -49,30 +49,30 @@ class Message : CommandReceiver {
         float arrivalHeight = text.getHeight();
         this.img.scale = vec3(0);
         this.procedure = Just(AnimationManager().startAnimation(
-            sequence(cast(IAnimation[])[
-                new Animation!vec3(
+            sequence(
+                animation(
                     (vec3 scale) {
                         this.img.scale = scale * 1.1;
                     },
                     setting(
                         vec3(currentWidth, currentHeight,1),
                         vec3(arrivalWidth, arrivalHeight, 1),
-                        30,
+                        30.frame,
                         &Ease.easeInOut
                     )
                 ),
-                new Animation!float(
+                animation(
                     (float time) {
                         text.renderText(message[0..cast(int)time]);
                     },
                     setting(
                         0f,
                         message.length + 0.5f,
-                        cast(uint)(5 * message.length),
+                        (5 * message.length).frame,
                         &Ease.linear
                     )
                 )
-            ])
+            )
         ));
     }
 

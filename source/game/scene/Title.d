@@ -28,12 +28,12 @@ class Title : SceneProtoType {
 
     override void initialize() {
         AnimationManager().startAnimation(
-            sequence([
+            sequence(
                 fade(
                     setting(
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
-                        60,
+                        60.frame,
                         &Ease.linear
                     )
                 ),
@@ -41,7 +41,7 @@ class Title : SceneProtoType {
                     setting(
                         Radian(0.deg),
                         Radian(360.deg),
-                        60,
+                        60.frame,
                         &Ease.linear
                     )
                 ),
@@ -50,17 +50,17 @@ class Title : SceneProtoType {
                         setting(
                             vec4(0),
                             vec4(0.5),
-                            60,
+                            60.frame,
                             &Ease.linear
                         )
                     )).array
                 ),
-                multi([
+                multi(
                     this.selections[0].label.translate(
                         setting(
                             this.selections[0].label.pos.xy,
                             this.selections[0].basePos - vec2(0.05,0),
-                            10,
+                            10.frame,
                             &Ease.easeInOut
                         )
                     ),
@@ -68,12 +68,12 @@ class Title : SceneProtoType {
                         setting(
                             vec4(0.5),
                             vec4(1),
-                            10,
+                            10.frame,
                             &Ease.linear
                         )
                     )
-                ])
-            ])
+                )
+            )
         ).onFinish({
             addEvent(() => Controller().justPressed(CButton.Up), {
                 this.changeSelector(-1);
@@ -112,12 +112,12 @@ class Title : SceneProtoType {
 
         void select() {
             this.animation = Just(AnimationManager().startAnimation(
-                multi([
+                multi(
                     this.label.translate(
                         setting(
                             this.label.pos.xy,
                             basePos - vec2(0.05,0),
-                            10,
+                            10.frame,
                             &Ease.easeInOut
                         )
                     ),
@@ -125,11 +125,11 @@ class Title : SceneProtoType {
                         setting(
                             this.label.color,
                             vec4(1),
-                            10,
+                            10.frame,
                             &Ease.linear
                         )
                     )
-                ])
+                )
             ));
         }
 
@@ -138,12 +138,12 @@ class Title : SceneProtoType {
                 this.animation.get.finish();
             }
             this.animation = Just(AnimationManager().startAnimation(
-                multi([
+                multi(
                     this.label.translate(
                         setting(
                             this.label.pos.xy,
                             basePos,
-                            10,
+                            10.frame,
                             &Ease.easeInOut
                         )
                     ),
@@ -151,11 +151,11 @@ class Title : SceneProtoType {
                         setting(
                             this.label.color,
                             vec4(0.5),
-                            10,
+                            10.frame,
                             &Ease.linear
                         )
                     )
-                ])
+                )
             ));
         }
     }

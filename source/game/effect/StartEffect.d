@@ -18,8 +18,6 @@ class StartEffect : Effect {
         enum Y_DIV = H/FRAG_SIZE;
         auto mat = new StartEffectMaterial(ImageLoader.load(ImagePath("d.png")));
         mat.size = FRAG_SIZE * Core().getWindow.getHeight;
-        mat.config.faceMode = FaceMode.FrontBack;
-        GlFunction.enable(Capability.ProgramPointSize);
         VertexT[] vertices;
         foreach (i; 0..X_DIV) {
             auto u1 = i / X_DIV;
@@ -39,9 +37,16 @@ class StartEffect : Effect {
         auto geom = new GeometryTemp!([Attribute.Position, Attribute.UV], Prim.Point)(vertices);
         this.entity = makeEntity(geom, mat);
         Game.getWorld2D().add(entity);
+
+        AnimationManager().startAnimation(sequence(
+            animation((float alpha) => mat.textAlpha = alpha, setting(0.0f, 1.0f, 60.frame, &Ease.linear)),
+            animation(&po)
+        ));
     }
 
     override void step() {
+    }
+    void po(void delegate() kill) {
         foreach (ref frag; fragmentList) {
             frag.step();
         }
@@ -81,11 +86,16 @@ class StartEffect : Effect {
 
         private utexture texture;
         private ufloat size;
+        ufloat textAlpha;
 
         this(Image image) {
             mixin(autoAssignCode);
             super();
-            this.texture = generateTexture(image);
+            this.texture = new StringTexture(FontLoader.load(FontPath("meiryo.ttc"), 256), "test");
+            this.config.faceMode = FaceMode.FrontBack;
+            this.config.renderGroupName = "transparent";
+            this.config.depthTest = false;
+            GlFunction.enable(Capability.ProgramPointSize);
         }
     }
 }

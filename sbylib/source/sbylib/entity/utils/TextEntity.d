@@ -34,9 +34,9 @@ auto makeTextEntity(dstring text, float height) {
     return factory.make();
 }
 
-IAnimation colorAnimation(Label label, AnimSetting!vec4 evaluator) {
+auto colorAnimation(Label label, AnimSetting!vec4 evaluator) {
     return
-        new Animation!vec4((vec4 color) {
+        animation((vec4 color) {
             label.color = color;
         }, evaluator);
 }

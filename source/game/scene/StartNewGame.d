@@ -29,7 +29,7 @@ class StartNewGame : SceneProtoType {
                 setting(
                     vec4(0),
                     vec4(0,0,0,1),
-                    60,
+                    60.frame,
                     &Ease.linear
                 )
             )

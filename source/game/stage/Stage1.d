@@ -36,12 +36,15 @@ class Stage1 : Stage {
         import game.effect.Effect;
         import game.effect.StartEffect;
 
-        EffectManager().start(new StartEffect);
 
         debug {
             Core().getKey().justPressed(KeyButton.KeyL).add(&reload);
             Core().getKey().justPressed(KeyButton.KeyP).add({
                 Game.getPlayer().setCenter(this.area.debugPos);
+            });
+
+            Core().getKey().justPressed(KeyButton.KeyU).add({
+                EffectManager().start(new StartEffect);
             });
 
             Core().getKey().justPressed(KeyButton.KeyT).add({
@@ -126,7 +129,7 @@ class Stage1 : Stage {
                 setting(
                     vec4(0,0,0,0),
                     vec4(0,0,0,1),
-                    60,
+                    60.frame,
                     &Ease.linear
                 )
             )
@@ -145,7 +148,7 @@ class Stage1 : Stage {
                     setting(
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
-                        60,
+                        60.frame,
                         &Ease.linear
                     )
                 )
