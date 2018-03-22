@@ -138,10 +138,11 @@ class WorldSelection : Selectable {
     this(World world) {this.world = world;}
 
     override string[] childNames() {
-        return world.getEntities.filter!(e => e.getParent.isNone).map!(e => e.name).array;
+        return world.getEntities.filter!(e => e.getParent.isNone).map!(e => e.name).array ~ "camera";
     }
 
     override Selectable[] findChild(string name) {
+        if (name == "camera") return [cast(Selectable)new EntitySelection(world.getCamera)];
         return world.getEntities.filter!(e => e.getParent.isNone).filter!(e => e.name == name).map!(e => cast(Selectable)new EntitySelection(e)).array;
     }
 

@@ -95,6 +95,7 @@ debug class Console {
     ];
 
     private void handle(KeyButton key) {
+        scope (exit) text = text.tail(LINE_NUM);
         import std.ascii;
         auto shift = Core().getKey().isPressed(KeyButton.LeftShift) || Core().getKey().isPressed(KeyButton.RightShift);
         auto ctrl = Core().getKey().isPressed(KeyButton.LeftControl) || Core().getKey().isPressed(KeyButton.RightControl);
@@ -102,6 +103,9 @@ debug class Console {
             this.label.size *= 1.01;
         } else if (ctrl && shift && key == KeyButton.Minus) {
             this.label.size /= 1.01;
+        } else if (ctrl && key == KeyButton.KeyC) {
+            if (this.text.length <= 1) return;
+            Core().getClipboard().set(this.text[$-2].to!dstring);
         } else if (isPrintable(key)) {
 
             insertToCursor(getChar(key, shift));
@@ -159,7 +163,6 @@ debug class Console {
             text ~= output.reduce!commonPrefix;
             cursor = cast(int)text.back.length;
         }
-        text = text.tail(LINE_NUM);
     }
 
     private char getChar(KeyButton key, bool shift) {

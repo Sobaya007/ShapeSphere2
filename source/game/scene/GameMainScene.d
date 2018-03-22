@@ -12,7 +12,6 @@ class GameMainScene : SceneBase {
 
     mixin SceneBasePack;
 
-    private Label[] labels;
     private debug Console console;
 
     override void initialize() {
@@ -79,7 +78,7 @@ class GameMainScene : SceneBase {
         debug {
             /* FPS Observe */
             auto fpsCounter = new FpsCounter!100();
-            auto fpsLabel = addLabel();
+            auto fpsLabel = Game.addLabel();
             core.addProcess((proc) {
                 fpsCounter.update();
                 fpsLabel.renderText(format!"FPS: %3d"(fpsCounter.getFPS()).to!dstring);
@@ -88,9 +87,9 @@ class GameMainScene : SceneBase {
                 window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
             }, "fps update");
 
-            auto numberLabel3D = addLabel("world3d");
-            auto numberLabel2D = addLabel("world2d");
-            auto collisionCountLabel = addLabel("col");
+            auto numberLabel3D = Game.addLabel("world3d");
+            auto numberLabel2D = Game.addLabel("world2d");
+            auto collisionCountLabel = Game.addLabel("col");
             core.addProcess({
                 numberLabel3D.renderText(format!"World3D: %2d"(world3d.getEntityNum));
                 numberLabel2D.renderText(format!"World2D: %2d"(world2d.getEntityNum));
@@ -101,35 +100,36 @@ class GameMainScene : SceneBase {
             }, "label update");
 
             /* Control navigation */
-            addLabel("Esc: Finish Game");
-            addLabel("A/D: Rotate Camera");
-            addLabel("Space: Press Character");
-            addLabel("X: Transform to Needle");
-            addLabel("C: Transform to Spring");
-            addLabel("Z: Reset Camera");
-            addLabel("R: Look over");
-            addLabel("Arrow: Move");
-            addLabel("Enter: Talk to another Character");
-            addLabel("L: Reload Lights & Crystals");
-            addLabel("P: Warp to debug pos (written in JSON)");
-            addLabel("Q: Save current pos as debug pos");
-            addLabel("0: Warp to Origin");
-            addLabel("O: Reload Config");
-            addLabel("F: Toggle Fullscreen");
-            addLabel("T: Toggle Debug Wireframe");
-            addLabel("N: Toggle this message");
-            addLabel("I: Goto Console Mode");
+            Game.addLabel("Esc: Finish Game");
+            Game.addLabel("A/D: Rotate Camera");
+            Game.addLabel("Space: Press Character");
+            Game.addLabel("X: Transform to Needle");
+            Game.addLabel("C: Transform to Spring");
+            Game.addLabel("Z: Reset Camera");
+            Game.addLabel("R: Look over");
+            Game.addLabel("Arrow: Move");
+            Game.addLabel("Enter: Talk to another Character");
+            Game.addLabel("L: Reload Lights & Crystals");
+            Game.addLabel("P: Warp to debug pos (written in JSON)");
+            Game.addLabel("Q: Save current pos as debug pos");
+            Game.addLabel("0: Warp to Origin");
+            Game.addLabel("O: Reload Config");
+            Game.addLabel("F: Toggle Fullscreen");
+            Game.addLabel("T: Toggle Debug Wireframe");
+            Game.addLabel("N: Toggle this message");
+            Game.addLabel("I: Goto Console Mode");
+            Game.addLabel("J: Goto Fly Mode");
 
             /* Key Input */
             core.getKey().justPressed(KeyButton.KeyO).add({ConfigManager().load();});
             core.getKey().justPressed(KeyButton.Key0).add({player.setCenter(vec3(0));});
             core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
-            core.getKey().justPressed(KeyButton.KeyN).add({labels.each!(l => l.traverse!((Entity e) => e.visible = !e.visible));});
+            core.getKey().justPressed(KeyButton.KeyN).add({Game.toggleDebugLabel(); });
             core.getKey().justPressed(KeyButton.KeyI).add({console.on();});
+            core.getKey().justPressed(KeyButton.KeyJ).add({player.camera.fly();});
 
             /* Console */
             this.console = new Console;
-            this.labels ~= console;
             core.addProcess(&console.step, "console");
         } else {
             window.toggleFullScreen();
@@ -155,21 +155,5 @@ class GameMainScene : SceneBase {
         debug Game.stopTimer("render");
     }
 
-    debug Label addLabel(dstring text = "") {
-        auto factory = LabelFactory();
-        factory.text = text;
-        factory.strategy = Label.Strategy.Left;
-        factory.fontName = "meiryo.ttc";
-        factory.height = 0.06;
-        factory.backColor = vec4(vec3(1), 0.4);
-        auto label = factory.make();
-        label.left = -1;
-        label.top = 0.9 - labels.length * factory.height;
-        Game.getWorld2D().add(label);
-
-        labels ~= label;
-
-        return label;
-    }
 
 }

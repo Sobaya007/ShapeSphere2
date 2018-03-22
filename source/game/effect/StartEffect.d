@@ -108,11 +108,10 @@ class StartEffect : Effect {
             this.config.faceMode = FaceMode.FrontBack;
             this.config.renderGroupName = "transparent";
             this.config.depthTest = false;
-            //this.config.srcFactor = BlendFactor.SrcAlpha;
-            //this.config.dstFactor = BlendFactor.One;
+            this.config.srcFactor = BlendFactor.SrcAlpha;
+            this.config.dstFactor = BlendFactor.One;
             GlFunction.enable(Capability.ProgramPointSize);
             this.aspectRatio = texture.aspectRatio;
-            //this.aspectRatio = img.getWidth / img.getHeight;
         }
     }
 }

@@ -7,7 +7,7 @@ import game.camera.behavior;
 
 class CameraController {
 
-    alias BehaviorTypes = AliasSeq!(ChaseBehavior, ResetBehavior, LookOverBehavior, FocusBehavior);
+    alias BehaviorTypes = AliasSeq!(ChaseBehavior, ResetBehavior, LookOverBehavior, FocusBehavior, FlyBehavior);
 
     interface Behavior {
         void step();
@@ -67,6 +67,13 @@ class CameraController {
     void chase() {
         transit!(ChaseBehavior);
         // don't call initialize
+    }
+
+    debug void fly() {
+        auto fly = transit!(FlyBehavior);
+        fly.initialize();
+        import game.player.Controller;
+        Controller().available = false;
     }
 
     void reset() {

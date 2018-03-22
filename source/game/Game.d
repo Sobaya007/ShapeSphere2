@@ -25,6 +25,7 @@ static:
 
     private GameMainScene scene;
 
+    private debug Label[] debugLabels;
     private debug StopWatchLabel[] stopWatch;
 
     private debug class StopWatchLabel {
@@ -71,6 +72,30 @@ static:
             }
             return sum / history.length;
         }
+    }
+
+    debug Label addLabel(dstring text = "") {
+        auto factory = LabelFactory();
+        factory.text = text;
+        factory.strategy = Label.Strategy.Left;
+        factory.fontName = "meiryo.ttc";
+        factory.height = 0.06;
+        factory.backColor = vec4(vec3(1), 0.4);
+        auto label = factory.make();
+        label.left = -1;
+        label.top = 0.9 - debugLabels.length * factory.height;
+        Game.getWorld2D().add(label);
+
+        debugLabels ~= label;
+
+        return label;
+    }
+
+    debug void toggleDebugLabel() {
+        static bool visible = true;
+        visible = !visible;
+        debugLabels.each!(label => label.traverse((Entity e) { e.visible = visible; }));
+        stopWatch.each!(sw => sw.label.traverse((Entity e) { e.visible = visible; }));
     }
 
     void initialize(string[] args) {
