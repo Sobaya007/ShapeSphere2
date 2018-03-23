@@ -8,6 +8,7 @@ import game.Game;
 import game.character;
 import game.stage.crystalMine.StageMaterial;
 import game.stage.crystalMine.CrystalMaterial;
+import game.stage.crystalMine.component;
 import game.stage.Stage;
 import std.concurrency, std.typecons;
 import core.thread;
@@ -464,143 +465,7 @@ struct Shape {
     alias entity this;
 }
 
-struct Light {
 
-    private static PointLight[][Entity] _lights;
-
-    private JSONValue[] parent;
-    private size_t index;
-    private Entity lightEntity;
-
-    this(size_t index, JSONValue[] parent, Entity lightEntity) {
-        this.parent = parent;
-        this.index = index;
-        this.lightEntity = lightEntity;
-        this.pos = pos;
-        this.color = color;
-
-        this.light.pos.addChangeCallback({
-            this.pos = this.light.pos;
-        });
-    }
-
-    auto obj() {
-        return parent[index].object();
-    }
-
-    auto ref lights() {
-        if (lightEntity !in _lights) _lights[lightEntity] = [];
-        return _lights[lightEntity];
-    }
-    
-    auto light() {
-        while (lights.length <= index) {
-            auto light = new PointLight(pos, color);
-            lights ~= light;
-            lightEntity.addChild(light);
-        }
-        return lights[index];
-    }
-
-    vec3 pos() {
-        return vec3(obj["pos"].as!(float[]));
-    }
-
-    void pos(vec3 p) {
-        obj["pos"] = p.array[];
-        light.pos = pos;
-    }
-
-    vec3 color() {
-        return vec3(obj["color"].as!(float[]));
-    }
-
-    void color(vec3 c) {
-        obj["color"] = c.array[];
-        light.diffuse = c;
-    }
-
-    alias light this;
-}
-
-struct Crystal {
-    private size_t index;
-    private JSONValue[] parent;
-    private Entity crystalEntity;
-    private static Tuple!(Entity, PointLight)[][Entity] _reserved;
-
-    this(size_t index, JSONValue[] parent, Entity crystalEntity) {
-        this.index = index;
-        this.parent = parent;
-        this.crystalEntity = crystalEntity;
-
-        this.pos = pos;
-        this.color = color;
-    }
-
-    void create(size_t index) {
-        auto loaded = XLoader().load(ModelPath("crystal.x"));
-
-        auto entity = loaded.buildEntity(StageMaterialBuilder());
-        entity.buildCapsule();
-
-        auto light = new PointLight(vec3(0), vec3(0));
-        entity.addChild(light);
-
-        crystalEntity.addChild(entity);
-
-        reserved ~= tuple(entity, light);
-
-        auto parent = this.parent;
-        auto crystalEntity = this.crystalEntity;
-        entity.pos.addChangeCallback({
-            vec3 p = entity.pos;
-            Crystal(index, parent, crystalEntity).pos = p;
-        });
-    }
-
-    auto ref reserved() {
-        if (crystalEntity !in _reserved) _reserved[crystalEntity] = [];
-        return _reserved[crystalEntity];
-    }
-
-    Entity entity() {
-        while (reserved.length <= index) create(reserved.length);
-        return reserved[index][0];
-    }
-
-    PointLight light() {
-        while (reserved.length <= index) create(reserved.length);
-        return reserved[index][1];
-    }
-
-    auto obj() {
-        return parent[index].object();
-    }
-    
-    vec3 pos() {
-        return vec3(obj["pos"].as!(float[]));
-    }
-
-    void pos(vec3 p) {
-        obj["pos"] = p.array[];
-        entity.pos = pos;
-    }
-
-    vec3 color() {
-        return vec3(obj["color"].as!(float[]));
-    }
-
-    void color(vec3 p) {
-        obj["color"] = p.array[];
-        light.diffuse = color;
-    }
-
-    void remove() {
-        this.entity.remove();
-        this.entity.destroy();
-    }
-}
 
 struct Character {
     private size_t index;
@@ -657,18 +522,3 @@ struct Character {
     }
 }
 
-class StageMaterialBuilder : MaterialBuilder {
-
-    mixin Singleton;
-    override Material buildMaterial(immutable(XMaterial) xmat) {
-        import std.string;
-        if (xmat.name.startsWith("Crystal")) return new CrystalMaterial;
-        auto material = new StageMaterial();
-        material.diffuse = xmat.diffuse.xyz;
-        material.specular = xmat.specular;
-        material.ambient = vec4(xmat.ambient, 1.0);
-        material.power = xmat.power;
-        material.name = xmat.name;
-        return material;
-    }
-}

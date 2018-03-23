@@ -24,3 +24,20 @@ class StageMaterial : Material {
         this.power = 0.0f;
     }
 }
+
+class StageMaterialBuilder : MaterialBuilder {
+
+    mixin Singleton;
+    override Material buildMaterial(immutable(XMaterial) xmat) {
+        import std.string;
+        import game.stage.crystalMine.CrystalMaterial;
+        if (xmat.name.startsWith("Crystal")) return new CrystalMaterial;
+        auto material = new StageMaterial();
+        material.diffuse = xmat.diffuse.xyz;
+        material.specular = xmat.specular;
+        material.ambient = vec4(xmat.ambient, 1.0);
+        material.power = xmat.power;
+        material.name = xmat.name;
+        return material;
+    }
+}
