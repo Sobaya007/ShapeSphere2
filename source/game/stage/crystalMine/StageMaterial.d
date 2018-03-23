@@ -1,4 +1,4 @@
-module game.stage.StageMaterial;
+module game.stage.crystalMine.StageMaterial;
 
 import sbylib;
 

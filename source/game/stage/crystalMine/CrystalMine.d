@@ -1,4 +1,4 @@
-module game.stage.Stage1;
+module game.stage.crystalMine.CrystalMine;
 
 import std.json, std.algorithm, std.array, std.file, std.range;
 
@@ -6,13 +6,13 @@ import sbylib;
 
 import game.Game;
 import game.character;
-import game.stage.StageMaterial;
-import game.stage.CrystalMaterial;
+import game.stage.crystalMine.StageMaterial;
+import game.stage.crystalMine.CrystalMaterial;
 import game.stage.Stage;
 import std.concurrency, std.typecons;
 import core.thread;
 
-class Stage1 : Stage {
+class CrystalMine : Stage {
     private Area area;
 
     private bool paused;

@@ -188,7 +188,6 @@ class ElasticSphere : BaseSphere {
             colInfos.destroy();
         }
         foreach (colInfo; colInfos) {
-            import game.stage.Stage1;
             auto move = colInfo.getOther(this.elasticSphere2.entity).getUserData!(string);
             if (move.isNone) continue;
             auto next = move.get();
