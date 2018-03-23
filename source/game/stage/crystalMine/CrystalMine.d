@@ -7,16 +7,15 @@ import sbylib;
 import game.Game;
 import game.stage.crystalMine.StageMaterial;
 import game.stage.crystalMine.CrystalMaterial;
-import game.stage.crystalMine.component;
+import game.stage.crystalMine.component.Root;
 import game.stage.Stage;
 import std.concurrency, std.typecons;
 import core.thread;
 
 class CrystalMine : Stage {
 
-    import game.stage.crystalMine.component.Area;
-
-    private Area area;
+    private Root root;
+    alias root this;
 
     private bool paused;
 
@@ -24,18 +23,13 @@ class CrystalMine : Stage {
 
     private debug bool wireVisible = false;
 
-    enum path = "Resource/stage/Stage1.json";
-
-    private JSONValue root;
 
     private IViewport viewport;
     private Renderer renderer;
 
     this() {
-        this.root = parseJSON(readText(path)).object();
-        this.area = this.areas.find!(a => a.name == startArea).front;
-        Game.getWorld3D().add(this.area.entity);
-        this.area.load();
+
+        this.root = new Root;
 
         Core().addProcess(&step, "Stage1");
 
@@ -52,30 +46,10 @@ class CrystalMine : Stage {
         this.renderer = new Renderer;
     }
 
-    auto obj() {
-        return root.object();
-    }
-
-    string stageName() {
-        return obj["StageName"].str();
-    }
-
-    string startArea() {
-        return obj["StartArea"].str();
-    }
-
-    void startArea(string s) {
-        obj["StartArea"] = s;
-    }
-
-    auto areas() {
-        auto root = obj["Areas"].array;
-        return root.length.iota.map!(i => Area(i, root));
-    }
 
     void step() {
         if (!paused) {
-            this.area.step();
+            this.currentArea.step();
         }
     }
 
@@ -88,15 +62,15 @@ class CrystalMine : Stage {
     }
 
     override Entity getStageEntity() {
-        return this.area.stageEntity;
+        return this.currentArea.stageEntity;
     }
 
     override Entity getCharacterEntity() {
-        return this.area.characterEntity;
+        return this.currentArea.characterEntity;
     }
 
     override Entity getMoveEntity() {
-        return this.area.moveEntity;
+        return this.currentArea.moveEntity;
     }
 
     override void render() {
@@ -125,13 +99,8 @@ class CrystalMine : Stage {
         ).onFinish({
             assert(paused);
             paused = false;
-            Game.getWorld3D().remove(this.area.entity);
+            Game.getWorld3D().remove(this.currentArea.entity);
             PointLightManager().clear();
-            auto next = this.areas.find!(a => a.name == name).front;
-            Game.getWorld3D().add(next.entity);
-            Game.getPlayer().setCenter(vec3(0));
-            next.load();
-            this.area = next;
             AnimationManager().startAnimation(
                 new Animation!vec4(color => this.fadeRect.color = color,
                     setting(
@@ -147,25 +116,24 @@ class CrystalMine : Stage {
 
     void reload() {
         Core().addProcess((Process proc) {
-            this.root = parseJSON(readText(path)).object();
-            this.area = this.areas.find!(a => a.name == this.area.name).front;
+            this.root.reload();
             proc.kill();
         }, "stage update");
     }
 
     override void save() {
-        write(path, root.toJSON(true));
+        root.save();
     }
 
-    void addCrystal(vec3 pos) {
-        this.area.addCrystal(root[this.area.name], pos);
-        this.save();
-    }
+    //void addCrystal(vec3 pos) {
+    //    this.currentArea.addCrystal(root[this.currentArea.name], pos);
+    //    this.save();
+    //}
 
-    void addLight(vec3 pos) {
-        this.area.addLight(root[this.area.name], pos);
-        this.save();
-    }
+    //void addLight(vec3 pos) {
+    //    this.currentArea.addLight(root[this.currentArea.name], pos);
+    //    this.save();
+    //}
 
     private debug void addDebugActions() {
         import game.effect.Effect;
@@ -173,7 +141,7 @@ class CrystalMine : Stage {
 
         Core().getKey().justPressed(KeyButton.KeyL).add(&reload);
         Core().getKey().justPressed(KeyButton.KeyP).add({
-            Game.getPlayer().setCenter(this.area.debugPos);
+            Game.getPlayer().setCenter(this.currentArea.debugPos);
         });
 
         Core().getKey().justPressed(KeyButton.KeyU).add({
@@ -182,7 +150,7 @@ class CrystalMine : Stage {
 
         Core().getKey().justPressed(KeyButton.KeyT).add({
             wireVisible = !wireVisible;
-            this.area.entity.traverse((Entity e) {
+            this.currentArea.entity.traverse((Entity e) {
                 e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
                     mat => e.visible = wireVisible
                 );
@@ -191,12 +159,12 @@ class CrystalMine : Stage {
 
         Core().getKey().justPressed(KeyButton.KeyQ).add({
             auto pos = Game.getPlayer().getCenter();
-            this.area.debugPos = pos;
-            write(path, root.toJSON(true));
+            this.currentArea.debugPos = pos;
+            this.root.save();
         });
 
         Core().addProcess((proc) {
-            this.area.entity.traverse((Entity e) {
+            this.currentArea.entity.traverse((Entity e) {
                 e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
                     mat => e.visible = wireVisible
                 );
