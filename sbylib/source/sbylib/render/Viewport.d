@@ -55,22 +55,25 @@ class AutomaticViewport : IViewport {
         this.window = window;
         this.aspect = aspect;
 
-        this.window.addResizeCallback(() {
-            auto w = this.window.getWidth();
-            auto h = this.window.getHeight();
-            if(w > h * this.aspect) { //width is too big
-                w = cast(uint)(h * this.aspect);
-            } else { //height is too big
-                h = cast(uint)(w / this.aspect);
-            }
-            auto x = (this.window.getWidth() - w) / 2;
-            auto y = (this.window.getHeight() - h) / 2;
+        this.window.addResizeCallback(&onResize);
+        this.onResize();
+    }
 
-            this.x = x;
-            this.y = y;
-            this.w = w;
-            this.h = h;
-        });
+    private void onResize() {
+        auto w = this.window.getWidth();
+        auto h = this.window.getHeight();
+        if(w > h * this.aspect) { //width is too big
+            w = cast(uint)(h * this.aspect);
+        } else { //height is too big
+            h = cast(uint)(w / this.aspect);
+        }
+        auto x = (this.window.getWidth() - w) / 2;
+        auto y = (this.window.getHeight() - h) / 2;
+
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
     }
 
     override void set() {

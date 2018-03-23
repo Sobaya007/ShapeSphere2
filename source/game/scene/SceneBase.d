@@ -41,7 +41,7 @@ class SceneProtoType : SceneBase {
     }
 
     void addEntity(Entity entity) {
-        //this.world.add(entity);
+        this.world.add(entity);
     }
 }
 

@@ -25,15 +25,14 @@ class StartNewGame : SceneProtoType {
 
     override void initialize() {
         AnimationManager().startAnimation(
-            wait(1.frame),
-            //fade(
-            //    setting(
-            //        vec4(0,0,0,1),
-            //        vec4(0),
-            //        60.frame,
-            //        &Ease.linear
-            //    )
-            //)
+            fade(
+                setting(
+                    vec4(0,0,0,1),
+                    vec4(0),
+                    60.frame,
+                    &Ease.linear
+                )
+            )
         ).onFinish(&this.finish);
     }
 }
