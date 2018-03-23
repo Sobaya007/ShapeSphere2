@@ -2,6 +2,7 @@ module game.console.selections.EntitySelection;
 
 import sbylib;
 import game.console.selections.Selectable;
+import game.console.selections.MatrixSelection;
 import game.console.selections.VectorSelection;
 
 class EntitySelection : Selectable {
@@ -22,6 +23,8 @@ class EntitySelection : Selectable {
         import std.array : array;
 
         if (name == "pos") return [new VectorSelection(entity.pos)];
+        if (name == "rot") return [new MatrixSelection(entity.rot)];
+        if (name == "scale") return [new VectorSelection(entity.scale)];
         auto res = entity.getChildren.filter!(e => e.name == name).map!(e => cast(Selectable)new EntitySelection(e)).array;
         return res;
     }
