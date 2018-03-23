@@ -30,6 +30,8 @@ class CrystalMine : Stage {
     this() {
 
         this.root = new Root;
+        Game.getWorld3D().add(this.currentArea.entity);
+        Game.getPlayer().setCenter(vec3(0));
 
         Core().addProcess(&step, "Stage1");
 
@@ -100,6 +102,9 @@ class CrystalMine : Stage {
             assert(paused);
             paused = false;
             Game.getWorld3D().remove(this.currentArea.entity);
+            root.transit(name);
+            Game.getWorld3D().add(this.currentArea.entity);
+            Game.getPlayer().setCenter(vec3(0));
             PointLightManager().clear();
             AnimationManager().startAnimation(
                 new Animation!vec4(color => this.fadeRect.color = color,

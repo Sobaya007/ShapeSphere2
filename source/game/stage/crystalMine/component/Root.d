@@ -48,9 +48,6 @@ class Root {
 
     void transit(string name) {
         auto next = this.areas.find!(a => a.name == name).front;
-        import game.Game;
-        Game.getWorld3D().add(next.entity);
-        Game.getPlayer().setCenter(vec3(0));
         next.load();
         this.area = next;
     }
