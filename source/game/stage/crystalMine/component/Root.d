@@ -7,6 +7,7 @@ class Root {
     import std.algorithm : find;
     import sbylib;
     import game.stage.crystalMine.component.Area;
+    import game.stage.crystalMine.component.CameraMove;
 
     enum path = "Resource/stage/Stage1.json";
 
@@ -32,6 +33,10 @@ class Root {
 
     void startArea(string s) {
         obj["StartArea"] = s;
+    }
+
+    auto cameraMove() {
+        return CameraMove(obj["CameraMove"].object());
     }
 
     auto areas() {

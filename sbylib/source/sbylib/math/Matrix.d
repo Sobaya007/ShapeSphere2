@@ -44,6 +44,14 @@ public:
         foreach (ref el; this.element) el = e;
     }
 
+    this(T[] elements) in {
+        assert(elements.length == U * V);
+    } do {
+        foreach(i, e; elements) {
+            this[i/V,i%V] = e;
+        }
+    }
+
     this(T[U*V] elements...) {
         foreach(i, e; elements) {
             this[i/V,i%V] = e;
@@ -121,8 +129,8 @@ public:
         }
     }
 
-    Vector!(T,U) opBinary(string op)(Vector!(T,V) v) const {
-        Vector!(T,U) result;
+    Vector!(S,U) opBinary(string op, S)(Vector!(S,V) v) const {
+        Vector!(S,U) result;
         static if (op == "*") {
             mixin(multMVCode(U, V));
             return result;

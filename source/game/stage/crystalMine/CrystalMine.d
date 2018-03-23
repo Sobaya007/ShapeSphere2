@@ -50,6 +50,8 @@ class CrystalMine : Stage {
 
 
         debug addDebugActions;
+
+        Game.getPlayer().camera.trace(this.root.cameraMove.trail);
     }
 
 

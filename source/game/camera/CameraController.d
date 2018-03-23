@@ -7,7 +7,7 @@ import game.camera.behavior;
 
 class CameraController {
 
-    alias BehaviorTypes = AliasSeq!(ChaseBehavior, ResetBehavior, LookOverBehavior, FocusBehavior, FlyBehavior);
+    alias BehaviorTypes = AliasSeq!(ChaseBehavior, ResetBehavior, LookOverBehavior, FocusBehavior, FlyBehavior, TraceBehavior);
 
     interface Behavior {
         void step();
@@ -94,6 +94,11 @@ class CameraController {
         v.y = -1;
         v = normalize(v);
         focus.initialize(obj, v);
+    }
+
+    void trace(TraceBehavior.Trail[] trailList) {
+        auto trace = transit!(TraceBehavior);
+        trace.initialize(trailList);
     }
 
     void stopLookOver() {

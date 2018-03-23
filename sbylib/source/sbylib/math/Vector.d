@@ -17,7 +17,7 @@ alias Vector!(int,   3) vec3i;
 alias Vector!(int,   4) vec4i;
 
 //T型のS個のベクトル
-struct Vector(T, uint S) if (__traits(isArithmetic, T)) {
+struct Vector(T, uint S) {
 private:
     T[S] elements;
 public:
@@ -172,13 +172,15 @@ body {
             return false;
         }
     }
-    static Vector fromString(string str) { //===========================文字列からVectorを生成
-        Vector r;
-        auto strs = str.split[2].split(",");
-        foreach (int c, s; strs) {
-            r[c] = to!T(s);
+    static if (isBasicType!(T)) {
+        static Vector fromString(string str) { //===========================文字列からVectorを生成
+            Vector r;
+            auto strs = str.split[2].split(",");
+            foreach (int c, s; strs) {
+                r[c] = to!T(s);
+            }
+            return r;
         }
-        return r;
     }
 }
 
