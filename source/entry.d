@@ -6,6 +6,7 @@ import game.GameMain;
 import plot.Main;
 
 enum RunMode {
+    Scene,
     Game,
     Editor,
     Basic,
@@ -17,7 +18,6 @@ enum RunMode {
     Text,
     Clipboard,
     Plot,
-    Scene,
 };
 
 void run(RunMode mode, string[] args) {

@@ -77,11 +77,11 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
     void setValue(ConfigPath path, string name, JSONValue value) {
         if (this.path != path) return;
         if (this.name != name) return;
-        this.value = conv(value);
+        this.value = conv!(Type)(name, value);
         this.initialized = true;
     }
 
-    auto conv(JSONValue value) {
+    static Type conv(Type)(string name, JSONValue value) {
         switch (value.type) {
             case JSON_TYPE.FLOAT:
                 static if (isFloatingPoint!(Type)) {
@@ -122,8 +122,16 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
             case JSON_TYPE.ARRAY:
                 static if (isArray!(Type)) {
                     import std.algorithm : map;
-                    import std.arary;
-                    return this.value.array().map!(this.conv).array;
+                    import std.array;
+                    auto ar = value.array().map!(v => conv!(ForeachType!(Type))(name, v)).array;
+                    static if (isStaticArray!(Type)) {
+                        import std.format;
+                        assert(Type.length == ar.length, format!"Expected length is '%d', but %s's length is '%d'."(Type.length, name, ar.length));
+                        Type res = ar;
+                        return res;
+                    } else {
+                        return ar;
+                    }
                 } else {
                     break;
                 }
@@ -132,7 +140,7 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
                 assert(false, format!"Type '%s' is not allowed."(value.type));
         }
                 import std.format;
-        assert(false, format!"Expected Type is '%s', but %s's type is '%s'."(Type.stringof, this.name, value.type));
+        assert(false, format!"Expected Type is '%s', but %s's type is '%s'."(Type.stringof, name, value.type));
     }
 
     auto ref getValue() {
@@ -143,7 +151,7 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
         return this.value;
     }
 
-    static if (isCopyable!Type) {
+    static if (isBasicType!Type) {
         import std.typecons;
         mixin Proxy!(getValue);
     }

@@ -9,7 +9,9 @@ class LogoAnimation : SceneProtoType {
 
     private Entity image;
     this() {
-        this.image = makeImageEntity(ImagePath("uv.png"), 0.2, 0.2);
+        ImageEntityFactory factory;
+        factory.width = 1.8;
+        this.image = factory.make(ImagePath("traP.png"));
         super();
         addEntity(image);
     }
@@ -25,14 +27,7 @@ class LogoAnimation : SceneProtoType {
                         &Ease.linear
                     )
                 ),
-                image.rotate(
-                    setting(
-                        Radian(0.deg),
-                        Radian(360.deg),
-                        60.frame,
-                        &Ease.easeInOut
-                    )
-                ),
+                wait(60.frame),
                 fade(
                     setting(
                         vec4(0,0,0,0),

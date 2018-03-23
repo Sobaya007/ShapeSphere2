@@ -56,8 +56,9 @@ class AnimationProcedure {
         }
     }
 
-    deprecated void finish() {
-        //this.frame = this.animation.getPeriod + 1;
+    void finish() {
+        this.animation.finish();
+        this.finishCallback.apply!(f => f());
     }
 
     bool hasFinished() {

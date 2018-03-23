@@ -36,12 +36,11 @@ struct AnimSetting(T) {
 interface IAnimation {
     void eval(Frame);
     bool done();
+    void finish() out { assert(done); }
 }
 
 interface IAnimationWithPeriod : IAnimation {
-    void eval(Frame);
     Frame period();
-    bool done();
 }
 
 class Animation(T) : IAnimationWithPeriod {
@@ -67,7 +66,12 @@ class Animation(T) : IAnimationWithPeriod {
     }
 
     override bool done() {
-        return this.period < this.lastFrame;
+        return this.period <= this.lastFrame;
+    }
+
+    override void finish() {
+        this.eval(this.period);
+        this.lastFrame++;
     }
 }
 
@@ -101,6 +105,10 @@ class ManualAnimation : IAnimationWithPeriod {
         return resultedPeriod.getOrElse(long.max.frame);
     }
 
+    override void finish() {
+        this.isDone = true;
+    }
+
     private void kill() {
         this.isDone = true;
     }
@@ -120,11 +128,16 @@ class WaitAnimation : IAnimationWithPeriod {
     }
 
     override bool done() {
-        return lastFrame > period;
+        return period <= lastFrame;
     }
 
     override Frame period() {
         return _period;
+    }
+
+    override void finish() {
+        this.eval(period);
+        this.lastFrame++;
     }
 }
 
@@ -137,7 +150,7 @@ class MultiAnimation(Base) : Base {
     }
 
     override void eval(Frame frame) {
-        foreach (anim; this.animations) {
+        foreach (anim; this.animations.filter!(a => !a.done)) {
             anim.eval(frame);
         }
     }
@@ -150,6 +163,10 @@ class MultiAnimation(Base) : Base {
         override Frame period() {
             return this.animations.map!(a => a.period).maxElement;
         }
+    }
+
+    override void finish() {
+        this.animations.filter!(a => !a.done).each!(a => a.finish());
     }
 }
 
@@ -177,6 +194,10 @@ class SequenceAnimation : IAnimationWithPeriod {
 
     override bool done() {
         return this.animations.all!(a => a.done);
+    }
+
+    override void finish() {
+        this.animations.filter!(a => !a.done).each!(a => a.finish());
     }
 }
 
@@ -213,8 +234,13 @@ auto multi(Animations...)(Animations animations) {
         alias BaseType = IAnimation;
     }
     BaseType[] args;
-    foreach (a; animations) {
-        args ~= a;
+    static foreach (a; animations) {
+        static if (isArray!(typeof(a))) {
+            foreach (x; a) args ~= x;
+        } else {
+            args ~= a;
+        }
+
     }
     return new MultiAnimation!(BaseType)(args);
 }

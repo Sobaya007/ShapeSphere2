@@ -37,23 +37,17 @@ class Title : SceneProtoType {
                         &Ease.linear
                     )
                 ),
-                text.rotate(
-                    setting(
-                        Radian(0.deg),
-                        Radian(360.deg),
-                        60.frame,
-                        &Ease.linear
-                    )
-                ),
-                multi(selections.map!(s =>
-                    s.label.colorAnimation(
-                        setting(
-                            vec4(0),
-                            vec4(0.5),
-                            60.frame,
-                            &Ease.linear
+                multi(
+                    selections.map!(s =>
+                        s.label.colorAnimation(
+                            setting(
+                                vec4(0),
+                                vec4(0.5),
+                                60.frame,
+                                &Ease.linear
+                            )
                         )
-                    )).array
+                    ).array
                 ),
                 multi(
                     this.selections[0].label.translate(

@@ -33,7 +33,7 @@ class StringTexture {
     void setBuffer(Font.LetterInfo[] infos) {
         import std.algorithm, std.range;
         if (infos.empty) return;
-        auto totalWidth = infos.map!(i=>i.advance).sum + infos.back.offsetX + infos.back.width;
+        auto totalWidth = infos.map!(i=>i.advance).sum;
         auto minHeight = infos.map!(i => i.maxHeight).maxElement;
         auto maxHeight = infos.map!(i => i.maxHeight).maxElement;
         //assert(minHeight == maxHeight);

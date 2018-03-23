@@ -24,7 +24,10 @@ class Message : CommandReceiver {
         this.text = factory.make();
         text.pos.z = -0.5;
 
-        this.img = makeImageEntity(ImagePath("message.png"), 1, 1);
+        ImageEntityFactory imageFactory;
+        imageFactory.width = 1;
+        imageFactory.height = 1;
+        this.img = imageFactory.make(ImagePath("message.png"));
 
         this.entity = new Entity();
         this.entity.addChild(text);

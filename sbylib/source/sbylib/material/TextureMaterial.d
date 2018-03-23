@@ -10,16 +10,20 @@ class TextureMaterial : Material {
     mixin declare;
 
     utexture texture;
+    ufloat alpha;
 
     this() {
         mixin(autoAssignCode);
         super();
+
+        this.alpha = 1;
     }
 
     this(Texture texture) {
         mixin(autoAssignCode);
         super();
         this.texture = texture;
+        this.alpha = 1;
     }
 
     this(Image image) {

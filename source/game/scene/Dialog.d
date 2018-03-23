@@ -11,24 +11,47 @@ class Dialog(dstring explainMessage) : SceneProtoType {
     private Label explain;
     private Selection[2] selections;
     private bool hasSelectorMoved;
+    private bool canSelect;
     private uint selector;
-    Entity main;
+    ImageEntity main;
+    
+    private mixin DeclareConfig!(float, "DIALOG_WIDTH", "dialog.json");
+    private mixin DeclareConfig!(float, "DIALOG_HEIGHT", "dialog.json");
+    private mixin DeclareConfig!(float, "TEXT_TOP", "dialog.json");
+    private mixin DeclareConfig!(float, "TEXT_SIZE", "dialog.json");
+    private mixin DeclareConfig!(float[3], "YES_COLOR", "dialog.json");
+    private mixin DeclareConfig!(float[3], "NO_COLOR", "dialog.json");
+    private mixin DeclareConfig!(float, "SELECTION_SIZE", "dialog.json");
+    private mixin DeclareConfig!(float, "SELECTION_X", "dialog.json");
+    private mixin DeclareConfig!(float, "SELECTION_Y", "dialog.json");
+    private mixin DeclareConfig!(uint, "PROGRESS_PERIOD", "dialog.json");
 
     this() {
         super();
-        this.main = makeColorEntity(vec4(1,1,1,0.5), 1.5, 1.5);
+        {
+            ImageEntityFactory factory;
+            factory.width = DIALOG_WIDTH;
+            factory.height = DIALOG_HEIGHT;
+            this.main = factory.make(ImagePath("message.png"));
+        }
 
-        this.explain = makeTextEntity(explainMessage,0.3);
-        this.explain.top = 0.8;
-        this.main.addChild(this.explain);
+        {
+            LabelFactory factory;
+            factory.text = explainMessage;
+            factory.height = TEXT_SIZE;
+            factory.wrapWidth = 1.2;
+            this.explain = factory.make();
+            this.explain.top = TEXT_TOP;
+            this.main.addChild(this.explain);
+        }
 
         this.selections = [
-            Selection("YES", vec2(-0.4, -0.2), vec3(1, 0.5, 0.5)),
-            Selection("NO",  vec2(+0.4, -0.2), vec3(0.5, 0.5, 1)),
+            new Selection("YES", vec2(-SELECTION_X, SELECTION_Y), vec3(YES_COLOR)),
+            new Selection("NO",  vec2(+SELECTION_X, SELECTION_Y), vec3(NO_COLOR)),
         ];
 
-        this.main.addChild(this.selections[0].label);
-        this.main.addChild(this.selections[1].label);
+        this.main.addChild(this.selections[0]);
+        this.main.addChild(this.selections[1]);
 
         addEntity(main);
 
@@ -36,19 +59,50 @@ class Dialog(dstring explainMessage) : SceneProtoType {
         addEvent(() => Controller().justPressed(CButton.Right), {changeSelector(+1);});
         addEvent(() => Controller().justPressed(CButton.Decide), {
             if (!this.hasSelectorMoved) return;
-            this.select(this.selector);
+            this.canSelect = false;
+            AnimationManager().startAnimation(
+                fade(
+                    setting(
+                        vec4(0),
+                        vec4(0,0,0,1),
+                        180.frame,
+                        &Ease.linear
+                    )
+                )
+            ).onFinish({
+                this.select(this.selector);
+            });
         });
     }
 
     override void initialize() {
         this.hasSelectorMoved = false;
+        this.canSelect = false;
         this.selector = 0;
+        this.selections[0].material.progress = 0;
+        this.selections[1].material.progress = 0;
 
-        this.selections[0].label.color = vec4(1,0.5,0.5,1) * 0.5;
-        this.selections[1].label.color = vec4(0.5,0.5,1,1) * 0.5;
+        AnimationManager().startAnimation(
+            animation(
+                (float a) { 
+                    this.main.alpha = a;
+                    this.explain.color = vec4(vec3(0), a);
+                    this.selections[0].label.color = vec4(0.4) * a;
+                    this.selections[1].label.color = vec4(0.4) * a;
+                },
+                setting(
+                    0.0f,
+                    1.0f,
+                    30.frame,
+                    &Ease.easeInOut
+                )
+            ),
+        ).onFinish({ this.canSelect = true;});
+
     }
 
     void changeSelector(int d) {
+        if (!canSelect) return;
         if (hasSelectorMoved) {
             this.selections[this.selector].unselect();
         }
@@ -59,45 +113,101 @@ class Dialog(dstring explainMessage) : SceneProtoType {
         this.hasSelectorMoved = true;
     }
 
-    struct Selection {
+    class Selection {
+        Entity box;
         private Label label;
         private vec3 color;
-        private Maybe!AnimationProcedure animation;
+        private Maybe!AnimationProcedure anim;
+        private DialogSelectionMaterial material;
+
+        alias box this;
 
         this(dstring text, vec2 pos, vec3 color) {
             this.color = color;
-            this.label = makeTextEntity(text, 0.2);
-            this.label.pos = vec3(pos, 0);
-            this.label.color = vec4(color, 1);
+            {
+                LabelFactory factory;
+                factory.text = text;
+                factory.height = SELECTION_SIZE;
+                factory.textColor = vec4(0.8);
+                this.label = factory.make();
+                this.label.pos.z = 0.2;
+            }
+            {
+                this.material = new DialogSelectionMaterial;
+                this.material.size = vec2(this.label.getWidth, this.label.getHeight);
+                this.material.color = color;
+                this.box = makeEntity(Rect.create(this.label.getWidth * 1.2, this.label.getHeight * 1.2), material);
+                this.box.pos = vec3(pos, 0.1);
+                this.box.addChild(this.label);
+            }
         }
 
         void select() {
-            this.animation = Just(AnimationManager().startAnimation(
-                this.label.colorAnimation(
-                    setting(
-                        this.label.color,
-                        vec4(color, 1),
-                        10.frame,
-                        &Ease.linear
+            this.anim = Just(AnimationManager().startAnimation(
+                multi(
+                    this.label.colorAnimation(
+                        setting(
+                            this.label.color,
+                            vec4(vec3(0.1), 1),
+                            10.frame,
+                            &Ease.linear
+                        )
+                    ),
+                    animation(
+                        (float p) { this.material.progress = p; },
+                        setting(
+                            0.0f,
+                            1.0f,
+                            PROGRESS_PERIOD.frame,
+                            &Ease.linear
+                        )
                     )
                 )
             ));
         }
 
         void unselect() {
-            if (this.animation.isJust) {
-                this.animation.get.finish();
+            if (this.anim.isJust) {
+                this.anim.get.finish();
             }
-            this.animation = Just(AnimationManager().startAnimation(
-                this.label.colorAnimation(
-                    setting(
-                        this.label.color,
-                        vec4(color * 0.5, 1),
-                        10.frame,
-                        &Ease.linear
+            this.anim = Just(AnimationManager().startAnimation(
+                multi(
+                    this.label.colorAnimation(
+                        setting(
+                            this.label.color,
+                            vec4(0.4),
+                            10.frame,
+                            &Ease.linear
+                        )
+                    ),
+                    animation(
+                        (float p) { this.material.progress = p;},
+                        setting(
+                            1.0f,
+                            0.0f,
+                            PROGRESS_PERIOD.frame,
+                            &Ease.linear
+                        )
                     )
                 )
             ));
+        }
+
+        class DialogSelectionMaterial : Material {
+            
+            mixin declare;
+
+            ufloat progress;
+            uvec2 size;
+            uvec3 color;
+            int id;
+
+            this() {
+                mixin(autoAssignCode);
+                super();
+
+                this.progress = 0;
+            }
         }
     }
 }

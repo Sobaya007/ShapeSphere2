@@ -17,7 +17,7 @@ void sceneExample(string[] args) {
     screen.setClearColor(vec4(0.2));
 
 
-    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
+    debug core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
 
 
     core.addProcess(&AnimationManager().step, "Animation Manager");
@@ -49,13 +49,13 @@ void setGameTransition(string[] args) {
             ),
             Title(
                 onSelect([
-                    over!(Dialog!"Test2")(
+                    over!(Dialog!"新規ゲームを開始してよろしいですか？")(
                         onSelect([
                             move!StartNewGame,
                             pop
                         ])
                     ),
-                    over!(Dialog!"Test2")(
+                    over!(Dialog!"続きからでよろしいですか？")(
                         onSelect([
                             move!SelectSaveData,
                             pop
@@ -76,8 +76,8 @@ void setGameTransition(string[] args) {
                 onFinish(
                     move!Stage
                 )
-            ),
+            )
         );
-        launch!(LogoAnimation);
+        launch!(StartNewGame);
     }
 }
