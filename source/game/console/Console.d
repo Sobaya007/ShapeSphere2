@@ -12,6 +12,7 @@ debug class Console {
     Label label;
     private string[] text;
     private string[] history;
+    private string lastOutput; // for copy
     private int cursor, historyCursor;
 
     alias label this;
@@ -104,8 +105,7 @@ debug class Console {
         } else if (ctrl && shift && key == KeyButton.Minus) {
             this.label.size /= 1.01;
         } else if (ctrl && key == KeyButton.KeyC) {
-            if (this.text.length <= 1) return;
-            Core().getClipboard().set(this.text[$-2].to!dstring);
+            Core().getClipboard().set(lastOutput.to!dstring);
         } else if (isPrintable(key)) {
 
             insertToCursor(getChar(key, shift));
@@ -182,6 +182,7 @@ debug class Console {
             .array;
         text ~= "";
         cursor = 0;
+        this.lastOutput = strs.join("\n");
     }
 
     private void pushHistory(string command) {
