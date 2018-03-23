@@ -25,6 +25,6 @@ bool po() {
 }
 
 void main() {
-    if (po()) gl_FragColor = color;
+    if (po()) fragColor = color;
     else discard;
 }

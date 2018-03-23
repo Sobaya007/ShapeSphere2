@@ -25,9 +25,15 @@ class StartEffect : Effect {
         const H = W / mat.aspectRatio;
         auto X_DIV = W/FRAG_WIDTH;
         auto Y_DIV = H/FRAG_HEIGHT;
-        mat.fragWidth = FRAG_WIDTH/W;
-        mat.fragHeight = FRAG_HEIGHT/H;
-        mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
+        debug {
+	    mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
+            mat.fragWidth = FRAG_WIDTH/W;
+            mat.fragHeight = FRAG_HEIGHT/H;
+	} else {
+	    mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 1.0;
+            mat.fragWidth = FRAG_WIDTH/W * 2;
+            mat.fragHeight = FRAG_HEIGHT/H * 2;
+	}
 
         VertexT[] vertices;
         foreach (i; 0..X_DIV) {
