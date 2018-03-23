@@ -9,8 +9,6 @@ import game.stage.crystalMine.StageMaterial;
 import game.stage.crystalMine.CrystalMaterial;
 import game.stage.crystalMine.component.Root;
 import game.stage.Stage;
-import std.concurrency, std.typecons;
-import core.thread;
 
 class CrystalMine : Stage {
 
@@ -29,13 +27,19 @@ class CrystalMine : Stage {
 
     this() {
 
+
+        this.viewport = new AutomaticViewport(Core().getWindow);
+        this.renderer = new Renderer;
+
+
+        Core().getWindow().getScreen().setClearColor(vec4(0,0,0,1));
+        Game.getWorld3D().addRenderGroup("Crystal", new TransparentRenderGroup(Game.getWorld3D().getCamera()));
+
+
         this.root = new Root;
         Game.getWorld3D().add(this.currentArea.entity);
         Game.getPlayer().setCenter(vec3(0));
 
-        Core().addProcess(&step, "Stage1");
-
-        debug addDebugActions;
 
         this.fadeRect = makeColorEntity(vec4(0), 2,2);
         this.fadeRect.config.renderGroupName = "transparent";
@@ -44,12 +48,12 @@ class CrystalMine : Stage {
         this.fadeRect.name = "Fade Rect";
         Game.getWorld2D().add(this.fadeRect);
 
-        this.viewport = new AutomaticViewport(Core().getWindow);
-        this.renderer = new Renderer;
+
+        debug addDebugActions;
     }
 
 
-    void step() {
+    override void step() {
         if (!paused) {
             this.currentArea.step();
         }
@@ -76,7 +80,6 @@ class CrystalMine : Stage {
     }
 
     override void render() {
-        auto scene = Game.getScene();
         auto screen = Core().getWindow().getScreen();
         renderer.render(Game.getWorld3D(), screen, viewport, "regular");
         renderer.render(Game.getWorld3D(), screen, viewport, "transparent");

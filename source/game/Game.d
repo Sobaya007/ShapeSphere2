@@ -189,6 +189,7 @@ static:
 
     void update() {
         commandManager.update();
+        map.step();
     }
 
     private ICommandManager selectCommandManager(string[] args) {

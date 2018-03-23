@@ -15,28 +15,12 @@ class GameMainScene : SceneBase {
     private debug Console console;
 
     override void initialize() {
-        /* Core Settings */
-        auto core = Core();
-        auto window = core.getWindow();
-        auto screen = window.getScreen();
-        auto world2d = Game.getWorld2D();
-        auto world3d = Game.getWorld3D();
-
-
-        screen.setClearColor(vec4(0,0,0,1));
 
 
         /* Camera Settings */
         Camera camera = new PerspectiveCamera(1, 60.deg, 0.1, 200);
-        camera.pos = vec3(3, 2, 9);
-        camera.lookAt(vec3(0,2,0));
-        world3d.setCamera(camera);
-
-
-        world3d.addRenderGroup("Crystal", new TransparentRenderGroup(camera));
-
-
-        world2d.setCamera(new OrthoCamera(2,2,-1,1));
+        Game.getWorld3D().setCamera(camera);
+        Game.getWorld2D().setCamera(new OrthoCamera(2,2,-1,1));
 
 
         Game.initializeScene(this);
@@ -46,7 +30,7 @@ class GameMainScene : SceneBase {
         Game.initializePlayer(camera);
         auto player = Game.getPlayer();
         Game.getCommandManager().setReceiver(player);
-        core.addProcess(&Game.update, "game update");
+        Core().addProcess(&Game.update, "game update");
 
 
         /* Map Settings */
@@ -57,7 +41,7 @@ class GameMainScene : SceneBase {
         debug {
             addDebugMessages();
         } else {
-            window.toggleFullScreen();
+            Core().getWindow().toggleFullScreen();
         }
 
         debug Game.startTimer("Total");
