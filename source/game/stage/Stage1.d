@@ -25,6 +25,9 @@ class Stage1 : Stage {
 
     private JSONValue root;
 
+    private IViewport viewport;
+    private Renderer renderer;
+
     this() {
         this.root = parseJSON(readText(path)).object();
         this.area = this.areas.find!(a => a.name == startArea).front;
@@ -33,43 +36,7 @@ class Stage1 : Stage {
 
         Core().addProcess(&step, "Stage1");
 
-        import game.effect.Effect;
-        import game.effect.StartEffect;
-
-
-        debug {
-            Core().getKey().justPressed(KeyButton.KeyL).add(&reload);
-            Core().getKey().justPressed(KeyButton.KeyP).add({
-                Game.getPlayer().setCenter(this.area.debugPos);
-            });
-
-            Core().getKey().justPressed(KeyButton.KeyU).add({
-                EffectManager().start(new StartEffect(this.stageName));
-            });
-
-            Core().getKey().justPressed(KeyButton.KeyT).add({
-                wireVisible = !wireVisible;
-                this.area.entity.traverse((Entity e) {
-                    e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
-                        mat => e.visible = wireVisible
-                    );
-                });
-            });
-
-            Core().getKey().justPressed(KeyButton.KeyQ).add({
-                auto pos = Game.getPlayer().getCenter();
-                this.area.debugPos = pos;
-                write(path, root.toJSON(true));
-            });
-
-            Core().addProcess((proc) {
-                this.area.entity.traverse((Entity e) {
-                    e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
-                        mat => e.visible = wireVisible
-                    );
-                });
-            }, "po");
-        }
+        debug addDebugActions;
 
         this.fadeRect = makeColorEntity(vec4(0), 2,2);
         this.fadeRect.config.renderGroupName = "transparent";
@@ -77,6 +44,9 @@ class Stage1 : Stage {
         this.fadeRect.pos.z = 1;
         this.fadeRect.name = "Fade Rect";
         Game.getWorld2D().add(this.fadeRect);
+
+        this.viewport = new AutomaticViewport(Core().getWindow);
+        this.renderer = new Renderer;
     }
 
     auto obj() {
@@ -124,6 +94,18 @@ class Stage1 : Stage {
 
     override Entity getMoveEntity() {
         return this.area.moveEntity;
+    }
+
+    override void render() {
+        auto scene = Game.getScene();
+        auto screen = Core().getWindow().getScreen();
+        renderer.render(Game.getWorld3D(), screen, viewport, "regular");
+        renderer.render(Game.getWorld3D(), screen, viewport, "transparent");
+        screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
+        renderer.render(Game.getWorld3D(), screen, viewport, "Crystal");
+        screen.clear(ClearMode.Depth);
+        renderer.render(Game.getWorld2D(), screen, viewport, "regular");
+        renderer.render(Game.getWorld2D(), screen, viewport, "transparent");
     }
 
     override void transit(string name) {
@@ -180,6 +162,43 @@ class Stage1 : Stage {
     void addLight(vec3 pos) {
         this.area.addLight(root[this.area.name], pos);
         this.save();
+    }
+
+    private debug void addDebugActions() {
+        import game.effect.Effect;
+        import game.effect.StartEffect;
+
+        Core().getKey().justPressed(KeyButton.KeyL).add(&reload);
+        Core().getKey().justPressed(KeyButton.KeyP).add({
+            Game.getPlayer().setCenter(this.area.debugPos);
+        });
+
+        Core().getKey().justPressed(KeyButton.KeyU).add({
+            EffectManager().start(new StartEffect(this.stageName));
+        });
+
+        Core().getKey().justPressed(KeyButton.KeyT).add({
+            wireVisible = !wireVisible;
+            this.area.entity.traverse((Entity e) {
+                e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
+                    mat => e.visible = wireVisible
+                );
+            });
+        });
+
+        Core().getKey().justPressed(KeyButton.KeyQ).add({
+            auto pos = Game.getPlayer().getCenter();
+            this.area.debugPos = pos;
+            write(path, root.toJSON(true));
+        });
+
+        Core().addProcess((proc) {
+            this.area.entity.traverse((Entity e) {
+                e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
+                    mat => e.visible = wireVisible
+                );
+            });
+        }, "po");
     }
 }
 

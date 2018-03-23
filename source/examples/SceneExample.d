@@ -17,9 +17,6 @@ void sceneExample(string[] args) {
     screen.setClearColor(vec4(0.2));
 
 
-    debug core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
-
-
     core.addProcess(&AnimationManager().step, "Animation Manager");
 
 
