@@ -22,9 +22,9 @@ class EntitySelection : Selectable {
         import std.algorithm : filter, map;
         import std.array : array;
 
-        if (name == "pos") return [new VectorSelection(entity.pos)];
+        if (name == "pos") return [new VectorSelection!true(entity.pos)];
         if (name == "rot") return [new MatrixSelection(entity.rot)];
-        if (name == "scale") return [new VectorSelection(entity.scale)];
+        if (name == "scale") return [new VectorSelection!true(entity.scale)];
         auto res = entity.getChildren.filter!(e => e.name == name).map!(e => cast(Selectable)new EntitySelection(e)).array;
         return res;
     }

@@ -3,9 +3,16 @@ module game.console.selections.FloatSelection;
 import sbylib;
 import game.console.selections.Selectable;
 
-class FloatSelection : Selectable {
-    private ChangeObserved!(float*) elem;
-    this(ChangeObserved!(float*) elem) {this.elem = elem;}
+class FloatSelection(bool CanAssign) : Selectable {
+
+    static if (CanAssign) {
+        alias T = ChangeObserved!(float*);
+    } else {
+        alias T = float;
+    }
+
+    private T elem;
+    this(T elem) {this.elem = elem;}
 
     override string[] childNames() {
         return null;
@@ -17,7 +24,11 @@ class FloatSelection : Selectable {
 
     override string getInfo() {
         import std.conv;
-        return elem.get.to!string;
+        static if (CanAssign) {
+            return elem.get.to!string;
+        } else {
+            return elem.to!string;
+        }
     }
 
     override Maybe!string order(string) {
@@ -29,9 +40,13 @@ class FloatSelection : Selectable {
         import std.string : strip;
         import std.format;
 
-        auto value = val.strip.to!float;
-        scope (failure) return format!"Cannot interpret '%s' as <float>"(val.strip);
-        elem = value;
-        return getInfo();
+        static if (CanAssign) {
+            auto value = val.strip.to!float;
+            scope (failure) return format!"Cannot interpret '%s' as <float>"(val.strip);
+            elem = value;
+            return getInfo();
+        } else {
+            return "Cannot assign to this <float>";
+        }
     }
 }
