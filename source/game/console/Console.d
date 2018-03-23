@@ -1,8 +1,8 @@
-module game.Console;
+module game.console.Console;
 
 import sbylib;
 import game.Game;
-import game.ConsoleSelection;
+import game.console.selections;
 import std.algorithm, std.range, std.string, std.array, std.conv, std.regex, std.stdio;
 
 debug class Console {
