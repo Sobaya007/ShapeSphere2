@@ -75,6 +75,6 @@ void setGameTransition(string[] args) {
                 )
             )
         );
-        launch!(StartNewGame);
+        launch!(LogoAnimation);
     }
 }

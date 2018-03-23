@@ -4,7 +4,7 @@ require UV as vec2 uv;
 
 uniform float progress;
 uniform vec2 size;
-uniform vec3 color;
+uniform vec4 color;
 
 bool po() {
     float BORDER_Y = 0.1;
@@ -25,6 +25,6 @@ bool po() {
 }
 
 void main() {
-    if (po()) gl_FragColor = vec4(color, 1);
+    if (po()) gl_FragColor = color;
     else discard;
 }

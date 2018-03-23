@@ -59,17 +59,31 @@ class Dialog(dstring explainMessage) : SceneProtoType {
         addEvent(() => Controller().justPressed(CButton.Right), {changeSelector(+1);});
         addEvent(() => Controller().justPressed(CButton.Decide), {
             if (!this.hasSelectorMoved) return;
+            IAnimation anim;
+            if (this.selector == 0) {
+                anim = 
+                    fade(
+                        setting(
+                            vec4(0),
+                            vec4(0,0,0,1),
+                            180.frame,
+                            &Ease.linear
+                        )
+                    );
+            } else {
+                anim = 
+                    alphaAnimation(
+                        setting(
+                            1.0f,
+                            0.0f,
+                            20.frame,
+                            &Ease.easeInOut
+                        )
+                    );
+            }
             this.canSelect = false;
-            AnimationManager().startAnimation(
-                fade(
-                    setting(
-                        vec4(0),
-                        vec4(0,0,0,1),
-                        180.frame,
-                        &Ease.linear
-                    )
-                )
-            ).onFinish({
+            AnimationManager().startAnimation(anim)
+            .onFinish({
                 this.select(this.selector);
             });
         });
@@ -83,20 +97,14 @@ class Dialog(dstring explainMessage) : SceneProtoType {
         this.selections[1].material.progress = 0;
 
         AnimationManager().startAnimation(
-            animation(
-                (float a) { 
-                    this.main.alpha = a;
-                    this.explain.color = vec4(vec3(0), a);
-                    this.selections[0].label.color = vec4(0.4) * a;
-                    this.selections[1].label.color = vec4(0.4) * a;
-                },
+            alphaAnimation(
                 setting(
                     0.0f,
                     1.0f,
                     30.frame,
                     &Ease.easeInOut
                 )
-            ),
+            )
         ).onFinish({ this.canSelect = true;});
 
     }
@@ -114,7 +122,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
     }
 
     class Selection {
-        Entity box;
+        TypedEntity!(GeometryRect, DialogSelectionMaterial) box;
         private Label label;
         private vec3 color;
         private Maybe!AnimationProcedure anim;
@@ -135,7 +143,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
             {
                 this.material = new DialogSelectionMaterial;
                 this.material.size = vec2(this.label.getWidth, this.label.getHeight);
-                this.material.color = color;
+                this.material.color = vec4(color, 0);
                 this.box = makeEntity(Rect.create(this.label.getWidth * 1.2, this.label.getHeight * 1.2), material);
                 this.box.pos = vec3(pos, 0.1);
                 this.box.addChild(this.label);
@@ -199,7 +207,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
 
             ufloat progress;
             uvec2 size;
-            uvec3 color;
+            uvec4 color;
             int id;
 
             this() {
@@ -209,5 +217,19 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                 this.progress = 0;
             }
         }
+    }
+
+    private auto alphaAnimation(AnimSetting!float setting) {
+        return animation(
+            (float a) { 
+                this.main.alpha = a;
+                this.explain.color = vec4(vec3(0), a);
+                this.selections[0].label.color = vec4(0.4) * a;
+                this.selections[1].label.color = vec4(0.4) * a;
+                this.selections[0].box.color.a = a;
+                this.selections[1].box.color.a = a;
+            },
+            setting
+        );
     }
 }

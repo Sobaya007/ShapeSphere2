@@ -15,7 +15,7 @@ class Title : SceneProtoType {
     private uint selector = 0;
 
     this() {
-        this.text = makeTextEntity("タイトル"d, 0.4);
+        this.text = makeTextEntity("Shape Sphere"d, 0.3);
         auto newGame = Selection("New Game"d, vec2(0.5, -0.6));
         auto loadGame = Selection("Load Game"d, vec2(0.45, -0.75));
         selections = [newGame, loadGame];
