@@ -1,4 +1,5 @@
 module game.stage.crystalMine.component.Crystal;
+
 struct Crystal {
 
     import std.json, std.typecons;
