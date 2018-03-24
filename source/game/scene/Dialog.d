@@ -59,6 +59,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
         addEvent(() => Controller().justPressed(CButton.Right), {changeSelector(+1);});
         addEvent(() => Controller().justPressed(CButton.Decide), {
             if (!this.hasSelectorMoved) return;
+            if (!canSelect) return;
             IAnimation anim;
             if (this.selector == 0) {
                 anim = 
