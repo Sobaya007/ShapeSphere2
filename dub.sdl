@@ -7,6 +7,6 @@ targetPath "bin"
 
 dflags "-gs"
 
-//buildRequirements "disallowOptimization" "disallowInlining"
+buildRequirements "disallowOptimization" "disallowInlining"
 
 subPackage "./sbylib"

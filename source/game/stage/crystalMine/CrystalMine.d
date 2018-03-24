@@ -74,7 +74,7 @@ class CrystalMine : Stage {
                         )
                     ),
                     single({Game.getPlayer().camera.reset();}),
-                    wait(60.frame),
+                    wait(120.frame),
                     animation(
                         (vec4 color) => this.fadeRect.color = color,
                         setting(

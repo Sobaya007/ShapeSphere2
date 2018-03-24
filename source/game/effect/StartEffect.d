@@ -13,6 +13,7 @@ class StartEffect : Effect {
     private mixin DeclareConfig!(uint, "PERIOD", "StartEffect.json");
     private mixin DeclareConfig!(uint, "WAIT_PERIOD", "StartEffect.json");
     private mixin DeclareConfig!(float, "WIND", "StartEffect.json");
+    private mixin DeclareConfig!(float, "NOISE", "StartEffect.json");
 
     this(string str) {
         const viewport = Game.getScene().viewport;
@@ -20,8 +21,8 @@ class StartEffect : Effect {
         const FRAG_HEIGHT = 0.01;
         const FRAG_WIDTH = FRAG_HEIGHT * Core().getWindow.getHeight / Core().getWindow.getWidth;
         auto mat = new StartEffectMaterial(str);
-        const H = 0.3;
-        const W = H * mat.aspectRatio;
+        const W = 1.5;
+        const H = W / mat.aspectRatio;
         auto X_DIV = W/FRAG_WIDTH;
         auto Y_DIV = H/FRAG_HEIGHT;
         mat.fragWidth = FRAG_WIDTH/W;
@@ -37,7 +38,7 @@ class StartEffect : Effect {
                 auto y1 = (v1-0.5)*H + FRAG_HEIGHT/2;
                 auto vertex = new VertexT(vec3(x1,y1,1), vec2(u1,v1));
                 vertices ~= vertex;
-                fragmentList ~= Fragment(vertex, WIND);
+                fragmentList ~= Fragment(vertex, WIND, NOISE);
             }
         }
         auto geom = new TypedGeometry!([Attribute.Position, Attribute.UV], Prim.Point)(vertices);
@@ -75,19 +76,20 @@ class StartEffect : Effect {
         vec2 vel;
         float time;
         float wind;
+        float noise;
 
-        this(VertexT vertex, float wind) {
+        this(VertexT vertex, float wind, float noise) {
             this.vertex = vertex;
             vel = vec2(0);
             time = 0;
             this.wind = wind;
+            this.noise = noise;
         }
 
         void step() {
             import std.random;
-            enum NOISE = 0.001;
             enum TIME_STEP = 0.02;
-            vel += vec2(uniform(-NOISE, +NOISE), uniform(-NOISE, +NOISE));
+            vel += vec2(uniform(-noise, +noise), uniform(-noise, +noise));
             vel += wind * vec2(2,1) * time * time * (1 - time) * 6 * TIME_STEP * 0.02;
             vertex.position += vec3(vel, 0);
             time += TIME_STEP;
@@ -109,7 +111,7 @@ class StartEffect : Effect {
         this(string str) {
             mixin(autoAssignCode);
             super();
-            auto texture = new StringTexture(FontLoader.load(FontPath("meiryo.ttc"), 512), str);
+            auto texture = new StringTexture(FontLoader.load(FontPath("Kaiso-Next-B.otf"), 512), str);
             this.texture = texture;
             this.config.faceMode = FaceMode.FrontBack;
             this.config.renderGroupName = "transparent";

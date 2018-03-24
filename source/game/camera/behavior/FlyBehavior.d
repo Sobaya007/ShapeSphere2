@@ -4,7 +4,7 @@ public import game.camera.CameraController;
 import sbylib;
 import game.Game;
 
-debug class FlyBehavior : CameraController.Behavior {
+class FlyBehavior : CameraController.Behavior {
     mixin BehaviorPack;
 
     private CameraControl control;
@@ -19,7 +19,7 @@ debug class FlyBehavior : CameraController.Behavior {
         if (Core().getKey().justPressed(KeyButton.Escape)) {
             reset(); 
             import game.player.Controller;
-            Controller().available = true;
+            debug Controller().available = true;
         }
     }
 
