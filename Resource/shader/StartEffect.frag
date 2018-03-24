@@ -14,7 +14,7 @@ void main() {
     vec2 uv2 = uv + po * vec2(fragWidth, fragHeight);
     uv2.y = 1 - uv2.y;
     gl_FragColor = vec4(texture2D(texture, uv2).r);
-    if (abs(uv2.y - 0.9) < 0.01 && uv2.x < lineRate) gl_FragColor = vec4(1);
+    if (abs(uv2.y - 0.9) < 0.01 && abs(uv2.x - 0.5) * 2 < lineRate) gl_FragColor = vec4(1);
     gl_FragColor.a *= textAlpha;
     gl_FragColor.rgb *= vec3(1,1,0.7);
 }

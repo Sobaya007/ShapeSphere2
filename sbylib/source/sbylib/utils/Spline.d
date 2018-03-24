@@ -31,6 +31,11 @@ class Spline(uint Dim) {
         }
     }
 
+    auto totalTime() {
+        import std.algorithm : sum;
+        return timeList.sum;
+    }
+
     Vec getPoint(float time) {
         if (time < 0) return pointList[0].p;
         foreach (i, period; timeList) {

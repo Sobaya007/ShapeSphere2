@@ -96,9 +96,9 @@ class CameraController {
         focus.initialize(obj, v);
     }
 
-    void trace(TraceBehavior.Trail[] trailList) {
+    void trace(TraceBehavior.Trail[] trailList, void delegate() onFinish) {
         auto trace = transit!(TraceBehavior);
-        trace.initialize(trailList);
+        trace.initialize(trailList, onFinish);
     }
 
     void stopLookOver() {

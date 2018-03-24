@@ -22,13 +22,11 @@ class CrystalMine : Stage {
     private debug bool wireVisible = false;
 
 
-    private IViewport viewport;
     private Renderer renderer;
 
     this() {
 
 
-        this.viewport = new AutomaticViewport(Core().getWindow);
         this.renderer = new Renderer;
 
 
@@ -44,14 +42,56 @@ class CrystalMine : Stage {
         this.fadeRect = makeColorEntity(vec4(0), 2,2);
         this.fadeRect.config.renderGroupName = "transparent";
         this.fadeRect.config.depthWrite = false;
-        this.fadeRect.pos.z = 1;
+        this.fadeRect.pos.z = 0;
         this.fadeRect.name = "Fade Rect";
         Game.getWorld2D().add(this.fadeRect);
 
 
         debug addDebugActions;
 
-        Game.getPlayer().camera.trace(this.root.cameraMove.trail);
+        AnimationManager().startAnimation(
+            animation(
+                (vec4 color) => this.fadeRect.color = color,
+                setting(
+                    vec4(0,0,0,1),
+                    vec4(0),
+                    60.frame,
+                    &Ease.easeInOut
+                )
+            )
+        );
+        Game.getPlayer().camera.trace(this.root.cameraMove.trail, {
+            // on finish
+            AnimationManager().startAnimation(
+                sequence(
+                    animation(
+                        (vec4 color) => this.fadeRect.color = color,
+                        setting(
+                            vec4(0),
+                            vec4(0,0,0,1),
+                            40.frame,
+                            &Ease.easeInOut
+                        )
+                    ),
+                    single({Game.getPlayer().camera.reset();}),
+                    wait(60.frame),
+                    animation(
+                        (vec4 color) => this.fadeRect.color = color,
+                        setting(
+                            vec4(0,0,0,1),
+                            vec4(0),
+                            40.frame,
+                            &Ease.easeInOut
+                        )
+                    ),
+                    wait(120.frame),
+                )
+            );
+        });
+        import game.effect.Effect;
+        import game.effect.StartEffect;
+        EffectManager().start(new StartEffect(this.stageName));
+
     }
 
 
@@ -83,6 +123,7 @@ class CrystalMine : Stage {
 
     override void render() {
         auto screen = Core().getWindow().getScreen();
+        auto viewport = Game.getScene.viewport;
         renderer.render(Game.getWorld3D(), screen, viewport, "regular");
         renderer.render(Game.getWorld3D(), screen, viewport, "transparent");
         screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);

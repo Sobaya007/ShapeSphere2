@@ -114,6 +114,34 @@ class ManualAnimation : IAnimationWithPeriod {
     }
 }
 
+class SingleAnimation : IAnimationWithPeriod {
+
+    alias Operator = void delegate();
+
+    Operator operator;
+
+    this(Operator operator) {
+        this.operator = operator;
+    }
+
+    override void eval(Frame frame) {
+        if (this.operator is null) return;
+        this.operator();
+        this.operator = null;
+    }
+
+    override bool done() {
+        return operator !is null;
+    }
+
+    override Frame period() {
+        return 1.frame;
+    }
+
+    override void finish() {
+    }
+}
+
 class WaitAnimation : IAnimationWithPeriod {
 
     private Frame _period;
@@ -255,4 +283,8 @@ auto sequence(Animations...)(Animations animations) {
 
 auto wait(Frame period) {
     return new WaitAnimation(period);
+}
+
+auto single(void delegate() event) {
+    return new SingleAnimation(event);
 }

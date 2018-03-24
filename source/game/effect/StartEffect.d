@@ -10,6 +10,10 @@ class StartEffect : Effect {
     StartEffectEntity entity;
     Fragment[] fragmentList;
 
+    private mixin DeclareConfig!(uint, "PERIOD", "StartEffect.json");
+    private mixin DeclareConfig!(uint, "WAIT_PERIOD", "StartEffect.json");
+    private mixin DeclareConfig!(float, "WIND", "StartEffect.json");
+
     this(string str) {
         const viewport = Game.getScene().viewport;
         const screenAspect = viewport.getWidth / viewport.getHeight;
@@ -31,9 +35,9 @@ class StartEffect : Effect {
             foreach (j; 0..Y_DIV) {
                 auto v1 = j / Y_DIV;
                 auto y1 = (v1-0.5)*H + FRAG_HEIGHT/2;
-                auto vertex = new VertexT(vec3(x1,y1,0), vec2(u1,v1));
+                auto vertex = new VertexT(vec3(x1,y1,1), vec2(u1,v1));
                 vertices ~= vertex;
-                fragmentList ~= Fragment(vertex);
+                fragmentList ~= Fragment(vertex, WIND);
             }
         }
         auto geom = new TypedGeometry!([Attribute.Position, Attribute.UV], Prim.Point)(vertices);
@@ -42,10 +46,10 @@ class StartEffect : Effect {
 
         AnimationManager().startAnimation(sequence(
             multi(
-                animation((float alpha) => mat.textAlpha = alpha, setting(0.0f, 1.0f, 120.frame, &Ease.linear)),
-                animation((float lineRate) => mat.lineRate = lineRate, setting(0.0f, 1.0f, 120.frame, &Ease.linear)),
+                animation((float alpha) => mat.textAlpha = alpha, setting(0.0f, 1.0f, PERIOD.frame, &Ease.linear)),
+                animation((float lineRate) => mat.lineRate = lineRate, setting(0.0f, 1.0f, PERIOD.frame, &Ease.linear)),
             ),
-            wait(30.frame),
+            wait(WAIT_PERIOD.frame),
             animation(&po)
         ));
     }
@@ -70,11 +74,13 @@ class StartEffect : Effect {
         VertexT vertex;
         vec2 vel;
         float time;
+        float wind;
 
-        this(VertexT vertex) {
+        this(VertexT vertex, float wind) {
             this.vertex = vertex;
             vel = vec2(0);
             time = 0;
+            this.wind = wind;
         }
 
         void step() {
@@ -82,7 +88,7 @@ class StartEffect : Effect {
             enum NOISE = 0.001;
             enum TIME_STEP = 0.02;
             vel += vec2(uniform(-NOISE, +NOISE), uniform(-NOISE, +NOISE));
-            vel += vec2(2,1) * time * time * (1 - time) * 6 * TIME_STEP * 0.02;
+            vel += wind * vec2(2,1) * time * time * (1 - time) * 6 * TIME_STEP * 0.02;
             vertex.position += vec3(vel, 0);
             time += TIME_STEP;
             
