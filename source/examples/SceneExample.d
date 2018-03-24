@@ -54,7 +54,7 @@ void setGameTransition(string[] args) {
                     ),
                     over!(Dialog!"続きからでよろしいですか？")(
                         onSelect([
-                            move!SelectSaveData,
+                            move!StartNewGame,
                             pop
                         ])
                     )
@@ -64,7 +64,13 @@ void setGameTransition(string[] args) {
                 onFinish(
                     move!GameMainScene(
                         onFinish(
-                            move!Stage //現在の状態をみていいかんじのステージに飛ぶ
+                            over!(Dialog!"ここまでしかできてません！ありがとうございました！！！")(
+                                onSelect([
+                                    move!Title,
+                                    pop
+                                ])
+                            )
+                            //move!Stage //現在の状態をみていいかんじのステージに飛ぶ
                         )
                     )
                 )
@@ -75,6 +81,6 @@ void setGameTransition(string[] args) {
                 )
             )
         );
-        launch!(GameMainScene);
+        launch!(LogoAnimation);
     }
 }

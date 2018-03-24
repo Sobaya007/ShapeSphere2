@@ -145,6 +145,7 @@ class CrystalMine : Stage {
                 )
             )
         ).onFinish({
+            Game.getScene().finish();
             assert(paused);
             paused = false;
             Game.getWorld3D().remove(this.currentArea.entity);
