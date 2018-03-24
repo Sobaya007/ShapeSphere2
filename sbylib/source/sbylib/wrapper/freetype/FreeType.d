@@ -33,6 +33,7 @@ class FreeType {
         } else {
             DerelictFT.load();
         }
-        assert(!FT_Init_FreeType(&library), "Failed to init freetype!");
+        auto result = FT_Init_FreeType(&library);
+        assert(!result, "Failed to init freetype!");
     }
 }

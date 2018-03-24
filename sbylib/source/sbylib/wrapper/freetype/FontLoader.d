@@ -9,7 +9,8 @@ import std.string;
 class FontLoader {
     static Font load(string path, int size) {
         FT_Face face;
-        assert(!FT_New_Face(FreeType.library, path.toStringz, 0, &face), "Failed to load font!");
+        auto result = FT_New_Face(FreeType.library, path.toStringz, 0, &face);
+        assert(!result, "Failed to load font!");
         return new Font(face, size, FontType.Mono);
     }
 }
