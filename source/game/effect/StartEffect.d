@@ -99,7 +99,7 @@ class StartEffect : Effect {
             vel += wind * vec2(2,1) * time * time * (1 - time) * 6 * TIME_STEP * 0.02;
             vertex.position += vec3(vel, 0);
             time += TIME_STEP;
-            
+
             if (time > 1) time = 1;
         }
     }
@@ -107,7 +107,7 @@ class StartEffect : Effect {
     class StartEffectMaterial : Material {
         mixin declare!(false);
 
-        private utexture texture;
+        private utexture tex;
         private ufloat fragWidth, fragHeight;
         private ufloat sizeInPixel;
         ufloat textAlpha;
@@ -118,7 +118,7 @@ class StartEffect : Effect {
             mixin(autoAssignCode);
             super();
             auto texture = new StringTexture(FontLoader.load(FontPath("Kaiso-Next-B.otf"), 512), str);
-            this.texture = texture;
+            this.tex = texture;
             this.config.faceMode = FaceMode.FrontBack;
             this.config.renderGroupName = "transparent";
             this.config.depthTest = false;
