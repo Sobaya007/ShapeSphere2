@@ -155,13 +155,16 @@ debug class Console {
 
             auto input = text.back;
 
-            auto output = candidates(input);
+            auto cs = candidates(input);
 
-            if (output.empty) return;
+            if (cs.empty) return;
 
+            auto output = cs.map!(c => c.screenName).array;
             show(output);
 
-            text ~= output.reduce!commonPrefix;
+            import std.stdio;
+            writeln(cs.map!(a => a.absoluteName));
+            text ~= cs.map!(c => c.absoluteName).reduce!commonPrefix.dropOne;
             cursor = cast(int)text.back.length;
         }
     }
@@ -206,10 +209,10 @@ debug class Console {
         return new RootSelection().interpret(TokenList(tokens));
     }
 
-    private string[] candidates(string str) {
+    private Selectable[] candidates(string str) {
         auto tokens = (">" ~ str).splitter!(Yes.keepSeparators)(ctRegex!"[>=]").array;
 
-        return new RootSelection().candidates(TokenList(tokens), "");
+        return new RootSelection().candidates(TokenList(tokens));
     }
 
     private string slice(string s, size_t i, size_t j) {

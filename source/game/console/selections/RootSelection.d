@@ -13,10 +13,14 @@ class RootSelection : Selectable {
         return null;
     }
 
+    override Selectable parent() {
+        return null;
+    }
+
     override Selectable[] childs() {
         return [
-            new WorldSelection("world3d", Game.getWorld3D()),
-            new WorldSelection("world2d", Game.getWorld2D())
+            new WorldSelection(this, "world3d", Game.getWorld3D()),
+            new WorldSelection(this, "world2d", Game.getWorld2D())
         ];
     }
 
@@ -30,10 +34,6 @@ class RootSelection : Selectable {
             Core().end();
         }
         return None!string;
-    }
-
-    override string getInfo() {
-        return null;
     }
 
     override string assign(string) {

@@ -6,6 +6,7 @@ import std.format;
 
 interface Selectable {
     string name();
+    Selectable parent();
     Selectable[] childs();
     Maybe!string order(string);
     string getInfo();
@@ -39,22 +40,22 @@ interface Selectable {
         return format!"Invalid token: '%s'"(token);
     }
 
-    final string[] candidates(TokenList tokens, string before) {
+    final Selectable[] candidates(TokenList tokens) {
         import std.algorithm : map;
         import std.array : empty, front, popFront, array;
 
-        if (tokens.empty) return summarySameName(childNames).map!(s => before~s).array;
+        if (tokens.empty) return childs;
         auto token = tokens.popFront();
 
         if (token == ">") {
-            if (tokens.empty) return summarySameName(childNames).map!(s => before~s).array;
+            if (tokens.empty) return childs;
 
             auto name = tokens.popFront();
 
             if (auto next = search(name).peek!Selectable) {
-                return next.candidates(tokens, before~name~">");
+                return next.candidates(tokens);
             } else {
-                return filterCandidates(summarySameName(childNames), name).map!(s => before~s).array;
+                return filterCandidates(childs, name);
             }
         }
         return [];
@@ -93,12 +94,12 @@ interface Selectable {
         return candidates.sort.group.map!(g => g[1] == 1 ? g[0] : g[0]~"[").array;
     }
 
-    final auto filterCandidates(string[] candidates, string current) {
+    final auto filterCandidates(Selectable[] candidates, string current) {
         import std.algorithm : filter;
         import std.string : startsWith, toLower;
         import std.array : array;
   
-        return candidates.filter!(s => s.toLower.startsWith(current.toLower)).array;
+        return candidates.filter!(s => s.name.toLower.startsWith(current.toLower)).array;
     }
 
     final string[] childNames() {
@@ -115,6 +116,19 @@ interface Selectable {
         return childs.filter!(child => child.name == name).array;
     }
 
+    final string screenName() {
+        import std.format;
+
+        auto cnt = countChilds();
+        if (cnt == 0) return name;
+        return format!"%s(%d)"(name, cnt);
+    }
+
+    final string absoluteName() {
+        if (parent is null) return name;
+        return parent.absoluteName ~ ">" ~ name;
+    }
+
     mixin template ImplCountChild(bool flag) {
 
         override int countChilds() {
@@ -126,6 +140,18 @@ interface Selectable {
                     .filter!(child => child.isAggregate)
                     .map!(child => child.countChilds + 1).sum
                     : 0;
+        }
+
+        override string getInfo() {
+            import std.algorithm : sort, group, map;
+            import std.format;
+            import std.array : join, split, array;
+
+            return childs
+                .sort!"a.name < b.name".array
+                .group!"a.name==b.name"
+                .map!(p => p[1] > 1 ? format!"%s[%d]"(p[0].name, p[1]) : p[0].screenName)
+                .join("\n");
         }
 
         override bool isAggregate() {

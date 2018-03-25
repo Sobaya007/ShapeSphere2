@@ -11,9 +11,12 @@ class FloatSelection(bool CanAssign) : Selectable {
         alias T = float;
     }
 
-    private T elem;
+    private Selectable mParent;
     private string mName;
-    this(string name, T elem) {
+    private T elem;
+
+    this(Selectable parent, string name, T elem) {
+        this.mParent = parent;
         this.mName = name;
         this.elem = elem;
     }
@@ -22,6 +25,10 @@ class FloatSelection(bool CanAssign) : Selectable {
 
     override string name() {
         return mName;
+    }
+
+    override Selectable parent() {
+        return mParent;
     }
 
     override Selectable[] childs() {

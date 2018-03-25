@@ -5,18 +5,23 @@ import game.console.selections.Selectable;
 import game.console.selections.FloatSelection;
 
 class VectorSelection(bool CanAssign) : Selectable {
+
+    private Selectable mParent;
     private string mName;
+
     static if (CanAssign) {
         alias T = ChangeObserved!vec3;
         private T* vec;
-        this(string name, ref T vec) {
+        this(Selectable parent, string name, ref T vec) {
+            this.mParent = parent;
             this.mName = name;
             this.vec = &vec;
         }
     } else {
         alias T = vec3;
         private T vec;
-        this(string name, T vec) {
+        this(Selectable parent, string name, T vec) {
+            this.mParent = parent;
             this.mName = name;
             this.vec = vec;
         }
@@ -28,11 +33,15 @@ class VectorSelection(bool CanAssign) : Selectable {
         return mName;
     }
 
+    override Selectable parent() {
+        return mParent;
+    }
+
     override Selectable[] childs() {
         return [
-            new FloatSelection!(CanAssign)("x", this.vec.x),
-            new FloatSelection!(CanAssign)("y", this.vec.y),
-            new FloatSelection!(CanAssign)("z", this.vec.z),
+            new FloatSelection!(CanAssign)(this, "x", this.vec.x),
+            new FloatSelection!(CanAssign)(this, "y", this.vec.y),
+            new FloatSelection!(CanAssign)(this, "z", this.vec.z),
         ];
     }
 
