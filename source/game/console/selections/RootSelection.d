@@ -3,6 +3,8 @@ module game.console.selections.RootSelection;
 import sbylib;
 import game.console.selections.Selectable;
 import game.console.selections.WorldSelection;
+import game.console.selections.SaveSelection;
+import game.console.selections.QuitSelection;
 import game.Game;
 
 class RootSelection : Selectable {
@@ -19,30 +21,14 @@ class RootSelection : Selectable {
 
     override Selectable[] childs() {
         return [
-            new WorldSelection(this, "world3d", Game.getWorld3D()),
-            new WorldSelection(this, "world2d", Game.getWorld2D())
+            cast(Selectable)new WorldSelection(this, "world3d", Game.getWorld3D()),
+            cast(Selectable)new WorldSelection(this, "world2d", Game.getWorld2D()),
+            cast(Selectable)new SaveSelection(this),
+            cast(Selectable)new QuitSelection(this)
         ];
-    }
-
-    override Maybe!string order(string code) {
-        if (code == "save") {
-            Game.getMap().save();
-            return Just("Saved.");
-        }
-        if (code == "quit") {
-            Game.getCommandManager().save();
-            Core().end();
-        }
-        return None!string;
     }
 
     override string assign(string) {
         return "Cannot assign to root.";
-    }
-
-    override int countChilds() {
-        import std.algorithm : map, sum;
-
-        return childs.map!(child => child.countChilds + 1).sum;
     }
 }

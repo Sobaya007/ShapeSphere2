@@ -162,8 +162,6 @@ debug class Console {
             auto output = cs.map!(c => c.screenName).array;
             show(output);
 
-            import std.stdio;
-            writeln(cs.map!(a => a.absoluteName));
             text ~= cs.map!(c => c.absoluteName).reduce!commonPrefix.dropOne;
             cursor = cast(int)text.back.length;
         }
@@ -181,7 +179,9 @@ debug class Console {
     }
 
     private void show(string[] strs) {
+        enum MAX_LENGTH = 40;
         text ~= strs
+            .map!(s => s.length < MAX_LENGTH ? s : s[0..MAX_LENGTH/2]~"..."~s[$-MAX_LENGTH/2-3..$])
             .map!(s => s.indent(4))
             .array;
         text ~= "";

@@ -44,10 +44,6 @@ class FloatSelection(bool CanAssign) : Selectable {
         }
     }
 
-    override Maybe!string order(string) {
-        return None!string;
-    }
-
     override string assign(string val) {
         import std.conv;
         import std.string : strip;

@@ -41,10 +41,6 @@ class MatrixSelection : Selectable {
         return mat.toString;
     }
 
-    override Maybe!string order(string) {
-        return None!string;
-    }
-
     override string assign(string val) {
         return "Cannot assign to <matrix>";
     }

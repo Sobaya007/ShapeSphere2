@@ -49,10 +49,6 @@ class VectorSelection(bool CanAssign) : Selectable {
         return vec.toString;
     }
 
-    override Maybe!string order(string) {
-        return None!string;
-    }
-
     override string assign(string val) {
         import std.string : strip, startsWith, endsWith;
         import std.array : split;

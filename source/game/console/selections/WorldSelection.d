@@ -33,10 +33,6 @@ class WorldSelection : Selectable {
         ~ world.getEntities.filter!(e => e.getParent.isNone).map!(e => cast(Selectable)new EntitySelection(this, e)).array;
     }
 
-    override Maybe!string order(string) {
-        return None!string;
-    }
-
     override string assign(string) {
         return "Cannot assign to World.";
     }

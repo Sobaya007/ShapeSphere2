@@ -36,10 +36,6 @@ class EntitySelection : Selectable {
             ~ new VectorSelection!(true)(this, "scale", entity.scale) ;
     }
 
-    override Maybe!string order(string) {
-        return None!string;
-    }
-
     override string assign(string) {
         return "Cannot assign to Entity.";
     }

@@ -8,7 +8,6 @@ interface Selectable {
     string name();
     Selectable parent();
     Selectable[] childs();
-    Maybe!string order(string);
     string getInfo();
     string assign(string);
     int countChilds();
@@ -24,10 +23,8 @@ interface Selectable {
             auto res = search(name);
             if (auto next = res.peek!Selectable) {
                 return next.interpret(tokens);
-            } else {
-                return order(name).getOrElse(*res.peek!string);
-            }
-
+            } 
+            return *res.peek!string;
         } else if (token == "=") {
             if (tokens.empty) return "Put <value> after '='";
 
