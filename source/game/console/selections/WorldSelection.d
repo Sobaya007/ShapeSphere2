@@ -1,35 +1,42 @@
 module game.console.selections.WorldSelection;
-
 import sbylib;
 import game.console.selections.Selectable;
 import game.console.selections.EntitySelection;
 
 class WorldSelection : Selectable {
 
+    private string mName;
     private World world;
 
-    this(World world) {this.world = world;}
-
-    override string[] childNames() {
-        import std.algorithm : filter, map;
-        import std.array : array;
-        return world.getEntities.filter!(e => e.getParent.isNone).map!(e => e.name).array ~ "camera";
+    this(string name, World world) {
+        this.mName = name;
+        this.world = world;
     }
 
-    override Selectable[] findChild(string name) {
+    mixin ImplCountChild!(true);
+
+    override string name() {
+        return mName;
+    }
+
+    override Selectable[] childs() {
         import std.algorithm : filter, map;
         import std.array : array;
 
-        if (name == "camera") return [cast(Selectable)new EntitySelection(world.getCamera)];
-        return world.getEntities.filter!(e => e.getParent.isNone).filter!(e => e.name == name).map!(e => cast(Selectable)new EntitySelection(e)).array;
+        return [cast(Selectable)new EntitySelection(world.getCamera)]
+        ~ world.getEntities.filter!(e => e.getParent.isNone).map!(e => cast(Selectable)new EntitySelection(e)).array;
     }
 
     override string getInfo() {
         import std.algorithm : sort, group, map;
         import std.format;
-        import std.array : join, split;
+        import std.array : join, split, array;
 
-        return world.toString((Entity e) => e.name, false).split("\n").sort.group.map!(p => p[1] == 1 ? p[0] : format!"%s[%d]"(p[0], p[1])).join("\n");
+        return childs
+            .sort!"a.name < b.name".array
+            .group!"a.name==b.name"
+            .map!(p => p[1] > 1 ? format!"%s[%d]"(p[0].name, p[1]) : p[0].countChilds ? format!"%s(%d)"(p[0].name, p[0].countChilds) : p[0].name)
+            .join("\n");
     }
 
     override Maybe!string order(string) {

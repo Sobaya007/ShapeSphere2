@@ -34,6 +34,7 @@ public:
         this.entity = new Entity();
         this._projMatrix = ProjMatrix(new umat4("projMatrix"));
         this._projMatrix.depends(this.aspectWperH, this.fovy, this.nearZ, this.farZ);
+        this.name = "Perspective Camera";
     }
 
     override inout(Entity) getEntity() inout {

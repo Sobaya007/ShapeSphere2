@@ -11,26 +11,33 @@ class EntitySelection : Selectable {
 
     this(Entity entity) {this.entity = entity;}
 
-    override string[] childNames() {
+    mixin ImplCountChild!(true);
+
+    override string name() {
+        return entity.name;
+    }
+
+    override Selectable[] childs() {
         import std.algorithm : map;
         import std.array : array;
 
-        return entity.getChildren.map!(e => e.name).array ~ ["pos", "rot", "scale"];
-    }
-
-    override Selectable[] findChild(string name) {
-        import std.algorithm : filter, map;
-        import std.array : array;
-
-        if (name == "pos") return [new VectorSelection!true(entity.pos)];
-        if (name == "rot") return [new MatrixSelection(entity.rot)];
-        if (name == "scale") return [new VectorSelection!true(entity.scale)];
-        auto res = entity.getChildren.filter!(e => e.name == name).map!(e => cast(Selectable)new EntitySelection(e)).array;
-        return res;
+        return
+            entity.getChildren.map!(e => cast(Selectable)new EntitySelection(e)).array
+            ~ new VectorSelection!(true)("pos", entity.pos) 
+            ~ new MatrixSelection("rot", entity.rot) 
+            ~ new VectorSelection!(true)("scale", entity.scale) ;
     }
 
     override string getInfo() {
-        return entity.toString(false);
+        import std.algorithm : sort, group, map;
+        import std.format;
+        import std.array : join, split, array;
+
+        return childs
+            .sort!"a.name < b.name".array
+            .group!"a.name==b.name"
+            .map!(p => p[1] == 1 ? format!"%s(%d)"(p[0].name, p[0].countChilds): format!"%s[%d]"(p[0].name, p[1]))
+            .join("\n");
     }
 
     override Maybe!string order(string) {

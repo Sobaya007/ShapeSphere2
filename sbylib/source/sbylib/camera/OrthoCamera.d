@@ -36,6 +36,7 @@ public:
         this.entity = new Entity();
         this._projMatrix = ProjMatrix(new umat4("projMatrix"));
         this._projMatrix.depends(this.width, this.height, this.nearZ, this.farZ);
+        this.name = "Ortho Camera";
     }
 
     override inout(Entity) getEntity() inout {

@@ -12,13 +12,19 @@ class FloatSelection(bool CanAssign) : Selectable {
     }
 
     private T elem;
-    this(T elem) {this.elem = elem;}
-
-    override string[] childNames() {
-        return null;
+    private string mName;
+    this(string name, T elem) {
+        this.mName = name;
+        this.elem = elem;
     }
 
-    override Selectable[] findChild(string name) {
+    mixin ImplCountChild!(false);
+
+    override string name() {
+        return mName;
+    }
+
+    override Selectable[] childs() {
         return null;
     }
 

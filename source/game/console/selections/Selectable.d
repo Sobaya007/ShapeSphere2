@@ -5,11 +5,13 @@ import game.console.selections.TokenList;
 import std.format;
 
 interface Selectable {
-    string[] childNames();
-    Selectable[] findChild(string);
+    string name();
+    Selectable[] childs();
     Maybe!string order(string);
     string getInfo();
     string assign(string);
+    int countChilds();
+    bool isAggregate();
 
     final string interpret(TokenList tokens) {
         if (tokens.empty) return getInfo();
@@ -97,5 +99,37 @@ interface Selectable {
         import std.array : array;
   
         return candidates.filter!(s => s.toLower.startsWith(current.toLower)).array;
+    }
+
+    final string[] childNames() {
+        import std.algorithm : map;
+        import std.array : array;
+
+        return childs.map!(child => child.name).array;
+    }
+
+    final Selectable[] findChild(string name) {
+        import std.algorithm : filter;
+        import std.array : array;
+
+        return childs.filter!(child => child.name == name).array;
+    }
+
+    mixin template ImplCountChild(bool flag) {
+
+        override int countChilds() {
+            import std.algorithm : map, sum, filter;
+
+            return 
+                flag ? 
+                    childs
+                    .filter!(child => child.isAggregate)
+                    .map!(child => child.countChilds + 1).sum
+                    : 0;
+        }
+
+        override bool isAggregate() {
+            return flag;
+        }
     }
 }

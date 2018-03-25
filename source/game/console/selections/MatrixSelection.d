@@ -5,39 +5,28 @@ import game.console.selections.Selectable;
 import game.console.selections.VectorSelection;
 
 class MatrixSelection : Selectable {
+    private string mName;
     private ChangeObserved!mat3* mat;
-    this(ref ChangeObserved!mat3 mat) {this.mat = &mat;}
+    this(string name, ref ChangeObserved!mat3 mat) {
+        this.mName = name;
+        this.mat = &mat;
+    }
 
-    override string[] childNames() {
+    mixin ImplCountChild!(false);
+
+    override string name() {
+        return mName;
+    }
+
+    override Selectable[] childs() {
         import std.algorithm : cartesianProduct, map;
         import std.range : iota;
         import std.array : array, join;
         import std.format;
 
-        return cartesianProduct(["column", "row"], 3.iota.map!(i => format!"[%d]"(i)).array)
-            .map!"a[0]~a[1]".array;
-    }
-
-    override Selectable[] findChild(string name) {
-        import std.string : startsWith;
-        import std.regex;
-        import std.conv;
-        auto r = ctRegex!"[\\d]";
-        auto m = name.match(r);
-        if (!m.hit) return null;
-
-        auto index = m.hit.to!int;
-        scope (failure) return null;
-
-        if(index < 0) return null;
-        if (index >= 3) return null;
-
-        if (name.startsWith("column")) {
-            return [new VectorSelection!false(mat.column[index])];
-        } else if (name.startsWith("row")) {
-            return [new VectorSelection!false(mat.row[index])];
-        }
-        return null;
+        return 
+                3.iota.map!(i => cast(Selectable)new VectorSelection!false(format!"column[%d]"(i), mat.column[i])).array
+                ~ 3.iota.map!(i => cast(Selectable)new VectorSelection!false(format!"row[%d]"(i), mat.row[i])).array;
     }
 
     override string getInfo() {

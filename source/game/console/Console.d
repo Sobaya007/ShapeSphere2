@@ -24,6 +24,7 @@ debug class Console {
         factory.strategy = Label.Strategy.Left;
         factory.backColor = vec4(0,0,0,0.5);
         factory.textColor = vec4(1,1,1,1);
+        factory.wrapWidth = 2;
         factory.text = ":";
 
         this.label = factory.make();

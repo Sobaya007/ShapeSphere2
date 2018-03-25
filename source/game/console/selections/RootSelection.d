@@ -6,14 +6,18 @@ import game.console.selections.WorldSelection;
 import game.Game;
 
 class RootSelection : Selectable {
-    override string[] childNames() {
-        return ["world3d", "world2d", "save", "quit"];
+
+    mixin ImplCountChild!(true);
+
+    override string name() {
+        return null;
     }
 
-    override Selectable[] findChild(string name) {
-        if (name == "world3d") return [new WorldSelection(Game.getWorld3D)];
-        if (name == "world2d") return [new WorldSelection(Game.getWorld2D)];
-        return null;
+    override Selectable[] childs() {
+        return [
+            new WorldSelection("world3d", Game.getWorld3D()),
+            new WorldSelection("world2d", Game.getWorld2D())
+        ];
     }
 
     override Maybe!string order(string code) {
@@ -34,5 +38,11 @@ class RootSelection : Selectable {
 
     override string assign(string) {
         return "Cannot assign to root.";
+    }
+
+    override int countChilds() {
+        import std.algorithm : map, sum;
+
+        return childs.map!(child => child.countChilds + 1).sum;
     }
 }

@@ -5,25 +5,35 @@ import game.console.selections.Selectable;
 import game.console.selections.FloatSelection;
 
 class VectorSelection(bool CanAssign) : Selectable {
+    private string mName;
     static if (CanAssign) {
         alias T = ChangeObserved!vec3;
         private T* vec;
-        this(ref T vec) {this.vec = &vec;}
+        this(string name, ref T vec) {
+            this.mName = name;
+            this.vec = &vec;
+        }
     } else {
         alias T = vec3;
         private T vec;
-        this(T vec) {this.vec = vec;}
+        this(string name, T vec) {
+            this.mName = name;
+            this.vec = vec;
+        }
     }
 
-    override string[] childNames() {
-        return ["x", "y", "z"];
+    mixin ImplCountChild!(false);
+
+    override string name() {
+        return mName;
     }
 
-    override Selectable[] findChild(string name) {
-        if (name == "x") return [new FloatSelection!(CanAssign)(this.vec.x)];
-        if (name == "y") return [new FloatSelection!(CanAssign)(this.vec.y)];
-        if (name == "z") return [new FloatSelection!(CanAssign)(this.vec.z)];
-        return null;
+    override Selectable[] childs() {
+        return [
+            new FloatSelection!(CanAssign)("x", this.vec.x),
+            new FloatSelection!(CanAssign)("y", this.vec.y),
+            new FloatSelection!(CanAssign)("z", this.vec.z),
+        ];
     }
 
     override string getInfo() {
