@@ -189,6 +189,13 @@ Texture generateTexture(Image image) {
     return new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.RGBA, image.getWidth(), image.getHeight(), ImageFormat.BGRA, image.getBits());
 }
 
+Image generateImage(Texture texture) {
+    import sbylib.wrapper.gl.Functions;
+    auto img = new Image(texture.width, texture.height, GlFunction.getBitPerPixel(texture.internalFormat));
+    texture.blitsTo(img.getBits, ImageFormat.BGRA);
+    return img;
+}
+
 string indent(string str, int space) {
     import std.string, std.algorithm, std.range;
     return str.split("\n").map!(s => " ".repeat(space).join ~ s).join("\n");

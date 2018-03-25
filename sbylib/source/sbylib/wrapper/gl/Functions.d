@@ -176,4 +176,26 @@ static:
     void lineWidth(float width) {
         glLineWidth(width);
     }
+
+    int getBitPerPixel(ImageInternalFormat iformat) {
+        final switch (iformat) {
+            case ImageInternalFormat.R:
+                return 32;
+            case ImageInternalFormat.RG:
+                return 32;
+            case ImageInternalFormat.RGB:
+                return 32;
+            case ImageInternalFormat.RGBA:
+                return 32;
+            case ImageInternalFormat.RGBA16F:
+                return 16;
+            case ImageInternalFormat.RGBA32F:
+                return 32;
+            case ImageInternalFormat.Depth:
+                return 24;
+            case ImageInternalFormat.DepthStencil:
+                return 24; //????
+        }
+        assert(false);
+    }
 }

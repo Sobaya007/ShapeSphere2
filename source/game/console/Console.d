@@ -159,10 +159,13 @@ debug class Console {
 
             if (output.empty) return;
 
-            show(output);
-
             text ~= output.reduce!commonPrefix;
             cursor = cast(int)text.back.length;
+
+            auto parent = text.split(">")[0..$].join(">");
+
+            output = output.map!(o => o.drop(parent.length)).array;
+            show(output);
         }
     }
 

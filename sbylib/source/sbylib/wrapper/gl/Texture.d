@@ -15,7 +15,8 @@ class Texture {
     private bool alive = true;
     private bool allocated;
 
-    private uint width, height;
+    private uint mWidth, mHeight;
+    private ImageInternalFormat mInternalFormat;
 
     this(TextureTarget target) {
         uint id;
@@ -48,8 +49,9 @@ class Texture {
         GlFunction.checkError();
         this.unbind();
         this.allocated = true;
-        this.width = width;
-        this.height = height;
+        this.mWidth = width;
+        this.mHeight = height;
+        this.mInternalFormat = iformat;
     }
 
     void update(Type)(uint mipmapLevel, int offsetX, int offsetY, uint width, uint height, ImageFormat iformat, Type *data) {
@@ -120,6 +122,26 @@ class Texture {
         this.bind();
         glFramebufferTexture2D(bindType, attachType, this.target, this.id, 0);
         this.unbind();
+    }
+
+    void blitsTo(T)(T* result, ImageFormat format, int level = 0) in {
+        assert(this.allocated);
+    } body {
+        this.bind();
+        glGetTexImage(this.target, level, format, GlFunction.getTypeEnum!(T), result);
+        this.unbind();
+    }
+
+    int width() {
+        return mWidth;
+    }
+
+    int height() {
+        return mHeight;
+    }
+
+    ImageInternalFormat internalFormat() {
+        return mInternalFormat;
     }
 
     alias id this;
