@@ -25,9 +25,15 @@ class StartEffect : Effect {
         const H = W / mat.aspectRatio;
         auto X_DIV = W/FRAG_WIDTH;
         auto Y_DIV = H/FRAG_HEIGHT;
-        mat.fragWidth = FRAG_WIDTH/W;
-        mat.fragHeight = FRAG_HEIGHT/H;
-        mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
+        debug {
+	    mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
+            mat.fragWidth = FRAG_WIDTH/W;
+            mat.fragHeight = FRAG_HEIGHT/H;
+	} else {
+	    mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 1.0;
+            mat.fragWidth = FRAG_WIDTH/W * 2;
+            mat.fragHeight = FRAG_HEIGHT/H * 2;
+	}
 
         VertexT[] vertices;
         foreach (i; 0..X_DIV) {
@@ -93,7 +99,7 @@ class StartEffect : Effect {
             vel += wind * vec2(2,1) * time * time * (1 - time) * 6 * TIME_STEP * 0.02;
             vertex.position += vec3(vel, 0);
             time += TIME_STEP;
-            
+
             if (time > 1) time = 1;
         }
     }
@@ -101,7 +107,7 @@ class StartEffect : Effect {
     class StartEffectMaterial : Material {
         mixin declare!(false);
 
-        private utexture texture;
+        private utexture tex;
         private ufloat fragWidth, fragHeight;
         private ufloat sizeInPixel;
         ufloat textAlpha;
@@ -112,7 +118,7 @@ class StartEffect : Effect {
             mixin(autoAssignCode);
             super();
             auto texture = new StringTexture(FontLoader.load(FontPath("Kaiso-Next-B.otf"), 512), str);
-            this.texture = texture;
+            this.tex = texture;
             this.config.faceMode = FaceMode.FrontBack;
             this.config.renderGroupName = "transparent";
             this.config.depthTest = false;
