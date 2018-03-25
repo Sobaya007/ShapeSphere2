@@ -81,6 +81,6 @@ void setGameTransition(string[] args) {
                 )
             )
         );
-        launch!(LogoAnimation);
+        launch!(GameMainScene);
     }
 }
