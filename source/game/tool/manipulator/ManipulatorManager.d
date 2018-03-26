@@ -37,16 +37,13 @@ private:
 
                 entity.match!(
                     (Entity e) {
-                        if (e.getUserData!(Manipulator.Axis).isJust) {
+                        if (isAxis(e)) {
                             this.manipulator.setAxis(e);
 
                             this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
                             this.isMoving = this.manipulator.setRay(this.ray);
                         } else {
-                            bool isTarget = false; //
-                            isTarget |= e.getUserData!string.fmap!(str => str == "crystal").getOrElse(false);
-
-                            if (isTarget) {
+                            if (isTarget(e)) {
                                 show();
                             } else {
                                 hide();
@@ -66,6 +63,7 @@ private:
         if (this.mouse.isPressed(MouseButton.Button1) && this.isMoving) {
             this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
             this.manipulator.updateRay(this.ray);
+            Game.getMap().save();
         } else {
             this.isMoving = false;
         }
@@ -77,7 +75,13 @@ private:
         this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
 
         return Game.getWorld3D.rayCast(this.ray).fmap!((CollisionInfoRay colInfo) {
-            return colInfo.entity;//.getRootParent;
+            Entity e = colInfo.entity;
+            while(e.getParent.isJust) {
+                if (isTarget(e)) break;
+                if (isAxis(e)) break;
+                e = e.getParent.get;
+            }
+            return e;
         });
     }
 
@@ -91,6 +95,15 @@ private:
         if (!isAddedToWorld) return;
         Game.getWorld3D.remove(this.manipulator.entity);
         isAddedToWorld = false;
+    }
+
+private:
+    bool isTarget(Entity entity) {
+        return entity.getUserData!ManipulatorTarget.isJust;
+    }
+
+    bool isAxis(Entity entity) {
+        return entity.getUserData!(Manipulator.Axis).isJust;
     }
 
 
