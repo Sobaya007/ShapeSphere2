@@ -137,7 +137,7 @@ Maybe!T Just(T)(T v) in {
 }
 
 Maybe!T None(T)() {
-    return Maybe!T(true);
+    return Maybe!T();
 }
 
 auto wrapPointer(T)(T value) if (isPointer!T){
