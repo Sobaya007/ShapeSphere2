@@ -22,7 +22,7 @@ class Message : CommandReceiver {
         factory.strategy = Label.Strategy.Center;
         factory.wrapWidth = 1;
         this.text = factory.make();
-        text.pos.z = -0.5;
+        this.text.pos.z = 0.5;
 
         ImageEntityFactory imageFactory;
         imageFactory.width = 1;
@@ -47,9 +47,9 @@ class Message : CommandReceiver {
         float currentWidth = this.text.getWidth();
         float currentHeight = this.text.getHeight();
         text.renderText(message);
-        text.traverse!((Entity e) => e.visible = false);
         float arrivalWidth = text.getWidth();
         float arrivalHeight = text.getHeight();
+        text.renderText("");
         this.img.scale = vec3(0);
         this.procedure = Just(AnimationManager().startAnimation(
             sequence(

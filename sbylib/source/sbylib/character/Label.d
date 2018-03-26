@@ -98,7 +98,6 @@ class Label {
 
     private void lineUp() {
         import std.array, std.algorithm, std.range;
-        if (this.text.empty) return;
         Font.LetterInfo[][] rows;
         auto text = this.text;
         auto wrapWidth = this.wrapWidth * font.size / this.size;
@@ -124,12 +123,15 @@ class Label {
             rows ~= infos;
             textByRow ~= rowString;
         }
-        this.width = rows.map!(row => row.map!(i => i.advance).sum).maxElement * this.size / font.size;
+        this.width = rows.map!(row => row.map!(i => i.advance).sum).fold!(max)(0L) * this.size / font.size;
         this.height = rows.length * this.size;
         if (sentences.length < rows.length) {
             auto newSentences = iota(rows.length-sentences.length).map!(_ => new Sentence).array;
             sentences ~= newSentences;
-            newSentences.each!(s => this.entity.addChild(s));
+        }
+        this.entity.clearChildren();
+        foreach (s; sentences[0..rows.length]) {
+            this.entity.addChild(s);
         }
         zip(rows, sentences).each!(t => t[1].setBuffer(t[0], this.size));
         final switch (this.strategy) {
