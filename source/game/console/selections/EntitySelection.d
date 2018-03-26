@@ -39,5 +39,12 @@ class EntitySelection : Selectable {
     override string assign(string) {
         return "Cannot assign to Entity.";
     }
+
+    override bool opEquals(Object o) {
+        if (auto e = cast(EntitySelection)o) {
+            return this.entity == e.entity;
+        }
+        return false;
+    }
 }
 

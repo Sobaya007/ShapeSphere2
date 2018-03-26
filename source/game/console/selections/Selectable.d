@@ -122,8 +122,8 @@ interface Selectable {
     }
 
     final string absoluteName() {
-        if (parent is null) return name;
-        return parent.absoluteName ~ ">" ~ name;
+        if (parent is null) return indexedName;
+        return parent.absoluteName ~ ">" ~ indexedName;
     }
 
     final string indexedName() {
@@ -136,7 +136,7 @@ interface Selectable {
         auto sameNames = parent.childs.sort!((a,b) => a.name < b.name).filter!(child => child.name == this.name).array;
         if (sameNames.length == 1) return name; 
 
-        auto index = sameNames.countUntil!(a => a is this);
+        auto index = sameNames.countUntil!(a => a == this);
         return format!"%s[%d]"(name, index);
     }
 

@@ -168,9 +168,9 @@ debug class Console {
 
             text ~= cs
                 .sort!((a,b) => a.name < b.name)
-                .group!((a,b) => a.name == b.name)
-                .map!(p => p[1] == 1 ? p[0].absoluteName : format!"%s["(p[0].absoluteName))
-                .reduce!commonPrefix.dropOne;
+                .map!(p => p.absoluteName)
+                .reduce!commonPrefix
+                .dropOne;
             cursor = cast(int)text.back.length;
         }
     }
