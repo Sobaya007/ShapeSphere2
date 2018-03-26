@@ -4,26 +4,18 @@ import sbylib;
 import std.datetime.stopwatch;
 
 class FpsCounter(uint N) {
-    long[N] periods;
-
-    int total;
-    StopWatch sw;
-    int c;
+    private TimeCounter!N timeCounter;
 
     this() {
-        sw.start();
+        this.timeCounter = new TimeCounter!N;
     }
 
     void update() {
-        auto p = periods[c];
-        periods[c] = sw.peek().total!"msecs";
-        total += cast(int)(periods[c] - p);
-        c = (c+1)%N;
-        sw.reset();
+        timeCounter.stop();
+        timeCounter.start();
     }
 
     long getFPS() {
-        if (total == 0) return 0;
-        return 1000 * N / total;
+        return 1000 / timeCounter.averageTime;
     }
 }

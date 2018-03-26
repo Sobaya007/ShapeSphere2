@@ -135,6 +135,10 @@ class Core {
         }, name);
     }
 
+    ref Array!Process allProcess() {
+        return processes;
+    }
+
     //メインループ
     private void mainLoop() {
         this.fpsBalancer.loop({

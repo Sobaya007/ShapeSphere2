@@ -74,13 +74,13 @@ class GameMainScene : SceneBase {
         auto numberLabel2D = Game.addLabel("world2d");
         auto collisionCountLabel = Game.addLabel("col");
         Core().addProcess({
-                numberLabel3D.renderText(format!"World3D: %2d"(Game.getWorld3D().getEntityNum));
-                numberLabel2D.renderText(format!"World2D: %2d"(Game.getWorld2D().getEntityNum));
-                collisionCountLabel.renderText(format!"Player's collision: %2d"(Game.getPlayer().collisionCount));
-                numberLabel3D.left = -1;
-                numberLabel2D.left = -1;
-                collisionCountLabel.left = -1;
-                }, "label update");
+            numberLabel3D.renderText(format!"World3D: %2d"(Game.getWorld3D().getEntityNum));
+            numberLabel2D.renderText(format!"World2D: %2d"(Game.getWorld2D().getEntityNum));
+            collisionCountLabel.renderText(format!"Player's collision: %2d"(Game.getPlayer().collisionCount));
+            numberLabel3D.left = -1;
+            numberLabel2D.left = -1;
+            collisionCountLabel.left = -1;
+        }, "label update");
 
         /* Label Settings */
         if (Game.getCommandManager().isPlaying()) {

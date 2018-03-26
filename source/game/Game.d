@@ -27,17 +27,15 @@ static:
 
     private debug Label[] debugLabels;
     private debug StopWatchLabel[] stopWatch;
+    private debug Label[] processLabels;
 
     private debug class StopWatchLabel {
 
         private string name;
         private Label label;
-        private StopWatch sw;
 
-        private long[] history;
-        private long sum;
-
-        alias sw this;
+        private TimeCounter!100 counter;
+        alias counter this;
 
         this(string name) {
             this.name = name;
@@ -50,6 +48,8 @@ static:
             this.label = factory.make();
             this.label.right = 1;
 
+            this.counter = new TimeCounter!100;
+
             if (stopWatch.length == 0) {
                 this.label.top = 0.9;
             } else {
@@ -57,20 +57,6 @@ static:
                 this.label.pos.y = sw.label.pos.y - sw.label.getHeight;
             }
             getWorld2D().add(this.label);
-        }
-
-        ulong update(long newValue) {
-            if (history.length < 100) {
-                history ~= newValue;
-                sum += newValue;
-            } else {
-                sum += newValue - history.front;
-                foreach (i; 1..history.length) {
-                    history[i-1] = history[i];
-                }
-                history[$-1] = newValue;
-            }
-            return sum / history.length;
         }
     }
 
@@ -171,7 +157,6 @@ static:
             sw.start();
         } else {
             auto sw = findResult.front;
-            sw.reset();
             sw.start();
         }
     }
@@ -180,16 +165,26 @@ static:
         auto findResult = stopWatch.find!(sw => sw.name == str);
         assert(!findResult.empty);
         auto sw = findResult.front;
-        assert(sw.running);
-        auto dur = sw.peek.total!"msecs";
-        auto ave = sw.update(dur);
-        sw.label.renderText(format!"%s : %3dmsecs"(str, ave));
+        sw.stop();
+        sw.label.renderText(format!"%s : %3dmsecs"(str, sw.averageTime));
         sw.label.right = 1;
     }
 
     void update() {
+        debug {
+            foreach (ref proc; Core().allProcess) {
+                startTimer(proc.name);
+                stopTimer(proc.name);
+                auto findResult = stopWatch.find!(sw => sw.name == proc.name);
+                auto po = findResult.front;
+                po.label.renderText(format!"%s : %3dmsecs"(proc.name, proc.averageTime));
+                po.label.right = 1;
+            }
+        }
+        debug Game.startTimer("Game");
         commandManager.update();
         map.step();
+        debug Game.stopTimer("Game");
     }
 
     private ICommandManager selectCommandManager(string[] args) {
