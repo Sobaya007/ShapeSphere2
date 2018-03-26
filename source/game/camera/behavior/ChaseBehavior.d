@@ -35,7 +35,7 @@ class ChaseBehavior : CameraController.Behavior {
         auto dir = vec3(cos(theta)*cos(phi), sin(phi), sin(theta)*cos(phi));
         ray.start = target;
         ray.dir = dir;
-        auto colInfo = Game.getMap().getStageEntity.rayCast(ray);
+        auto colInfo = Game.getMap().mapEntity.rayCast(ray);
         if (colInfo.isJust) {
             auto r = length(colInfo.get().point - target);
             this.arrivalRadius = min(r, CHASE_MAX_LENGTH);

@@ -142,15 +142,19 @@ class CrystalMine : Stage {
         paused = false;
     }
 
-    override Entity getStageEntity() {
-        return this.currentArea.stageEntity;
+    override Entity mapEntity() {
+        return this.currentArea.mapEntity;
     }
 
-    override Entity getCharacterEntity() {
+    override Entity otherEntity() {
+        return this.currentArea.otherEntity;
+    } 
+
+    override Entity characterEntity() {
         return this.currentArea.characterEntity;
     }
 
-    override Entity getMoveEntity() {
+    override Entity moveEntity() {
         return this.currentArea.moveEntity;
     }
 

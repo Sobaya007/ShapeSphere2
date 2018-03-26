@@ -183,7 +183,7 @@ class ElasticSphere : BaseSphere {
         }
 
         auto colInfos = Array!CollisionInfo(0);
-        Game.getMap().getMoveEntity().collide(colInfos, this.elasticSphere2.entity);
+        Game.getMap().moveEntity.collide(colInfos, this.elasticSphere2.entity);
         scope (exit) {
             colInfos.destroy();
         }

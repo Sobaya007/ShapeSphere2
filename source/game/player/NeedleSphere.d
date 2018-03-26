@@ -134,7 +134,9 @@ class NeedleSphere : BaseSphere {
     private void collision() {
         auto colInfos = Array!CollisionInfo(0);
         scope (exit) colInfos.destroy();
-        Game.getMap().getStageEntity().collide(colInfos, this.entity);
+        alias col = e => e.collide(colInfos, this.entity);
+        col(Game.getMap().mapEntity);
+        col(Game.getMap().otherEntity);
         auto contacts = Array!Contact(0);
         scope (exit) contacts.destroy();
         auto lastContactNormal = this.contactNormal;

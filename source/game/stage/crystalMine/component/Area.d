@@ -16,11 +16,12 @@ struct Area {
 
     struct Inst {
         Entity entity;
-        Entity stageEntity;
+        Entity mapEntity;
         Entity characterEntity;
         Entity moveEntity;
         Entity crystalEntity;
         Entity lightEntity;
+        Entity otherEntity;
     }
 
     private static Inst[] insts;
@@ -40,26 +41,29 @@ struct Area {
 
     void create() {
         auto entity = new Entity;
-        auto stageEntity = new Entity;
+        auto mapEntity = new Entity;
         auto characterEntity = new Entity;
         auto moveEntity = new Entity;
         auto crystalEntity = new Entity;
         auto lightEntity = new Entity;
+        auto otherEntity = new Entity;
 
-        stageEntity.addChild(crystalEntity);
-        entity.addChild(stageEntity);
+        entity.addChild(mapEntity);
         entity.addChild(characterEntity);
         entity.addChild(moveEntity);
         entity.addChild(lightEntity);
+        entity.addChild(otherEntity);
+        otherEntity.addChild(crystalEntity);
 
-        insts[index] = Inst(entity, stageEntity, characterEntity, moveEntity, crystalEntity, lightEntity);
+        insts[index] = Inst(entity, mapEntity, characterEntity, moveEntity, crystalEntity, lightEntity, otherEntity);
 
         entity.name = name;
         crystalEntity.name = "crystal";
-        stageEntity.name = "stage";
+        mapEntity.name = "map";
         characterEntity.name = "character";
         moveEntity.name = "move";
         lightEntity.name = "light";
+        otherEntity.name = "other";
     }
 
     auto inst() {
@@ -152,7 +156,7 @@ struct Area {
         import std.stdio;
         writeln("received");
         auto m = entity.buildEntity(StageMaterialBuilder());
-        this.stageEntity.addChild(m);
+        this.mapEntity.addChild(m);
         m.buildBVH();
         m.traverse!((Entity e) {
             auto name = e.mesh.mat.wrapCast!(StageMaterial).name;

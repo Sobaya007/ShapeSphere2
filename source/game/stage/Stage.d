@@ -4,9 +4,10 @@ import sbylib;
 
 interface Stage {
 
-    Entity getStageEntity();
-    Entity getCharacterEntity();
-    Entity getMoveEntity();
+    Entity mapEntity();
+    Entity otherEntity();
+    Entity characterEntity();
+    Entity moveEntity();
     void transit(string);
     void pause();
     void resume();

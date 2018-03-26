@@ -146,7 +146,9 @@ class ElasticSphere2 {
 
     Maybe!WallContact getWallContact() {
         auto colInfos = Array!CollisionInfo(0);
-        Game.getMap().getStageEntity().collide(colInfos, this.entity);
+        alias col = e => e.collide(colInfos, this.entity);
+        col(Game.getMap().mapEntity);
+        col(Game.getMap().otherEntity);
         scope (exit) {
             colInfos.destroy();
         }
@@ -190,13 +192,15 @@ class ElasticSphere2 {
         debug Game.startTimer("elastic collide");
         auto entities = Array!Entity(0);
         scope(exit) entities.destroy();
-        Game.getMap().getStageEntity().traverse((Entity e) {
+        alias col = (e) => e.traverse((Entity e) {
             if (e.colEntry.isNone) return;
             auto info = Array!CollisionInfo(0);
             e.collide(info, this.entity);
             if (info.length > 0)
                 entities ~= e;
         });
+        col(Game.getMap().mapEntity);
+        col(Game.getMap().otherEntity);
         debug collisionCount = entities.length;
         debug Game.stopTimer("elastic collide");
 
