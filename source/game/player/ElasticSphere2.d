@@ -163,7 +163,6 @@ class ElasticSphere2 {
     }
 
     void move(Entity[] collisionEntities) {
-        debug Game.startTimer("elastic solve");
         vec3 g = this.center;
 
         this.rotateParticles(g);
@@ -171,6 +170,7 @@ class ElasticSphere2 {
 
 
         //拘束解消
+        debug Game.startTimer("elastic solve");
         {
             //隣との距離を計算
             foreach (pair; this.pairList) {
@@ -183,9 +183,11 @@ class ElasticSphere2 {
                 }
             }
         }
+        debug Game.stopTimer("elastic solve");
         float baloonForce = this.calcBaloonForce();
         this.contactNormal = None!vec3;
 
+        debug Game.startTimer("elastic collide");
         auto entities = Array!Entity(0);
         scope(exit) entities.destroy();
         Game.getMap().getStageEntity().traverse((Entity e) {
@@ -196,7 +198,9 @@ class ElasticSphere2 {
                 entities ~= e;
         });
         debug collisionCount = entities.length;
+        debug Game.stopTimer("elastic collide");
 
+        debug Game.startTimer("elastic particle");
         foreach (ref particle; this.particleList) {
             particle.force += particle.normal * baloonForce;
             if (this.contactNormal.isNone) particle.force.y -= GRAVITY * MASS;
@@ -210,9 +214,11 @@ class ElasticSphere2 {
             p.force = this.force;
         }
         this.force = vec3(0);
+        debug Game.stopTimer("elastic particle");
 
+        debug Game.startTimer("elastic geometry");
         updateGeometry();
-        debug Game.stopTimer("elastic solve");
+        debug Game.stopTimer("elastic geometry");
     }
 
     void push(vec3 forceVector, float maxPower) {
@@ -356,9 +362,7 @@ class ElasticSphere2 {
             v.normal = safeNormalize(v.normal);
             v.position = (this.entity.viewMatrix * vec4(p.position.get, 1)).xyz;
         }
-        debug Game.startTimer("elastic update");
         geom.updateBuffer();
-        debug Game.stopTimer("elastic update");
     }
 
     //山登りで探索

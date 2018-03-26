@@ -20,6 +20,7 @@ class ChaseBehavior : CameraController.Behavior {
     private float arrivalTheta = 0;
     private float theta = 0;
     private float phi = 0.3;
+    private float arrivalRadius = 1;
     private float radius = 1;
     private CollisionRay ray = new CollisionRay;
 
@@ -37,10 +38,10 @@ class ChaseBehavior : CameraController.Behavior {
         auto colInfo = Game.getMap().getStageEntity.rayCast(ray);
         if (colInfo.isJust) {
             auto r = length(colInfo.get().point - target);
-            r = min(r, CHASE_MAX_LENGTH);
-            this.radius += (r - this.radius) * CHASE_RADIUS_RATE;
-            camera.pos = target + radius * dir;
+            this.arrivalRadius = min(r, CHASE_MAX_LENGTH);
         }
+        this.radius += (this.arrivalRadius - this.radius) * CHASE_RADIUS_RATE;
+        camera.pos = target + radius * dir;
         camera.lookAt(target);
     }
 
