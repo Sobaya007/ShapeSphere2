@@ -9,7 +9,7 @@ mixin template ImplChangeCallback() {
         this.callbacks ~= cb;
         import std.algorithm;
         return {
-            this.callbacks.remove!(c => c == cb);
+            this.callbacks = this.callbacks.remove!(c => c == cb);
         };
     }
 
