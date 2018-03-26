@@ -64,7 +64,11 @@ class Root {
 
     void save() {
         import std.file : write;
-        write(path, root.toJSON(true));
+        import std.regex;
+        auto result = root.toJSON(true);
+        auto r = ctRegex!("(\\d*\\.)(\\d)(\\d)(\\d)(\\d)*");
+        result = result.replaceAll(r, "$1$2$3$4");
+        write(path, result);
     }
 
     private void load() {
