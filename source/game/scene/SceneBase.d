@@ -34,8 +34,8 @@ class SceneProtoType : SceneBase {
         this.renderer.render(this.world, this.screen, this.viewport);
     }
 
-    IAnimation fade(AnimSetting!vec4 setting) {
-        return new Animation!vec4((color) {
+    auto fade(AnimSetting!vec4 setting) {
+        return animation((vec4 color) {
             this.fadeRect.color = color;
         }, setting);
     }

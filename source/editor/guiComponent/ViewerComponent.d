@@ -117,7 +117,7 @@ private:
 
 
         auto map = new Map;
-        map.testStage2();
+        map.crystalMine();
         Game.initializeMap(map);
 
 

@@ -7,9 +7,9 @@ import game.camera.behavior;
 
 class CameraController {
 
-    alias BehaviorTypes = AliasSeq!(ChaseBehavior, ResetBehavior, LookOverBehavior, FocusBehavior);
+    alias BehaviorTypes = AliasSeq!(ChaseBehavior, ResetBehavior, LookOverBehavior, FocusBehavior, FlyBehavior, TraceBehavior);
 
-    package interface Behavior {
+    interface Behavior {
         void step();
         void turn(vec2);
 
@@ -41,7 +41,7 @@ class CameraController {
         static foreach (Type; BehaviorTypes) {
             this.behaviors ~= new Type(this);
         }
-        this.entity = new Entity(new CollisionCapsule(2, vec3(0), vec3(0)));
+        this.entity = new Entity(new CollisionCapsule(1, vec3(0), vec3(0)));
         this.camera.addChild(this.entity);
     }
 
@@ -50,7 +50,7 @@ class CameraController {
         chase.initialize();
     }
 
-    package T transit(T)() out (res) {
+    T transit(T)() out (res) {
         assert(res !is null);
     } body {
         return cast(T)(this.behavior = this.behaviors.find!(b => b.instanceof!T).front);
@@ -67,6 +67,13 @@ class CameraController {
     void chase() {
         transit!(ChaseBehavior);
         // don't call initialize
+    }
+
+    debug void fly() {
+        auto fly = transit!(FlyBehavior);
+        fly.initialize();
+        import game.player.Controller;
+        Controller().available = false;
     }
 
     void reset() {
@@ -87,6 +94,11 @@ class CameraController {
         v.y = -1;
         v = normalize(v);
         focus.initialize(obj, v);
+    }
+
+    void trace(TraceBehavior.Trail[] trailList, void delegate() onFinish) {
+        auto trace = transit!(TraceBehavior);
+        trace.initialize(trailList, onFinish);
     }
 
     void stopLookOver() {

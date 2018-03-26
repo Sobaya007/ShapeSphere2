@@ -1,0 +1,6 @@
+{
+    "PERIOD": 500,
+    "WAIT_PERIOD": 260,
+    "WIND": 0.7,
+    "NOISE": 0.0003
+}

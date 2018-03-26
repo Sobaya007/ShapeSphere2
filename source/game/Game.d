@@ -25,18 +25,17 @@ static:
 
     private GameMainScene scene;
 
+    private debug Label[] debugLabels;
     private debug StopWatchLabel[] stopWatch;
+    private debug Label[] processLabels;
 
     private debug class StopWatchLabel {
 
         private string name;
         private Label label;
-        private StopWatch sw;
 
-        private long[] history;
-        private long sum;
-
-        alias sw this;
+        private TimeCounter!100 counter;
+        alias counter this;
 
         this(string name) {
             this.name = name;
@@ -49,6 +48,8 @@ static:
             this.label = factory.make();
             this.label.right = 1;
 
+            this.counter = new TimeCounter!100;
+
             if (stopWatch.length == 0) {
                 this.label.top = 0.9;
             } else {
@@ -57,20 +58,30 @@ static:
             }
             getWorld2D().add(this.label);
         }
+    }
 
-        ulong update(long newValue) {
-            if (history.length < 100) {
-                history ~= newValue;
-                sum += newValue;
-            } else {
-                sum += newValue - history.front;
-                foreach (i; 1..history.length) {
-                    history[i-1] = history[i];
-                }
-                history[$-1] = newValue;
-            }
-            return sum / history.length;
-        }
+    debug Label addLabel(dstring text = "") {
+        auto factory = LabelFactory();
+        factory.text = text;
+        factory.strategy = Label.Strategy.Left;
+        factory.fontName = "meiryo.ttc";
+        factory.height = 0.06;
+        factory.backColor = vec4(vec3(1), 0.4);
+        auto label = factory.make();
+        label.left = -1;
+        label.top = 0.9 - debugLabels.length * factory.height;
+        Game.getWorld2D().add(label);
+
+        debugLabels ~= label;
+
+        return label;
+    }
+
+    debug void toggleDebugLabel() {
+        static bool visible = true;
+        visible = !visible;
+        debugLabels.each!(label => label.traverse((Entity e) { e.visible = visible; }));
+        stopWatch.each!(sw => sw.label.traverse((Entity e) { e.visible = visible; }));
     }
 
     void initialize(string[] args) {
@@ -138,7 +149,7 @@ static:
         return this.backBuffer;
     }
 
-    debug void timerStart(string str) {
+    debug void startTimer(string str) {
         auto findResult = stopWatch.find!(sw => sw.name == str);
         if (findResult.empty) {
             auto sw = new StopWatchLabel(str);
@@ -146,24 +157,24 @@ static:
             sw.start();
         } else {
             auto sw = findResult.front;
-            sw.reset();
             sw.start();
         }
     }
 
-    debug void timerStop(string str) {
+    debug void stopTimer(string str) {
         auto findResult = stopWatch.find!(sw => sw.name == str);
         assert(!findResult.empty);
         auto sw = findResult.front;
-        assert(sw.running);
-        auto dur = sw.peek.total!"msecs";
-        auto ave = sw.update(dur);
-        sw.label.renderText(format!"%s : %3dmsecs"(str, ave));
+        sw.stop();
+        sw.label.renderText(format!"%s : %3dmsecs"(str, sw.averageTime));
         sw.label.right = 1;
     }
 
     void update() {
+        debug Game.startTimer("Game");
         commandManager.update();
+        map.step();
+        debug Game.stopTimer("Game");
     }
 
     private ICommandManager selectCommandManager(string[] args) {

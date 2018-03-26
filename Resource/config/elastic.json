@@ -3,8 +3,9 @@
     "MASS": 0.05,
     "FRICTION": 0.3,
     "ZETA": 0.5,
-    "OMEGA": 110,
+    "OMEGA": 150,
     "GRAVITY": 100,
     "BALOON_COEF": 20000,
-    "MAX_VELOCITY": 40
+    "MAX_VELOCITY": 40,
+    "ITERATION_COUNT": 10
 }

@@ -9,39 +9,34 @@ class LogoAnimation : SceneProtoType {
 
     private Entity image;
     this() {
-        this.image = makeImageEntity(ImagePath("uv.png"), 0.2, 0.2);
+        ImageEntityFactory factory;
+        factory.width = 1.8;
+        this.image = factory.make(ImagePath("traP.png"));
         super();
         addEntity(image);
     }
 
     override void initialize() {
         AnimationManager().startAnimation(
-            sequence([
+            sequence(
                 fade(
                     setting(
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
-                        60,
-                        Ease.linear
+                        60.frame,
+                        &Ease.linear
                     )
                 ),
-                image.rotate(
-                    setting(
-                        Radian(0.deg),
-                        Radian(360.deg),
-                        60,
-                        Ease.easeInOut
-                    )
-                ),
+                wait(60.frame),
                 fade(
                     setting(
                         vec4(0,0,0,0),
                         vec4(0,0,0,1),
-                        60,
-                        Ease.linear
+                        60.frame,
+                        &Ease.linear
                     )
                 ),
-            ]),
+            ),
         ).onFinish(&this.finish);
     }
 }
