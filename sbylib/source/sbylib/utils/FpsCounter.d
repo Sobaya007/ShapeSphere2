@@ -16,6 +16,7 @@ class FpsCounter(uint N) {
     }
 
     long getFPS() {
+        if (timeCounter.averageTime == 0) return 0;
         return 1000 / timeCounter.averageTime;
     }
 }
