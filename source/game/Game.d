@@ -171,16 +171,6 @@ static:
     }
 
     void update() {
-        debug {
-            foreach (ref proc; Core().allProcess) {
-                startTimer(proc.name);
-                stopTimer(proc.name);
-                auto findResult = stopWatch.find!(sw => sw.name == proc.name);
-                auto po = findResult.front;
-                po.label.renderText(format!"%s : %3dmsecs"(proc.name, proc.averageTime));
-                po.label.right = 1;
-            }
-        }
         debug Game.startTimer("Game");
         commandManager.update();
         map.step();

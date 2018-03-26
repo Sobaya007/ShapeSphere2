@@ -163,6 +163,7 @@ class ElasticSphere2 {
     }
 
     void move(Entity[] collisionEntities) {
+        debug Game.startTimer("elastic solve");
         vec3 g = this.center;
 
         this.rotateParticles(g);
@@ -175,14 +176,12 @@ class ElasticSphere2 {
             foreach (pair; this.pairList) {
                 pair.init();
             }
-            debug Game.startTimer("elastic solve");
             foreach (k; 0..ITERATION_COUNT){
                 //隣との拘束
                 foreach (pair; this.pairList) {
                     pair.solve();
                 }
             }
-            debug Game.stopTimer("elastic solve");
         }
         float baloonForce = this.calcBaloonForce();
         this.contactNormal = None!vec3;
@@ -213,6 +212,7 @@ class ElasticSphere2 {
         this.force = vec3(0);
 
         updateGeometry();
+        debug Game.stopTimer("elastic solve");
     }
 
     void push(vec3 forceVector, float maxPower) {
