@@ -81,17 +81,21 @@ class ManualAnimation : IAnimationWithPeriod {
     alias Operator = void delegate(Kill);
 
     private Operator operator;
+    private bool autoStep;
     private bool isDone;
     private Maybe!(Frame) resultedPeriod;
 
-    this(Operator operator) {
+    this(Operator operator, bool autoStep) {
         this.operator = operator;
+        this.autoStep = autoStep;
         this.resultedPeriod = None!Frame;
     }
 
     override void eval(Frame frame) {
-        operator(&kill);
-
+        if (operator) {
+            operator(&kill);
+            if (!autoStep) operator = null;
+        }
         if (this.resultedPeriod.isNone && done) {
             this.resultedPeriod = Just(frame);
         }
@@ -233,8 +237,8 @@ auto animation(T)(void delegate(T) operator, AnimSetting!T setting) {
     return new Animation!T(operator, setting);
 }
 
-auto animation(void delegate(void delegate()) operator) {
-    return new ManualAnimation(operator);
+auto animation(void delegate(void delegate()) operator, bool autoStep) {
+    return new ManualAnimation(operator, autoStep);
 }
 
 auto translate(Entity entity, AnimSetting!vec2 evaluator) {

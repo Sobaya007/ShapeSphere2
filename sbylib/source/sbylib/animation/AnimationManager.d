@@ -28,7 +28,7 @@ class AnimationManager {
         foreach (proc; procedures) {
             proc.step();
         }
-        procedures.filter!((AnimationProcedure proc) => !proc.hasFinished);
+        procedures.filter!((AnimationProcedure proc) => !proc.done);
     }
 }
 
@@ -37,6 +37,7 @@ class AnimationProcedure {
     private IAnimation animation;
  
     private Maybe!(void delegate()) finishCallback = None!(void delegate());
+    private bool forced;
 
     this(IAnimation animation) {
         this.animation = animation;
@@ -48,10 +49,10 @@ class AnimationProcedure {
     }
 
     void step() {
-        if (this.hasFinished) return;
+        if (this.done) return;
         this.animation.eval(this.frame);
         this.frame++;
-        if (this.hasFinished) {
+        if (this.done) {
             this.finishCallback.apply!(f => f());
         }
     }
@@ -61,7 +62,12 @@ class AnimationProcedure {
         this.finishCallback.apply!(f => f());
     }
 
-    bool hasFinished() {
-        return this.animation.done;
+    void forceFinish() {
+        this.finishCallback.apply!(f => f());
+        this.forced = true;
+    }
+
+    bool done() {
+        return forced || this.animation.done;
     }
 }

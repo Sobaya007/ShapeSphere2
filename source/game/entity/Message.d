@@ -42,7 +42,7 @@ class Message : CommandReceiver {
     }
 
     void setMessage(dstring message) in {
-        assert(this.procedure.hasFinished.getOrElse(true));
+        assert(this.procedure.done.getOrElse(true));
     } body {
         float currentWidth = this.text.getWidth();
         float currentHeight = this.text.getHeight();
@@ -80,7 +80,7 @@ class Message : CommandReceiver {
     }
 
     private void onDecisideJustPressed() {
-        if (!this.procedure.get().hasFinished) return;
+        if (!this.procedure.get().done) return;
         this.setMessage("");
         this.procedure.onFinish({
             this.entity.remove();

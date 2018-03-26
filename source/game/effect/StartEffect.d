@@ -4,11 +4,13 @@ import game.Game;
 import game.effect.Effect;
 import sbylib;
 
-class StartEffect : Effect {
+class StartEffect {
 
     alias StartEffectEntity = TypedEntity!(TypedGeometry!([Attribute.Position, Attribute.UV], Prim.Point), StartEffectMaterial);
     StartEffectEntity entity;
     Fragment[] fragmentList;
+    IAnimationWithPeriod anim;
+    alias anim this;
 
     private mixin DeclareConfig!(uint, "PERIOD", "StartEffect.json");
     private mixin DeclareConfig!(uint, "WAIT_PERIOD", "StartEffect.json");
@@ -26,14 +28,14 @@ class StartEffect : Effect {
         auto X_DIV = W/FRAG_WIDTH;
         auto Y_DIV = H/FRAG_HEIGHT;
         debug {
-	    mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
+            mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
             mat.fragWidth = FRAG_WIDTH/W;
             mat.fragHeight = FRAG_HEIGHT/H;
-	} else {
-	    mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 1.0;
+        } else {
+            mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 1.0;
             mat.fragWidth = FRAG_WIDTH/W * 2;
             mat.fragHeight = FRAG_HEIGHT/H * 2;
-	}
+        }
 
         VertexT[] vertices;
         foreach (i; 0..X_DIV) {
@@ -51,30 +53,38 @@ class StartEffect : Effect {
         this.entity = makeEntity(geom, mat);
         Game.getWorld2D().add(entity);
 
-        AnimationManager().startAnimation(sequence(
+        this.anim = sequence(
             multi(
                 animation((float alpha) => mat.textAlpha = alpha, setting(0.0f, 1.0f, PERIOD.frame, &Ease.linear)),
                 animation((float lineRate) => mat.lineRate = lineRate, setting(0.0f, 1.0f, PERIOD.frame, &Ease.linear)),
             ),
             wait(WAIT_PERIOD.frame),
-            animation(&po)
-        ));
+            multi(
+                animation((void delegate() kill) {
+                    foreach (ref frag; fragmentList) {
+                        frag.step();
+                    }
+                    entity.mesh.geom.updateBuffer();
+                    if (entity.mat.textAlpha.value == 0) kill();
+                }, true),
+                animation((float alpha) => mat.textAlpha = alpha, setting(1.0f, 0.0f, 100.frame, &Ease.linear))
+            )
+        );
     }
 
-    override void step() {
-    }
-
-    void po(void delegate() kill) {
-        foreach (ref frag; fragmentList) {
-            frag.step();
-        }
-        entity.mesh.geom.updateBuffer();
-        entity.mat.textAlpha -= 0.01;
-        if (entity.mat.textAlpha.value < 0) kill();
-    }
-
-    override bool done() {
-        return entity.mat.textAlpha.value < 0;
+    void abridge() {
+        this.anim = sequence(
+            multi(
+                animation((void delegate() kill) {
+                    foreach (ref frag; fragmentList) {
+                        frag.step();
+                    }
+                    entity.mesh.geom.updateBuffer();
+                    if (entity.mat.textAlpha.value == 0) kill();
+                }, true),
+                animation((float alpha) => entity.mat.textAlpha = alpha, setting(entity.mat.textAlpha, 0.0f, 50.frame, &Ease.linear))
+            )
+        );
     }
 
     private struct Fragment {

@@ -49,21 +49,23 @@ class CrystalMine : Stage {
 
         debug addDebugActions;
 
-        AnimationManager().startAnimation(
-            animation(
-                (vec4 color) => this.fadeRect.color = color,
-                setting(
-                    vec4(0,0,0,1),
-                    vec4(0),
-                    60.frame,
-                    &Ease.easeInOut
-                )
-            )
-        );
-        Game.getPlayer().camera.trace(this.root.cameraMove.trail, {
-            // on finish
-            AnimationManager().startAnimation(
+        import game.effect.StartEffect;
+        auto startEffect = new StartEffect(this.stageName);
+        auto anim = AnimationManager().startAnimation(
+            multi(
+                animation(
+                    (vec4 color) => this.fadeRect.color = color,
+                    setting(
+                        vec4(0,0,0,1),
+                        vec4(0),
+                        60.frame,
+                        &Ease.easeInOut
+                    )
+                ),
                 sequence(
+                    animation((void delegate() kill) {
+                        Game.getPlayer().camera.trace(this.root.cameraMove.trail, kill);
+                    }, false),
                     animation(
                         (vec4 color) => this.fadeRect.color = color,
                         setting(
@@ -85,13 +87,44 @@ class CrystalMine : Stage {
                         )
                     ),
                     wait(120.frame),
+                ),
+                startEffect
+            )
+        );
+
+        Core().getKey().justPressed(KeyButton.Enter).add({
+            if (anim is null) return;
+            anim.forceFinish();
+            anim = null;
+            startEffect.abridge();
+            AnimationManager().startAnimation(
+                sequence(
+                    multi(
+                        animation(
+                            (vec4 color) => this.fadeRect.color = color,
+                            setting(
+                                this.fadeRect.color,
+                                vec4(0,0,0,1),
+                                60.frame,
+                                &Ease.easeInOut
+                            )
+                        ),
+                        startEffect,
+                    ),
+                    single({ Game.getPlayer().camera.reset(); }),
+                    wait(20.frame),
+                    animation(
+                        (vec4 color) => this.fadeRect.color = color,
+                        setting(
+                            vec4(0,0,0,1),
+                            vec4(0,0,0,0),
+                            30.frame,
+                            &Ease.easeInOut
+                        )
+                    ),
                 )
             );
         });
-        import game.effect.Effect;
-        import game.effect.StartEffect;
-        EffectManager().start(new StartEffect(this.stageName));
-
     }
 
 
@@ -197,7 +230,7 @@ class CrystalMine : Stage {
         });
 
         Core().getKey().justPressed(KeyButton.KeyU).add({
-            EffectManager().start(new StartEffect(this.stageName));
+            AnimationManager().startAnimation(new StartEffect(this.stageName));
         });
 
         Core().getKey().justPressed(KeyButton.KeyT).add({
