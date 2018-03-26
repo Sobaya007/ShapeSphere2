@@ -159,10 +159,18 @@ debug class Console {
 
             if (cs.empty) return;
 
-            auto output = cs.map!(c => c.screenName).array;
+            auto output = cs
+                .sort!((a,b) => a.name < b.name)
+                .group!((a,b) => a.name == b.name)
+                .map!(p => p[1] == 1 ? p[0].screenName : format!"%s[%d]"(p[0].name, p[1]))
+                .array;
             show(output);
 
-            text ~= cs.map!(c => c.absoluteName).reduce!commonPrefix.dropOne;
+            text ~= cs
+                .sort!((a,b) => a.name < b.name)
+                .group!((a,b) => a.name == b.name)
+                .map!(p => p[1] == 1 ? p[0].absoluteName : format!"%s["(p[0].absoluteName))
+                .reduce!commonPrefix.dropOne;
             cursor = cast(int)text.back.length;
         }
     }

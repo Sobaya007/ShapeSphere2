@@ -248,7 +248,7 @@ class Entity {
     }
 
     debug int getDescendantNum() {
-        return children.map!(child => child.getDescendantNum).sum + 1;
+        return children.map!(child => max(1, child.getDescendantNum)).sum;
     }
 
     void render() in {

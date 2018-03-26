@@ -126,16 +126,30 @@ interface Selectable {
         return parent.absoluteName ~ ">" ~ name;
     }
 
+    final string indexedName() {
+        import std.algorithm : filter, countUntil, sort, find;
+        import std.range;
+        import std.array : array;
+        import std.format : format;
+
+        if (parent is null) return name;
+        auto sameNames = parent.childs.sort!((a,b) => a.name < b.name).filter!(child => child.name == this.name).array;
+        if (sameNames.length == 1) return name; 
+
+        auto index = sameNames.countUntil!(a => a is this);
+        return format!"%s[%d]"(name, index);
+    }
+
     mixin template ImplCountChild(bool flag) {
 
         override int countChilds() {
-            import std.algorithm : map, sum, filter;
+            import std.algorithm : map, sum, filter, max;
 
             return 
-                flag ? 
+                isAggregate ? 
                     childs
                     .filter!(child => child.isAggregate)
-                    .map!(child => child.countChilds + 1).sum
+                    .map!(child => max(1, child.countChilds)).sum
                     : 0;
         }
 

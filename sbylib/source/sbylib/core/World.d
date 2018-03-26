@@ -120,7 +120,7 @@ class World {
     }
 
     debug int getEntityNum() {
-        return entities.map!(e => e.getDescendantNum).sum;
+        return entities.filter!(e => e.getParent.isNone).map!(e => e.getDescendantNum).sum;
     }
 
     void addRenderGroup(string name, IRenderGroup group) {

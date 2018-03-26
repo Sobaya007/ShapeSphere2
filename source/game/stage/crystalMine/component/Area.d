@@ -54,12 +54,12 @@ struct Area {
 
         insts[index] = Inst(entity, stageEntity, characterEntity, moveEntity, crystalEntity, lightEntity);
 
-        entity.name = name ~" entity";
-        crystalEntity.name = name ~" crystalEntity";
-        stageEntity.name = name ~" stageEntity";
-        characterEntity.name = name ~" characterEntity";
-        moveEntity.name = name ~" moveEntity";
-        lightEntity.name = name ~" lightEntity";
+        entity.name = name;
+        crystalEntity.name = "crystal";
+        stageEntity.name = "stage";
+        characterEntity.name = "character";
+        moveEntity.name = "move";
+        lightEntity.name = "light";
     }
 
     auto inst() {
