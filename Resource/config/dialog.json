@@ -1,0 +1,12 @@
+{
+    "DIALOG_WIDTH": 1.5,
+    "DIALOG_HEIGHT": 1,
+    "TEXT_TOP": 0.4,
+    "TEXT_SIZE": 0.15,
+    "YES_COLOR": [0.7, 0.1, 0.1],
+    "NO_COLOR": [0.1, 0.1, 0.7],
+    "SELECTION_SIZE": 0.15,
+    "SELECTION_X": 0.2,
+    "SELECTION_Y": -0.2,
+    "PROGRESS_PERIOD": 20
+}

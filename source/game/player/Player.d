@@ -23,7 +23,7 @@ class Player : CommandReceiver {
 
     private BaseSphere sphere;
     private BaseSphere[] spheres;
-    package CameraController camera;
+    CameraController camera;
     Entity[] collisionEntities;
 
     this(Camera camera) {
@@ -126,4 +126,7 @@ class Player : CommandReceiver {
         return this.sphere.lastDirection();
     }
 
+    debug auto collisionCount() {
+        return (cast(ElasticSphere)this.spheres.find!(s => s.instanceof!ElasticSphere).front).elasticSphere2.collisionCount;
+    }
 }

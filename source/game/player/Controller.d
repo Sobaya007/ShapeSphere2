@@ -38,6 +38,7 @@ class Controller {
     private Button[CButton] buttons;
     private Stick leftStick;
     private Stick rightStick;
+    debug bool available = true;
 
     private static Controller instance;
     public static Controller opCall() {
@@ -65,6 +66,7 @@ class Controller {
     }
 
     bool isPressed(CButton b) {
+        debug if (!available) return false;
         if (this.joy.canUse) {
             return this.joy.isPressed(this.buttons[b].joyButton);
         } else {
@@ -73,6 +75,7 @@ class Controller {
     }
 
     bool isReleased(CButton b) {
+        debug if (!available) return true;
         if (this.joy.canUse) {
             return this.joy.isReleased(this.buttons[b].joyButton);
         } else {
@@ -81,6 +84,7 @@ class Controller {
     }
 
     bool justPressed(CButton b) {
+        debug if (!available) return false;
         if (this.joy.canUse) {
             return this.joy.justPressed(this.buttons[b].joyButton);
         } else {
@@ -89,6 +93,7 @@ class Controller {
     }
 
     bool justReleased(CButton b) {
+        debug if (!available) return true;
         if (this.joy.canUse) {
             return this.joy.justReleased(this.buttons[b].joyButton);
         } else {
@@ -105,6 +110,7 @@ class Controller {
     }
 
     private vec2 getStickValue(Stick stick) {
+        debug if (!available) return vec2(0);
         vec2 v = vec2(0);
         if (this.joy.canUse) {
             v.x = this.joy.getAxis(stick.joyAxisX);

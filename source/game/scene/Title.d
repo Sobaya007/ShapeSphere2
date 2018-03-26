@@ -15,7 +15,7 @@ class Title : SceneProtoType {
     private uint selector = 0;
 
     this() {
-        this.text = makeTextEntity("タイトル"d, 0.4);
+        this.text = makeTextEntity("Shape Sphere"d, 0.3);
         auto newGame = Selection("New Game"d, vec2(0.5, -0.6));
         auto loadGame = Selection("Load Game"d, vec2(0.45, -0.75));
         selections = [newGame, loadGame];
@@ -28,52 +28,46 @@ class Title : SceneProtoType {
 
     override void initialize() {
         AnimationManager().startAnimation(
-            sequence([
+            sequence(
                 fade(
                     setting(
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
-                        60,
-                        Ease.linear
+                        60.frame,
+                        &Ease.linear
                     )
                 ),
-                text.rotate(
-                    setting(
-                        Radian(0.deg),
-                        Radian(360.deg),
-                        60,
-                        Ease.linear
-                    )
-                ),
-                multi(selections.map!(s =>
-                    s.label.colorAnimation(
-                        setting(
-                            vec4(0),
-                            vec4(0.5),
-                            60,
-                            Ease.linear
+                multi(
+                    selections.map!(s =>
+                        s.label.colorAnimation(
+                            setting(
+                                vec4(0),
+                                vec4(0.5),
+                                60.frame,
+                                &Ease.linear
+                            )
                         )
-                    )).array
+                    ).array
                 ),
-                multi([
+                multi(
                     this.selections[0].label.translate(
                         setting(
                             this.selections[0].label.pos.xy,
                             this.selections[0].basePos - vec2(0.05,0),
-                            10,
-                            Ease.easeInOut
+                            10.frame,
+                            &Ease.easeInOut
                         )
                     ),
                     this.selections[0].label.colorAnimation(
                         setting(
                             vec4(0.5),
                             vec4(1),
-                            10,
-                            Ease.linear
+                            10.frame,
+                            &Ease.linear
                         )
                     )
-                ])
-            ])
+                )
+            )
         ).onFinish({
             addEvent(() => Controller().justPressed(CButton.Up), {
                 this.changeSelector(-1);
@@ -112,24 +106,24 @@ class Title : SceneProtoType {
 
         void select() {
             this.animation = Just(AnimationManager().startAnimation(
-                multi([
+                multi(
                     this.label.translate(
                         setting(
                             this.label.pos.xy,
                             basePos - vec2(0.05,0),
-                            10,
-                            Ease.easeInOut
+                            10.frame,
+                            &Ease.easeInOut
                         )
                     ),
                     this.label.colorAnimation(
                         setting(
                             this.label.color,
                             vec4(1),
-                            10,
-                            Ease.linear
+                            10.frame,
+                            &Ease.linear
                         )
                     )
-                ])
+                )
             ));
         }
 
@@ -138,24 +132,24 @@ class Title : SceneProtoType {
                 this.animation.get.finish();
             }
             this.animation = Just(AnimationManager().startAnimation(
-                multi([
+                multi(
                     this.label.translate(
                         setting(
                             this.label.pos.xy,
                             basePos,
-                            10,
-                            Ease.easeInOut
+                            10.frame,
+                            &Ease.easeInOut
                         )
                     ),
                     this.label.colorAnimation(
                         setting(
                             this.label.color,
                             vec4(0.5),
-                            10,
-                            Ease.linear
+                            10.frame,
+                            &Ease.linear
                         )
                     )
-                ])
+                )
             ));
         }
     }

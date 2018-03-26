@@ -27,16 +27,16 @@ class ViewerViewport : IViewport {
         GlFunction.setViewport(innerX, innerY, innerWidth, innerHeight);
     }
 
-    override int getX() {
+    override int getX() const {
         return this.x;
     }
-    override int getY() {
+    override int getY() const {
         return this.y;
     }
-    override uint getWidth() {
+    override uint getWidth() const {
         return this.width;
     }
-    override uint getHeight() {
+    override uint getHeight() const {
         return this.height;
     }
 

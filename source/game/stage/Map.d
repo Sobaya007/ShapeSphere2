@@ -4,10 +4,8 @@ import sbylib;
 import game.Game;
 import game.character;
 import std.json, std.file, std.stdio;;
-import game.stage.StageMaterial;
-import game.stage.CrystalMaterial;
 import game.stage.Stage;
-import game.stage.Stage1;
+import game.stage.crystalMine;
 
 class Map {
     Stage stage;
@@ -40,8 +38,8 @@ class Map {
         makePolygon([vec3(20,0,10),vec3(20,10,40), vec3(-20, 10, +40), vec3(-20, 0, 10)]);
     }
 
-    void testStage2() {
-        this.stage = new Stage1;
+    void crystalMine() {
+        this.stage = new CrystalMine;
     }
 
     alias stage this;

@@ -22,9 +22,12 @@ class Message : CommandReceiver {
         factory.strategy = Label.Strategy.Center;
         factory.wrapWidth = 1;
         this.text = factory.make();
-        text.pos.z = -0.5;
+        this.text.pos.z = 0.5;
 
-        this.img = makeImageEntity(ImagePath("message.png"), 1, 1);
+        ImageEntityFactory imageFactory;
+        imageFactory.width = 1;
+        imageFactory.height = 1;
+        this.img = imageFactory.make(ImagePath("message.png"));
 
         this.entity = new Entity();
         this.entity.addChild(text);
@@ -39,45 +42,45 @@ class Message : CommandReceiver {
     }
 
     void setMessage(dstring message) in {
-        assert(this.procedure.hasFinished.getOrElse(true));
+        assert(this.procedure.done.getOrElse(true));
     } body {
         float currentWidth = this.text.getWidth();
         float currentHeight = this.text.getHeight();
         text.renderText(message);
-        text.traverse!((Entity e) => e.visible = false);
         float arrivalWidth = text.getWidth();
         float arrivalHeight = text.getHeight();
+        text.renderText("");
         this.img.scale = vec3(0);
         this.procedure = Just(AnimationManager().startAnimation(
-            sequence(cast(IAnimation[])[
-                new Animation!vec3(
+            sequence(
+                animation(
                     (vec3 scale) {
                         this.img.scale = scale * 1.1;
                     },
                     setting(
                         vec3(currentWidth, currentHeight,1),
                         vec3(arrivalWidth, arrivalHeight, 1),
-                        30,
-                        Ease.easeInOut
+                        30.frame,
+                        &Ease.easeInOut
                     )
                 ),
-                new Animation!float(
+                animation(
                     (float time) {
                         text.renderText(message[0..cast(int)time]);
                     },
                     setting(
                         0f,
                         message.length + 0.5f,
-                        cast(uint)(5 * message.length),
-                        Ease.linear
+                        (5 * message.length).frame,
+                        &Ease.linear
                     )
                 )
-            ])
+            )
         ));
     }
 
     private void onDecisideJustPressed() {
-        if (!this.procedure.get().hasFinished) return;
+        if (!this.procedure.get().done) return;
         this.setMessage("");
         this.procedure.onFinish({
             this.entity.remove();

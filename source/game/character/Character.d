@@ -25,7 +25,6 @@ class Character {
         {
             auto mat = new CharacterMaterial();
             mat.config.renderGroupName = "transparent";
-            mat.config.depthWrite = false;
             mat.config.faceMode = FaceMode.Front;
             this.elasticSphere = new ElasticSphere2(mat);
         }

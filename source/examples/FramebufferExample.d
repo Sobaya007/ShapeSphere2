@@ -15,7 +15,7 @@ void framebufferExample() {
     auto renderTarget = new RenderTarget(window.getWidth, window.getHeight);
     renderTarget.setClearColor(vec4(1));
     renderTarget.attachTexture!uint(FrameBufferAttachType.Color0);
-    renderTarget.attachRenderBuffer(FrameBufferAttachType.Depth);
+    renderTarget.attachRenderBuffer!uint(FrameBufferAttachType.Depth);
 
 
     auto camera = new PerspectiveCamera(

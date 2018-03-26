@@ -25,5 +25,5 @@ void main() {
         d *= pow(length(l), -1.5)  * 5;
         fragColor.rgb += pointLights[i].diffuse * d;
     }
-    fragColor.rgb *= clamp((100 - length(vPosition)) * 0.01, 0, 1);
+    fragColor.rgb *= clamp((200 - length(vPosition)) * 0.01, 0, 1);
 }
