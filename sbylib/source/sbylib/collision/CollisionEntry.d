@@ -106,8 +106,6 @@ class CollisionEntry {
 
     public static Maybe!CollisionInfo collide(CollisionCapsule capsule, CollisionPolygon polygon) {
         //枝刈り
-        import std.conv;
-        assert(abs(polygon.normal.length - 1) < 1e-3, polygon.normal.length.to!string);
         auto d1 = abs(dot(capsule.start - polygon.positions[0], polygon.normal));
         auto d2 = abs(dot(capsule.end - polygon.positions[0], polygon.normal));
         if (d1 > capsule.radius * 2 && d2 > capsule.radius * 2) return None!CollisionInfo;

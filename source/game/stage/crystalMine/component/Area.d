@@ -21,6 +21,7 @@ struct Area {
         Entity moveEntity;
         Entity crystalEntity;
         Entity lightEntity;
+        Entity switchEntity;
         Entity otherEntity;
     }
 
@@ -37,6 +38,7 @@ struct Area {
         moves.each!(x => x.shape());
         crystals.each!(x => x.light());
         lights.each!(x => x.light());
+        switches.each!(x => x.entity());
     }
 
     void create() {
@@ -46,6 +48,7 @@ struct Area {
         auto moveEntity = new Entity;
         auto crystalEntity = new Entity;
         auto lightEntity = new Entity;
+        auto switchEntity = new Entity;
         auto otherEntity = new Entity;
 
         entity.addChild(mapEntity);
@@ -54,8 +57,9 @@ struct Area {
         entity.addChild(lightEntity);
         entity.addChild(otherEntity);
         otherEntity.addChild(crystalEntity);
+        otherEntity.addChild(switchEntity);
 
-        insts[index] = Inst(entity, mapEntity, characterEntity, moveEntity, crystalEntity, lightEntity, otherEntity);
+        insts[index] = Inst(entity, mapEntity, characterEntity, moveEntity, crystalEntity, lightEntity, switchEntity, otherEntity);
 
         entity.name = name;
         crystalEntity.name = "crystal";
@@ -63,6 +67,7 @@ struct Area {
         characterEntity.name = "character";
         moveEntity.name = "move";
         lightEntity.name = "light";
+        switchEntity.name = "switch";
         otherEntity.name = "other";
     }
 
@@ -112,6 +117,11 @@ struct Area {
     auto characters() {
         auto root = obj["NPC"].array();
         return root.length.iota.map!(i => Character(i, root, this.characterEntity));
+    }
+
+    auto switches() {
+        auto root = obj["Switches"].array();
+        return root.length.iota.map!(i => Switch(i, root, this.switchEntity));
     }
 
     auto paths() {

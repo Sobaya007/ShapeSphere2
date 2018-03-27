@@ -15,6 +15,7 @@ struct Move {
         this.parent = parent;
         this.moveEntity = moveEntity;
         this.arrivalName = arrivalName;
+        shape.setUserData(this);
     }
 
     auto obj() {
@@ -31,8 +32,5 @@ struct Move {
 
     void arrivalName(string s) {
         obj["to"] = s;
-        shape.setUserData(s);
     }
-
-    alias shape this;
 }

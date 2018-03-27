@@ -8,7 +8,8 @@ public {
     import sbylib.utils.Maybe;
     import std.variant;
 }
-import std.algorithm;
+import std.traits;
+import std.meta;
 
 /*
    ルール一覧
@@ -113,7 +114,6 @@ class Entity {
         this.userData = wrap(Variant(userData));
     }
 
-
     /*
        Parent/Child Access
      */
@@ -197,6 +197,7 @@ class Entity {
         assert(children.all!(child => child.isWorldConnected == false));
         assert(children.all!(child => child.isParentConnected == false));
     } body {
+        import std.algorithm : each;
 
         /*
            Worldとの接続解消を先にやると、「Entityの木の中でWorldとの接続状況は統一されていなければならない」というルールに反する(thisはWorldに接続されているが、childrenは接続されていないという状況になり得る)
@@ -217,6 +218,8 @@ class Entity {
     package(sbylib) void setWorld(World world) in {
         assert(this.world.isNone);
     } body {
+        import std.algorithm : each;
+
         this._world = Just(world);
         this.mesh.setWorld(world);
         this.onAdd.each!(f => f());
@@ -248,12 +251,16 @@ class Entity {
     }
 
     debug int getDescendantNum() {
+        import std.algorithm : map, sum, max;
+
         return children.map!(child => max(1, child.getDescendantNum)).sum;
     }
 
     void render() in {
         assert(this.world.isJust, this.toString());
     } body {
+        import std.algorithm : each;
+
         if (!this.visible) return;
         onPreRender.each!(f => f());
         this.mesh.render();
@@ -376,6 +383,7 @@ class Entity {
 
     string toString(string function(Entity) func, bool recursive) {
         import std.format, std.range;
+        import std.algorithm : map;
         import sbylib.utils.Functions;
         auto result = func(this);
         if (recursive && children.length > 0) {
@@ -384,3 +392,12 @@ class Entity {
         return result;
     }
 }
+
+void visitUserData(choices...)(Entity e) if (allSatisfy!(isCallable, choices)) {
+
+    static foreach (choice; choices) {{
+        auto userData = e.getUserData!(Parameters!(choice)[0]);
+        if (userData.isJust) choice(userData.get());
+    }}
+}
+

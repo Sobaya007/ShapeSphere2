@@ -18,7 +18,7 @@ class CollisionPolygon : CollisionGeometry {
     ChangeObserved!(vec3) localNormal;
     private ChangeObserved!mat4 dummy;
     WorldVector[3] positions;
-    WorldVectorNormalized normal;
+    private WorldVectorNormalized mNormal;
     import std.algorithm;
     Depends!((vec3 v0, vec3 v1, vec3 v2) => AABB(minVector(v0, minVector(v1, v2)), maxVector(v0, maxVector(v1, v2)))) bound;
     private Entity owner;
@@ -28,13 +28,14 @@ class CollisionPolygon : CollisionGeometry {
         this.positions[0].depends(this.dummy, this.localPositions[0]);
         this.positions[1].depends(this.dummy, this.localPositions[1]);
         this.positions[2].depends(this.dummy, this.localPositions[2]);
-        this.normal.depends(this.dummy, this.localNormal);
+        this.mNormal.depends(this.dummy, this.localNormal);
         this.bound.depends(this.positions[0], this.positions[1], this.positions[2]);
 
         this.localPositions[0] = positions[0];
         this.localPositions[1] = positions[1];
         this.localPositions[2] = positions[2];
         this.localNormal = normalize(cross(positions[2] - positions[1], positions[1] - positions[0]));
+
     }
 
     GeometryNT createGeometry() {
@@ -51,7 +52,7 @@ class CollisionPolygon : CollisionGeometry {
         this.positions[0].depends(this.owner.worldMatrix, this.localPositions[0]);
         this.positions[1].depends(this.owner.worldMatrix, this.localPositions[1]);
         this.positions[2].depends(this.owner.worldMatrix, this.localPositions[2]);
-        this.normal.depends(this.owner.worldMatrix, this.localNormal);
+        this.mNormal.depends(this.owner.worldMatrix, this.localNormal);
         this.bound.depends(this.positions[0], this.positions[1], this.positions[2]);
     }
 
@@ -64,6 +65,16 @@ class CollisionPolygon : CollisionGeometry {
     }
 
     override string toString() {
-        return typeof(this).stringof;
+        import std.experimental.all;
+        string[] str;
+        foreach (ref p; localPositions) {
+            str ~= p.toString;
+        }
+        return str.to!string;
+    }
+
+    vec3 normal() {
+        assert(!mNormal.hasNaN, toString);
+        return mNormal;
     }
 }

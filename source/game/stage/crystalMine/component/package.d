@@ -7,4 +7,5 @@ public {
     import game.stage.crystalMine.component.Light;
     import game.stage.crystalMine.component.Move;
     import game.stage.crystalMine.component.Shape;
+    import game.stage.crystalMine.component.Switch;
 }

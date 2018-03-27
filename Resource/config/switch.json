@@ -1,0 +1,6 @@
+{
+    "DOWN_SPEED" : 0.01,
+    "DOWN_MAX" : 1.5,
+    "SIZE" : 6,
+    "DEPTH" : 3
+}

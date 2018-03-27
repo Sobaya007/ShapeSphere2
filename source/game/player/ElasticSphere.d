@@ -184,14 +184,24 @@ class ElasticSphere : BaseSphere {
 
         auto colInfos = Array!CollisionInfo(0);
         Game.getMap().moveEntity.collide(colInfos, this.elasticSphere2.entity);
+        Game.getMap().otherEntity.collide(colInfos, this.elasticSphere2.entity);
         scope (exit) {
             colInfos.destroy();
         }
         foreach (colInfo; colInfos) {
-            auto move = colInfo.getOther(this.elasticSphere2.entity).getUserData!(string);
-            if (move.isNone) continue;
-            auto next = move.get();
-            Game.getMap().transit(next);
+            import game.stage.crystalMine.component.Move;
+            import game.stage.crystalMine.component.Switch;
+            colInfo.getOther(this.elasticSphere2.entity).visitUserData!(
+                (Move move) {
+                    auto next = move.arrivalName;
+                    Game.getMap().transit(next);
+                },
+                (Switch sw) {
+                    if (colInfo.getPushVector(this.elasticSphere2.entity).y > 0.9 && pushCount > 0) {
+                        sw.entity.down();
+                    }
+                }
+            );
         }
     }
 
