@@ -393,7 +393,16 @@ class Entity {
     }
 }
 
-void visitUserData(choices...)(Entity e) if (allSatisfy!(isCallable, choices)) {
+template VisitDataAcceptable(choices...) {
+    enum VisitDataAcceptable =
+        allSatisfy!(isCallable, choices)
+        && allSatisfy!(hasOnlyOneInput, choices[0..$-1])
+        && Parameters!(choices[$-1]).length <= 1;
+}
+
+enum hasOnlyOneInput(alias func) = Parameters!(func).length == 1;
+
+void visitUserData(choices...)(Entity e) if (VisitDataAcceptable!(choices)) {
 
     static foreach (choice; choices) {{
         static if (Parameters!(choice).length){
