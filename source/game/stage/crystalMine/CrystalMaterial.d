@@ -14,7 +14,6 @@ class CrystalMaterial : Material {
         mixin(autoAssignCode);
         super();
 
-
         this.backBuffer = Game.getBackBuffer().getColorTexture();
         this.config.renderGroupName = "Crystal";
     }

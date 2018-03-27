@@ -5,22 +5,38 @@ struct Light {
     import std.json;
     import sbylib;
 
+
+    private size_t index;
+    private JSONValue[] parent;
+    private Entity lightEntity;
     private static PointLight[][Entity] _lights;
 
-    private JSONValue[] parent;
-    private size_t index;
-    private Entity lightEntity;
-
     this(size_t index, JSONValue[] parent, Entity lightEntity) {
-        this.parent = parent;
         this.index = index;
+        this.parent = parent;
         this.lightEntity = lightEntity;
+
         this.pos = pos;
         this.color = color;
+    }
 
-        this.light.pos.addChangeCallback({
-            this.pos = this.light.pos;
+    void create(size_t index) {
+        auto light = new PointLight(pos, color);
+        lightEntity.addChild(light);
+
+        lights ~= light;
+
+        auto parent = this.parent;
+        auto lightEntity = this.lightEntity;
+        light.pos.addChangeCallback({
+            vec3 p = light.pos;
+            Light(index, parent, lightEntity).pos = p;
         });
+    }
+    
+    auto light() {
+        while (lights.length <= index) create(lights.length);
+        return lights[index];
     }
 
     auto obj() {
@@ -31,15 +47,7 @@ struct Light {
         if (lightEntity !in _lights) _lights[lightEntity] = [];
         return _lights[lightEntity];
     }
-    
-    auto light() {
-        while (lights.length <= index) {
-            auto light = new PointLight(pos, color);
-            lights ~= light;
-            lightEntity.addChild(light);
-        }
-        return lights[index];
-    }
+
 
     vec3 pos() {
         return vec3(obj["pos"].as!(float[]));
