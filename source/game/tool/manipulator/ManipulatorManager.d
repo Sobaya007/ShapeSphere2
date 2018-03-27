@@ -63,7 +63,6 @@ private:
         if (this.mouse.isPressed(MouseButton.Button1) && this.isMoving) {
             this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
             this.manipulator.updateRay(this.ray);
-            Game.getMap().save();
         } else {
             this.isMoving = false;
         }
