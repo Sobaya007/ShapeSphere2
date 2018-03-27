@@ -13,7 +13,7 @@ class SceneProtoType : SceneBase {
         this(new OrthoCamera(2, 2, -1, 1));
     }
 
-    this(Camera camera) {
+    this(OrthoCamera camera) {
         this.state = State.Waiting;
         this.fadeRect = makeColorEntity(vec4(0), 2,2);
         this.fadeRect.config.renderGroupName = "transparent";
@@ -28,6 +28,11 @@ class SceneProtoType : SceneBase {
         this.world.setCamera(this.camera);
 
         this.addEntity(this.fadeRect);
+
+        Core().getWindow().addResizeCallback({
+            camera.width = camera.height * viewport.getWidth() / viewport.getHeight();
+            fadeRect.scale.x = cast(float)viewport.getWidth() / viewport.getHeight();
+        });
     }
 
     override void render() {
