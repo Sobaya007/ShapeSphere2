@@ -39,6 +39,9 @@ struct Crystal {
             vec3 p = entity.pos;
             Crystal(index, parent, crystalEntity).pos = p;
         });
+
+        import game.tool.manipulator;
+        entity.setUserData(new ManipulatorTarget); // temp
     }
 
     auto ref reserved() {
@@ -59,7 +62,7 @@ struct Crystal {
     auto obj() {
         return parent[index].object();
     }
-    
+
     vec3 pos() {
         return vec3(obj["pos"].as!(float[]));
     }

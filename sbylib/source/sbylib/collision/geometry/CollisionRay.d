@@ -9,14 +9,15 @@ class CollisionRay {
     import sbylib.camera;
 
     void build(vec2 screenPos, Camera camera) {
-        auto viewStart = projToView(vec3(screenPos, -100), camera.projMatrix);
+        auto viewStart = projToView(vec3(screenPos, 0), camera.projMatrix);
         auto viewEnd = projToView(vec3(screenPos, 100), camera.projMatrix);
 
         mat4 viewInv = camera.worldMatrix;
         auto viewInv3 = viewInv.toMatrix3;
 
         this.start = (viewInv * vec4(viewStart, 1)).xyz;
-        this.dir = viewInv3 * normalize(viewEnd - viewStart);
+        this.dir = -(mat3.transpose(viewInv3) * normalize(viewEnd - viewStart));
+        // this.dir = viewInv3 * normalize(viewEnd - viewStart);
     }
 
     private vec3 projToView(vec3 projPos, mat4 proj) {

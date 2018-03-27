@@ -99,9 +99,9 @@ struct Maybe(T) {
     alias popFront = take;
 }
 
-Maybe!S fmap(alias fun, T, S = ReturnType!fun)(Maybe!T m) {
-    if (m.isNone) return None!S;
-    return Just(fun(m.get));
+auto fmap(alias fun, T)(Maybe!T m) {
+    if (m.isJust) return Just(fun(m.get));
+    return None!(typeof(return).Type);
 }
 
 T getOrElse(Range, T)(Range m, T defaultValue) {
@@ -137,7 +137,7 @@ Maybe!T Just(T)(T v) in {
 }
 
 Maybe!T None(T)() {
-    return Maybe!T(true);
+    return Maybe!T();
 }
 
 auto wrapPointer(T)(T value) if (isPointer!T){
