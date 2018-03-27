@@ -9,13 +9,14 @@ class SwitchEntity {
     Entity entity;
     alias entity this;
     
-    private Event event;
     private float dy;
 
     private mixin DeclareConfig!(float, "DOWN_SPEED", "switch.json");
     private mixin DeclareConfig!(float, "DOWN_MAX", "switch.json");
     private mixin DeclareConfig!(float, "SIZE", "switch.json");
     private mixin DeclareConfig!(float, "DEPTH", "switch.json");
+    
+    void delegate() event;
 
     this() {
         //this.entity = XLoader.load(ModelPath("switch.x")).buildEntity();
@@ -31,7 +32,10 @@ class SwitchEntity {
 
         if (dy >= DOWN_MAX) {
             dy = DOWN_MAX;
-            //event.fire();
+            if (event) {
+                event();
+                event = null;
+            }
             return;
         }
         dy += DOWN_SPEED;

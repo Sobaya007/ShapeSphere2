@@ -17,9 +17,8 @@ class ChaseBehavior : CameraController.Behavior {
     mixin DeclareConfig!(float, "CHASE_TURN_RATE", "camera.json");
     mixin DeclareConfig!(float, "CHASE_RADIUS_RATE", "camera.json");
 
-    private float arrivalTheta = 0;
-    private float theta = 0;
-    private float phi = 0.3;
+    private vec2 arrivalXZ = vec2(1,0);
+    private float arrivalPhi = 0.3;
     private float arrivalRadius = 1;
     private float radius = 1;
     private CollisionRay ray = new CollisionRay;
@@ -28,11 +27,18 @@ class ChaseBehavior : CameraController.Behavior {
         import std.algorithm : min;
         import std.math, std.typecons;
 
+        auto d = normalize(camera.pos - target);
+        auto phi = asin(d.y);
+        phi += (arrivalPhi - phi) * CHASE_TURN_RATE;
+
+        auto xz = d.xz;
+
         target += (player.getCameraTarget - target) * CHASE_TARGET_SPEED_RATE;
 
-        theta += (arrivalTheta - theta) * CHASE_TURN_RATE;
+        xz += (arrivalXZ - xz) * CHASE_TURN_RATE;
+        xz = normalize(xz);
 
-        auto dir = vec3(cos(theta)*cos(phi), sin(phi), sin(theta)*cos(phi));
+        auto dir = vec3(xz.x*cos(phi), sin(phi), xz.y*cos(phi));
         ray.start = target;
         ray.dir = dir;
         auto colInfo = Game.getMap().mapEntity.rayCast(ray);
@@ -46,6 +52,9 @@ class ChaseBehavior : CameraController.Behavior {
     }
 
     override void turn(vec2 value) {
-        arrivalTheta += value.x * CHASE_TURN_SPEED;
+        import std.math;
+        auto c = cos(CHASE_TURN_SPEED * value.x);
+        auto s = sin(CHASE_TURN_SPEED * value.x);
+        arrivalXZ = normalize(mat2(c, -s, s, c) * arrivalXZ);
     }
 }

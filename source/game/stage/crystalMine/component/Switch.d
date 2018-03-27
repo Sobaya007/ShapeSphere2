@@ -23,6 +23,16 @@ struct Switch {
         _entities ~= entity;
         switchEntity.addChild(entity);
         entity.setUserData(this);
+        entity.event = {
+            import game.Game;
+            Game.getPlayer().camera.focus(entity);
+            AnimationManager().startAnimation(
+                sequence(
+                    wait(90.frame),
+                    single({ Game.getPlayer().camera.chase(); })
+                )
+            );
+        };
     }
 
     ref SwitchEntity[] entities() {

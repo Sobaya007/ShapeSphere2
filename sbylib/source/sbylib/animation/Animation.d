@@ -135,7 +135,7 @@ class SingleAnimation : IAnimationWithPeriod {
     }
 
     override bool done() {
-        return operator !is null;
+        return operator is null;
     }
 
     override Frame period() {
@@ -143,6 +143,7 @@ class SingleAnimation : IAnimationWithPeriod {
     }
 
     override void finish() {
+        eval(0.frame);
     }
 }
 
