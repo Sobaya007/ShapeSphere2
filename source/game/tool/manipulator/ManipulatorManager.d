@@ -35,26 +35,24 @@ private:
             if (mouseButton == MouseButton.Button1) {
                 auto entity = getCollidedEntity();
 
-                entity.match!(
+                this.isMoving = false;
+                entity.apply!(
                     (Entity e) {
-                        if (isAxis(e)) {
-                            this.manipulator.setAxis(e);
+                        e.visitUserData!(
+                            (Manipulator.Axis) {
+                                this.manipulator.setAxis(e);
 
-                            this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
-                            this.isMoving = this.manipulator.setRay(this.ray);
-                        } else {
-                            if (isTarget(e)) {
+                                this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
+                                this.isMoving = this.manipulator.setRay(this.ray);
+                            },
+                            (ManipulatorTarget t) {
                                 show();
-                            } else {
+                                this.manipulator.setTarget(e);
+                            },
+                            () {
                                 hide();
                             }
-
-                            this.manipulator.setTarget(e);
-                            this.isMoving = false;
-                        }
-                    },
-                    () {
-                        this.isMoving = false;
+                        );
                     }
                 );
             }
