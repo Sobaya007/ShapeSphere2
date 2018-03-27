@@ -53,3 +53,11 @@ Degree deg(float d) @nogc {
 Radian rad(float r) @nogc {
     return Radian(r);
 }
+
+Degree deg(Radian r) @nogc {
+    return Degree(r);
+}
+
+Radian rad(Degree d) @nogc {
+    return Radian(d);
+}

@@ -8,7 +8,7 @@ struct Switch {
 
     private size_t index;
     private JSONValue[] parent;
-    private static SwitchEntity[] _entities;
+    private static SwitchEntity[][Entity] _entities;
     private Entity switchEntity;
 
     this(size_t index, JSONValue[] parent, Entity switchEntity) {
@@ -16,11 +16,12 @@ struct Switch {
         this.parent = parent;
         this.switchEntity = switchEntity;
         this.pos = pos;
+        this.angle = angle;
     }
 
     void create(size_t index) {
         auto entity = new SwitchEntity;
-        _entities ~= entity;
+        entities ~= entity;
         switchEntity.addChild(entity);
         entity.setUserData(this);
         entity.event = {
@@ -36,8 +37,8 @@ struct Switch {
     }
 
     ref SwitchEntity[] entities() {
-        while (_entities.length <= this.index) create(_entities.length);
-        return _entities;
+        if (switchEntity !in _entities) _entities[switchEntity] = [];
+        return _entities[switchEntity];
     }
 
     auto obj() {
@@ -45,6 +46,7 @@ struct Switch {
     }
 
     SwitchEntity entity() {
+        while (entities.length <= index) create(entities.length);
         return entities[index];
     }
 
@@ -52,8 +54,17 @@ struct Switch {
         return vec3(obj["pos"].as!(float[]));
     }
 
-    auto pos(vec3 c) {
+    void pos(vec3 c) {
         foreach (i; 0..3) obj["pos"].array[i] = c[i];
         this.entity.pos = c;
+    }
+
+    auto angle() {
+        return obj["angle"].as!(float).deg;
+    }
+
+    void angle(Degree a) {
+        obj["angle"] = a.deg;
+        this.entity.rot = mat3.axisAngle(vec3(0,1,0), a.rad);
     }
 }

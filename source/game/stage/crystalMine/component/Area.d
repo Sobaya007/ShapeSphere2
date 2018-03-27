@@ -41,7 +41,7 @@ struct Area {
         switches.each!(x => x.entity());
     }
 
-    void create() {
+    void create(size_t index) {
         auto entity = new Entity;
         auto mapEntity = new Entity;
         auto characterEntity = new Entity;
@@ -59,9 +59,10 @@ struct Area {
         otherEntity.addChild(crystalEntity);
         otherEntity.addChild(switchEntity);
 
-        insts[index] = Inst(entity, mapEntity, characterEntity, moveEntity, crystalEntity, lightEntity, switchEntity, otherEntity);
+        insts ~= Inst(entity, mapEntity, characterEntity, moveEntity, crystalEntity, lightEntity, switchEntity, otherEntity);
 
-        entity.name = name;
+        import std.conv;
+        entity.name = "Area"~index.to!string;
         crystalEntity.name = "crystal";
         mapEntity.name = "map";
         characterEntity.name = "character";
@@ -72,8 +73,7 @@ struct Area {
     }
 
     auto inst() {
-        if (insts.length <= index) insts.length = index+1;
-        if (insts[index] == Inst.init) create();
+        while (insts.length <= index) create(insts.length);
         return insts[index];
     }
 
