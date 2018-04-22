@@ -47,25 +47,25 @@ public:
         string src = readText(path);
         XFrameNode root = this.parser.run(this.lexer.run(src));
         import std.path;
-        return makeEntity(root, mat4.identity, path.baseName);
+        return makeEntity(root, mat4.identity);
     }
 
 private:
-    immutable(XEntity) makeEntity(XFrameNode parent, mat4 transformMat, string name) {
+    immutable(XEntity) makeEntity(XFrameNode parent, mat4 transformMat) {
         mat4 mat = transformMat * mat4.transpose(parent.frameTransformMatrix.matrix);
 
         immutable(XEntity)[] children;
         if (parent.mesh !is null) {
-            children ~= makeEntity(parent.mesh, mat, name);
+            children ~= makeEntity(parent.mesh, mat, parent.name);
         }
         foreach(xFrame; parent.frames) {
-            children ~= makeEntity(xFrame, mat, name);
+            children ~= makeEntity(xFrame, mat);
         }
 
-        return new immutable(XEntity)(children, name);
+        return new immutable(XEntity)(children, parent.name);
     }
 
-    immutable(XEntity) makeEntity(XMeshNode xMesh, mat4 transformMat, string name) {
+    immutable(XEntity) makeEntity(XMeshNode xMesh, mat4 transformMat, string parentName) {
         struct Geom {
             vec3[] positions;
             vec3[] normals;
@@ -150,11 +150,11 @@ private:
                 ).map!"cast(uint)a.index".map!(
                     j => iota(3*j, 3*(j+1))
                 ).join.array.idup,
-                name
+                parentName
             );
         }
 
-        return new immutable(XEntity)(new immutable(XGeometry)(geom.positions.idup, geom.normals.idup, geom.uvs.idup), leviathans, name);
+        return new immutable(XEntity)(new immutable(XGeometry)(geom.positions.idup, geom.normals.idup, geom.uvs.idup), leviathans, parentName);
     }
 
     immutable(XMaterial) makeMaterial(XMaterialNode xMaterialNode) {

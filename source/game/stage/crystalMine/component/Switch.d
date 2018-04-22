@@ -67,4 +67,8 @@ struct Switch {
         obj["angle"] = a.deg;
         this.entity.rot = mat3.axisAngle(vec3(0,1,0), a.rad);
     }
+
+    auto focus() {
+        return obj["focus"].str();
+    }
 }

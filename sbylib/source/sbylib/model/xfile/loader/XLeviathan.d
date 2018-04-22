@@ -15,12 +15,12 @@ immutable:
     }
 
     Entity buildEntity(VertexGroupNT vertexGroup, MaterialBuilder materialBuilder) {
-        import std.range, std.array;
+        import std.range, std.array, std.format;
         auto faceGroup = new FaceGroup!(Prim.Triangle)(this.indices);
         Geometry geometry = new GeometryNT(vertexGroup, faceGroup);
         Material material = materialBuilder.buildMaterial(this.material);
         auto e = new Entity(geometry, material);
-        e.name = name;
+        e.name = format!"%s(%s)"(name, this.material.name);
         return e;
     }
 

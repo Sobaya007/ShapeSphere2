@@ -65,7 +65,7 @@ class CollisionPolygon : CollisionGeometry {
     }
 
     override string toString() {
-        import std.experimental.all;
+        import std.conv;
         string[] str;
         foreach (ref p; localPositions) {
             str ~= p.toString;
