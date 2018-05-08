@@ -172,20 +172,22 @@ class ElasticSphere2 {
 
 
         //拘束解消
-        debug Game.startTimer("elastic solve");
         {
+            debug Game.startTimer("elastic solve");
             //隣との距離を計算
             foreach (pair; this.pairList) {
                 pair.init();
             }
+            debug Game.stopTimer("elastic solve");
+            debug Game.startTimer("elastic solve2");
             foreach (k; 0..ITERATION_COUNT){
                 //隣との拘束
                 foreach (pair; this.pairList) {
                     pair.solve();
                 }
             }
+            debug Game.stopTimer("elastic solve2");
         }
-        debug Game.stopTimer("elastic solve");
         float baloonForce = this.calcBaloonForce();
         this.contactNormal = None!vec3;
 

@@ -12,6 +12,7 @@ import sbylib.material.glsl.BlockDeclare;
 import sbylib.material.glsl.Attribute;
 import sbylib.material.glsl.AttributeDemand;
 import sbylib.material.glsl.Sharp;
+import sbylib.material.glsl.PrecisionDeclare;
 import sbylib.material.glsl.RequireAttribute;
 import sbylib.material.glsl.RequireUniform;
 import sbylib.material.glsl.RequireShader;
@@ -41,6 +42,8 @@ class Ast {
                 }
             } else if (tokens[0].str == "struct") {
                 statements ~= new BlockDeclare(tokens);
+            } else if (tokens[0].str == "precision") {
+                statements ~= new PrecisionDeclare(tokens);
             } else if (tokens[0].str == "#") {
                 statements ~= new Sharp(tokens);
             } else if (tokens[0].str == "require") {

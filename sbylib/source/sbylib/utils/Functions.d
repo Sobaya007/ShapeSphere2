@@ -186,7 +186,22 @@ mixin template buildReadonly(Type, string name) {
 }
 
 Texture generateTexture(Image image) {
-    return new Texture(TextureTarget.Tex2D, 0, ImageInternalFormat.RGBA, image.getWidth(), image.getHeight(), ImageFormat.BGRA, image.getBits());
+    auto bpp = image.getBPP();
+    ImageInternalFormat internalFormat;
+    ImageFormat imageFormat;
+    switch (bpp) {
+        case 8:
+            internalFormat = ImageInternalFormat.R;
+            imageFormat = ImageFormat.R;
+            break;
+        case 8*4:
+            internalFormat = ImageInternalFormat.RGBA;
+            imageFormat = ImageFormat.BGRA;
+            break;
+        default:
+            assert(false, "mendoi");
+    }
+    return new Texture(TextureTarget.Tex2D, 0, internalFormat, image.getWidth(), image.getHeight(), imageFormat, image.getBits());
 }
 
 Image generateImage(Texture texture) {
@@ -213,6 +228,28 @@ struct RectangleBuffer(T) {
     private size_t width, height;
     private bool flip;
 
+    this(size_t w, size_t h) {
+        this.width = w;
+        this.height = h;
+        this.array.length = w * h;
+    }
+
+    this(T array, size_t w, size_t h) {
+        this.array = array;
+        this.width = w;
+        this.height = h;
+    }
+
+    auto opBinary(string op, U)(U value) {
+        pragma(msg, op);
+        alias R = typeof(mixin("array[0]"~op~"value"));
+        R[] result = new R[this.array.length];
+        foreach (i; 0..this.array.length) {
+            result[i] = mixin("this.array[i]"~op~"value");
+        }
+        return RectangleBuffer!(R[])(result, this.width, this.height);
+    }
+
     auto opIndex(long x, long y) {
         if (x < 0) return None!S;
         if (y < 0) return None!S;
@@ -229,6 +266,31 @@ struct RectangleBuffer(T) {
         if (y >= height) return;
         if (flip) y = height-y-1;
         array[x+y*width] = value;
+    }
+
+    void opIndexOpAssign(string op)(S value, long x, long y) {
+        if (x < 0) return;
+        if (y < 0) return;
+        if (x >= width) return;
+        if (y >= height) return;
+        if (flip) y = height-y-1;
+        mixin("array[x+y*width]"~op~"= value;");
+    }
+
+    auto getWidth() {
+        return width;
+    }
+
+    auto getHeight() {
+        return height;
+    }
+
+    auto ptr() {
+        return array.ptr;
+    }
+
+    auto getArray() {
+        return array;
     }
 
     auto slice(size_t ox, size_t oy, size_t w, size_t h) {
@@ -292,7 +354,7 @@ struct RectangleBufferSlice(T) {
 }
 
 auto asRect(T)(T array, size_t width, size_t height) {
-    return RectangleBuffer!T(array, width, height);
+    return RectangleBuffer!T(array[0..width*height], width, height);
 }
 
 enum red    = vec4(1,0,0,1);

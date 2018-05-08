@@ -25,8 +25,12 @@ interface IRenderTarget {
     }
 
     final void blitsTo(IRenderTarget dstRenderTarget, ClearMode[] mode...) {
-        auto dst = dstRenderTarget.getFrameBuffer();
-        this.getFrameBuffer().blitsTo(dst, 0, 0, this.getWidth(), this.getHeight(), 0, 0, dstRenderTarget.getWidth(), dstRenderTarget.getHeight(), TextureFilter.Linear, mode);
+        auto src = this;
+        auto dst = dstRenderTarget;
+        this.getFrameBuffer().blitsTo(
+                dstRenderTarget.getFrameBuffer(),
+                0, 0, src.getWidth(), src.getHeight(),
+                0, 0, dst.getWidth(), dst.getHeight(), TextureFilter.Linear, mode);
     }
 
     void setClearColor(vec4);

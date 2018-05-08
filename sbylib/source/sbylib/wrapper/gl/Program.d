@@ -13,8 +13,17 @@ class Program {
 
     package immutable uint id;
     private bool alive = true;
+    private debug string vertexShaderSourceCode;
+    private debug string fragmentShaderSourceCode;
 
-    this(const Shader[] shaders) out {
+    this(const Shader[] shaders) in {
+        debug {
+            import std.algorithm : canFind;
+
+            assert(shaders.canFind!(shader => shader.getType() == ShaderType.Vertex));
+            assert(shaders.canFind!(shader => shader.getType() == ShaderType.Fragment));
+        }
+    } out {
         GlFunction.checkError();
     } body {
         this.id = glCreateProgram();
@@ -23,6 +32,11 @@ class Program {
         }
         this.linkProgram;
         assert(this.getLinkStatus, getLogString());
+
+        debug {
+            this.vertexShaderSourceCode = shaders.find!(shader => shader.getType() == ShaderType.Vertex).front.getSourceCode();
+            this.fragmentShaderSourceCode = shaders.find!(shader => shader.getType() == ShaderType.Fragment).front.getSourceCode();
+        }
     }
 
     ~this() {
@@ -125,6 +139,14 @@ class Program {
         private string getLogString() {
             return "GLSL Link Error\n" ~ getInfoLog;
         }
+    }
+
+    debug string getVertexShaderSourceCode() {
+        return this.vertexShaderSourceCode;
+    }
+
+    debug string getFragmentShaderSourceCode() {
+        return this.fragmentShaderSourceCode;
     }
 }
 

@@ -32,8 +32,16 @@ class Image {
         return FreeImage_GetHeight(bitmap);
     }
 
+    uint getBPP() {
+        return FreeImage_GetBPP(bitmap);
+    }
+
     ubyte* getBits() {
         return FreeImage_GetBits(bitmap);
+    }
+
+    ubyte[] getData() {
+        return getBits[0..getWidth() * getHeight() * getBPP() / 8];
     }
 
     ImageType getImageType() {

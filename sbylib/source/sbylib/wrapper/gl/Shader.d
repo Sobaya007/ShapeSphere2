@@ -9,10 +9,16 @@ import std.ascii;
 class Shader {
     package immutable uint id;
     private bool alive = true;
+    private debug string sourceCode;
+    private debug ShaderType type;
 
     this(string sourceCode, ShaderType type) out {
         GlFunction.checkError();
     } body {
+        debug {
+            this.sourceCode = sourceCode;
+            this.type = type;
+        }
         this.id = glCreateShader(type);
         auto str = sourceCode.toStringz;
         glShaderSource(this.id, 1, &str, null);
@@ -106,5 +112,13 @@ class Shader {
             result ~= "==========================================\n";
             return result;
         }
+    }
+
+    debug string getSourceCode() const {
+        return this.sourceCode;
+    }
+
+    debug ShaderType getType() const {
+        return this.type;
     }
 }
