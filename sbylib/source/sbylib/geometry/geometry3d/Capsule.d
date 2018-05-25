@@ -21,7 +21,7 @@ class Capsule {
         uint[] indices =
             getNorthernIndices(tCut, pCut)
           ~ getSouthernIndices(tCut, pCut)
-          ~ getPollIndices(tCut, pCut);
+          ~ getPoleIndices(tCut, pCut);
         return new GeometryNT(vertices, indices.idup);
     }
 
@@ -33,7 +33,7 @@ class Capsule {
         uint[] indices =
             getNorthernIndices(tCut, pCut)
           ~ getSouthernIndices(tCut, pCut)
-          ~ getPollIndices(tCut, pCut);
+          ~ getPoleIndices(tCut, pCut);
         auto c = (start + end) / 2;
         auto r = mat3.rotFromTo(vec3(0,1,0), normalize(end - start));
         foreach (ref v; vertices) {
@@ -79,15 +79,15 @@ class Capsule {
         }).array;
     }
 
-    private static uint[] getPollIndices(uint tCut, uint pCut) {
+    private static uint[] getPoleIndices(uint tCut, uint pCut) {
         uint[] result;
         uint nhead = tCut * (pCut-1);
         uint shead = 1 + tCut * (pCut * 2 - 1);
         foreach (i; 0..tCut) {
             auto j = (i+1) % tCut;
             result ~= nhead + i;
-            result ~= shead + i;
             result ~= nhead + j;
+            result ~= shead + i;
             result ~= shead + i;
             result ~= nhead + j;
             result ~= shead + j;
@@ -109,14 +109,14 @@ class Capsule {
             foreach (j; 0..tCut) {
                 auto nj = (j+1) % tCut;
                 result ~= [
-                1 +  j +  i * tCut,
-                1 +  j + ni * tCut,
-                1 + nj + ni * tCut
+                    1 +  j +  i * tCut,
+                    1 + nj + ni * tCut,
+                    1 +  j + ni * tCut
                 ];
                 result ~= [
-                1 + nj + ni * tCut,
-                1 + nj +  i * tCut,
-                1 +  j +  i * tCut
+                    1 + nj + ni * tCut,
+                    1 +  j +  i * tCut,
+                    1 + nj +  i * tCut
                 ];
             }
         }
@@ -137,14 +137,14 @@ class Capsule {
             foreach (j; 0..tCut) {
                 auto nj = (j+1) % tCut; //[0, tCut-1]
                 result ~= [
-                1 +  j +  i * tCut,
-                1 + nj + ni * tCut,
-                1 +  j + ni * tCut
+                    1 +  j +  i * tCut,
+                    1 +  j + ni * tCut,
+                    1 + nj + ni * tCut
                 ];
                 result ~= [
-                1 + nj + ni * tCut,
-                1 +  j +  i * tCut,
-                1 + nj +  i * tCut
+                    1 + nj + ni * tCut,
+                    1 + nj +  i * tCut,
+                    1 +  j +  i * tCut
                 ];
             }
         }

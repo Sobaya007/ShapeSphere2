@@ -1,4 +1,4 @@
-module sbylib.geometry.geometry3d.Poll;
+module sbylib.geometry.geometry3d.Pole;
 
 import std.math;
 import std.algorithm;
@@ -7,18 +7,22 @@ import sbylib.math.Vector;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.Vertex;
 
-alias GeometryPoll = GeometryN;
+alias GeometryPole = GeometryN;
 
-class Poll {
+class Pole {
 
     private this() {}
 
-    public static GeometryPoll create(float radius, float length, uint cut = 20) {
+    public static GeometryPole create(float radius, float length, uint cut = 20) {
 
         VertexN[] vertices;
-        vertices ~= 
+        vertices ~=
             (northCap(radius, length, cut) ~ southCap(radius, length, cut));
-        return new GeometryN(vertices, getIndices(cut).idup);
+        uint[] indices =
+            getSideIndices(cut)
+          ~ getNorthernIndices(cut)
+          ~ getSouthernIndices(cut);
+        return new GeometryN(vertices, indices.idup);
     }
 
     private static VertexN[] northCap(float radius, float length, uint cut) {
@@ -42,15 +46,35 @@ class Poll {
         }).array;
     }
 
-    private static uint[] getIndices(uint cut) {
+    private static uint[] getSideIndices(uint cut) {
         uint[] result;
         foreach (i; 0..cut) {
-            result ~= i;
             result ~= i + cut;
+            result ~= i;
             result ~= (i+1) % cut;
             result ~= i + cut;
             result ~= (i+1) % cut;
             result ~= (i+1) % cut + cut;
+        }
+        return result;
+    }
+
+    private static uint[] getNorthernIndices(uint cut) {
+        uint[] result;
+        foreach(i; 1..cut-1) {
+            result ~= 0;
+            result ~= i+1;
+            result ~= i;
+        }
+        return result;
+    }
+
+    private static uint[] getSouthernIndices(uint cut) {
+        uint[] result;
+        foreach(i; 1..cut-1) {
+            result ~= 0 + cut;
+            result ~= i + cut;
+            result ~= i+1 + cut;
         }
         return result;
     }

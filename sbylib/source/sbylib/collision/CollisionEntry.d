@@ -1,4 +1,4 @@
-module sbylib.collision.CollisionEntry; 
+module sbylib.collision.CollisionEntry;
 import std.math;
 import std.variant;
 import sbylib.math.Vector;
@@ -135,7 +135,7 @@ class CollisionEntry {
         } else if (rayCastSphere(ray.start, ray.dir, capsule.end, capsule.radius, p, d)
              && dot(p - capsule.end, capsule.start - capsule.end) < 0) {
             return Just(CollisionInfoRay(capsule.getOwner(), ray, p));
-        } else if (rayCastPoll(ray.start, ray.dir, capsule.start, capsule.end - capsule.start, capsule.radius, p, d)
+        } else if (rayCastPole(ray.start, ray.dir, capsule.start, capsule.end - capsule.start, capsule.radius, p, d)
              && dot(p - capsule.start, capsule.end - capsule.start) >= 0
             && dot(p - capsule.end ,capsule.start - capsule.end) >= 0) {
             return Just(CollisionInfoRay(capsule.getOwner(), ray, p));
@@ -452,7 +452,7 @@ class CollisionEntry {
         return true;
     }
 
-    private static bool rayCastPoll(vec3 l, vec3 v, vec3 p, vec3 s, float r, out vec3 colPoint, out float colDist) {
+    private static bool rayCastPole(vec3 l, vec3 v, vec3 p, vec3 s, float r, out vec3 colPoint, out float colDist) {
         p -= l;
         auto dvv = dot(v,v);
         auto dss = dot(s,s);
