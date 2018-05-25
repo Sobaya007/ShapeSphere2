@@ -12,30 +12,10 @@ class Screen : IRenderTarget {
 
     private const FrameBuffer frameBuffer;
     private Window window;
-    private vec4 clearColor = vec4(0, .5, .5, 1);
-    private int clearStencil;
 
     this(Window window) {
         this.window = window;
         this.frameBuffer = DefaultFrameBuffer;
-    }
-
-    override void setClearColor(vec4 color) {
-        this.clearColor = color;
-    }
-
-    override void setClearStencil(int stencil) {
-        this.clearStencil = stencil;
-    }
-
-    override void clear(ClearMode[] clearMode...) {
-        if (clearMode.canFind(ClearMode.Color)) {
-            GlFunction.clearColor(this.clearColor);
-        }
-        if (clearMode.canFind(ClearMode.Stencil)) {
-            GlFunction.clearStencil(this.clearStencil);
-        }
-        GlFunction.clear(clearMode);
     }
 
     override const(FrameBuffer) getFrameBuffer() {

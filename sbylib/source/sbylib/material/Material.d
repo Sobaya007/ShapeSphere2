@@ -41,13 +41,9 @@ class Material {
             before = program;
             this.program.use();
         }
-        uint uniformBlockPoint = 0;
-        uint textureUnit = 0;
         import std.stdio;
-        foreach (uni; uniforms) {
-            //writeln(uni());
-            uni().apply(this.program, uniformBlockPoint, textureUnit);
-        }
+        import std.algorithm;
+        this.program.applyUniform(uniforms.map!(u=>u()));
     }
 
     void initialize() {}
@@ -67,7 +63,7 @@ class Material {
 
         private static void initializeShader() {
             auto fragAST = generateFragmentAST();
-            auto vertAST = vertexShaderAutoGen ? GlslUtils.generateVertexAST(fragAST) : new Ast(readText(VERT_PATH));
+            auto vertAST = vertexShaderAutoGen ? GlslUtils.generateVertexAST(fragAST) : new Ast(readText(getVertexPath()));
             demands = GlslUtils.requiredUniformDemands([vertAST, fragAST]);
             vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
             fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);
@@ -121,8 +117,8 @@ class Material {
         import sbylib.material.glsl;
 
 
-        enum VERT_PATH = ShaderPath(baseName(file).replace(".d", ".vert"));
-        enum FRAG_PATH = ShaderPath(baseName(file).replace(".d", ".frag"));
+        alias getVertexPath = () => ShaderPath(baseName(file).replace(".d", ".vert"));
+        alias getFragmentPath = () => ShaderPath(baseName(file).replace(".d", ".frag"));
 
         alias config this;
 
@@ -130,7 +126,7 @@ class Material {
 
         static Ast generateFragmentAST() {
             import sbylib.material.glsl;
-            auto fragSource = readText(FRAG_PATH);
+            auto fragSource = readText(getFragmentPath());
             auto fragAST = GlslUtils.generateFragmentAST(new Ast(fragSource));
             return fragAST;
         }
@@ -171,8 +167,8 @@ class Material {
         import sbylib.utils.Path;
         import sbylib.material.glsl;
 
-        enum VERT_PATH = ShaderPath(baseName(file).replace(".d", ".vert"));
-        enum FRAG_PATH = ShaderPath(baseName(file).replace(".d", ".frag"));
+        alias getVertexPath = () => ShaderPath(baseName(file).replace(".d", ".vert"));
+        alias getFragmentPath = () => ShaderPath(baseName(file).replace(".d", ".frag"));
 
         alias config this;
 
@@ -189,7 +185,7 @@ class Material {
             auto ast2 = B.generateFragmentAST();
             ast2.name = MaterialName2;
             fragASTs ~= ast2;
-            auto mainAst = GlslUtils.generateFragmentAST(new Ast(readText(FRAG_PATH)));
+            auto mainAst = GlslUtils.generateFragmentAST(new Ast(readText(getFragmentPath())));
             mainAst.name = "main";
             auto fragAST = GlslUtils.mergeASTs(fragASTs ~ mainAst);
             fragAST = GlslUtils.generateFragmentAST(fragAST);

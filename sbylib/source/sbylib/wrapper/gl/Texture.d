@@ -8,6 +8,36 @@ import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.freeimage.Image;
 
+class TextureBuilder {
+    import sbylib.utils;
+    mixin Singleton;
+
+    TextureTarget target;
+    uint mipmapLevel;
+    ImageInternalFormat iformat;
+    ImageFormat format;
+    uint width, height;
+
+    this() {
+        this.target = TextureTarget.Tex2D;
+        this.mipmapLevel = 0;
+        this.iformat = ImageInternalFormat.RGBA;
+        this.format = ImageFormat.RGBA;
+    }
+
+    Texture build(Type)(Type[] data) {
+        return new Texture(this.target, this.mipmapLevel, this.iformat, width, height, this.format, data.ptr);
+    }
+
+    Texture build(Type)() {
+        return build((Type[]).init);
+    }
+
+    Texture build() {
+        return build!ubyte;
+    }
+}
+
 class Texture {
 
     immutable uint id;
@@ -16,6 +46,7 @@ class Texture {
     private bool allocated;
 
     private uint mWidth, mHeight;
+    private ImageFormat mFormat;
     private ImageInternalFormat mInternalFormat;
 
     this(TextureTarget target) {
@@ -51,7 +82,12 @@ class Texture {
         this.allocated = true;
         this.mWidth = width;
         this.mHeight = height;
+        this.mFormat = format;
         this.mInternalFormat = iformat;
+    }
+
+    void update(Type)(uint mipmapLevel, Type *data) {
+        update(mipmapLevel, 0, 0, this.mWidth, this.mHeight, this.mFormat, data);
     }
 
     void update(Type)(uint mipmapLevel, int offsetX, int offsetY, uint width, uint height, ImageFormat iformat, Type *data) {
@@ -112,6 +148,14 @@ class Texture {
         GlFunction.checkError();
     } body{
         glBindTexture(this.target, 0);
+    }
+
+    void bindForCompute(uint unit, uint level, bool layered, uint layer, BufferAccess access) in {
+        assert(unit < GL_MAX_IMAGE_UNITS);
+    } out {
+        GlFunction.checkError();
+    } body {
+        glBindImageTexture(unit, this.id, level, layered, layer, access, this.mInternalFormat);
     }
 
     void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) in {

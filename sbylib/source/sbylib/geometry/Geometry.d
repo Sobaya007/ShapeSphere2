@@ -86,6 +86,14 @@ class FaceGroup(Prim Mode) {
         this.ibo = new IndexBuffer;
         this.ibo.sendData(indices, BufferUsage.Static);
         this.indicesCount = cast(uint)indices.length;
+        this.faces = calcFaces(indices);
+    }
+
+    void destroy() {
+        this.ibo.destroy();
+    }
+
+    Face[] calcFaces(immutable(uint[]) indices) {
         Face[] faces;
         final switch (Mode) {
         case Prim.Triangle:
@@ -114,11 +122,7 @@ class FaceGroup(Prim Mode) {
             faces = [];
             break;
         }
-        this.faces = faces;
-    }
-
-    void destroy() {
-        this.ibo.destroy();
+        return faces;
     }
 }
 

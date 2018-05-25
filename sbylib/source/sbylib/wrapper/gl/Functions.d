@@ -159,16 +159,22 @@ static:
         glScissor(x, y, width, height);
     }
 
-    void checkError(string ext = "") {
+    void dispatchCompute(uint groupNumX, uint groupNumY, uint groupNumZ) out {
+        GlFunction.checkError();
+    } body {
+        glDispatchCompute(groupNumX, groupNumY, groupNumZ);
+    }
+
+    void checkError(string ext = "", string fileName=__FILE__) {
         debug {
             if (GLFW.hasTerminated) return;
             auto errorCode = glGetError().to!GlErrorType;
             if (errorCode == GlErrorType.NoError) return;
             if (errorCode == GlErrorType.InvalidFramebufferOperation) {
                 auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER).to!FramebufferStatus;
-                assert(false, errorCode.to!string ~ " : " ~ status.to!string ~ "\n" ~ ext);
+                assert(false, errorCode.to!string ~ " : " ~ status.to!string ~ "\n" ~ ext ~ " at " ~ fileName);
             } else {
-                assert(false, errorCode.to!string ~ "\n" ~ ext);
+                assert(false, errorCode.to!string ~ "\n" ~ ext ~ " at " ~ fileName);
             }
         }
     }

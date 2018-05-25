@@ -59,7 +59,7 @@ static:
             fragAst.statements = new VariableDeclare("out vec4 fragColor;") ~ fragAst.statements;
         }
         if (!fragAst.hasVersion()) {
-            fragAst.statements = new Sharp("#version 400") ~ fragAst.statements;
+            fragAst.statements = new Sharp("#version 430") ~ fragAst.statements;
         }
         return fragAst;
     }

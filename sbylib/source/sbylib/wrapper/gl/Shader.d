@@ -98,6 +98,7 @@ class Shader {
             string result = "\nGLSL Compile Error\n";
             result ~= "==========================================\n";
             auto strs = sourceCode.splitLines;
+                writeln(r);
             foreach (int i, str; strs) {
                 if (r.canFind(i)) {
                     result ~= "▶";

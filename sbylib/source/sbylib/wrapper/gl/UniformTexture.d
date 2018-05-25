@@ -20,6 +20,11 @@ class UniformTexture : Uniform {
         this.name = name;
     }
 
+    this(string name, Texture tex) {
+        this(name);
+        this.value = tex;
+    }
+
     override string getName() const {
         return this.name;
     }

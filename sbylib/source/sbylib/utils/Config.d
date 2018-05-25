@@ -156,6 +156,11 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
         mixin Proxy!(getValue);
     }
 
+    override string toString() {
+        import std.conv : to;
+        return this.getValue().to!string;
+    }
+
     alias getValue this;
 }
 

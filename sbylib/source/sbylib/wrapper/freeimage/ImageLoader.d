@@ -58,7 +58,11 @@ class ImageLoader {
         return new Image(load(ImageFormat.Tiff, path, option));
     }
 
-    static ImageFormat getFormat(string path) {
+    static ImageFormat getFormat(string path) in {
+        import std.file : exists;
+        import std.format;
+        assert(exists(path), format!"'%s' does not exist."(path));
+    } body {
         import std.string : toStringz;
 
         // 第2引数は現在使われていないらしい。

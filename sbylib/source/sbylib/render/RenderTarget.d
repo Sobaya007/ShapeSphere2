@@ -10,7 +10,11 @@ import sbylib.wrapper.gl.Texture;
 import std.algorithm;
 import std.stdio;
 
-interface IRenderTarget {
+abstract class IRenderTarget {
+    
+    private vec4 clearColor = vec4(0, .5, .5, 1);
+    private int clearStencil;
+    private debug bool hasCleared;
 
     const(FrameBuffer) getFrameBuffer();
     int getWidth();
@@ -20,7 +24,9 @@ interface IRenderTarget {
         getFrameBuffer().bind(FrameBufferBindType.Both);
     }
 
-    final void renderEnd() {
+    final void renderEnd() in {
+        debug assert(hasCleared, "RenderTarget has not been cleared");
+    } body {
         getFrameBuffer().unbind(FrameBufferBindType.Both);
     }
 
@@ -33,9 +39,26 @@ interface IRenderTarget {
                 0, 0, dst.getWidth(), dst.getHeight(), TextureFilter.Linear, mode);
     }
 
-    void setClearColor(vec4);
-    void setClearStencil(int);
-    void clear(ClearMode[]...);
+    void clear(ClearMode[] clearMode...) {
+        if (clearMode.canFind(ClearMode.Color)) {
+            GlFunction.clearColor(this.clearColor);
+        }
+        if (clearMode.canFind(ClearMode.Stencil)) {
+            GlFunction.clearStencil(this.clearStencil);
+        }
+        this.renderBegin();
+        GlFunction.clear(clearMode);
+        debug this.hasCleared = true;
+        this.renderEnd();
+    }
+
+    final void setClearColor(vec4 color) {
+        this.clearColor = color;
+    }
+
+    final void setClearStencil(int stencil) {
+        this.clearStencil = stencil;
+    }
 }
 
 class RenderTarget : IRenderTarget {
@@ -44,6 +67,7 @@ class RenderTarget : IRenderTarget {
     private uint width, height;
     private vec4 clearColor = vec4(0, .5, .5, 1);
     private int clearStencil;
+    private debug bool hasCleared;
 
     this(uint width, uint height) {
         this.frameBuffer = new FrameBuffer();
@@ -105,26 +129,6 @@ class RenderTarget : IRenderTarget {
 
     Texture getDepthTexture()  {
         return textures[FrameBufferAttachType.Depth];
-    }
-
-    override void setClearColor(vec4 color) {
-        this.clearColor = color;
-    }
-
-    override void setClearStencil(int stencil) {
-        this.clearStencil = stencil;
-    }
-
-    override void clear(ClearMode[] clearMode...) {
-        if (clearMode.canFind(ClearMode.Color)) {
-            GlFunction.clearColor(this.clearColor);
-        }
-        if (clearMode.canFind(ClearMode.Stencil)) {
-            GlFunction.clearStencil(this.clearStencil);
-        }
-        this.renderBegin();
-        GlFunction.clear(clearMode);
-        this.renderEnd();
     }
 
     override const(FrameBuffer) getFrameBuffer() {

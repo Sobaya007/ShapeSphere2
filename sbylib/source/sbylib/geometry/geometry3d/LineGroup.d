@@ -13,10 +13,14 @@ if (p == Prim.Line || p == Prim.LineStrip || p == Prim.LineLoop) {
     alias GeometryLineGroup = TypedGeometry!([Attribute.Position], p);
 
     static GeometryLineGroup create(uint size) {
-        auto indices = iota(size).array;
+        return create(iota(size).map!(_=>vec3(0)).array);
+    }
+
+    static GeometryLineGroup create(vec3[] input) {
+        auto indices = iota(cast(uint)input.length).array;
         VertexP[] vertices;
-        foreach (i; 0..size) {
-            vertices ~= new VertexP(vec3(0));
+        foreach (v; input) {
+            vertices ~= new VertexP(v);
         }
         return new GeometryLineGroup(vertices, indices.idup);
     }

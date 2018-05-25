@@ -13,5 +13,6 @@ class CheckerMaterial(Material1, Material2) : Material {
         mixin(autoAssignCode);
         initialize();
         super();
+        size = 0.2;
     }
 }

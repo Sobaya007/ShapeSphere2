@@ -25,7 +25,7 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
     }
 
     ~this() {
-        assert(!alive);
+        //assert(!alive);
     }
 
     void destroy() in {

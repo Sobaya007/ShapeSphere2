@@ -5,6 +5,7 @@ import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.VertexBuffer;
+import sbylib.wrapper.gl.Uniform;
 import derelict.opengl;
 import std.file, std.stdio, std.string, std.conv, std.range, std.algorithm;
 import std.ascii;
@@ -13,15 +14,15 @@ class Program {
 
     package immutable uint id;
     private bool alive = true;
-    private debug string vertexShaderSourceCode;
-    private debug string fragmentShaderSourceCode;
 
     this(const Shader[] shaders) in {
         debug {
             import std.algorithm : canFind;
 
-            assert(shaders.canFind!(shader => shader.getType() == ShaderType.Vertex));
-            assert(shaders.canFind!(shader => shader.getType() == ShaderType.Fragment));
+            bool hasVertex = shaders.canFind!(shader => shader.getType() == ShaderType.Vertex);
+            bool hasFragment = shaders.canFind!(shader => shader.getType() == ShaderType.Fragment);
+            bool hasCompute = shaders.canFind!(shader => shader.getType() == ShaderType.Compute);
+            assert(hasVertex && hasFragment || hasCompute);
         }
     } out {
         GlFunction.checkError();
@@ -32,11 +33,6 @@ class Program {
         }
         this.linkProgram;
         assert(this.getLinkStatus, getLogString());
-
-        debug {
-            this.vertexShaderSourceCode = shaders.find!(shader => shader.getType() == ShaderType.Vertex).front.getSourceCode();
-            this.fragmentShaderSourceCode = shaders.find!(shader => shader.getType() == ShaderType.Fragment).front.getSourceCode();
-        }
     }
 
     ~this() {
@@ -98,6 +94,15 @@ class Program {
             return vLoc;
         }
 
+        void applyUniform(UniformRange)(UniformRange uniforms) {
+            this.use();
+            uint uniformBlockPoint = 0;
+            uint textureUnit = 0;
+            foreach (uni; uniforms) {
+                uni.apply(this, uniformBlockPoint, textureUnit);
+            }
+        }
+
         private void attachShader(const Shader shader) out {
             GlFunction.checkError();
         } body {
@@ -139,14 +144,6 @@ class Program {
         private string getLogString() {
             return "GLSL Link Error\n" ~ getInfoLog;
         }
-    }
-
-    debug string getVertexShaderSourceCode() {
-        return this.vertexShaderSourceCode;
-    }
-
-    debug string getFragmentShaderSourceCode() {
-        return this.fragmentShaderSourceCode;
     }
 }
 

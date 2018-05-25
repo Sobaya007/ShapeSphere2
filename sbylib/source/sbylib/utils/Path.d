@@ -1,5 +1,7 @@
 module sbylib.utils.Path;
 
+import sbylib.utils.Maybe;
+
 /*
 private {
     enum ROOT_PATH = "./";
@@ -16,25 +18,47 @@ private {
 }
 */
 
-private mixin template CreatePath(string prefix) {
+private mixin template CreatePath(string prefix, bool enableReadLibray) {
     private string _path;
 
-    this(string path) {
+    this(string path, string callerFile = __FILE__) {
         this._path = prefix ~ path;
+
+        static if (enableReadLibray) {
+            import std.file : exists;
+            import std.algorithm : canFind;
+            if (exists(this._path)) return;
+            if (!callerFile.canFind("sbylib")) return;
+            auto root = findRoot(callerFile);
+            if (root.isNone) return;
+            this._path = root.get() ~ "/" ~ this._path;
+        }
     }
 
     string getPath() {
         return _path;
     }
 
+    private Maybe!string findRoot(string thisFile) {
+        import std.path : dirName;
+        import std.file : exists;
+        import std.range : empty;
+        auto path = thisFile.dirName;
+        while (!exists(path ~ "/dub.sdl")) {
+            if (path.empty) return None!string;
+            path = path.dirName;
+        }
+        return Just(path);
+    }
+
     alias getPath this;
 }
 
-struct GeneralPath { mixin CreatePath!("./"); }
-struct ResourcePath { mixin CreatePath!("./Resource/"); }
-struct DllPath { mixin CreatePath!("../dll/"); }
-struct ImagePath { mixin CreatePath!("./Resource/image/"); }
-struct FontPath { mixin CreatePath!("./Resource/font/"); }
-struct ModelPath { mixin CreatePath!("./Resource/model/"); }
-struct ConfigPath { mixin CreatePath!("./Resource/config/"); }
-struct ShaderPath { mixin CreatePath!("./Resource/shader/"); }
+struct GeneralPath { mixin CreatePath!("./", false); }
+struct ResourcePath { mixin CreatePath!("./Resource/", false); }
+struct DllPath { mixin CreatePath!("../dll/", false); }
+struct ImagePath { mixin CreatePath!("./Resource/image/", false); }
+struct FontPath { mixin CreatePath!("./Resource/font/", true); }
+struct ModelPath { mixin CreatePath!("./Resource/model/", false); }
+struct ConfigPath { mixin CreatePath!("./Resource/config/", false); }
+struct ShaderPath { mixin CreatePath!("./Resource/shader/", true); }

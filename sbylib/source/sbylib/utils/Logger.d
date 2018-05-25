@@ -10,14 +10,15 @@ private FileLogger timeLogger;
 
 class TimeLogger {
 
-    enum TIME_LOG_PATH = GeneralPath("time.log");
-
     private string name;
     private string ext;
     private StopWatch sw;
 
+    enum TIME_LOG_PATH = GeneralPath("time.log");
+
     this(string name) {
         if (timeLogger is null) {
+
             if (exists(TIME_LOG_PATH)) remove(TIME_LOG_PATH);
             timeLogger = new FileLogger(TIME_LOG_PATH);
         }

@@ -15,13 +15,12 @@ import std.math;
  */
 
 final class PerspectiveCamera : Camera {
-private:
     ChangeObserved!float aspectWperH;
     ChangeObserved!Radian fovy;
     ChangeObserved!float nearZ;
     ChangeObserved!float farZ;
     alias ProjMatrix = Depends!((float aspect, Radian fovy, float near, float far) => mat4.perspective(aspect, fovy, near, far), umat4);
-    ProjMatrix _projMatrix;
+    private ProjMatrix _projMatrix;
 public:
     Entity entity;
     alias getEntity this;

@@ -20,16 +20,14 @@ class CameraControl {
 
     private CollisionRay ray;
     private Camera camera;
-    private float z;
     private bool cameraRotate;
+    float speed = 0.2;
 
     this(Camera camera) {
         this.ray = new CollisionRay();
         this.camera = camera;
-        this.z = 10;
         this.cameraRotate = false;
 
-        enum speed = 0.2;
         Core().getKey().isPressed(KeyButton.KeyW).add({
             this.camera.pos -= this.camera.rot.column[2] * speed;
         });
@@ -74,5 +72,13 @@ class CameraControl {
         auto side = normalize(cross(vec3(0,1,0), forward));
         auto up = normalize(cross(forward, side));
         this.camera.rot = mat3(side, up, forward);
+    }
+
+    static auto attach(Camera camera) {
+        auto control = new CameraControl(camera);
+
+        Core().addProcess(&control.update, "control");
+        
+        return control;
     }
 }

@@ -22,6 +22,11 @@ class Viewport : IViewport {
         this.h = h;
     }
 
+    void setSize(uint w, uint h) {
+        this.w = w;
+        this.h = h;
+    }
+
     override void set() {
         GlFunction.setViewport(x,y,w,h);
     }

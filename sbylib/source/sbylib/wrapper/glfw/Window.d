@@ -47,10 +47,21 @@ class GlfwWindow {
         }
 
         void toggleFullScreen() {
+            this.toggleFullScreen(glfwGetPrimaryMonitor());
+        }
+
+        void toggleFullScreen(int i) {
+            int cnt;
+            auto monitors = glfwGetMonitors(&cnt);
+            i %= cnt;
+            this.toggleFullScreen(monitors[i]);
+        }
+
+        void toggleFullScreen(GLFWmonitor *monitor) {
             this.isFullScreen = !this.isFullScreen;
             if (this.isFullScreen) {
-                auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-                glfwSetWindowMonitor(this.window, glfwGetPrimaryMonitor(), 0, 0, mode.width, mode.height, 0);
+                auto mode = glfwGetVideoMode(monitor);
+                glfwSetWindowMonitor(this.window, monitor, 0, 0, mode.width, mode.height, 0);
             } else {
                 glfwSetWindowMonitor(this.window, null,  this.windowedX, this.windowedY, this.windowedWidth, this.windowedHeight, 60);
             }
