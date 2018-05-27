@@ -67,7 +67,8 @@ class Texture {
     }
 
     ~this() {
-        assert(!alive);
+        import std.stdio;
+        if (alive) writeln("Invalid Destruction For Texture");
     }
 
     void allocate(Type)(uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, ImageFormat format, Type* data) in {

@@ -19,11 +19,11 @@ class ConfigManager {
         emit();
     }
 
-    void setValue(ConfigPath path, string name, JSONValue val) {
+    private void setValue(ConfigPath path, string name, JSONValue val) {
         emit(path, name, val);
     }
 
-    ConfigFile getFile(ConfigPath path) {
+    private ConfigFile getFile(ConfigPath path) {
         import std.algorithm : find;
         import std.array;
         auto findResult = this.files.find!(file => file.path == path);
@@ -34,7 +34,7 @@ class ConfigManager {
     }
 }
 
-class ConfigFile {
+private class ConfigFile {
 
     private ConfigPath path;
 
@@ -44,7 +44,7 @@ class ConfigFile {
         ConfigManager().connect(&this.load);
     }
 
-    void load() {
+    private void load() {
         import std.file;
         auto jsonData = parseJSON(readText(path));
         foreach (string key, value; jsonData) {
@@ -74,60 +74,60 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
         ConfigManager().getFile(path).load();
     }
 
-    void setValue(ConfigPath path, string name, JSONValue value) {
+    private void setValue(ConfigPath path, string name, JSONValue value) {
         if (this.path != path) return;
         if (this.name != name) return;
-        this.value = conv!(Type)(name, value);
+        this.value = conv(name, value);
         this.initialized = true;
     }
 
-    static Type conv(Type)(string name, JSONValue value) {
+    static T conv(T=Type)(string name, JSONValue value) {
         switch (value.type) {
             case JSON_TYPE.FLOAT:
-                static if (isFloatingPoint!(Type)) {
+                static if (isFloatingPoint!(T)) {
                     return value.floating();
                 } else {
                     break;
                 }
             case JSON_TYPE.INTEGER:
-                static if (isNumeric!(Type)) {
-                    return cast(Type)value.integer();
+                static if (isNumeric!(T)) {
+                    return cast(T)value.integer();
                 } else {
                     break;
                 }
             case JSON_TYPE.UINTEGER:
-                static if (isNumeric!(Type)) {
-                    return cast(Type)value.uinteger();
+                static if (isNumeric!(T)) {
+                    return cast(T)value.uinteger();
                 } else {
                     break;
                 }
             case JSON_TYPE.STRING:
-                static if (isSomeString!(Type)) {
+                static if (isSomeString!(T)) {
                     return value.str();
                 } else {
                     break;
                 }
             case JSON_TYPE.TRUE:
-                static if (is(Type == bool)) {
+                static if (is(T == bool)) {
                     return true;
                 } else {
                     break;
                 }
             case JSON_TYPE.FALSE:
-                static if (is(Type == bool)) {
+                static if (is(T == bool)) {
                     return false;
                 } else {
                     break;
                 }
             case JSON_TYPE.ARRAY:
-                static if (isArray!(Type)) {
+                static if (isArray!(T)) {
                     import std.algorithm : map;
                     import std.array;
-                    auto ar = value.array().map!(v => conv!(ForeachType!(Type))(name, v)).array;
-                    static if (isStaticArray!(Type)) {
+                    auto ar = value.array().map!(v => conv!(ForeachType!(T))(name, v)).array;
+                    static if (isStaticArray!(T)) {
                         import std.format;
-                        assert(Type.length == ar.length, format!"Expected length is '%d', but %s's length is '%d'."(Type.length, name, ar.length));
-                        Type res = ar;
+                        assert(T.length == ar.length, format!"Expected length is '%d', but %s's length is '%d'."(T.length, name, ar.length));
+                        T res = ar;
                         return res;
                     } else {
                         return ar;
@@ -140,7 +140,7 @@ class ConfigValue(Type) if (isBasicType!(Type) || isArray!(Type) && isBasicType!
                 assert(false, format!"Type '%s' is not allowed."(value.type));
         }
                 import std.format;
-        assert(false, format!"Expected Type is '%s', but %s's type is '%s'."(Type.stringof, name, value.type));
+        assert(false, format!"Expected Type is '%s', but %s's type is '%s'."(T.stringof, name, value.type));
     }
 
     auto ref getValue() {
@@ -176,4 +176,32 @@ mixin template DeclareConfig(Type, Type2, string name, string path) {
     import sbylib.utils.Path;
     enum TypeString = format!"ConfigValue!(%s)"(Type2.stringof);
     mixin(format!`%s %s = new %s(ConfigPath("%s"), "%s");`(Type.stringof, name, TypeString, path, name));
+}
+
+static struct config {
+    string filePath;
+}
+
+mixin template HandleConfig() {
+    import std.json;
+    private void initializeConfig() {
+        import std.traits, std.meta;
+        alias symbols = AliasSeq!(getSymbolsByUDA!(typeof(this), config));
+        static foreach (i; 0..symbols.length) {{
+            import std.string : replace;
+            enum SymbolName = symbols[i].stringof.replace("this.", "");
+            alias SymbolType = typeof(symbols[i]);
+            enum FilePath = ConfigPath(getUDAs!(symbols[i], config)[0].filePath);
+
+            ConfigManager().connect(&this.setValue!(FilePath, SymbolName));
+            ConfigManager().getFile(FilePath).load();
+        }}
+    }
+    
+    private void setValue(ConfigPath FilePath, string SymbolName, SymbolType)(ConfigPath path, string name, JSONValue value) {
+        import std.stdio;
+        if (FilePath != path) return;
+        if (SymbolName != name) return;
+        mixin("this." ~ SymbolName) = ConfigValue!(SymbolType).conv(name, value);
+    }
 }

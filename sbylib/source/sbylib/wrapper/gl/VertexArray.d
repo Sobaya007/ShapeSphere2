@@ -26,7 +26,9 @@ class VertexArray {
     }
 
     ~this() {
-        assert(!alive);
+        //assert(!alive);
+        import std.stdio;
+        if (alive) writeln("Invalid Destruction For VertexArray");
     }
 
     void destroy() in {

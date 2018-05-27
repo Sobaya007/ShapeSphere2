@@ -27,7 +27,8 @@ class Box {
                 vec3(+s, -s, +s),
                 vec3(+s, -s, -s)
             ].map!(a => swap(a, i/2))
-            .map!(a => a * 0.5).array;
+            .map!(a => a * 0.5)
+            .map!(a => a * vec3(width, height, depth)).array;
             const normals = [
                 vec3(+s,0,0),
                 vec3(+s,0,0),

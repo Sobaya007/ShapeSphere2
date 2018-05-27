@@ -24,7 +24,8 @@ class FrameBuffer {
     }
 
     ~this() {
-        assert(!alive);
+        import std.stdio;
+        if (alive) writeln("Invalid Destruction For FrameBuffer");
     }
 
     void destroy() in {

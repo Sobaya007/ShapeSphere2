@@ -40,6 +40,8 @@ class Program {
         // なんか謎のMaterial解放が原因っぽい。
         // とりあえずめんどいので放置。
         //assert(!alive);
+        import std.stdio;
+        if (alive) writeln("Invalid Destruction For Program");
     }
 
     void destroy() in {

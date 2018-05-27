@@ -27,7 +27,8 @@ class Shader {
     }
 
     ~this() {
-        assert(!alive);
+        import std.stdio;
+        if (alive) writeln("Invalid Destruction For Shader");
     }
 
     void destroy() in {

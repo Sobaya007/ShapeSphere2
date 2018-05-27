@@ -26,6 +26,8 @@ class BufferObject(BufferType Type, T) : BufferObject!Type {
 
     ~this() {
         //assert(!alive);
+        import std.stdio;
+        if (alive) writeln("Invalid Destruction For BufferObject");
     }
 
     void destroy() in {
