@@ -2,6 +2,7 @@ module game.camera.behavior.LookOverBehavior;
 
 public import game.camera.CameraController;
 import sbylib;
+import dconfig;
 
 class LookOverBehavior : CameraController.Behavior {
 

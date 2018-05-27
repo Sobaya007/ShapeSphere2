@@ -1,6 +1,6 @@
 module sbylib.collision.geometry.CollisionBVH;
 
-import sbylib.utils.Config;
+import dconfig;
 import sbylib.utils.Change;
 import sbylib.collision.geometry;
 import sbylib.entity.Entity;

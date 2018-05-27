@@ -3,6 +3,7 @@ module game.scene.Dialog;
 import game.scene.SceneBase;
 import game.player.Controller;
 import sbylib;
+import dconfig;
 
 class Dialog(dstring explainMessage) : SceneProtoType {
 

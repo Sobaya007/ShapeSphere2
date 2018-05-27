@@ -2,6 +2,7 @@ module game.camera.behavior.ChaseBehavior;
 
 public import game.camera.CameraController;
 import sbylib;
+import dconfig;
 import game.Game;
 
 class ChaseBehavior : CameraController.Behavior {

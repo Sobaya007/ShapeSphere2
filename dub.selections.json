@@ -2,6 +2,7 @@
 	"fileVersion": 1,
 	"versions": {
 		"automem": "0.0.9",
+		"dconfig": "0.0.1",
 		"derelict-al": "2.0.0-beta.1",
 		"derelict-alure": "2.0.0-beta.1",
 		"derelict-fi": "3.0.0-beta.1",

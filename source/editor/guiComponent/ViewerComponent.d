@@ -1,6 +1,7 @@
 module editor.guiComponent.ViewerComponent;
 
 import sbylib;
+import dconfig;
 import editor.guiComponent;
 import editor.viewport;
 import editor.pane;

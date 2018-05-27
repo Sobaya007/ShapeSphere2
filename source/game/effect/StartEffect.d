@@ -3,6 +3,7 @@ module game.effect.StartEffect;
 import game.Game;
 import game.effect.Effect;
 import sbylib;
+import dconfig;
 
 class StartEffect {
 

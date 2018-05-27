@@ -5,6 +5,7 @@ import game.Game;
 import game.player.Player;
 import game.player.PlayerMaterial;
 import sbylib;
+import dconfig;
 import std.algorithm;
 import std.range;
 import std.math;

@@ -1,5 +1,6 @@
 module game.scene.GameMainScene;
 import sbylib;
+import dconfig;
 import game.player;
 import game.character;
 import game.command;

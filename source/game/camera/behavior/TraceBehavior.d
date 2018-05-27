@@ -2,6 +2,7 @@ module game.camera.behavior.TraceBehavior;
 
 public import game.camera.CameraController;
 import sbylib;
+import dconfig;
 import game.camera.behavior.ChaseBehavior;
 
 class TraceBehavior : CameraController.Behavior {

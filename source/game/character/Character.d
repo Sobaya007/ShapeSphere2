@@ -6,6 +6,7 @@ import game.command;
 import game.player;
 import game.character.CharacterMaterial;
 import sbylib;
+import dconfig;
 import std.algorithm, std.array, std.math, std.json, std.conv;
 
 class Character {

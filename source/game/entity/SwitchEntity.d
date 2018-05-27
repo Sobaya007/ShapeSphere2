@@ -1,6 +1,7 @@
 module game.entity.SwitchEntity;
 
 import sbylib;
+import dconfig;
 
 import game.event.Event;
 
