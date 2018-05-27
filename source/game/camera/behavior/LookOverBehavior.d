@@ -6,6 +6,7 @@ import sbylib;
 class LookOverBehavior : CameraController.Behavior {
 
     mixin BehaviorPack;
+    mixin HandleConfig;
 
     enum RADIUS = 20;
     private vec3 targetArrival;
@@ -13,10 +14,13 @@ class LookOverBehavior : CameraController.Behavior {
     private vec3 center;
     private vec3 dir;
 
-    mixin DeclareConfig!(float, "LOOKOVER_EYE_SPEED_RATE", "camera.json");
-    mixin DeclareConfig!(float, "LOOKOVER_TARGET_SPEED_RATE", "camera.json");
+    @config(ConfigPath("camera.json")) {
+        float LOOKOVER_EYE_SPEED_RATE;
+        float LOOKOVER_TARGET_SPEED_RATE;
+    }
 
     void initialize(vec3 dir) {
+        this.initializeConfig();
         this.dir = dir;
         this.center = player.getCameraTarget();
         this.target = this.center;

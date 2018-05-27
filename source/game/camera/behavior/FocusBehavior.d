@@ -5,15 +5,20 @@ import sbylib;
 import game.camera.behavior.ResetBehavior;
 
 class FocusBehavior : CameraController.Behavior {
+
     mixin BehaviorPack;
+    mixin HandleConfig;
 
     private Object3D obj;
     private vec3 dir;
 
-    mixin DeclareConfig!(float, "FOCUS_SPEED_RATE", "camera.json");
-    mixin DeclareConfig!(float, "FOCUS_DEFAULT_LENGTH", "camera.json");
+    @config(ConfigPath("camera.json")) {
+        float FOCUS_SPEED_RATE;
+        float FOCUS_DEFAULT_LENGTH;
+    }
 
     void initialize(Object3D obj, vec3 dir) {
+        this.initializeConfig();
         this.obj = obj;
         this.dir = dir;
         this.dir = normalize(player.getCenter - obj.pos);

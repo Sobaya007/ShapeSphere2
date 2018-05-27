@@ -6,18 +6,23 @@ import sbylib;
 
 class StartEffect {
 
+    mixin HandleConfig;
+
     alias StartEffectEntity = TypedEntity!(TypedGeometry!([Attribute.Position, Attribute.UV], Prim.Point), StartEffectMaterial);
     StartEffectEntity entity;
     Fragment[] fragmentList;
     IAnimationWithPeriod anim;
     alias anim this;
 
-    private mixin DeclareConfig!(uint, "PERIOD", "StartEffect.json");
-    private mixin DeclareConfig!(uint, "WAIT_PERIOD", "StartEffect.json");
-    private mixin DeclareConfig!(float, "WIND", "StartEffect.json");
-    private mixin DeclareConfig!(float, "NOISE", "StartEffect.json");
+    @config(ConfigPath("StartEffect.json")) {
+        uint PERIOD;
+        uint WAIT_PERIOD;
+        float WIND;
+        float NOISE;
+    }
 
     this(string str) {
+        this.initializeConfig();
         const viewport = Game.getScene().viewport;
         const screenAspect = viewport.getWidth / viewport.getHeight;
         const FRAG_HEIGHT = 0.01;

@@ -13,22 +13,27 @@ import std.typecons;
 
 class ElasticSphere2 {
 
+    mixin HandleConfig;
+
     private static immutable {
         uint RECURSION_LEVEL = 2;
         float DEFAULT_RADIUS = 0.5;
         float RADIUS = 2.0f;
     }
 
+    @config(ConfigPath("elastic.json")) {
+        float FRICTION;
+        float GRAVITY;
+        float BALOON_COEF;
+        float MAX_VELOCITY;
+        uint ITERATION_COUNT;
+        ChangeObserved!(float) TIME_STEP; 
+        ChangeObserved!(float) ZETA; 
+        ChangeObserved!(float) OMEGA; 
+        ChangeObserved!(float) MASS; 
+    }
+
     private {
-        mixin DeclareConfig!(float, "FRICTION", "elastic.json");
-        mixin DeclareConfig!(float, "GRAVITY", "elastic.json");
-        mixin DeclareConfig!(float, "BALOON_COEF", "elastic.json");
-        mixin DeclareConfig!(float, "MAX_VELOCITY", "elastic.json");
-        mixin DeclareConfig!(uint, "ITERATION_COUNT", "elastic.json");
-        mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "TIME_STEP", "elastic.json"); 
-        mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "ZETA", "elastic.json"); 
-        mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "OMEGA", "elastic.json"); 
-        mixin DeclareConfig!(ChangeObserved!(ConfigValue!float), float, "MASS", "elastic.json"); 
         Depends!((float ZETA, float OMEGA, float MASS) => 2 * ZETA * OMEGA * MASS) C;
         Depends!((float OMEGA, float MASS) => OMEGA * OMEGA* MASS) K;
         Depends!((float TIME_STEP, float MASS, float C, float K) => 1 / (1 + TIME_STEP*C/MASS + TIME_STEP*TIME_STEP*K/MASS)) VEL_COEF;
@@ -65,6 +70,7 @@ class ElasticSphere2 {
     }
 
     this(Material mat) {
+        this.initializeConfig();
         C.depends(ZETA, OMEGA, MASS);
         K.depends(OMEGA, MASS);
         VEL_COEF.depends(TIME_STEP, MASS, C, K);

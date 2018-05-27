@@ -17,12 +17,16 @@ class TraceBehavior : CameraController.Behavior {
     private mat3 rot;
     private float time;
 
-    mixin DeclareConfig!(float, "TRACE_INTERVAL_VELOCITY", "camera.json");
-    mixin DeclareConfig!(float, "TRACE_SPEED", "camera.json");
+    mixin HandleConfig;
+    @config(ConfigPath("camera.json")) {
+        float TRACE_INTERVAL_VELOCITY;
+        float TRACE_SPEED;
+    }
 
     private void delegate() onFinish;
 
     void initialize(Trail[] trailList, void delegate() onFinish) {
+        this.initializeConfig();
 
         this.onFinish = onFinish;
 

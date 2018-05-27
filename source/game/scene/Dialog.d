@@ -7,6 +7,7 @@ import sbylib;
 class Dialog(dstring explainMessage) : SceneProtoType {
 
     mixin SceneBasePack;
+    mixin HandleConfig;
 
     private Label explain;
     private Selection[2] selections;
@@ -15,18 +16,21 @@ class Dialog(dstring explainMessage) : SceneProtoType {
     private uint selector;
     ImageEntity main;
     
-    private mixin DeclareConfig!(float, "DIALOG_WIDTH", "dialog.json");
-    private mixin DeclareConfig!(float, "DIALOG_HEIGHT", "dialog.json");
-    private mixin DeclareConfig!(float, "TEXT_TOP", "dialog.json");
-    private mixin DeclareConfig!(float, "TEXT_SIZE", "dialog.json");
-    private mixin DeclareConfig!(float[3], "YES_COLOR", "dialog.json");
-    private mixin DeclareConfig!(float[3], "NO_COLOR", "dialog.json");
-    private mixin DeclareConfig!(float, "SELECTION_SIZE", "dialog.json");
-    private mixin DeclareConfig!(float, "SELECTION_X", "dialog.json");
-    private mixin DeclareConfig!(float, "SELECTION_Y", "dialog.json");
-    private mixin DeclareConfig!(uint, "PROGRESS_PERIOD", "dialog.json");
+    @config(ConfigPath("dialog.json")) {
+        float DIALOG_WIDTH;
+        float DIALOG_HEIGHT;
+        float TEXT_TOP;
+        float TEXT_SIZE;
+        float[3] YES_COLOR;
+        float[3] NO_COLOR;
+        float SELECTION_SIZE;
+        float SELECTION_X;
+        float SELECTION_Y;
+        uint PROGRESS_PERIOD;
+    }
 
     this() {
+        this.initializeConfig();
         super();
         {
             ImageEntityFactory factory;

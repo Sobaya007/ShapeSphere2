@@ -11,14 +11,19 @@ class SwitchEntity {
     
     private float dy;
 
-    private mixin DeclareConfig!(float, "DOWN_SPEED", "switch.json");
-    private mixin DeclareConfig!(float, "DOWN_MAX", "switch.json");
-    private mixin DeclareConfig!(float, "SIZE", "switch.json");
-    private mixin DeclareConfig!(float, "DEPTH", "switch.json");
+    mixin HandleConfig;
+
+    @config(ConfigPath("switch.json")) {
+        float DOWN_SPEED;
+        float DOWN_MAX;
+        float SIZE;
+        float DEPTH;
+    }
     
     void delegate() event;
 
     this() {
+        this.initializeConfig();
         //this.entity = XLoader.load(ModelPath("switch.x")).buildEntity();
         this.entity = makeEntity(Box.create(), new NormalMaterial);
         this.entity.scale = vec3(SIZE, DEPTH, SIZE);

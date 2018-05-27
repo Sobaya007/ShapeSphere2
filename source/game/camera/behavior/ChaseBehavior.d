@@ -5,17 +5,22 @@ import sbylib;
 import game.Game;
 
 class ChaseBehavior : CameraController.Behavior {
+
     mixin BehaviorPack;
+    mixin HandleConfig;
 
     void initialize() {
+        this.initializeConfig();
         target = player.getCameraTarget();
     }
 
-    mixin DeclareConfig!(float, "CHASE_MAX_LENGTH", "camera.json");
-    mixin DeclareConfig!(float, "CHASE_TARGET_SPEED_RATE", "camera.json");
-    mixin DeclareConfig!(float, "CHASE_TURN_SPEED", "camera.json");
-    mixin DeclareConfig!(float, "CHASE_TURN_RATE", "camera.json");
-    mixin DeclareConfig!(float, "CHASE_RADIUS_RATE", "camera.json");
+    @config(ConfigPath("camera.json")) {
+        float CHASE_MAX_LENGTH;
+        float CHASE_TARGET_SPEED_RATE;
+        float CHASE_TURN_SPEED;
+        float CHASE_TURN_RATE;
+        float CHASE_RADIUS_RATE;
+    }
 
     private vec2 arrivalXZ = vec2(1,0);
     private float arrivalPhi = 0.3;

@@ -10,9 +10,11 @@ import sbylib.math;
 
 class CollisionBVH : CollisionGeometry {
 
-    private {
+    mixin HandleConfig;
 
-        mixin DeclareConfig!(bool, "USE_BVH", "etc.json");
+    @config(ConfigPath("etc.json")) bool USE_BVH;
+
+    private {
 
         struct GeomWithCenter {
             CollisionGeometry geom;
@@ -156,6 +158,7 @@ class CollisionBVH : CollisionGeometry {
     this(CollisionGeometry[] geoms) in {
         assert(geoms.length > 0);
     } body {
+        this.initializeConfig();
         this.root = buildWithTopDown(geoms);
     }
 

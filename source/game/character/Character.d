@@ -10,7 +10,8 @@ import std.algorithm, std.array, std.math, std.json, std.conv;
 
 class Character {
 
-    mixin DeclareConfig!(float, "TIME_STEP", "player.json");
+    mixin HandleConfig;
+    @config(ConfigPath("player.json")) float TIME_STEP;
 
     Entity[] floors;
     ElasticSphere2 elasticSphere;
@@ -22,6 +23,7 @@ class Character {
     alias elasticSphere this;
 
     this() {
+        this.initializeConfig();
         {
             auto mat = new CharacterMaterial();
             mat.config.renderGroupName = "transparent";

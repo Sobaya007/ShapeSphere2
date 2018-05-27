@@ -7,15 +7,19 @@ import game.camera.behavior.ChaseBehavior;
 class ResetBehavior : CameraController.Behavior {
 
     mixin BehaviorPack;
+    mixin HandleConfig;
 
     private vec3 dir;
     private long count;
 
-    mixin DeclareConfig!(float, "RESET_SPEED_RATE", "camera.json");
-    mixin DeclareConfig!(float, "CHASE_CAMERA_Y", "camera.json");
-    mixin DeclareConfig!(long, "RESET_PERIOD_FRAME", "camera.json");
+    @config(ConfigPath("camera.json")) {
+        float RESET_SPEED_RATE;
+        float CHASE_CAMERA_Y;
+        long RESET_PERIOD_FRAME;
+    }
 
     void initialize() {
+        this.initializeConfig();
         this.dir = player.getLastDirection;
         this.count = RESET_PERIOD_FRAME;
     }
