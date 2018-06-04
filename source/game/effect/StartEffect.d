@@ -121,7 +121,9 @@ class StartEffect {
     }
 
     class StartEffectMaterial : Material {
-        mixin declare!(false);
+        mixin ConfigureMaterial!(q{{
+            "VertexShaderAutoGen" : false
+        }});
 
         private utexture tex;
         private ufloat fragWidth, fragHeight;

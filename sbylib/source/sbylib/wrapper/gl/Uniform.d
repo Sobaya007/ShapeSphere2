@@ -22,6 +22,15 @@ interface Uniform {
     void apply(const Program, ref uint, ref uint) const;
 }
 
+auto createUniform(T)(T val, string name) {
+    static if (isInstanceOf!(Vector, T)) return new TypedUniform!(T)(name, val);
+    else static if (isInstanceOf!(Matrix, T)) return new TypedUniform!(T)(name, val);
+    else static if (is(T == bool)) return new TypedUniform!(T)(name, val);
+    else static if (is(T == int)) return new TypedUniform!(T)(name, val);
+    else static if (is(T == float)) return new TypedUniform!(T)(name, val);
+    else static if (is(T == Texture)) return new UniformTexture(name, val);
+}
+
 class TypedUniform(Type) : Uniform {
     string name;
     Type value;

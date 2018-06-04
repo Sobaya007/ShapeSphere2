@@ -23,7 +23,7 @@ class SceneProtoType : SceneBase {
 
         this.world = new World;
         this.camera = camera;
-        this.viewport = new AutomaticViewport(Core().getWindow);
+        this.viewport = new AspectFixViewport(Core().getWindow);
 
         this.world.setCamera(this.camera);
 

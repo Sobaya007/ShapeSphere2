@@ -8,7 +8,7 @@ class ConditionalMaterial(TrueMaterial, FalseMaterial) : Material {
     enum MaterialName1 = "TrueMaterial";
     enum MaterialName2 = "FalseMaterial";
 
-    mixin declareMix!(TrueMaterial, FalseMaterial);
+    mixin ConfigureMixMaterial!(TrueMaterial, FalseMaterial);
 
     ubool condition;
 

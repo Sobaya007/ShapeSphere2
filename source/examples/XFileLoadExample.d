@@ -8,7 +8,7 @@ void xFileLoadExample() {
     auto screen = window.getScreen();
     auto world = new World;
     auto renderer = new Renderer();
-    auto viewport = new AutomaticViewport(window);
+    auto viewport = new AspectFixViewport(window);
     auto xLoader = new XLoader;
 
 

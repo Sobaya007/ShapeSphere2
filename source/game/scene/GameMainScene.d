@@ -24,7 +24,7 @@ class GameMainScene : SceneBase {
         Game.getWorld2D().setCamera(new OrthoCamera(2,2,-1,1));
 
 
-        this.viewport = new AutomaticViewport(Core().getWindow);
+        this.viewport = new AspectFixViewport(Core().getWindow);
 
 
         Game.initializeScene(this);

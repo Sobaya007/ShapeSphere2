@@ -4,11 +4,14 @@ import sbylib.core.Window;
 import sbylib.wrapper.gl.Functions;
 
 interface IViewport {
-    void set();
     int getX() const;
     int getY() const;
     uint getWidth() const;
     uint getHeight() const;
+
+    final void set() {
+        GlFunction.setViewport(getX(), getY(), getWidth(), getHeight());
+    }
 }
 
 class Viewport : IViewport {
@@ -27,10 +30,6 @@ class Viewport : IViewport {
         this.h = h;
     }
 
-    override void set() {
-        GlFunction.setViewport(x,y,w,h);
-    }
-
     override int getX() const {
         return this.x;
     }
@@ -45,10 +44,10 @@ class Viewport : IViewport {
     }
 }
 
-class AutomaticViewport : IViewport {
+class AspectFixViewport : IViewport {
 
     private int x, y;
-    uint w, h;
+    private uint w, h;
     private float aspect;
     private Window window;
 
@@ -81,10 +80,6 @@ class AutomaticViewport : IViewport {
         this.h = h;
     }
 
-    override void set() {
-        GlFunction.setViewport(x,y,w,h);
-    }
-
     override int getX() const {
         return this.x;
     }
@@ -96,5 +91,29 @@ class AutomaticViewport : IViewport {
     }
     override uint getHeight() const {
         return this.h;
+    }
+}
+
+class AutoFitViewport : IViewport {
+    
+    import sbylib.core.Core;
+
+    private Window window;
+
+    this(Window window = Core().getWindow()) {
+        this.window = window;
+    }
+
+    override int getX() const {
+        return 0;
+    }
+    override int getY() const {
+        return 0;
+    }
+    override uint getWidth() const {
+        return window.getWidth();
+    }
+    override uint getHeight() const {
+        return window.getHeight();
     }
 }

@@ -58,11 +58,6 @@ class Mesh {
                 break;
             }
         }
-        foreach (ud; this.mat.getUniforms()) {
-            (u) {
-                this.uniforms ~= u;
-            } (ud);
-        }
     }
 
     Entity getOwner() {

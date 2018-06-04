@@ -31,12 +31,16 @@ abstract class IRenderTarget {
     }
 
     final void blitsTo(IRenderTarget dstRenderTarget, ClearMode[] mode...) {
-        auto src = this;
         auto dst = dstRenderTarget;
+        blitsTo(dstRenderTarget, 0, 0, dst.getWidth(), dst.getHeight(), mode);
+    }
+
+    final void blitsTo(IRenderTarget dstRenderTarget, int x, int y, int w, int h, ClearMode[] mode...) {
+        auto src = this;
         this.getFrameBuffer().blitsTo(
                 dstRenderTarget.getFrameBuffer(),
                 0, 0, src.getWidth(), src.getHeight(),
-                0, 0, dst.getWidth(), dst.getHeight(), TextureFilter.Linear, mode);
+                x, y, w, h, TextureFilter.Linear, mode);
     }
 
     void clear(ClearMode[] clearMode...) {
@@ -81,6 +85,10 @@ class RenderTarget : IRenderTarget {
 
     void attachTexture(T)(FrameBufferAttachType attachType) {
         Texture tex = new Texture(TextureTarget.Tex2D, 0, this.getInternalFormat!T(attachType), this.width, this.height, ImageFormat.RGBA, cast(T*)null);
+        this.attach(tex, attachType);
+    }
+
+    void attachTexture(Texture tex, FrameBufferAttachType attachType) {
         this.attach(tex, attachType);
     }
 

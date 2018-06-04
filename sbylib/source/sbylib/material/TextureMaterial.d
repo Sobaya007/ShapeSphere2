@@ -7,7 +7,7 @@ import sbylib.wrapper.freeimage.Image;
 
 class TextureMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     utexture texture;
     ufloat alpha;

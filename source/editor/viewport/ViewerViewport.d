@@ -23,10 +23,6 @@ class ViewerViewport : IViewport {
         update();
     }
 
-    override void set() {
-        GlFunction.setViewport(innerX, innerY, innerWidth, innerHeight);
-    }
-
     override int getX() const {
         return this.x;
     }

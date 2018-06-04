@@ -9,7 +9,7 @@ void gameMain(string[] args) {
     auto window = core.getWindow();
     auto screen = window.getScreen();
     auto renderer = new Renderer();
-    auto viewport = new AutomaticViewport(window);
+    auto viewport = new AspectFixViewport(window);
 
     screen.setClearColor(vec4(0.2));
 

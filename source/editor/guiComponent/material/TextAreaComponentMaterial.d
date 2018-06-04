@@ -4,7 +4,7 @@ import sbylib;
 
 class TextAreaComponentMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     uvec4 borderColor;
     uvec4 backgroundColor;

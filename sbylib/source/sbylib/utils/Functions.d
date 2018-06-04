@@ -61,7 +61,18 @@ bool instanceof(T,S)(S o) if(is(T == class)) {
 template as(Type) {
     import std.json, std.traits;
 
-    static if (isNumeric!Type) {
+    static if (is(Type == bool)) {
+        Type as(JSONValue v) {
+            switch (v.type) {
+                case JSON_TYPE.TRUE:
+                    return true;
+                case JSON_TYPE.FALSE:
+                    return false;
+                default:
+                    assert(false);
+            }
+        }
+    } else static if (isNumeric!Type) {
         Type as(JSONValue v) {
             switch (v.type) {
                 case JSON_TYPE.INTEGER:
@@ -91,6 +102,8 @@ template as(Type) {
             import std.array;
             return v.array().map!(as!(ForeachType!Type)).array;
         }
+    } else {
+        static assert(false);
     }
 }
 
@@ -355,6 +368,49 @@ struct RectangleBufferSlice(T) {
 
 auto asRect(T)(T array, size_t width, size_t height) {
     return RectangleBuffer!T(array[0..width*height], width, height);
+}
+
+import sbylib.render.RenderTarget;
+void blitsTo(Texture texture, IRenderTarget dst, int x, int y, int w, int h) {
+    static RenderTarget target;
+    if (target is null) {
+        target = new RenderTarget(texture.width(), texture.height());
+    } else if (target.getWidth() != texture.width()
+            || target.getHeight() != texture.height()) {
+        target.destroy();
+        target = new RenderTarget(texture.width(), texture.height());
+    }
+    target.attachTexture(texture, FrameBufferAttachType.Color0);
+    target.blitsTo(dst, x, y, w, h, ClearMode.Color);
+}
+
+void blitsTo(Texture texture, IRenderTarget dst) {
+    blitsTo(texture, dst, 0, 0, dst.getWidth(), dst.getHeight());
+}
+
+void configure2D(World world) {
+    import sbylib;
+    auto renderer = new Renderer;
+    auto viewport = new AutoFitViewport;
+
+    auto camera = new PixelCamera;
+    world.setCamera(camera);
+    Core().addProcess({
+        Core().getWindow().getScreen().clear(ClearMode.Color, ClearMode.Depth);
+        renderer.render(world, Core().getWindow().getScreen(), viewport);
+    }, "render");
+}
+
+void configure3D(World world, Camera camera) {
+    import sbylib;
+    auto renderer = new Renderer;
+    auto viewport = new AspectFixViewport(Core().getWindow());
+
+    world.setCamera(camera);
+    Core().addProcess({
+        Core().getWindow().getScreen().clear(ClearMode.Color, ClearMode.Depth);
+        renderer.render(world, Core().getWindow().getScreen(), viewport);
+    }, "render");
 }
 
 enum red    = vec4(1,0,0,1);

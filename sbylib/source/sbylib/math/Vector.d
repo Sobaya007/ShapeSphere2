@@ -50,7 +50,7 @@ public:
         }
     }
 
-    Vector opBinary(string op)(const Vector v) const //=============================Vectorに対する二項演算
+    Vector opBinary(string op, U)(const Vector!(U,S) v) const //=============================Vectorに対する二項演算
 in {
         assert(S == v.elements.length);
     }

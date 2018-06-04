@@ -4,7 +4,7 @@ import sbylib;
 
 class CircleMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     uvec3 color;
 

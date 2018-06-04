@@ -4,7 +4,7 @@ import sbylib;
 
 class ButtonComponentMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     uvec4 darkColor;
     uvec4 lightColor;

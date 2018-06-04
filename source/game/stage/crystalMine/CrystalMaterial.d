@@ -5,7 +5,7 @@ import game.Game;
 
 class CrystalMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     private utexture backBuffer;
     private RenderTarget buffer;

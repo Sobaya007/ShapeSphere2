@@ -15,6 +15,11 @@ class Program {
     package immutable uint id;
     private bool alive = true;
 
+    /* For Uniform */
+    private uint uniformBlockPoint = 0;
+    private uint textureUnit = 0;
+    private debug bool inUseOfUniform;
+
     this(const Shader[] shaders) in {
         debug {
             import std.algorithm : canFind;
@@ -48,9 +53,46 @@ class Program {
         assert(alive);
     } out {
         GlFunction.checkError();
-    } body {
+    } do {
         alive = false;
         glDeleteProgram(id);
+    }
+
+    void beginUniform() in {
+        debug assert(!inUseOfUniform);
+    } out {
+        debug assert(inUseOfUniform);
+    } do {
+        this.use();
+        this.uniformBlockPoint = 0;
+        this.textureUnit = 0;
+        debug this.inUseOfUniform = true;
+    }
+
+    void applyUniform(const Uniform uniform) in {
+        debug assert(inUseOfUniform);
+    } do {
+        uniform.apply(this, uniformBlockPoint, textureUnit);
+    }
+
+    void applyUniform(UniformRange)(UniformRange uniforms) {
+        foreach (uni; uniforms) {
+            applyUniform(uni);
+        }
+    }
+
+    void endUniform() in {
+        debug assert(inUseOfUniform);
+    } out {
+        debug assert(!inUseOfUniform);
+    } do {
+        debug inUseOfUniform = false;
+    }
+
+    void applyAllUniform(UniformRange)(UniformRange uniforms) {
+        this.beginUniform();
+        this.applyUniform(uniforms);
+        this.endUniform();
     }
 
     inout {
@@ -94,15 +136,6 @@ class Program {
             int vLoc = glGetAttribLocation(this.id, name.toStringz);
             assert(vLoc != -1);
             return vLoc;
-        }
-
-        void applyUniform(UniformRange)(UniformRange uniforms) {
-            this.use();
-            uint uniformBlockPoint = 0;
-            uint textureUnit = 0;
-            foreach (uni; uniforms) {
-                uni.apply(this, uniformBlockPoint, textureUnit);
-            }
         }
 
         private void attachShader(const Shader shader) out {

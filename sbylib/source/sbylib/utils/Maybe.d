@@ -176,6 +176,11 @@ auto wrapCast(T, S)(Maybe!S m) {
     return m.fmapAnd!((S s) => wrap(cast(T)s));
 }
 
+auto wrapException(alias f)() {
+    scope(failure) return None!(ReturnType!(f));
+    return Just(f());
+}
+
 // InputRange!(Maybe!T) -> InputRange!T
 auto catMaybe(Range)(Range r) if (isInputRange!Range && isInstanceOf!(Maybe, ElementType!Range)) {
     return r.filter!(m => m.isJust).map!(m => m.get);
@@ -185,6 +190,18 @@ auto at(T)(T[] array, long index) {
     if (index < 0) return None!T;
     if (index >= array.length) return None!T;
     return Just(array[index]);
+}
+
+class MaybeEnvironment {
+    import sbylib : Singleton;
+
+    mixin Singleton;
+
+    auto opDispatch(string fn, T, Args...)(Maybe!T value, Args args) {
+        alias ReturnType = typeof(mixin("T.init."~fn~"(args)"));
+        static if (is(ReturnType == void)) value.apply!(t => mixin("t."~fn~"(args)"));
+        else return value.fmap!(t => mixin("t."~fn~"(args)"));
+    }
 }
 
 unittest {
@@ -208,4 +225,8 @@ unittest {
     intMaybe = Just(1);
     assert(intMaybe.isJust);
     assert(intMaybe > 0);
+}
+
+unittest {
+
 }

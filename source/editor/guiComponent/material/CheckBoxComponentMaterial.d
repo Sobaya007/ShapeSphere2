@@ -4,7 +4,7 @@ import sbylib;
 
 class CheckBoxComponentMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     uvec4 backColor;
     uvec4 foreColor;

@@ -4,7 +4,7 @@ import sbylib;
 
 class GroupBoxComponentMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     uvec4 borderColor;
     uvec2 size;

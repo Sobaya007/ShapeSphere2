@@ -4,7 +4,7 @@ import sbylib;
 
 class PlayerMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     this() {
         initialize();

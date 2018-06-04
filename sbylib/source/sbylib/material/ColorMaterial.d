@@ -8,7 +8,7 @@ class ColorMaterial : Material {
 
     uvec4 color;
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     this() {
         mixin(autoAssignCode);

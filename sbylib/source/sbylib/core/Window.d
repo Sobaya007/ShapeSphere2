@@ -16,7 +16,7 @@ class Window {
         return this.screen;
     }
 
-    GlfwWindow getInternalWindow() {
+    inout(GlfwWindow) getInternalWindow() inout {
         return this.window;
     }
 

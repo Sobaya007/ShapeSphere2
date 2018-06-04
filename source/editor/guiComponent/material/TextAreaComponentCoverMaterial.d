@@ -4,7 +4,7 @@ import sbylib;
 
 class TextAreaComponentCoverMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     ufloat opacity;
     uvec4 color;

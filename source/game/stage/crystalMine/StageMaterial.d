@@ -4,7 +4,7 @@ import sbylib;
 
 class StageMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     uvec3 diffuse;
     uvec3 specular;

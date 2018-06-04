@@ -6,7 +6,7 @@ import sbylib.math.Vector;
 
 class LambertMaterial : Material {
 
-    mixin declare;
+    mixin ConfigureMaterial;
 
     uvec3 ambient;
     uvec3 diffuse;

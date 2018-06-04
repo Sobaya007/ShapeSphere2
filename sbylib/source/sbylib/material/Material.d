@@ -43,7 +43,10 @@ class Material {
         }
         import std.stdio;
         import std.algorithm;
+        this.program.beginUniform();
         this.program.applyUniform(uniforms.map!(u=>u()));
+        this.applyUniforms(this.program);
+        this.program.endUniform();
     }
 
     void initialize() {}
@@ -51,19 +54,36 @@ class Material {
     abstract void replaceUniformName(string delegate(string));
     abstract const(UniformDemand[]) getUniformDemands();
     protected abstract Shader[] getShaders();
-    abstract const(Uniform) delegate()[] getUniforms();
+    abstract void applyUniforms(Program);
 
-    mixin template commonDeclare(bool vertexShaderAutoGen) {
-;
+    mixin template commonDeclare(string configStr) {
+
+        import std.string : split;
+        import std.array : front;
+        import std.json;
+        import sbylib.utils.Path;
         import sbylib.material.glsl;
         import sbylib.wrapper.gl;
+        import sbylib.utils.Maybe; 
+        import sbylib.utils.Functions : as; 
+
+
+        enum parsed = parseJSON(configStr);
+        enum VertexShaderAutoGen = wrapException!(() => parsed["vertexShaderAutoGen"].as!bool).getOrElse(true);
+        enum BaseName = wrapException!(() => parsed["baseName"].as!string).getOrElse(typeof(this).stringof.split("!").front);
+
+        alias getVertexPath = () => ShaderPath(BaseName ~ ".vert");
+        alias getFragmentPath = () => ShaderPath(BaseName ~ ".frag");
+
+        alias config this;
 
         private static UniformDemand[] demands;
         private static Shader vertexShader, fragmentShader;
 
         private static void initializeShader() {
+            import std.file : readText;
             auto fragAST = generateFragmentAST();
-            auto vertAST = vertexShaderAutoGen ? GlslUtils.generateVertexAST(fragAST) : new Ast(readText(getVertexPath()));
+            auto vertAST = VertexShaderAutoGen ? GlslUtils.generateVertexAST(fragAST) : new Ast(readText(getVertexPath()));
             demands = GlslUtils.requiredUniformDemands([vertAST, fragAST]);
             vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
             fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);
@@ -99,7 +119,7 @@ class Material {
         }
 
         invariant {
-            import std.traits;
+            import std.traits, std.format;
             static foreach (i, type; FieldTypeTuple!(typeof(this))) {{
                 static if (is(typeof({const(Uniform) u = type.init;}))) {
                     enum name = FieldNameTuple!(typeof(this))[i];
@@ -109,20 +129,32 @@ class Material {
                 }
             }}
         }
+
+        private void applyThisUniforms(Program program) {
+            import std.traits;
+            import std.range : only;
+            enum FieldName = FieldNameTuple!(typeof(this));
+            static foreach (i, Type; FieldTypeTuple!(typeof(this))) {{
+                enum name = FieldName[i];
+                static if (is(typeof({const(Uniform) u = Type.init;}))) {
+                    const(Uniform) u = mixin(name);
+                    program.applyUniform(u);
+                } else static if (isArray!(Type)) {
+                    alias ElementType = ForeachType!(Type);
+                    static if (is(typeof({const(Uniform) u = ElementType.init;}))) {
+                        program.applyUniform(mixin(name));
+                    }
+                }
+            }}
+        }
     }
 
-    mixin template declare(bool vertexShaderAutoGen = true, string file = __FILE__) {
-        import std.file, std.path, std.string;
-        import sbylib.utils.Path;
+    mixin template ConfigureMaterial(string configStr="") {
+        import std.file : readText;
         import sbylib.material.glsl;
+        import sbylib.wrapper.gl.Program;
 
-
-        alias getVertexPath = () => ShaderPath(baseName(file).replace(".d", ".vert"));
-        alias getFragmentPath = () => ShaderPath(baseName(file).replace(".d", ".frag"));
-
-        alias config this;
-
-        mixin commonDeclare!(vertexShaderAutoGen);
+        mixin commonDeclare!(configStr);
 
         static Ast generateFragmentAST() {
             import sbylib.material.glsl;
@@ -141,19 +173,8 @@ class Material {
             }
         }
 
-        override const(Uniform) delegate()[] getUniforms() {
-            import std.traits;
-            const(Uniform) delegate()[] result;
-            enum FieldName = FieldNameTuple!(typeof(this));
-            static foreach (i, type; FieldTypeTuple!(typeof(this))) {{
-                static if (is(typeof({const(Uniform) u = type.init;}))) {
-                    enum name = FieldName[i];
-                    const Uniform u = mixin(name);
-                    assert(u !is null, FieldName[i] ~ " is null.");
-                    result ~= () => cast(const(Uniform))mixin(name);
-                }
-            }}
-            return result;
+        override void applyUniforms(Program program) {
+            applyThisUniforms(program);
         }
 
         template hasMember(string mem) {
@@ -162,22 +183,17 @@ class Material {
         }
     }
 
-    mixin template declareMix(A, B, string file = __FILE__) {
-        import std.file, std.path, std.string;
-        import sbylib.utils.Path;
+    mixin template ConfigureMixMaterial(A, B, string configStr="") {
         import sbylib.material.glsl;
+        import sbylib : Program;
 
-        alias getVertexPath = () => ShaderPath(baseName(file).replace(".d", ".vert"));
-        alias getFragmentPath = () => ShaderPath(baseName(file).replace(".d", ".frag"));
-
-        alias config this;
-
-        mixin commonDeclare!(true);
+        mixin commonDeclare!(configStr);
 
         private A a;
         private B b;
 
         static Ast generateFragmentAST() {
+            import std.file : readText;
             Ast[] fragASTs;
             auto ast1 = A.generateFragmentAST();
             ast1.name = MaterialName1;
@@ -201,6 +217,8 @@ class Material {
 
             string pascal(string s) {
                 import std.conv;
+                import std.string : capitalize;
+                
                 return capitalize(to!string(s[0])) ~ s[1..$];
             }
             this.a.replaceUniformName((string s) => MaterialName1 ~ pascal(s));
@@ -219,21 +237,10 @@ class Material {
             this.b.replaceUniformName(replacer);
         }
 
-        override const(Uniform) delegate()[] getUniforms() {
-            import std.traits;
-            const(Uniform) delegate()[] result;
-            enum FieldName = FieldNameTuple!(typeof(this));
-            static foreach (i, type; FieldTypeTuple!(typeof(this))) {{
-                static if (is(typeof({const(Uniform) u = type.init;}))) {
-                    enum name = FieldName[i];
-                    const Uniform u = mixin(name);
-                    assert(u !is null, FieldName[i] ~ " is null.");
-                    result ~= () => cast(const(Uniform))mixin(name);
-                }
-            }}
-            result ~= a.getUniforms;
-            result ~= b.getUniforms;
-            return result;
+        override void applyUniforms(Program program) {
+            applyThisUniforms(program);
+            a.applyUniforms(program);
+            b.applyUniforms(program);
         }
 
         template opDispatch(string mem) if (hasMember!(mem)) {

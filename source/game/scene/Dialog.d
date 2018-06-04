@@ -209,7 +209,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
 
         class DialogSelectionMaterial : Material {
             
-            mixin declare;
+            mixin ConfigureMaterial;
 
             ufloat progress;
             uvec2 size;

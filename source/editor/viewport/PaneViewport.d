@@ -36,10 +36,6 @@ class PaneViewport : IViewport {
         });
     }
 
-    override void set() {
-        GlFunction.setViewport(x, y, width, height);
-    }
-
     override int getX() const {
         return this.x;
     }

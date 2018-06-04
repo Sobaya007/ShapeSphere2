@@ -3,7 +3,7 @@ module game.character.CharacterMaterial;
 import sbylib;
 
 class CharacterMaterial : Material {
-    mixin declare;
+    mixin ConfigureMaterial;
 
     this() {
         initialize();

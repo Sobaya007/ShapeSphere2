@@ -10,7 +10,7 @@ void sceneExample(string[] args) {
     auto core = Core();
     auto window = core.getWindow();
     auto renderer = new Renderer();
-    auto viewport = new AutomaticViewport(window);
+    auto viewport = new AspectFixViewport(window);
 
 
     auto screen = window.getScreen();

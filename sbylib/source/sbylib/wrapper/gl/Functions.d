@@ -93,7 +93,7 @@ static:
         } else {
             final switch (face) {
             case FaceMode.FrontBack:
-                glDisable(Capability.CullFace);
+                //glDisable(Capability.CullFace);
                 glPolygonMode(FaceMode.FrontBack, polygon);
                 break;
             case FaceMode.Front:

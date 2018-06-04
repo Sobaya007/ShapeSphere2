@@ -48,3 +48,23 @@ public:
     }
 
 }
+
+final class PixelCamera {
+
+    import sbylib.core.Core;
+    import sbylib.core.Window;
+
+    private Window window;
+    OrthoCamera camera;
+
+    alias camera this;
+
+    this(Window window = Core().getWindow()) {
+        this.window = window;
+        this.camera = new OrthoCamera(window.getWidth(), window.getHeight(), -1, 1);
+        this.window.addResizeCallback({
+            this.camera.width = this.window.getWidth();
+            this.camera.height = this.window.getHeight();
+        });
+    }
+}
