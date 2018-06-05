@@ -8,6 +8,13 @@ class CollisionRay {
 
     import sbylib.camera;
 
+    static CollisionRay get(vec2 screenPos, Camera camera) {
+        static CollisionRay ray;
+        if (ray is null) ray = new CollisionRay;
+        ray.build(screenPos, camera);
+        return ray;
+    }
+
     void build(vec2 screenPos, Camera camera) {
         auto viewStart = projToView(vec3(screenPos, 0), camera.projMatrix);
         auto viewEnd = projToView(vec3(screenPos, 100), camera.projMatrix);

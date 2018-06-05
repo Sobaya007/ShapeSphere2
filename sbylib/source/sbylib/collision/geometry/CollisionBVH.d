@@ -10,10 +10,6 @@ import sbylib.math;
 
 class CollisionBVH : CollisionGeometry {
 
-    mixin HandleConfig;
-
-    @config(ConfigPath("etc.json")) bool USE_BVH;
-
     private {
 
         struct GeomWithCenter {
@@ -45,14 +41,14 @@ class CollisionBVH : CollisionGeometry {
             }
 
             override void collide(ref Array!CollisionInfo result, CollisionGeometry geom) {
-                if (USE_BVH == true && !this.bound.collide(geom.getBound())) return;
+                if (!this.bound.collide(geom.getBound())) return;
                 foreach (child; this.children) {
                     child.collide(result, geom);
                 }
             }
 
             override void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
-                if (USE_BVH == true  && !this.bound.collide(ray)) return;
+                if (!this.bound.collide(ray)) return;
                 foreach (child; this.children) {
                     child.collide(result, ray);
                 }
@@ -75,12 +71,12 @@ class CollisionBVH : CollisionGeometry {
             }
 
             override void collide(ref Array!CollisionInfo result, CollisionGeometry geom) {
-                if (USE_BVH == true && !this.geom.getBound().collide(geom.getBound())) return;
+                if (!this.geom.getBound().collide(geom.getBound())) return;
                 CollisionEntry.collide(result, this.geom, geom);
             }
 
             override void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
-                if (USE_BVH == true && !this.geom.getBound().collide(ray)) return;
+                if (!this.geom.getBound().collide(ray)) return;
                 CollisionEntry.collide(result, this.geom, ray);
             }
 
@@ -158,7 +154,6 @@ class CollisionBVH : CollisionGeometry {
     this(CollisionGeometry[] geoms) in {
         assert(geoms.length > 0);
     } body {
-        this.initializeConfig();
         this.root = buildWithTopDown(geoms);
     }
 

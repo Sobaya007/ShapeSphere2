@@ -37,6 +37,10 @@ class Mesh {
     }
 
     void render() {
+        this.mat.render(&renderImpl);
+    }
+
+    void renderImpl() {
         this.mat.set(this.uniforms);
         this.geom.render(this.vao);
     }

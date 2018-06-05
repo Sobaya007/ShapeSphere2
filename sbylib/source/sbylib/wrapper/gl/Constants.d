@@ -306,3 +306,33 @@ enum PixelAlignType {
     Pack = GL_PACK_ALIGNMENT,
     Unpack = GL_UNPACK_ALIGNMENT
 }
+
+enum ParamName {
+    ActiveTexture = GL_ACTIVE_TEXTURE,
+    AliasedLineWidthRange = GL_ALIASED_LINE_WIDTH_RANGE,
+    ArrayBufferBinding = GL_ARRAY_BUFFER_BINDING,
+    Blend = GL_BLEND,
+    //BlendColor = GL_BLEND_COLOR,
+    BlendDstAlpha = GL_BLEND_DST_ALPHA,
+    BlendDstRgb = GL_BLEND_DST_RGB,
+    BlendEquationRgb = GL_BLEND_EQUATION_RGB,
+    BlendEquationAlpha = GL_BLEND_EQUATION_ALPHA,
+    BlendSrcAlpha = GL_BLEND_SRC_ALPHA,
+    BlendSrcRgb = GL_BLEND_SRC_RGB,
+    ClearColor = GL_COLOR_CLEAR_VALUE,
+    ColorLogidcOp = GL_COLOR_LOGIC_OP,
+    ColorWriteMask = GL_COLOR_WRITEMASK,
+    CompressedTextureFormats = GL_COMPRESSED_TEXTURE_FORMATS,
+    MaxComputeShaderStorageBlocks = GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS,
+    MaxCombinedShaderStorageBlocks = GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS,
+    MaxComputeUniformBlocks = GL_MAX_COMPUTE_UNIFORM_BLOCKS,
+    MaxComputeTextureImageUnits = GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS,
+    MaxComputeUniformComponents = GL_MAX_COMPUTE_UNIFORM_COMPONENTS,
+    MaxComputeAtomicCounters = GL_MAX_COMPUTE_ATOMIC_COUNTERS,
+    MaxComputeAtomicCounterBuffers = GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS,
+    MaxCombinedComputeUniformComponents = GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS,
+    MaxComputeWorkGroupInvocations = GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS,
+    MaxComputeWorkGroupCount = GL_MAX_COMPUTE_WORK_GROUP_COUNT,
+    MaxComputeWorkGroupSize = GL_MAX_COMPUTE_WORK_GROUP_SIZE,
+    DispatchIndirectBufferBinding = GL_DISPATCH_INDIRECT_BUFFER_BINDING
+}

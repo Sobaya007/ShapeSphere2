@@ -21,4 +21,6 @@ class ColorMaterial : Material {
         super();
         this.color = color;
     }
+
+    this(vec3 color) { this(vec4(color, 1)); }
 }

@@ -26,7 +26,6 @@ class CrystalMine : Stage {
 
     this() {
 
-
         this.renderer = new Renderer;
 
 

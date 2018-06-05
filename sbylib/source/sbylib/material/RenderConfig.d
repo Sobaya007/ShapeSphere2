@@ -4,6 +4,9 @@ public {
     import sbylib.wrapper.gl.Constants;
 }
 import sbylib.wrapper.gl.Functions;
+import sbylib.wrapper.gl.VertexArray;
+
+import sbylib.geometry.Geometry;
 
 class RenderConfig {
     TestFunc depthFunc;
@@ -19,6 +22,7 @@ class RenderConfig {
     bool depthWrite, depthTest;
     float lineWidth;
     string renderGroupName;
+    void delegate(void delegate()) process;
 
     this() {
         this.depthFunc = TestFunc.Less;
@@ -38,6 +42,7 @@ class RenderConfig {
         this.depthTest = true;
         this.lineWidth = 1f;
         this.renderGroupName = "regular";
+        this.process = render => render();
     }
 
     void set() {
@@ -51,5 +56,9 @@ class RenderConfig {
         GlFunction.depthWrite(this.depthWrite);
         GlFunction.depthTest(this.depthTest);
         GlFunction.lineWidth(this.lineWidth);
+    }
+
+    void render(void delegate() impl) {
+        process(impl);
     }
 }
