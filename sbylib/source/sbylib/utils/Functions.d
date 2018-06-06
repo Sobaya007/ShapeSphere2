@@ -14,6 +14,7 @@ import sbylib.wrapper.gl.Texture;
 import sbylib.wrapper.gl.Constants;
 import sbylib.camera.Camera;
 import sbylib.collision.geometry.CollisionRay;
+import sbylib.core.Core;
 
 
 float[] solveLinearEquation(float a, float b) {
@@ -401,15 +402,15 @@ void configure2D(World world) {
     }, "render");
 }
 
-void configure3D(World world, Camera camera) {
+void configure3D(World world, Camera camera, IRenderTarget target = Core().getWindow().getScreen()) {
     import sbylib;
     auto renderer = new Renderer;
     auto viewport = new AspectFixViewport(Core().getWindow());
 
     world.setCamera(camera);
     Core().addProcess({
-        Core().getWindow().getScreen().clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, Core().getWindow().getScreen(), viewport);
+        target.clear(ClearMode.Color, ClearMode.Depth);
+        renderer.render(world, target, viewport);
     }, "render");
 }
 

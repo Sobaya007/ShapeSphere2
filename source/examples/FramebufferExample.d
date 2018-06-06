@@ -5,11 +5,8 @@ import sbylib;
 void framebufferExample() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getScreen();
     auto world = new World;
     auto internalWorld = new World;
-    auto renderer = new Renderer();
-    auto viewport = new AspectFixViewport(window);
 
 
     auto renderTarget = new RenderTarget(window.getWidth, window.getHeight);
@@ -26,7 +23,7 @@ void framebufferExample() {
     );
     camera.pos = vec3(3, 2, 9);
     camera.lookAt(vec3(0,2,0));
-    world.setCamera(camera);
+    world.configure3D(camera);
 
 
     auto planeMat = new CheckerMaterial!(LambertMaterial, LambertMaterial);
@@ -37,14 +34,15 @@ void framebufferExample() {
     world.add(planeEntity);
 
 
-    auto boxEntity = makeEntity(Box.create(10,10,10), new TextureMaterial);
-    boxEntity.obj.pos = vec3(0,2,0);
+    auto boxEntity = makeEntity(Box.create(), new TextureMaterial);
+    boxEntity.pos = vec3(0,2,0);
+    boxEntity.scale = vec3(2);
     boxEntity.texture = renderTarget.getColorTexture;
     world.add(boxEntity);
 
 
 
-    auto boxEntity2 = new Entity(Box.create(10,10,10), new NormalMaterial);
+    auto boxEntity2 = new Entity(Box.create(), new NormalMaterial);
     internalWorld.add(boxEntity2);
     core.addProcess({ boxEntity2.rot *= mat3.axisAngle(vec3(1,1,1).normalize, 0.02.rad); }, "a");
 
@@ -57,23 +55,13 @@ void framebufferExample() {
     );
     camera2.pos = vec3(1, 2, 3);
     camera2.lookAt(vec3(0,0,0));
-    internalWorld.setCamera(camera2);
+    internalWorld.configure3D(camera2, renderTarget);
 
 
-    auto control = new CameraControl(camera);
-    core.addProcess(&control.update, "update");
+    CameraControl.attach(camera);
 
 
     core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
-
-
-    core.addProcess({
-        renderTarget.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(internalWorld, renderTarget, viewport);
-
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
-    }, "render");
 
 
     core.start();

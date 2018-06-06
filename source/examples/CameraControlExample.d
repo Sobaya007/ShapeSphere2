@@ -5,10 +5,7 @@ import sbylib;
 void cameraControlExample() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getScreen();
     auto world = new World;
-    auto renderer = new Renderer();
-    auto viewport = new AspectFixViewport(window);
 
 
     auto camera = new PerspectiveCamera(
@@ -18,7 +15,7 @@ void cameraControlExample() {
             100, /* Far Clip       */);
     camera.pos = vec3(3, 2, 9);
     camera.lookAt(vec3(0,2,0));
-    world.setCamera(camera);
+    world.configure3D(camera);
 
 
     auto planeEntity = makeEntity(
@@ -36,17 +33,10 @@ void cameraControlExample() {
     world.add(boxEntity);
 
 
-    auto control = new CameraControl(camera);
-    core.addProcess(&control.update, "camera control");
+    CameraControl.attach(camera);
 
 
     core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
-
-
-    core.addProcess({
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
-    }, "render");
 
 
     core.start();

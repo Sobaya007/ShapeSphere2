@@ -5,21 +5,18 @@ import sbylib;
 void xFileLoadExample() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getScreen();
     auto world = new World;
-    auto renderer = new Renderer();
-    auto viewport = new AspectFixViewport(window);
     auto xLoader = new XLoader;
 
 
     auto camera = new PerspectiveCamera(
             window.getWidth() / window.getHeight(), /* Aspect Ratio   */
-            120.deg, /* FOV (in angle) */
+            60.deg, /* FOV (in angle) */
             0.1, /* Near Clip      */
             100, /* Far Clip       */);
     camera.pos = vec3(0, 2, 15);
     camera.lookAt(vec3(0, 2, 0));
-    world.setCamera(camera);
+    world.configure3D(camera);
 
 
     auto planeEntity = makeEntity(
@@ -51,17 +48,11 @@ void xFileLoadExample() {
     world.add(pointLight);
 
 
-    auto control = new CameraControl(camera);
-    core.addProcess(&control.update, "update");
+    CameraControl.attach(camera);
 
 
     core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
 
-
-    core.addProcess({
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
-    }, "render");
 
     core.start();
 

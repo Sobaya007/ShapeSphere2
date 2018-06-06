@@ -5,10 +5,7 @@ import sbylib;
 void basicExample() {
     auto core = Core();
     auto window = core.getWindow();
-    auto screen = window.getScreen();
     auto world = new World;
-    auto renderer = new Renderer();
-    auto viewport = new AspectFixViewport(window);
 
 
     auto camera = new PerspectiveCamera(
@@ -18,7 +15,7 @@ void basicExample() {
             100, /* Far Clip       */);
     camera.pos = vec3(3, 2, 9);
     camera.lookAt(vec3(0,2,0));
-    world.setCamera(camera);
+    world.configure3D(camera);
 
 
     auto planeEntity = makeEntity(
@@ -31,18 +28,13 @@ void basicExample() {
     world.add(planeEntity);
 
 
-    auto boxEntity = makeEntity(Box.create(10,10,10), new NormalMaterial);
+    auto boxEntity = makeEntity(Box.create(), new NormalMaterial);
     boxEntity.pos = vec3(0,2,0);
+    boxEntity.scale = vec3(4);
     world.add(boxEntity);
 
 
     core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
-
-
-    core.addProcess({
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
-    }, "render");
 
 
     core.start();

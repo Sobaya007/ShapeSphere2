@@ -11,8 +11,6 @@ void materialExample() {
     auto core = Core();
     auto window = core.getWindow();
     auto world = new World;
-    auto renderer = new Renderer();
-    auto viewport = new AspectFixViewport(window);
 
 
     auto screen = window.getScreen();
@@ -26,7 +24,7 @@ void materialExample() {
             100, /* Far Clip       */);
     camera.pos = vec3(1,2,4);
     camera.lookAt(vec3(0));
-    world.setCamera(camera);
+    world.configure3D(camera);
 
 
     auto polyEntity = makeEntity(Plane.create(10,10), new Check4);
@@ -48,17 +46,11 @@ void materialExample() {
     world.add(polyEntity);
 
 
-    auto control = new CameraControl(camera);
-    core.addProcess(&control.update, "update");
+    CameraControl.attach(camera);
 
 
     core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
 
-
-    core.addProcess({
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
-    }, "render");
 
 
     core.start();
