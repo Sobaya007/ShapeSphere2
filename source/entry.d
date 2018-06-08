@@ -6,12 +6,12 @@ import game.GameMain;
 import plot.Main;
 
 enum RunMode {
+    CameraControl,
     Scene,
     Game,
     Editor,
     Basic,
     Material,
-    CameraControl,
     XFileLoad,
     Framebuffer,
     Gui,

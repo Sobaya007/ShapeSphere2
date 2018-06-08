@@ -421,5 +421,6 @@ enum ParamName {
     MaxVaryingVectors = GL_MAX_VARYING_VECTORS,
     MaxVaryingFloats = GL_MAX_VARYING_FLOATS,
 
+    SmoothLineWidthRange = GL_SMOOTH_LINE_WIDTH_RANGE
 
 }

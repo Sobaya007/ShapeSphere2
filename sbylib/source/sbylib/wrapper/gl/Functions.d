@@ -179,7 +179,9 @@ static:
         }
     }
 
-    void lineWidth(float width) {
+    void lineWidth(float width) out {
+        checkError();
+    } do {
         glLineWidth(width);
     }
 
@@ -203,5 +205,33 @@ static:
                 return 24; //????
         }
         assert(false);
+    }
+
+    float[2] getAliasedLineWidthRange() {
+        return get!(float, 2)(ParamName.AliasedLineWidthRange);
+    }
+
+    float[2] getSmoothLineWidthRange() {
+        return get!(float, 2)(ParamName.SmoothLineWidthRange);
+    }
+
+    auto get(T, size_t N)(ParamName param) out {
+        checkError();
+    } do {
+        T[N] data;
+        getFunction!T(param, data.ptr);
+        return data;
+    }
+
+    template getFunction(T) {
+        static if (is(T == int)) {
+            alias getFunction = glGetIntegerv;
+        } else static if (is(T == float)) {
+            alias getFunction = glGetFloatv;
+        } else static if (is(T == bool)) {
+            alias getFunction = glGetBooleanv;
+        } else {
+            static assert(false);
+        }
     }
 }

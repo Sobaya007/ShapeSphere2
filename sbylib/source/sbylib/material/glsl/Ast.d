@@ -7,6 +7,7 @@ import sbylib.material.glsl.UniformDemand;
 import sbylib.material.glsl.Statement;
 import sbylib.material.glsl.Function;
 import sbylib.material.glsl.FunctionDeclare;
+import sbylib.material.glsl.LayoutDeclare;
 import sbylib.material.glsl.VariableDeclare;
 import sbylib.material.glsl.BlockDeclare;
 import sbylib.material.glsl.Attribute;
@@ -44,6 +45,8 @@ class Ast {
                 statements ~= new BlockDeclare(tokens);
             } else if (tokens[0].str == "precision") {
                 statements ~= new PrecisionDeclare(tokens);
+            } else if (tokens[0].str == "layout") {
+                statements ~= new LayoutDeclare(tokens);
             } else if (tokens[0].str == "#") {
                 statements ~= new Sharp(tokens);
             } else if (tokens[0].str == "require") {

@@ -28,8 +28,9 @@ void cameraControlExample() {
     world.add(planeEntity);
 
 
-    auto boxEntity = makeEntity(Box.create(10,10,10), new NormalMaterial);
+    auto boxEntity = makeEntity(Box.create(), new NormalMaterial);
     boxEntity.pos = vec3(0,2,0);
+    boxEntity.scale = vec3(4);
     world.add(boxEntity);
 
 

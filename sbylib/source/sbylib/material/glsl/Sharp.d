@@ -6,6 +6,7 @@ import sbylib.material.glsl.Token;
 import sbylib.material.glsl.Function;
 import sbylib.material.glsl.RequireAttribute;
 import sbylib.material.glsl.UniformDemand;
+import sbylib.utils.Maybe;
 
 import std.format;
 import std.algorithm;
@@ -14,6 +15,7 @@ import std.range;
 class Sharp : Statement {
     string type;
     string value;
+    Maybe!string value2;
 
     this(string str) {
         auto tokens = tokenize(str);
@@ -24,6 +26,11 @@ class Sharp : Statement {
         expect(tokens, "#");
         this.type = convert(tokens);
         this.value = convert(tokens);
+
+        if (!tokens.empty && tokens.front.str == ":") {
+            expect(tokens, ":");
+            this.value2 = Just(convert(tokens));
+        }
     }
 
     override string graph(bool[] isEnd) {
@@ -36,6 +43,8 @@ class Sharp : Statement {
     override string getCode() {
         if (this.type == "version")
             return format!"#%s %s"(this.type, this.value);
+        else if (this.type == "extension") 
+            return format!"#%s %s : %s"(this.type, this.value, this.value2.get());
         else
             return "";
     }
@@ -55,6 +64,7 @@ class Sharp : Statement {
     string getGlPositionCode() in {
         assert(this.type == "vertex");
     } body {
-        return format!"gl_Position = %s * vec4(_position,1);"(this.getVertexSpace().getUniformDemands().map!(u => getUniformDemandName(u)).join(" * "));
+        // * vec4(_position,1)
+        return format!"gl_Position = %s;"((this.getVertexSpace().getUniformDemands().map!(u => getUniformDemandName(u)).array~"vec4(_position, 1)").join(" * "));
     }
 }

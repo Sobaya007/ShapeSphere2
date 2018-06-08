@@ -71,22 +71,37 @@ class Material {
         enum parsed = parseJSON(configStr);
         enum VertexShaderAutoGen = wrapException!(() => parsed["vertexShaderAutoGen"].as!bool).getOrElse(true);
         enum BaseName = wrapException!(() => parsed["baseName"].as!string).getOrElse(typeof(this).stringof.split("!").front);
+        enum UseGeometryShader = wrapException!(() => parsed["useGeometryShader"].as!bool).getOrElse(false);
 
         alias getVertexPath = () => ShaderPath(BaseName ~ ".vert");
+        alias getGeometryPath = () => ShaderPath(BaseName ~ ".geom");
         alias getFragmentPath = () => ShaderPath(BaseName ~ ".frag");
 
         alias config this;
 
         private static UniformDemand[] demands;
         private static Shader vertexShader, fragmentShader;
+        static if (UseGeometryShader) {
+            private static Shader geomtryShader;
+        }
 
         private static void initializeShader() {
             import std.file : readText;
-            auto fragAST = generateFragmentAST();
-            auto vertAST = VertexShaderAutoGen ? GlslUtils.generateVertexAST(fragAST) : new Ast(readText(getVertexPath()));
-            demands = GlslUtils.requiredUniformDemands([vertAST, fragAST]);
-            vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
-            fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);
+            static if (UseGeometryShader) {
+                auto fragAST = generateFragmentAST();
+                auto geomAST = GlslUtils.generateGeometryAST(new Ast(readText(getGeometryPath())));
+                auto vertAST = VertexShaderAutoGen ? GlslUtils.generateVertexAST(geomAST) : new Ast(readText(getVertexPath()));
+                demands = GlslUtils.requiredUniformDemands([vertAST, geomAST, fragAST]);
+                vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
+                geomtryShader = new Shader(geomAST.getCode(), ShaderType.Geometry);
+                fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);
+            } else {
+                auto fragAST = generateFragmentAST();
+                auto vertAST = VertexShaderAutoGen ? GlslUtils.generateVertexAST(fragAST) : new Ast(readText(getVertexPath()));
+                demands = GlslUtils.requiredUniformDemands([vertAST, fragAST]);
+                vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
+                fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);
+            }
         }
 
         override const(UniformDemand[]) getUniformDemands() {
@@ -96,7 +111,8 @@ class Material {
 
         protected override Shader[] getShaders() {
             if (!demands) initializeShader();
-            return [vertexShader, fragmentShader];
+            static if (UseGeometryShader) return [vertexShader, geomtryShader, fragmentShader];
+            else return [vertexShader, fragmentShader];
         }
 
         private static string autoAssignCode() {

@@ -1,11 +1,15 @@
 module sbylib.geometry.geometry3d.Dodecahedron;
 
 import std.math, std.algorithm, std.array;
+import sbylib.wrapper.gl.Attribute;
 import sbylib.geometry.Geometry;
 import sbylib.geometry.Vertex;
 import sbylib.math.Vector;
 
-alias GeometryDodecahedron = GeometryP;
+
+enum Attributes = [Attribute.Position, Attribute.Normal, Attribute.UV, Attribute(3, "_uv2")];
+alias VertexDodecahedron = Vertex!(Attributes);
+alias GeometryDodecahedron = TypedGeometry!(Attributes);
 
 class Dodecahedron {
 
@@ -79,6 +83,6 @@ class Dodecahedron {
         indices ~= [10, 11, 13];
         indices ~= [10, 15, 11];
 
-        return new GeometryDodecahedron(positions.map!(p => new VertexP(p * scale)).array, indices.idup);
+        return new GeometryDodecahedron(positions.map!(p => new VertexDodecahedron(p * scale, vec3(0,1,0), vec2(0,0), vec3(0,0,0))).array, indices.idup);
     }
 }

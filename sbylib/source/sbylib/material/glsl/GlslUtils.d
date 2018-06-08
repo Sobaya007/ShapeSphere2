@@ -64,6 +64,13 @@ static:
         return fragAst;
     }
 
+    Ast generateGeometryAST(Ast geomAst) {
+        if (!geomAst.hasVersion()) {
+            geomAst.statements = new Sharp("#version 430") ~ geomAst.statements;
+        }
+        return geomAst;
+    }
+
     Ast generateVertexAST(Ast fragmentAst) {
         Ast vertexAst = new Ast;
 
