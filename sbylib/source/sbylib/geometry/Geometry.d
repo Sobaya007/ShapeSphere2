@@ -28,6 +28,7 @@ interface Geometry {
     void updateBuffer();
     CollisionGeometry[] createCollisionPolygon();
     CollisionCapsule createCollisionCapsule();
+    CollisionCapsule createCollisionSphere();
 
     string toString();
 }
@@ -191,6 +192,13 @@ class TypedGeometry(Attribute[] A, Prim Mode = Prim.Triangle) : Geometry {
         auto radius = vertices.map!(v => length((v - center) - dot(v - center, basis) * basis)).maxElement;
 
         return new CollisionCapsule(radius, minV + basis * radius, maxV - basis * radius);
+    }
+
+    override CollisionCapsule createCollisionSphere() {
+        auto center = this.vertexGroup.vertices.map!(v => v.position).sum / this.vertexGroup.vertices.length;
+        auto radius = this.vertexGroup.vertices.map!(v => length((v.position - center))).maxElement;
+
+        return new CollisionCapsule(radius, vec3(float.epsilon),vec3(-float.epsilon));
     }
 
     VertexA[] vertices() {

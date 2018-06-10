@@ -35,10 +35,6 @@ class CrystalMine : Stage {
 
         this.root = new Root;
         Game.getWorld3D().add(this.currentArea.entity);
-        import game.entity.Bomb;
-        auto bomb = new Bomb;
-        bomb.pos.x = 10;
-        Game.getWorld3D().add(bomb);
         Game.getPlayer().setCenter(vec3(0));
 
 

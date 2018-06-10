@@ -20,6 +20,7 @@ struct Area {
         Entity characterEntity;
         Entity moveEntity;
         Entity crystalEntity;
+        Entity bombEntity;
         Entity lightEntity;
         Entity switchEntity;
         Entity otherEntity;
@@ -37,6 +38,7 @@ struct Area {
         characters.each!(x => x.character());
         moves.each!(x => x.shape());
         crystals.each!(x => x.light());
+        bombs.each!(x => x.entity());
         lights.each!(x => x.light());
         switches.each!(x => x.entity());
     }
@@ -47,6 +49,7 @@ struct Area {
         auto characterEntity = new Entity;
         auto moveEntity = new Entity;
         auto crystalEntity = new Entity;
+        auto bombEntity = new Entity;
         auto lightEntity = new Entity;
         auto switchEntity = new Entity;
         auto otherEntity = new Entity;
@@ -57,13 +60,15 @@ struct Area {
         entity.addChild(lightEntity);
         entity.addChild(otherEntity);
         otherEntity.addChild(crystalEntity);
+        otherEntity.addChild(bombEntity);
         otherEntity.addChild(switchEntity);
 
-        insts ~= Inst(entity, mapEntity, characterEntity, moveEntity, crystalEntity, lightEntity, switchEntity, otherEntity);
+        insts ~= Inst(entity, mapEntity, characterEntity, moveEntity, crystalEntity, bombEntity, lightEntity, switchEntity, otherEntity);
 
         import std.conv;
         entity.name = "Area"~index.to!string;
         crystalEntity.name = "crystal";
+        bombEntity.name = "bomb";
         mapEntity.name = "map";
         characterEntity.name = "character";
         moveEntity.name = "move";
@@ -112,6 +117,11 @@ struct Area {
     auto crystals() {
         auto root = obj["Crystals"].array();
         return root.length.iota.map!(i => Crystal(i, root, this.crystalEntity));
+    }
+
+    auto bombs() {
+        auto root = obj["Bombs"].array();
+        return root.length.iota.map!(i => Bomb(i, root, this.bombEntity));
     }
 
     auto characters() {

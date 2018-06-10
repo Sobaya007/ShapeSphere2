@@ -289,6 +289,27 @@ class Entity {
         });
     }
 
+    void buildSphere() {
+        this.traverse((Entity e) {
+            auto capsule = e.mesh.geom.createCollisionSphere();
+            e.colEntry = capsule.fmap!((CollisionGeometry g) => new CollisionEntry(g, e));
+            debug {
+                import sbylib.material.WireframeMaterial;
+                import sbylib.core.Core;
+                Core().addProcess((proc) {
+                    capsule.apply!((capsule) {
+                        auto geom = capsule.createGeometry();
+                        auto mat = new WireframeMaterial(vec4(1));
+                        auto debugEntity = new Entity(geom, mat);
+                        debugEntity.name = "Debug Wire Capsule";
+                        e.addChild(debugEntity);
+                    });
+                    proc.kill();
+                }, "build capsule");
+            }
+        });
+    }
+
     void buildCapsule() {
         this.traverse((Entity e) {
             auto capsule = e.mesh.geom.createCollisionCapsule();
