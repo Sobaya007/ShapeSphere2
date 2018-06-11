@@ -7,7 +7,7 @@ import sbylib.math.Vector;
 
 class TextMaterial : Material {
 
-    mixin ConfigureMaterial!"";
+    mixin ConfigureMaterial;
 
     utexture texture;
     uvec4 color;

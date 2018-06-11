@@ -59,7 +59,10 @@ class Material {
     mixin template commonDeclare(string configStr) {
 
         import std.string : split;
-        import std.array : front;
+        import std.array : front, empty;
+        import std.algorithm : find;
+        import std.traits : EnumMembers;
+        import std.format;
         import std.json;
         import sbylib.utils.Path;
         import sbylib.material.glsl;
@@ -67,11 +70,29 @@ class Material {
         import sbylib.utils.Maybe; 
         import sbylib.utils.Functions : as; 
 
-
+        enum ConfigKey {
+            VertexShaderAutoGen = "vertexShaderAutoGen",
+            BaseName = "baseName",
+            UseGeometryShader = "useGeometryShader"
+        };
         enum parsed = parseJSON(configStr);
-        enum VertexShaderAutoGen = wrapException!(() => parsed["vertexShaderAutoGen"].as!bool).getOrElse(true);
-        enum BaseName = wrapException!(() => parsed["baseName"].as!string).getOrElse(typeof(this).stringof.split("!").front);
-        enum UseGeometryShader = wrapException!(() => parsed["useGeometryShader"].as!bool).getOrElse(false);
+
+        static assert(parsed.type == JSON_TYPE.OBJECT, "Argument is not an object");
+
+        static auto getConfig(T)(ConfigKey key, T defaultValue) {
+            import std.conv;
+            return wrapException!(() => parsed[key].as!T).getOrElse(defaultValue);
+        }
+
+        enum VertexShaderAutoGen = getConfig(ConfigKey.VertexShaderAutoGen, true);
+        enum BaseName = getConfig(ConfigKey.BaseName, typeof(this).stringof.split("!").front);
+        enum UseGeometryShader = getConfig(ConfigKey.UseGeometryShader, false);
+
+        static foreach (key; parsed.object.keys) {
+            static assert([EnumMembers!(ConfigKey)].find(key).empty == false, 
+                    format!"%s: '%s' is not a valid key"(typeof(this).stringof, key));
+        }
+
 
         alias getVertexPath = () => ShaderPath(BaseName ~ ".vert");
         alias getGeometryPath = () => ShaderPath(BaseName ~ ".geom");
@@ -165,7 +186,7 @@ class Material {
         }
     }
 
-    mixin template ConfigureMaterial(string configStr="") {
+    mixin template ConfigureMaterial(string configStr="{}") {
         import std.file : readText;
         import sbylib.material.glsl;
         import sbylib.wrapper.gl.Program;
@@ -199,7 +220,7 @@ class Material {
         }
     }
 
-    mixin template ConfigureMixMaterial(A, B, string configStr="") {
+    mixin template ConfigureMixMaterial(A, B, string configStr="{}") {
         import sbylib.material.glsl;
         import sbylib : Program;
 

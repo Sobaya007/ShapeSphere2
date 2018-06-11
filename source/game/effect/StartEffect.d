@@ -33,15 +33,11 @@ class StartEffect {
         const H = W / mat.aspectRatio;
         auto X_DIV = W/FRAG_WIDTH;
         auto Y_DIV = H/FRAG_HEIGHT;
-        debug {
+        Core().addProcess({
             mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
             mat.fragWidth = FRAG_WIDTH/W;
             mat.fragHeight = FRAG_HEIGHT/H;
-        } else {
-            mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 1.0;
-            mat.fragWidth = FRAG_WIDTH/W * 2;
-            mat.fragHeight = FRAG_HEIGHT/H * 2;
-        }
+        }, "po");
 
         VertexT[] vertices;
         foreach (i; 0..X_DIV) {
@@ -122,7 +118,7 @@ class StartEffect {
 
     class StartEffectMaterial : Material {
         mixin ConfigureMaterial!(q{{
-            "VertexShaderAutoGen" : false
+            "vertexShaderAutoGen" : false
         }});
 
         private utexture tex;
