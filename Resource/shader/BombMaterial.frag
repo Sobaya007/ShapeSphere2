@@ -9,6 +9,7 @@ require viewMatrix;
 
 uniform sampler2D noise;
 uniform float time;
+uniform float lightScale;
 
 vec3 noiseF(vec2 seed) {
     seed /= 50.5141919;
@@ -27,6 +28,7 @@ float rand(vec3 seed) {
 void main() {
     if (flag == 1) {
         fragColor = vec4(1,0,0,1) + vec4(0,1,0,0) * rand(position + vec3(sin(time*0.02+rand(position.yz)), cos(time * 0.0234+rand(position.zx)), sin(time*0.0345+0.2+rand(position.xy)))) * 0.4;
+        fragColor.rgb *= lightScale;
     } else {
         fragColor = vec4(0);
         for (int i = 0; i < pointLightNum; i++) {

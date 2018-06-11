@@ -77,12 +77,18 @@ class BombEntity {
     this() {
         auto entity = makeEntity(Dodecahedron.create(), new BombMaterial);
         auto light = new PointLight(vec3(0), vec3(0));
-        light.diffuse = vec3(1, 0.7, 0.1);
         light.visible = false;
         entity.buildSphere();
         entity.addChild(light);
         this.entity = entity;
         this.scale *= 3;
+
+        Core().addProcess({
+            auto s1 = sin(entity.time * 0.03) * 0.4 + 0.6;
+            auto s2 = cos(entity.time * 0.0433456781) * 0.4 + 0.6;
+            entity.lightScale = (s1 + s2) / 2;
+            light.diffuse = vec3(1, 0.7, 0.1) * entity.lightScale;
+        }, "bomb");
     }
 }
 
@@ -91,6 +97,7 @@ class BombMaterial : Material {
 
     utexture noise;
     ufloat time;
+    ufloat lightScale;
 
     this() {
         mixin(autoAssignCode);
@@ -99,5 +106,6 @@ class BombMaterial : Material {
         this.noise = ImageLoader.load(ImagePath("noise.jpg")).generateTexture();
         this.time = 0;
         Core().addProcess({ this.time++; }, "bomb");
+        this.lightScale = 1;
     }
 }
