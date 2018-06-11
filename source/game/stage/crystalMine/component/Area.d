@@ -20,10 +20,7 @@ struct Area {
         Entity mapEntity;
         Entity characterEntity;
         Entity moveEntity;
-        Entity crystalEntity;
-        Entity bombEntity;
         Entity lightEntity;
-        Entity switchEntity;
         Entity otherEntity;
     }
 
@@ -50,10 +47,7 @@ struct Area {
         auto mapEntity = new Entity;
         auto characterEntity = new Entity;
         auto moveEntity = new Entity;
-        auto crystalEntity = new Entity;
-        auto bombEntity = new Entity;
         auto lightEntity = new Entity;
-        auto switchEntity = new Entity;
         auto otherEntity = new Entity;
 
         entity.addChild(mapEntity);
@@ -61,21 +55,15 @@ struct Area {
         entity.addChild(moveEntity);
         entity.addChild(lightEntity);
         entity.addChild(otherEntity);
-        otherEntity.addChild(crystalEntity);
-        otherEntity.addChild(bombEntity);
-        otherEntity.addChild(switchEntity);
 
-        insts ~= Inst(entity, mapEntity, characterEntity, moveEntity, crystalEntity, bombEntity, lightEntity, switchEntity, otherEntity);
+        insts ~= Inst(entity, mapEntity, characterEntity, moveEntity, lightEntity, otherEntity);
 
         import std.conv;
         entity.name = "Area"~index.to!string;
-        crystalEntity.name = "crystal";
-        bombEntity.name = "bomb";
         mapEntity.name = "map";
         characterEntity.name = "character";
         moveEntity.name = "move";
         lightEntity.name = "light";
-        switchEntity.name = "switch";
         otherEntity.name = "other";
     }
 
@@ -118,12 +106,12 @@ struct Area {
 
     auto crystals() {
         auto root = obj["Crystals"].array();
-        return root.length.iota.map!(i => Crystal(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Crystals"), JsonKey(i)], this.crystalEntity));
+        return root.length.iota.map!(i => Crystal(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Crystals"), JsonKey(i)], this.otherEntity));
     }
 
     auto bombs() {
         auto root = obj["Bombs"].array();
-        return root.length.iota.map!(i => Bomb(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Bombs"), JsonKey(i)], this.bombEntity));
+        return root.length.iota.map!(i => Bomb(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Bombs"), JsonKey(i)], this.otherEntity));
     }
 
     auto characters() {
@@ -133,7 +121,7 @@ struct Area {
 
     auto switches() {
         auto root = obj["Switches"].array();
-        return root.length.iota.map!(i => Switch(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Switches"), JsonKey(i)], this.switchEntity));
+        return root.length.iota.map!(i => Switch(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Switches"), JsonKey(i)], this.otherEntity));
     }
 
     auto paths() {
