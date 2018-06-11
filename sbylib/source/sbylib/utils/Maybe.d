@@ -192,6 +192,11 @@ auto at(T)(T[] array, long index) {
     return Just(array[index]);
 }
 
+auto at(T, S)(T[S] array, S key) {
+    if (key !in array) return None!T;
+    return Just(array[key]);
+}
+
 class MaybeEnvironment {
     import sbylib : Singleton;
 

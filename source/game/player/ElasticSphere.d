@@ -40,7 +40,7 @@ class ElasticSphere : BaseSphere {
         this.camera = camera;
         this.pushCount = flim(0.0, 0.0, 1);
         this.elasticSphere2 = new ElasticSphere2();
-        this.elasticSphere2.entity.setUserData(parent);
+        this.elasticSphere2.entity.setUserData("Player", parent);
         debug this.elasticSphere2.entity.traverse!((Entity e) => e.onPreRender ~= () => Game.startTimer("player.render()"));
         debug this.elasticSphere2.entity.traverse!((Entity e) => e.onPostRender ~= () => Game.stopTimer("player.render()"));
         Game.getWorld3D().add(this.elasticSphere2.entity);
@@ -156,7 +156,7 @@ class ElasticSphere : BaseSphere {
         auto info = Array!CollisionInfoByQuery(0);
         scope(exit) info.destroy();
         Game.getWorld3D().queryCollide(info, this.elasticSphere2.entity);
-        auto charas = info.map!(colInfo => colInfo.entity.getUserData!Character).catMaybe;
+        auto charas = info.map!(colInfo => colInfo.entity.getUserData!Character("Character")).catMaybe;
         if (charas.empty) return;
         auto chara = charas.front();
         camera.focus(chara.entity);
@@ -190,18 +190,20 @@ class ElasticSphere : BaseSphere {
         }
         foreach (colInfo; colInfos) {
             import game.stage.crystalMine.component.Move;
-            import game.stage.crystalMine.component.Switch;
-            colInfo.getOther(this.elasticSphere2.entity).visitUserData!(
-                (Move move) {
-                    auto next = move.arrivalName;
-                    Game.getMap().transit(next);
-                },
-                (Switch sw) {
-                    if (colInfo.getPushVector(this.elasticSphere2.entity).y > 0.9 && pushCount > 0) {
-                        sw.entity.down();
-                    }
+            import game.entity.SwitchEntity;
+            auto e = colInfo.getOther(this.elasticSphere2.entity);
+            auto move = e.getUserData!Move("Move");
+            if (move.isJust) {
+                auto next = move.get().arrivalName;
+                Game.getMap().transit(next);
+            }
+
+            auto sw = e.getUserData!(SwitchEntity)("Switch");
+            if (sw.isJust) {
+                if (colInfo.getPushVector(this.elasticSphere2.entity).y > 0.9 && pushCount > 0) {
+                    sw.down();
                 }
-            );
+            }
         }
     }
 

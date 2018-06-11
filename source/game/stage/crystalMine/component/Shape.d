@@ -36,7 +36,7 @@ struct Shape {
                 auto entity = makeEntity(capsule);
             }
             entities ~= entity;
-            entity.setUserData(move.arrivalName);
+            entity.setUserData("ArrivalName", move.arrivalName);
             this.center = center;
             move.moveEntity.addChild(entity);
         }

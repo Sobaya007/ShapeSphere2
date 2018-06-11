@@ -25,16 +25,16 @@ public:
     }
 
     void setTarget(Entity target) in {
-        assert(target.getUserData!Axis.isNone);
+        assert(target.getUserData!Axis("Axis").isNone);
     } body {
         this.target = target;
         this.entity.pos = target.worldPos.get;
     }
 
     void setAxis(Entity axis) in {
-        assert(axis.getUserData!Axis.isJust);
+        assert(axis.getUserData!Axis("Axis").isJust);
     } body {
-        final switch(axis.getUserData!Axis.get) {
+        final switch(axis.getUserData!Axis("Axis").get) {
             case Axis.X: this.axisDir = vec3(1, 0, 0); break;
             case Axis.Y: this.axisDir = vec3(0, 1, 0); break;
             case Axis.Z: this.axisDir = vec3(0, 0, 1); break;
@@ -92,7 +92,7 @@ private:
 
         arrow.traverse((Entity e) {
             e.name = this.name;
-            e.setUserData(axis);
+            e.setUserData("Axis", axis);
         });
 
         return arrow;

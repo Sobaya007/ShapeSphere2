@@ -145,7 +145,7 @@ class NeedleSphere : BaseSphere {
         Maybe!size_t lastWallIndex;
         foreach (i, colInfo; colInfos) {
             contacts ~= Contact(colInfo, this);
-            auto matName = colInfo.getOther(this.entity).getUserData!(string).getOrElse("");
+            auto matName = colInfo.getOther(this.entity).getUserData!(string)("MaterialName").getOrElse("");
             import std.algorithm;
             if (matName.canFind("Sand")) {
                 auto nc = normalize(colInfo.getPushVector(this.entity));

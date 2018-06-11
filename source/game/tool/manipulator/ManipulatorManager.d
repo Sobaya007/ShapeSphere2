@@ -38,21 +38,17 @@ private:
                 this.isMoving = false;
                 entity.apply!(
                     (Entity e) {
-                        e.visitUserData!(
-                            (Manipulator.Axis) {
-                                this.manipulator.setAxis(e);
+                        if (isAxis(e)) {
+                            this.manipulator.setAxis(e);
 
-                                this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
-                                this.isMoving = this.manipulator.setRay(this.ray);
-                            },
-                            (ManipulatorTarget t) {
-                                show();
-                                this.manipulator.setTarget(e);
-                            },
-                            () {
-                                hide();
-                            }
-                        );
+                            this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
+                            this.isMoving = this.manipulator.setRay(this.ray);
+                        } else if (isTarget(e)) {
+                            show();
+                            this.manipulator.setTarget(e);
+                        } else {
+                            hide();
+                        }
                     }
                 );
             }
@@ -96,11 +92,11 @@ private:
 
 private:
     bool isTarget(Entity entity) {
-        return entity.getUserData!ManipulatorTarget.isJust;
+        return entity.getUserData!ManipulatorTarget("Manipulator").isJust;
     }
 
     bool isAxis(Entity entity) {
-        return entity.getUserData!(Manipulator.Axis).isJust;
+        return entity.getUserData!(Manipulator.Axis)("Axis").isJust;
     }
 
 

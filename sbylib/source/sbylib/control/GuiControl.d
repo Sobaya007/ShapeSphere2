@@ -129,12 +129,12 @@ private:
         this.ray.build(this.mouse.getPos(), this.camera);
         return this.world.rayCast(this.ray).fmapAnd!((CollisionInfoRay colInfo) {
             auto entity = colInfo.entity;
-            while(entity.getUserData!(IControllable).isNone) {
+            while(entity.getUserData!(IControllable)("controllable").isNone) {
                 auto parent = entity.getParent;
                 if (parent.isNone) return None!IControllable;
                 entity = parent.get();
             }
-            return entity.getUserData!(IControllable);
+            return entity.getUserData!(IControllable)("controllable");
         });
     }
 

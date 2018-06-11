@@ -1,5 +1,17 @@
 module game.stage.crystalMine.component.Root;
 
+/*
+
+   {
+        "Areas" : array,
+        "StageName": string
+        "StartArea" : string
+   }
+
+
+
+*/
+
 class Root {
 
     import std.json;
@@ -44,7 +56,7 @@ class Root {
         import std.algorithm : map;
 
         auto root = obj["Areas"].array;
-        return root.length.iota.map!(i => Area(i, root));
+        return root.length.iota.map!(i => Area(this.root, i, root));
     }
 
     auto currentArea() {

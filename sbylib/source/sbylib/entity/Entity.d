@@ -45,7 +45,7 @@ class Entity {
     Maybe!CollisionEntry colEntry;
     private Maybe!Entity parent;
     private Entity[] children;
-    private Maybe!Variant userData;
+    private Variant[string] userData;
     bool visible; // Materialに書くと、Materialが同じでVisiblityが違う物体が実現できない
     void delegate()[] onAdd;
     void delegate()[] onPreRender;
@@ -102,16 +102,12 @@ class Entity {
        User Data access
      */
 
-    Maybe!T getUserData(T)() {
-        return this.userData.fmapAnd!((Variant v) => wrapPointer(v.peek!T));
+    Maybe!T getUserData(T)(string key) {
+        return this.userData.at(key).fmapAnd!((Variant v) => wrapPointer(v.peek!T));
     }
 
-    Maybe!string getUserDataType() {
-        return this.userData.fmap!((Variant v) => v.type.stringof);
-    }
-
-    void setUserData(T)(T userData) {
-        this.userData = wrap(Variant(userData));
+    void setUserData(T)(string key, T userData) {
+        this.userData[key] = Variant(userData);
     }
 
     /*
@@ -399,7 +395,7 @@ class Entity {
 
     string toString(bool recursive) {
         import std.format;
-        return toString((Entity e) => format!"name      : %s\nMesh      : %s\nCollision : %s\nData      : %s\nChildren  : %d"(e.name, e.mesh.toString(), e.colEntry.toString(), e.userData.toString, e.children.length), recursive);
+        return toString((Entity e) => format!"name      : %s\nMesh      : %s\nCollision : %s\nChildren  : %d"(e.name, e.mesh.toString(), e.colEntry.toString(), e.children.length), recursive);
     }
 
     string toString(string function(Entity) func, bool recursive) {
@@ -414,6 +410,7 @@ class Entity {
     }
 }
 
+/*
 template VisitDataAcceptable(choices...) {
     enum VisitDataAcceptable =
         allSatisfy!(isCallable, choices)
@@ -439,3 +436,4 @@ void visitUserData(choices...)(Entity e) if (VisitDataAcceptable!(choices)) {
     }
 }
 
+*/

@@ -2,71 +2,10 @@ module game.stage.crystalMine.component.Bomb;
 
 import sbylib;
 import std.math;
+import game.stage.crystalMine.component.Component;
 
 struct Bomb {
-
-    import std.json, std.typecons;
-    import sbylib;
-
-    private size_t index;
-    private JSONValue[] parent;
-    private Entity bombEntity;
-    private static Entity[][Entity] _reserved;
-
-    this(size_t index, JSONValue[] parent, Entity bombEntity) {
-        this.index = index;
-        this.parent = parent;
-        this.bombEntity = bombEntity;
-
-        this.pos = pos;
-    }
-
-    void create(size_t index) {
-
-        auto e = new BombEntity;
-
-        bombEntity.addChild(e);
-
-        reserved ~= e;
-
-        auto parent = this.parent;
-        auto bombEntity = this.bombEntity;
-        entity.pos.addChangeCallback({
-            vec3 p = entity.pos;
-            Bomb(index, parent, bombEntity).pos = p;
-        });
-
-        import game.tool.manipulator;
-        entity.setUserData(new ManipulatorTarget); // temp
-    }
-
-    auto ref reserved() {
-        if (bombEntity !in _reserved) _reserved[bombEntity] = [];
-        return _reserved[bombEntity];
-    }
-
-    Entity entity() {
-        while (reserved.length <= index) create(reserved.length);
-        return reserved[index];
-    }
-
-    auto obj() {
-        return parent[index].object();
-    }
-
-    vec3 pos() {
-        return vec3(obj["pos"].as!(float[]));
-    }
-
-    void pos(vec3 p) {
-        obj["pos"] = p.array[];
-        entity.pos = pos;
-    }
-
-    void remove() {
-        this.entity.remove();
-        this.entity.destroy();
-    }
+    mixin Component!(BombEntity, ["pos" : "vec3"]);
 }
 
 class BombEntity {

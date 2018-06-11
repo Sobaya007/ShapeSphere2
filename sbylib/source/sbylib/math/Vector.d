@@ -18,12 +18,13 @@ alias Vector!(int,   4) vec4i;
 
 //T型のS個のベクトル
 struct Vector(T, uint S) {
-private:
-    T[S] elements;
 public:
 
     enum dimension = S;
     enum type = T.stringof;
+
+    T[S] elements;
+    alias elements this;
 
     this(T e) {
         elements[] = e;

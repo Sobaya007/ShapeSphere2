@@ -27,7 +27,7 @@ public:
         auto entity = makeEntity(geom, new ColorMaterial);
         entity.color = vec4(0, 1, 1, 1); // debug
 
-        entity.setUserData(cast(IControllable)this);
+        entity.setUserData("controllable", cast(IControllable)this);
         entity.buildBVH();
         entity.pos.z = 2;
 

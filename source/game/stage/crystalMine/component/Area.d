@@ -12,6 +12,7 @@ struct Area {
     import game.Game;
 
     private size_t index;
+    private JSONValue root;
     private JSONValue[] parent;
 
     struct Inst {
@@ -30,16 +31,17 @@ struct Area {
 
     alias inst this;
 
-    this(size_t index, JSONValue[] parent) {
+    this(JSONValue root, size_t index, JSONValue[] parent) {
+        this.root = root;
         this.index = index;
         this.parent = parent;
 
         // 悲しみの初期化処理
         characters.each!(x => x.character());
         moves.each!(x => x.shape());
-        crystals.each!(x => x.light());
+        crystals.each!(x => x.entity());
         bombs.each!(x => x.entity());
-        lights.each!(x => x.light());
+        lights.each!(x => x.entity());
         switches.each!(x => x.entity());
     }
 
@@ -106,7 +108,7 @@ struct Area {
 
     auto lights() {
         auto root = obj["Lights"].array();
-        return root.length.iota.map!(i => Light(i, root, this.lightEntity));
+        return root.length.iota.map!(i => Light(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Lights"), JsonKey(i)], this.lightEntity));
     }
 
     auto moves() {
@@ -116,12 +118,12 @@ struct Area {
 
     auto crystals() {
         auto root = obj["Crystals"].array();
-        return root.length.iota.map!(i => Crystal(i, root, this.crystalEntity));
+        return root.length.iota.map!(i => Crystal(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Crystals"), JsonKey(i)], this.crystalEntity));
     }
 
     auto bombs() {
         auto root = obj["Bombs"].array();
-        return root.length.iota.map!(i => Bomb(i, root, this.bombEntity));
+        return root.length.iota.map!(i => Bomb(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Bombs"), JsonKey(i)], this.bombEntity));
     }
 
     auto characters() {
@@ -131,7 +133,7 @@ struct Area {
 
     auto switches() {
         auto root = obj["Switches"].array();
-        return root.length.iota.map!(i => Switch(i, root, this.switchEntity));
+        return root.length.iota.map!(i => Switch(this.root, [JsonKey("Areas"), JsonKey(index), JsonKey("Switches"), JsonKey(i)], this.switchEntity));
     }
 
     auto paths() {
@@ -181,7 +183,7 @@ struct Area {
         m.traverse!((Entity e) {
             auto name = e.mesh.mat.wrapCast!(StageMaterial).name;
             if (name.isNone) return;
-            e.setUserData(name.get);
+            e.setUserData("MaterialName", name.get);
         });
         writeln("BVH construction was finished.");
     }
@@ -191,7 +193,7 @@ struct Area {
         obj["pos"] = JSONValue(pos.array[]);
         obj["color"] = JSONValue(vec3(1).array[]);
         area["Crystals"].array ~= obj;
-        crystals.each!(x => x.light());
+        crystals.each!(x => x.entity());
     }
 
     void addLight(ref JSONValue area, vec3 pos) {
@@ -199,6 +201,6 @@ struct Area {
         obj["pos"] = JSONValue(pos.array[]);
         obj["color"] = JSONValue(vec3(1).array[]);
         area["Lights"].array ~= obj;
-        lights.each!(x => x.light());
+        lights.each!(x => x.entity());
     }
 }

@@ -33,7 +33,7 @@ public:
         if (_entity.mesh.isJust && createColEntryFlag) {
             _entity.buildBVH();
         }
-        _entity.setUserData(cast(IControllable)this);
+        _entity.setUserData("controllable", cast(IControllable)this);
     }
 
     override float x() {

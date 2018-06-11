@@ -37,7 +37,7 @@ class Character {
         this.activeArea.name = "Character's Active Area";
         this.elasticSphere.entity.addChild(collisionArea);
         this.elasticSphere.entity.addChild(activeArea);
-        elasticSphere.entity.setUserData(this);
+        elasticSphere.entity.setUserData("Character", this);
     }
 
     void initialize() {
@@ -51,7 +51,7 @@ class Character {
         scope(exit) info.destroy();
         Game.getWorld3D().queryCollide(info, this.activeArea);
         auto charas = 
-            info.map!(colInfo => colInfo.entity.getUserData!(Player))
+            info.map!(colInfo => colInfo.entity.getUserData!(Player)("Player"))
             .catMaybe;
         auto c = count % 100;
 

@@ -15,7 +15,7 @@ struct Move {
         this.parent = parent;
         this.moveEntity = moveEntity;
         this.arrivalName = arrivalName;
-        shape.setUserData(this);
+        shape.setUserData("Move", this);
     }
 
     auto obj() {
