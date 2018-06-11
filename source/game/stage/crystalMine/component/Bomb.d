@@ -28,6 +28,44 @@ class BombEntity {
             entity.lightScale = (s1 + s2) / 2;
             light.diffuse = vec3(1, 0.7, 0.1) * entity.lightScale;
         }, "bomb");
+
+        auto time = 0;
+        Core().addProcess({
+            if (time++ % 100 == 0) {
+                explode();
+            }
+        }, "explode");
+    }
+
+    void explode() {
+        //爆発
+
+        // パーティクル
+        // 黒い岩
+        // 炎
+
+        // 爆炎
+        import std.random;
+
+        void stone() {
+            auto entity = makeEntity(Dodecahedron.create(), new ColorMaterial(vec3(0)));
+            entity.scale = vec3(0.1);
+            this.addChild(entity);
+            auto vel = vec3(uniform(-1.5, +1.5), uniform(0.5, 1.5), uniform(-1.5, +1.5)) * 0.1;
+            Core().addProcess((proc){
+                entity.pos += vel; 
+                vel += vec3(0, -0.1, 0) * 0.1;
+                entity.scale -= vec3(0.01);
+                if (entity.scale.x <= 0) {
+                    entity.remove();
+                    proc.kill();
+                }
+            }, "stone");
+        }
+
+        foreach (i; 0..10) {
+            stone();
+        }
     }
 }
 
