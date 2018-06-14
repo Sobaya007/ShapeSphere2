@@ -124,12 +124,12 @@ class GameMainScene : SceneBase {
         Game.addLabel("J: Goto Fly Mode");
 
         /* Key Input */
-        Core().getKey().justPressed(KeyButton.KeyO).add({ConfigManager().load();});
+        Core().getKey().justPressed(KeyButton.KeyO).add({ConfigManager().load(); Game.log("Config Reloaded");});
         Core().getKey().justPressed(KeyButton.Key0).add({Game.getPlayer().setCenter(vec3(0));});
         Core().getKey().justPressed(KeyButton.KeyF).add({Core().getWindow().toggleFullScreen();});
         Core().getKey().justPressed(KeyButton.KeyN).add({Game.toggleDebugLabel(); });
         Core().getKey().justPressed(KeyButton.KeyI).add({console.on();});
-        Core().getKey().justPressed(KeyButton.KeyJ).add({Game.getPlayer().camera.fly();});
+        Core().getKey().justPressed(KeyButton.KeyJ).add({Game.getPlayer().camera.fly(); Game.log("Start Fly Mode");});
 
         /* Console */
         this.console = new Console;

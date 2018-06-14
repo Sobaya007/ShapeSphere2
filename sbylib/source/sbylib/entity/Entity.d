@@ -98,15 +98,8 @@ class Entity {
     void destroy() in {
         assert(this.isWorldConnected == false, "Calling 'destroy' must be after 'remove'");
     } body {
-        import std.stdio;
-        writeln("destroying...");
         this.mesh.destroy();
-        writeln("make sure all processes are alive");
-        foreach (p; this.processes) assert(p.isAlive);
-        writeln("ok, all processes are alive");
         foreach (p; this.processes) p.kill();
-        writeln("all processes are killed");
-        foreach (p; this.processes) assert(!p.isAlive);
     }
 
     /*

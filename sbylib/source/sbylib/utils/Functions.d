@@ -439,6 +439,30 @@ void configure3D(World world, Camera camera, IRenderTarget target = Core().getWi
     }, "render");
 }
 
+mixin template ImplPositionSetter(alias width, alias height) {
+    
+    float left(float value) {
+        this.pos.x = value + width/2;
+        return value;
+    }
+
+    float right(float value) {
+        this.pos.x = value - width/2;
+        return value;
+    }
+
+    float top(float value) {
+        this.pos.y = value - height/2;
+        return value;
+    }
+
+    float bottom(float value) {
+        this.pos.y = value + height/2;
+        return value;
+    }
+}
+
+
 enum red    = vec4(1,0,0,1);
 enum green  = vec4(0,1,0,1);
 enum blue   = vec4(0,0,1,1);

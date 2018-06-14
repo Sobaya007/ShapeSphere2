@@ -76,25 +76,8 @@ class Label {
         this.name = "Label '"~text.to!string~"'";
     }
 
-    float left(float value) {
-        this.pos.x = value + this.mWidth/2;
-        return value;
-    }
-
-    float right(float value) {
-        this.pos.x = value - this.mWidth/2;
-        return value;
-    }
-
-    float top(float value) {
-        this.pos.y = value - this.mHeight/2;
-        return value;
-    }
-
-    float bottom(float value) {
-        this.pos.y = value + this.mHeight/2;
-        return value;
-    }
+    import sbylib.utils.Functions;
+    mixin ImplPositionSetter!(mWidth, mHeight);
 
     private void lineUp() {
         import std.array, std.algorithm, std.range;

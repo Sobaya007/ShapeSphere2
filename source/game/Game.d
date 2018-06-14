@@ -27,7 +27,7 @@ static:
 
     private debug Label[] debugLabels;
     private debug StopWatchLabel[] stopWatch;
-    private debug Label[] processLabels;
+    private debug LogEntity logEntity;
 
     private debug class StopWatchLabel {
 
@@ -91,6 +91,18 @@ static:
         this.message = new Message;
         this.backBuffer = new RenderTarget(512, 512);
         this.backBuffer.attachTexture!ubyte(FrameBufferAttachType.Color0);
+
+        debug {
+            LogFactory factory;
+            factory.fontName = "consola.ttf";
+            factory.strategy = Label.Strategy.Right;
+            factory.textColor = vec4(1);
+            factory.size = 0.05;
+            factory.rowNum = 10;
+            this.logEntity = factory.make();
+            this.logEntity.pos.y = -0.95;
+            this.world2d.add(this.logEntity);
+        }
     }
 
     void initializePlayer(Camera camera) in {
@@ -169,6 +181,12 @@ static:
         sw.label.renderText(format!"%s : %3dmsecs"(str, sw.averageTime));
         sw.label.right = 1;
     }
+
+    debug void log(dstring text) {
+        this.logEntity.insert(text);
+        this.logEntity.right = 0.95;
+    }
+
 
     void update() {
         debug Game.startTimer("Game");
