@@ -20,12 +20,12 @@ class TimeCounter(uint N) {
 
     void stop() {
         auto p = periods[c];
-        periods[c] = sw.peek().total!"msecs";
+        periods[c] = sw.peek().total!"usecs";
         total += cast(int)(periods[c] - p);
         c = (c+1)%N;
     }
 
-    long averageTime() {
-        return total / N;
+    float averageTime() {
+        return total / N * 1e-3;
     }
 }

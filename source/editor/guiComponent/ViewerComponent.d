@@ -157,8 +157,8 @@ private:
         core.addProcess((proc) {
             import std.conv;
             fpsCounter.update();
-            fpsLabel.renderText(format!"FPS[%d]"(fpsCounter.getFPS()).to!dstring);
-            window.setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
+            fpsLabel.renderText(format!"FPS[%d]"(cast(int)fpsCounter.getFPS()).to!dstring);
+            window.setTitle(format!"FPS[%d]"(cast(int)fpsCounter.getFPS()).to!string);
         }, "fps update");
 
 

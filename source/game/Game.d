@@ -26,7 +26,7 @@ static:
     private GameMainScene scene;
 
     private debug Label[] debugLabels;
-    private debug StopWatchLabel[] stopWatch;
+    private debug StopWatchLabel[string] stopWatch;
     private debug LogEntity logEntity;
 
     private debug class StopWatchLabel {
@@ -50,13 +50,12 @@ static:
 
             this.counter = new TimeCounter!100;
 
-            if (stopWatch.length == 0) {
-                this.label.top = 0.9;
-            } else {
-                auto sw = stopWatch[$-1];
-                this.label.pos.y = sw.label.pos.y - sw.label.height;
-            }
+            this.label.top = 0.9 - label.height * stopWatch.keys.length;
             getWorld2D().add(this.label);
+            this.label.addProcess({
+                this.label.renderText(format!"%s : %3.2fmsecs"(this.name, stopWatch[this.name].averageTime));
+                this.label.right = 1;
+            });
         }
     }
 
@@ -81,7 +80,7 @@ static:
         static bool visible = true;
         visible = !visible;
         debugLabels.each!(label => label.traverse((Entity e) { e.visible = visible; }));
-        stopWatch.each!(sw => sw.label.traverse((Entity e) { e.visible = visible; }));
+        stopWatch.values.each!(sw => sw.label.traverse((Entity e) { e.visible = visible; }));
     }
 
     void initialize(string[] args) {
@@ -162,24 +161,18 @@ static:
     }
 
     debug void startTimer(string str) {
-        auto findResult = stopWatch.find!(sw => sw.name == str);
-        if (findResult.empty) {
-            auto sw = new StopWatchLabel(str);
-            stopWatch ~= sw;
+        if (auto sw = str in stopWatch) {
             sw.start();
         } else {
-            auto sw = findResult.front;
+            auto sw = new StopWatchLabel(str);
+            stopWatch[str] = sw;
             sw.start();
         }
     }
 
     debug void stopTimer(string str) {
-        auto findResult = stopWatch.find!(sw => sw.name == str);
-        assert(!findResult.empty);
-        auto sw = findResult.front;
+        auto sw = stopWatch[str];
         sw.stop();
-        sw.label.renderText(format!"%s : %3dmsecs"(str, sw.averageTime));
-        sw.label.right = 1;
     }
 
     debug void log(dstring text) {

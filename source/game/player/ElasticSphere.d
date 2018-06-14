@@ -176,7 +176,10 @@ class ElasticSphere : BaseSphere {
 
         this.elasticSphere2.force *= calcSidePushForce();
 
+
+        debug Game.startTimer("elastic total step");
         this.elasticSphere2.move(parent.collisionEntities);
+        debug Game.stopTimer("elastic total step");
 
         if (this.getLinearVelocity.xz.length > 0.5) {
             this._lastDirection = vec3(this.getLinearVelocity.xz.normalize, 0).xzy;

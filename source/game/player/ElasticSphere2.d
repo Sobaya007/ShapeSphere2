@@ -11,6 +11,7 @@ import std.range;
 import std.math;
 import std.stdio;
 import std.typecons;
+import std.parallelism;
 
 class ElasticSphere2 {
 
@@ -172,33 +173,35 @@ class ElasticSphere2 {
     }
 
     void move(Entity[] collisionEntities) {
+        debug Game.startTimer("elastic2 total");
+
+        debug Game.startTimer("elastic prepare");
         vec3 g = this.center;
 
         this.rotateParticles(g);
         this.entity.pos = g;
+        debug Game.stopTimer("elastic prepare");
 
 
+        debug Game.startTimer("elastic solve");
         //拘束解消
         {
-            debug Game.startTimer("elastic solve");
             //隣との距離を計算
             foreach (pair; this.pairList) {
-                pair.init();
+                pair.initialize();
             }
-            debug Game.stopTimer("elastic solve");
-            debug Game.startTimer("elastic solve2");
             foreach (k; 0..ITERATION_COUNT){
                 //隣との拘束
-                foreach (pair; this.pairList) {
+                foreach (pair; this.pairList.parallel) {
                     pair.solve();
                 }
             }
-            debug Game.stopTimer("elastic solve2");
         }
+        debug Game.stopTimer("elastic solve");
+        debug Game.startTimer("elastic prepare2");
         float baloonForce = this.calcBaloonForce();
         this.contactNormal = None!vec3;
 
-        debug Game.startTimer("elastic collide");
         auto entities = Array!Entity(0);
         scope(exit) entities.destroy();
         alias col = (e) => e.traverse((Entity e) {
@@ -208,13 +211,14 @@ class ElasticSphere2 {
             if (info.length > 0)
                 entities ~= e;
         });
+        debug Game.stopTimer("elastic prepare2");
+        debug Game.startTimer("elastic collision");
         col(Game.getMap().mapEntity);
         col(Game.getMap().otherEntity);
-        debug collisionCount = entities.length;
-        debug Game.stopTimer("elastic collide");
+        debug Game.stopTimer("elastic collision");
 
         debug Game.startTimer("elastic particle");
-        foreach (ref particle; this.particleList) {
+        foreach (ref particle; this.particleList.parallel) {
             particle.force += particle.normal * baloonForce;
             if (this.contactNormal.isNone) particle.force.y -= GRAVITY * MASS;
             particle.velocity += particle.force * FORCE_COEF;
@@ -223,7 +227,7 @@ class ElasticSphere2 {
             end(particle);
         }
         this.force.y = 0;
-        foreach (p; this.particleList) {
+        foreach (p; this.particleList.parallel) {
             p.force = this.force;
         }
         this.force = vec3(0);
@@ -232,6 +236,7 @@ class ElasticSphere2 {
         debug Game.startTimer("elastic geometry");
         updateGeometry();
         debug Game.stopTimer("elastic geometry");
+        debug Game.stopTimer("elastic2 total");
     }
 
     void push(vec3 forceVector, float maxPower) {
@@ -264,7 +269,7 @@ class ElasticSphere2 {
             axis /= len;
             auto angle = rad(dif.length / radius);
             quat rot = quat.axisAngle(axis, angle);
-            foreach (p; this.particleList) {
+            foreach (p; this.particleList.parallel) {
                 p.position = rotate(p.position-center, rot) + center;
                 p.normal = rotate(p.normal, rot);
             }
@@ -359,10 +364,10 @@ class ElasticSphere2 {
 
     private void updateGeometry() {
         auto vs = geom.vertices;
-        foreach (ref v; vs) {
+        foreach (ref v; vs.parallel) {
             v.normal = vec3(0);
         }
-        foreach (face; geom.faces) {
+        foreach (face; geom.faces.parallel) {
             auto normal = normalize(cross(
                     vs[face.indexList[2]].position - vs[face.indexList[0]].position,
                     vs[face.indexList[1]].position - vs[face.indexList[0]].position));
@@ -432,7 +437,7 @@ class ElasticSphere2 {
             this.deflen = length(this.p1.position - this.p0.position);
         }
 
-        void init() {
+        void initialize() {
             vec3 d = this.p1.position - this.p0.position;
             auto len = d.length;
             if (len > 0) d /= len;

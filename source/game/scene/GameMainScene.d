@@ -65,10 +65,10 @@ class GameMainScene : SceneBase {
         auto fpsLabel = Game.addLabel();
         Core().addProcess((proc) {
             fpsCounter.update();
-            fpsLabel.renderText(format!"FPS: %3d"(fpsCounter.getFPS()).to!dstring);
+            fpsLabel.renderText(format!"FPS: %3d"(cast(int)fpsCounter.getFPS()).to!dstring);
             fpsLabel.top = 0.9;
             fpsLabel.left = -1;
-            Core().getWindow().setTitle(format!"FPS[%d]"(fpsCounter.getFPS()).to!string);
+            Core().getWindow().setTitle(format!"FPS[%d]"(cast(int)fpsCounter.getFPS()).to!string);
         }, "fps update");
 
         auto numberLabel3D = Game.addLabel("world3d");
