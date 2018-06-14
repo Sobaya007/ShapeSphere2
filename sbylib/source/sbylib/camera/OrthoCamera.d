@@ -22,29 +22,29 @@ public:
     ChangeObserved!float nearZ;
     ChangeObserved!float farZ;
 
-    private Entity entity;
+    private Entity mEntity;
     alias ProjMatrix = Depends!((float width, float height, float near, float far) => mat4.ortho(width, height, near, far), umat4);
-    private ProjMatrix _projMatrix;
+    private ProjMatrix mProjMatrix;
 
-    alias getEntity this;
+    alias entity this;
 
     this(float width, float height, float nearZ, float farZ) {
         this.width = width;
         this.height = height;
         this.nearZ = nearZ;
         this.farZ = farZ;
-        this.entity = new Entity();
-        this._projMatrix = ProjMatrix(new umat4("projMatrix"));
-        this._projMatrix.depends(this.width, this.height, this.nearZ, this.farZ);
+        this.mEntity = new Entity();
+        this.mProjMatrix = ProjMatrix(new umat4("projMatrix"));
+        this.mProjMatrix.depends(this.width, this.height, this.nearZ, this.farZ);
         this.name = "Ortho Camera";
     }
 
-    override inout(Entity) getEntity() inout {
-        return this.entity;
+    override inout(Entity) entity() inout {
+        return this.mEntity;
     }
 
     override @property const(umat4) projMatrix() {
-        return this._projMatrix;
+        return this.mProjMatrix;
     }
 
 }

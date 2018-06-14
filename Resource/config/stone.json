@@ -1,0 +1,8 @@
+{
+    "STONE_SIZE" : 0.2,
+    "SIZE_SPEED" : 0.005,
+    "VEL_RANGE_XZ" : 0.05,
+    "VEL_MIN_Y" : 0.1,
+    "VEL_MAX_Y" : 0.2,
+    "GRAVITY" : 0.01
+}

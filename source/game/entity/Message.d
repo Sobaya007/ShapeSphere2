@@ -44,11 +44,11 @@ class Message : CommandReceiver {
     void setMessage(dstring message) in {
         assert(this.procedure.done.getOrElse(true));
     } body {
-        float currentWidth = this.text.getWidth();
-        float currentHeight = this.text.getHeight();
+        float currentWidth = this.text.width;
+        float currentHeight = this.text.height;
         text.renderText(message);
-        float arrivalWidth = text.getWidth();
-        float arrivalHeight = text.getHeight();
+        float arrivalWidth = text.width;
+        float arrivalHeight = text.height;
         text.renderText("");
         this.img.scale = vec3(0);
         this.procedure = Just(AnimationManager().startAnimation(

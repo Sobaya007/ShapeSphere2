@@ -37,11 +37,11 @@ public:
     }
 
     override float width() {
-        return _label.getWidth();
+        return _label.width;
     }
 
     override float height() {
-        return _label.getHeight();
+        return _label.height;
     }
 
     float getFontSize() {

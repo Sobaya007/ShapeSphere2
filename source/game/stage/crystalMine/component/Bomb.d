@@ -14,6 +14,7 @@ class BombEntity {
     alias entity this;
 
     this() {
+        this.initializeConfig();
         auto entity = makeEntity(Dodecahedron.create(), new BombMaterial);
         auto light = new PointLight(vec3(0), vec3(0));
         light.visible = false;
@@ -31,10 +32,23 @@ class BombEntity {
 
         auto time = 0;
         Core().addProcess({
-            if (time++ % 100 == 0) {
+            if (time++ % 200 == 0) {
                 explode();
             }
         }, "explode");
+    }
+
+    import dconfig;
+
+    mixin HandleConfig;
+
+    @config(ConfigPath("stone.json"))  {
+        float STONE_SIZE;
+        float VEL_RANGE_XZ;
+        float VEL_MIN_Y;
+        float VEL_MAX_Y;
+        float GRAVITY;
+        float SIZE_SPEED;
     }
 
     void explode() {
@@ -49,13 +63,15 @@ class BombEntity {
 
         void stone() {
             auto entity = makeEntity(Dodecahedron.create(), new ColorMaterial(vec3(0)));
-            entity.scale = vec3(0.1);
+            entity.scale = vec3(STONE_SIZE);
             this.addChild(entity);
-            auto vel = vec3(uniform(-1.5, +1.5), uniform(0.5, 1.5), uniform(-1.5, +1.5)) * 0.1;
+            vec3 vel;
+            vel.xz = vec2(uniform(-VEL_RANGE_XZ, +VEL_RANGE_XZ));
+            vel.y = uniform(VEL_MIN_Y, VEL_MAX_Y);
             Core().addProcess((proc){
                 entity.pos += vel; 
-                vel += vec3(0, -0.1, 0) * 0.1;
-                entity.scale -= vec3(0.01);
+                vel += vec3(0, -GRAVITY, 0);
+                entity.scale -= vec3(SIZE_SPEED);
                 if (entity.scale.x <= 0) {
                     entity.remove();
                     proc.kill();
@@ -63,9 +79,36 @@ class BombEntity {
             }, "stone");
         }
 
-        foreach (i; 0..10) {
-            stone();
-        }
+        auto light = new PointLight(vec3(0), vec3(0));
+        entity.addChild(light);
+
+        AnimationManager().startAnimation(
+            sequence(
+                animation(
+                    (float t) {
+                        light.diffuse = vec3(t);
+                    },
+                    setting(
+                        0.0f,
+                        10,
+                        100.frame,
+                        &Ease.linear
+                    )
+                ),
+                single({foreach(i; 0..10) stone();}),
+                animation(
+                    (float t) {
+                        light.diffuse = vec3(t);
+                    },
+                    setting(
+                        10f,
+                        0,
+                        10.frame,
+                        &Ease.linear
+                    )
+                ),
+            )
+        );
     }
 }
 

@@ -20,27 +20,27 @@ final class PerspectiveCamera : Camera {
     ChangeObserved!float nearZ;
     ChangeObserved!float farZ;
     alias ProjMatrix = Depends!((float aspect, Radian fovy, float near, float far) => mat4.perspective(aspect, fovy, near, far), umat4);
-    private ProjMatrix _projMatrix;
+    private ProjMatrix mProjMatrix;
 public:
-    Entity entity;
-    alias getEntity this;
+    Entity mEntity;
+    alias entity this;
 
     this(float aspect, Degree fovy, float nearZ, float farZ) {
         this.aspectWperH = aspect;
         this.fovy = Radian(fovy);
         this.nearZ = nearZ;
         this.farZ = farZ;
-        this.entity = new Entity();
-        this._projMatrix = ProjMatrix(new umat4("projMatrix"));
-        this._projMatrix.depends(this.aspectWperH, this.fovy, this.nearZ, this.farZ);
+        this.mEntity = new Entity();
+        this.mProjMatrix = ProjMatrix(new umat4("projMatrix"));
+        this.mProjMatrix.depends(this.aspectWperH, this.fovy, this.nearZ, this.farZ);
         this.name = "Perspective Camera";
     }
 
-    override inout(Entity) getEntity() inout {
-        return this.entity;
+    override inout(Entity) entity() inout {
+        return this.mEntity;
     }
 
     override @property const(umat4) projMatrix() {
-        return this._projMatrix;
+        return this.mProjMatrix;
     }
 }

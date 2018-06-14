@@ -7,7 +7,7 @@ public {
 }
 
 interface Camera {
-    inout(Entity) getEntity() inout;
+    inout(Entity) entity() inout;
     @property const(umat4) projMatrix();
-    alias getEntity this;
+    alias entity this;
 }

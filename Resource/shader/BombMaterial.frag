@@ -37,6 +37,7 @@ void main() {
             float s = max(0.0, dot(normalize(reflect(vPosition - vLightPos, vNormal)), -normalize(vPosition)));
             fragColor.rgb += vec3(0.1) * pow(s, power);
         }
+        fragColor.rgb += vec3(1, 0.7, 0.1) * lightScale * 0.1;
         fragColor.a = 1;
     }
 }

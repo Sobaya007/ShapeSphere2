@@ -54,7 +54,7 @@ static:
                 this.label.top = 0.9;
             } else {
                 auto sw = stopWatch[$-1];
-                this.label.pos.y = sw.label.pos.y - sw.label.getHeight;
+                this.label.pos.y = sw.label.pos.y - sw.label.height;
             }
             getWorld2D().add(this.label);
         }

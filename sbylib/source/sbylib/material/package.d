@@ -3,9 +3,11 @@ module sbylib.material;
 public:
 import sbylib.material.Material;
 import sbylib.material.CheckerMaterial;
+import sbylib.material.ClipMaterial;
 import sbylib.material.ColorMaterial;
 import sbylib.material.CompassMaterial;
 import sbylib.material.ConditionalMaterial;
+import sbylib.material.DiscardMaterial;
 import sbylib.material.LambertMaterial;
 import sbylib.material.PhongMaterial;
 import sbylib.material.PhongTextureMaterial;

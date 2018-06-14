@@ -56,7 +56,7 @@ class World {
        事後条件:
             - entityはWorldと接続
      */
-    void add(Entity entity) in {
+    auto add(E)(E entity) in {
         assert(isConnected(entity) == false, "add's argument must not be added to World");
         assert(entity.isParentConnected == false, "add's argument must not have parent");
     } out {
@@ -70,6 +70,7 @@ class World {
                 this.renderGroups[groupName.get()].add(e);
             }
         });
+        return entity;
     }
 
     /*

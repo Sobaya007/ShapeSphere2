@@ -254,14 +254,28 @@ struct RectangleBuffer(T) {
         this.height = h;
     }
 
-    auto opBinary(string op, U)(U value) {
-        pragma(msg, op);
+    auto opBinary(string op, U)(U value) if (is(typeof(this) == U)) {
+        alias R = typeof(mixin("array[0]"~op~"value.array[0]"));
+        R[] result = new R[this.array.length];
+        foreach (i; 0..this.array.length) {
+            result[i] = mixin("this.array[i]"~op~"value.array[i]");
+        }
+        return RectangleBuffer!(R[])(result, this.width, this.height);
+    }
+
+    auto opBinary(string op, U)(U value) if (!is(typeof(this) == U)) {
         alias R = typeof(mixin("array[0]"~op~"value"));
         R[] result = new R[this.array.length];
         foreach (i; 0..this.array.length) {
             result[i] = mixin("this.array[i]"~op~"value");
         }
         return RectangleBuffer!(R[])(result, this.width, this.height);
+    }
+
+    void opOpAssign(string op, U)(RectangleBuffer!(U) value) {
+        foreach (i; 0..this.array.length) {
+            mixin("this.array[i]"~op~"=value.array[i];");
+        }
     }
 
     auto opIndex(long x, long y) {
@@ -273,7 +287,7 @@ struct RectangleBuffer(T) {
         return Just(array[x+y*width]);
     }
 
-    void opIndexAssign(S value, long x, long y) {
+    void opIndexAssign(U)(U value, long x, long y) {
         if (x < 0) return;
         if (y < 0) return;
         if (x >= width) return;
@@ -282,13 +296,24 @@ struct RectangleBuffer(T) {
         array[x+y*width] = value;
     }
 
-    void opIndexOpAssign(string op)(S value, long x, long y) {
+    void opIndexOpAssign(string op, U)(U value, long x, long y) {
         if (x < 0) return;
         if (y < 0) return;
         if (x >= width) return;
-        if (y >= height) return;
         if (flip) y = height-y-1;
         mixin("array[x+y*width]"~op~"= value;");
+    }
+
+    void opIndexAssign(U)(U value, SliceObject a, SliceObject b) {
+        foreach (i; a.begin..a.end) {
+            foreach (j; b.begin..b.end) {
+                static if (is(typeof(this) == U)) {
+                    this[i,j] = value[i-a.begin,j-b.begin].get();
+                } else {
+                    this[i,j] = value;
+                }
+            }
+        }
     }
 
     auto getWidth() {

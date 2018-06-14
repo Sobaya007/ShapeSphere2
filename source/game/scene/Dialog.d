@@ -148,9 +148,9 @@ class Dialog(dstring explainMessage) : SceneProtoType {
             }
             {
                 this.material = new DialogSelectionMaterial;
-                this.material.size = vec2(this.label.getWidth, this.label.getHeight);
+                this.material.size = vec2(this.label.width, this.label.height);
                 this.material.color = vec4(color, 0);
-                this.box = makeEntity(Rect.create(this.label.getWidth * 1.2, this.label.getHeight * 1.2), material);
+                this.box = makeEntity(Rect.create(this.label.width * 1.2, this.label.height * 1.2), material);
                 this.box.pos = vec3(pos, 0.1);
                 this.box.addChild(this.label);
             }

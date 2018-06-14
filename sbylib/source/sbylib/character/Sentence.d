@@ -11,39 +11,39 @@ class Sentence {
 
     alias LetterEntity = TypedEntity!(GeometryRect, TextMaterial);
 
-    private LetterEntity entity;
+    private LetterEntity mEntity;
 
     private StringTexture stringTexture;
 
     this() {
-        this.entity = makeEntity(Rect.create(1, 1), new TextMaterial);
-        this.entity.color = vec4(0,0,0,1);
-        this.entity.config.renderGroupName = "transparent";
-        this.entity.config.depthTest = false;
+        this.mEntity = makeEntity(Rect.create(1, 1), new TextMaterial);
+        this.mEntity.color = vec4(0,0,0,1);
+        this.mEntity.config.renderGroupName = "transparent";
+        this.mEntity.config.depthTest = false;
 
         this.stringTexture = new StringTexture;
-        this.entity.texture = this.stringTexture;
-        this.entity.name = "Sentence";
+        this.mEntity.texture = this.stringTexture;
+        this.mEntity.name = "Sentence";
     }
 
     void setBuffer(Font.LetterInfo[] infos, float h) {
         this.stringTexture.setBuffer(infos);
         
         auto w = h * this.stringTexture.aspectRatio;
-        this.entity.scale.xy = vec2(w, h);
+        this.mEntity.scale.xy = vec2(w, h);
     }
 
-    LetterEntity getEntity() {
-        return this.entity;
+    LetterEntity entity() {
+        return this.mEntity;
     }
 
     float width() {
-        return this.entity.scale.x;
+        return this.mEntity.scale.x;
     }
 
     float height() {
-        return this.entity.scale.y;
+        return this.mEntity.scale.y;
     }
 
-    alias getEntity this;
+    alias entity this;
 }

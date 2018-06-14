@@ -18,12 +18,12 @@ class Label {
     enum Strategy {Center, Left, Right}
 
     Entity entity;
-    private vec4 _color;
+    private vec4 mColor;
     private vec4 backColor;
     private Font font;
     private float wrapWidth;
     float size; //1 letter height
-    private float width, height;
+    private float mWidth, mHeight;
     private dstring text;
     private dstring[] textByRow;
     private Sentence[] sentences;
@@ -34,32 +34,32 @@ class Label {
         this.size = size;
         this.wrapWidth = wrapWidth;
         this.strategy = strategy;
-        this._color = color;
+        this.mColor = color;
         this.backColor = backColor;
         this.text = text;
         this.entity = new Entity;
         this.entity.name = "Label";
-        this.width = this.height = 0;
+        this.mWidth = this.mHeight = 0;
         this.renderText(text);
     }
 
     vec4 color() {
-        return this._color;
+        return this.mColor;
     }
 
     vec4 color(vec4 newColor) {
-        this._color = newColor;
+        this.mColor = newColor;
         import std.algorithm;
         this.sentences.each!(s => s.color = color);
         return newColor;
     }
 
-    float getWidth() {
-        return this.width;
+    float width() {
+        return this.mWidth;
     }
 
-    float getHeight() {
-        return this.height;
+    float height() {
+        return this.mHeight;
     }
 
     void renderText(string text) {
@@ -70,29 +70,29 @@ class Label {
     void renderText(dstring text) {
         if (text != text) return;
         this.text = text;
-        this.width = this.height = 0;
+        this.mWidth = this.mHeight = 0;
         this.lineUp();
         import std.conv;
         this.name = "Label '"~text.to!string~"'";
     }
 
     float left(float value) {
-        this.pos.x = value + this.width/2;
+        this.pos.x = value + this.mWidth/2;
         return value;
     }
 
     float right(float value) {
-        this.pos.x = value - this.width/2;
+        this.pos.x = value - this.mWidth/2;
         return value;
     }
 
     float top(float value) {
-        this.pos.y = value - this.height/2;
+        this.pos.y = value - this.mHeight/2;
         return value;
     }
 
     float bottom(float value) {
-        this.pos.y = value + this.height/2;
+        this.pos.y = value + this.mHeight/2;
         return value;
     }
 
@@ -123,8 +123,8 @@ class Label {
             rows ~= infos;
             textByRow ~= rowString;
         }
-        this.width = rows.map!(row => row.map!(i => i.advance).sum).fold!(max)(0L) * this.size / font.size;
-        this.height = rows.length * this.size;
+        this.mWidth = rows.map!(row => row.map!(i => i.advance).sum).fold!(max)(0L) * this.size / font.size;
+        this.mHeight = rows.length * this.size;
         if (sentences.length < rows.length) {
             auto newSentences = iota(rows.length-sentences.length).map!(_ => new Sentence).array;
             sentences ~= newSentences;
@@ -136,16 +136,16 @@ class Label {
         zip(rows, sentences).each!(t => t[1].setBuffer(t[0], this.size));
         final switch (this.strategy) {
             case Strategy.Left:
-                this.sentences.each!(s => s.pos.x = (s.width - this.width)/2);
+                this.sentences.each!(s => s.pos.x = (s.width - this.mWidth)/2);
                 break;
             case Strategy.Center:
                 this.sentences.each!(s => s.pos.x = 0);
                 break;
             case Strategy.Right:
-                this.sentences.each!(s => s.pos.x = (this.width - s.width)/2);
+                this.sentences.each!(s => s.pos.x = (this.mWidth - s.width)/2);
                 break;
         }
-        this.sentences.enumerate.each!(s => s.value.pos.y = s.index * -this.size + this.height/2 - this.size / 2);
+        this.sentences.enumerate.each!(s => s.value.pos.y = s.index * -this.size + this.mHeight/2 - this.size / 2);
         this.sentences.each!(s => s.color = color);
         this.sentences.each!(s => s.backColor = backColor);
     }
