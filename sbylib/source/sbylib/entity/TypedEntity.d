@@ -12,8 +12,8 @@ class TypedEntity(G, M) {
 
     mixin Proxy;
 
-    @Proxied TypedMesh!(G, M) mesh;
     @Proxied Entity entity;
+    @Proxied TypedMesh!(G, M) mesh;
 
     alias entity this;
 }

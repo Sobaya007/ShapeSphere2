@@ -26,7 +26,9 @@ class Process {
         this(func, name ~ line.stringof);
     }
 
-    package(sbylib) bool step() {
+    package(sbylib) bool step() in {
+        assert(isAlive);
+    } do {
         debug this.counter.start();
         this.func(this);
         this.frame++;

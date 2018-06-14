@@ -2,6 +2,7 @@ module sbylib.entity.Entity;
 
 public {
     import sbylib.collision.CollisionEntry;
+    import sbylib.core.Process;
     import sbylib.entity.Mesh;
     import sbylib.entity.Object3D;
     import sbylib.utils.Array;
@@ -51,6 +52,8 @@ class Entity {
     void delegate()[] onPreRender;
     void delegate()[] onPostRender;
 
+    private Process[] processes;
+
     alias obj this;
 
     /*
@@ -95,7 +98,15 @@ class Entity {
     void destroy() in {
         assert(this.isWorldConnected == false, "Calling 'destroy' must be after 'remove'");
     } body {
+        import std.stdio;
+        writeln("destroying...");
         this.mesh.destroy();
+        writeln("make sure all processes are alive");
+        foreach (p; this.processes) assert(p.isAlive);
+        writeln("ok, all processes are alive");
+        foreach (p; this.processes) p.kill();
+        writeln("all processes are killed");
+        foreach (p; this.processes) assert(!p.isAlive);
     }
 
     /*
@@ -387,6 +398,12 @@ class Entity {
      */
     bool isParentConnected() {
         return this.parent.isJust;
+    }
+
+    void addProcess(void delegate() func) {
+        import sbylib.core.Core;
+        auto proc = Core().addProcess(func, this.name);
+        processes ~= proc;
     }
 
     override string toString() {

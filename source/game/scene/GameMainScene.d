@@ -133,7 +133,7 @@ class GameMainScene : SceneBase {
 
         /* Console */
         this.console = new Console;
-        Core().addProcess(&console.step, "console");
+        console.addProcess(&console.step);
 
         /* Manipulator */
         import game.tool.manipulator;

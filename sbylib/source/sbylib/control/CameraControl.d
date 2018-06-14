@@ -77,7 +77,7 @@ class CameraControl {
     static auto attach(Camera camera) {
         auto control = new CameraControl(camera);
 
-        Core().addProcess(&control.update, "control");
+        camera.addProcess(&control.update);
         
         return control;
     }

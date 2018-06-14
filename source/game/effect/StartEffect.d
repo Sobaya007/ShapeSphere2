@@ -33,11 +33,6 @@ class StartEffect {
         const H = W / mat.aspectRatio;
         auto X_DIV = W/FRAG_WIDTH;
         auto Y_DIV = H/FRAG_HEIGHT;
-        Core().addProcess({
-            mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.height * 0.5;
-            mat.fragWidth = FRAG_WIDTH/W;
-            mat.fragHeight = FRAG_HEIGHT/H;
-        }, "po");
 
         VertexT[] vertices;
         foreach (i; 0..X_DIV) {
@@ -54,6 +49,12 @@ class StartEffect {
         auto geom = new TypedGeometry!([Attribute.Position, Attribute.UV], Prim.Point)(vertices);
         this.entity = makeEntity(geom, mat);
         Game.getWorld2D().add(entity);
+
+        this.entity.addProcess({
+            mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.height * 0.5;
+            mat.fragWidth = FRAG_WIDTH/W;
+            mat.fragHeight = FRAG_HEIGHT/H;
+        });
 
         this.anim = sequence(
             multi(

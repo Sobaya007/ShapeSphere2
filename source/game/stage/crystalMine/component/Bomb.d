@@ -23,19 +23,19 @@ class BombEntity {
         this.entity = entity;
         this.scale *= 3;
 
-        Core().addProcess({
+        this.entity.addProcess({
             auto s1 = sin(entity.time * 0.03) * 0.4 + 0.6;
             auto s2 = cos(entity.time * 0.0433456781) * 0.4 + 0.6;
             entity.lightScale = (s1 + s2) / 2;
             light.diffuse = vec3(1, 0.7, 0.1) * entity.lightScale;
-        }, "bomb");
+        });
 
         auto time = 0;
-        Core().addProcess({
+        this.entity.addProcess({
             if (time++ % 200 == 0) {
                 explode();
             }
-        }, "explode");
+        });
     }
 
     import dconfig;
@@ -68,15 +68,19 @@ class BombEntity {
             vec3 vel;
             vel.xz = vec2(uniform(-VEL_RANGE_XZ, +VEL_RANGE_XZ));
             vel.y = uniform(VEL_MIN_Y, VEL_MAX_Y);
-            Core().addProcess((proc){
+            entity.addProcess({
                 entity.pos += vel; 
                 vel += vec3(0, -GRAVITY, 0);
                 entity.scale -= vec3(SIZE_SPEED);
                 if (entity.scale.x <= 0) {
+                    import std.stdio;
+                    writeln("explosin finished");
+                    writeln("removing...");
                     entity.remove();
-                    proc.kill();
+                    writeln("destroying..");
+                    entity.destroy();
                 }
-            }, "stone");
+            });
         }
 
         auto light = new PointLight(vec3(0), vec3(0));
