@@ -22,10 +22,10 @@ class Screen : IRenderTarget {
         return this.frameBuffer;
     }
 
-    override int getWidth() {
-        return this.window.getWidth();
+    override int width() {
+        return this.window.width;
     }
-    override int getHeight() {
-        return this.window.getHeight();
+    override int height() {
+        return this.window.height;
     }
 }

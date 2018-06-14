@@ -14,8 +14,8 @@ public {
 
 class Mouse {
 
-    private vec2 pos;
-    private vec2 dif;
+    private vec2 mPos;
+    private vec2 mDif;
     private bool[MouseButton] before;
     private bool[MouseButton] pressed;
     private Window window;
@@ -25,28 +25,28 @@ class Mouse {
         foreach (button; EnumMembers!MouseButton) {
             this.pressed[button] = false;
         }
-        this.dif = vec2(0);
+        this.mDif = vec2(0);
     }
 
     package(sbylib) void update() {
-        auto before = this.pos;
-        this.pos = (this.window.getMousePos() / vec2(this.window.getWidth(), this.window.getHeight()) * 2 - 1) * vec2(1, -1);
+        auto before = this.mPos;
+        this.mPos = (this.window.mousePos / vec2(this.window.width, this.window.height) * 2 - 1) * vec2(1, -1);
         if (!before.hasNaN)
-            this.dif = pos - before;
+            this.mDif = mPos - before;
         foreach (button; EnumMembers!MouseButton) {
             this.before[button] = this.pressed[button];
-            this.pressed[button] = this.window.getMouseButton(button);
+            this.pressed[button] = this.window.isPressed(button);
         }
     }
 
-    vec2 getPos() const {
-        return this.pos;
+    vec2 pos() const {
+        return this.mPos;
     }
 
-    vec2 getDif() const in {
-        assert(!this.dif.hasNaN);
+    vec2 dif() const in {
+        assert(!this.mDif.hasNaN);
     } body {
-        return this.dif;
+        return this.mDif;
     }
 
     bool isPressed(MouseButton button) const {

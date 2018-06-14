@@ -52,7 +52,7 @@ class AspectFixViewport : IViewport {
     private Window window;
 
     this(Window window) {
-        this(window, cast(float)window.getWidth() / window.getHeight());
+        this(window, cast(float)window.width / window.height);
     }
 
     this(Window window, float aspect) {
@@ -64,15 +64,15 @@ class AspectFixViewport : IViewport {
     }
 
     private void onResize() {
-        auto w = this.window.getWidth();
-        auto h = this.window.getHeight();
+        auto w = this.window.width;
+        auto h = this.window.height;
         if(w > h * this.aspect) { //width is too big
             w = cast(uint)(h * this.aspect);
         } else { //height is too big
             h = cast(uint)(w / this.aspect);
         }
-        auto x = (this.window.getWidth() - w) / 2;
-        auto y = (this.window.getHeight() - h) / 2;
+        auto x = (this.window.width - w) / 2;
+        auto y = (this.window.height - h) / 2;
 
         this.x = x;
         this.y = y;
@@ -111,9 +111,9 @@ class AutoFitViewport : IViewport {
         return 0;
     }
     override uint getWidth() const {
-        return window.getWidth();
+        return window.width;
     }
     override uint getHeight() const {
-        return window.getHeight();
+        return window.height;
     }
 }

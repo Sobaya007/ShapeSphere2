@@ -49,7 +49,7 @@ class BasicControl {
     }
 
     private void none() {
-        this.ray.build(this.mouse.getPos(), this.camera);
+        this.ray.build(this.mouse.pos, this.camera);
         auto colInfo = this.world.rayCast(this.ray);
         if (colInfo.isNone) return;
         this.entity = colInfo.get.entity.getRootParent();
@@ -67,7 +67,7 @@ class BasicControl {
             this.mode = Mode.None;
             return;
         }
-        auto dif2 = mouse.getDif();
+        auto dif2 = mouse.dif;
         dif2 *= vec2(this.z) / vec2(this.camera.projMatrix[0,0], this.camera.projMatrix[1,1]);
         this.entity.obj.pos += this.camera.worldMatrix.toMatrix3() * vec3(dif2, 0);
     }
@@ -77,7 +77,7 @@ class BasicControl {
             this.mode = Mode.None;
             return;
         }
-        auto dif2 = this.mouse.getDif();
+        auto dif2 = this.mouse.dif;
         if (dif2.length < 0.01) return;
         auto axisV = cross(vec3(dif2.x, dif2.y, 0), vec3(0,0,1));
         auto axisW = (this.camera.worldMatrix.get() * vec4(axisV, 0)).xyz;

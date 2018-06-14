@@ -99,11 +99,10 @@ class Timeline : IControllable {
     }
 
     void translate(ViewportMouse mouse) {
-        mouse.getDif();
-        this.root.obj.pos += vec3(mouse.getDif(), 0);
+        this.root.obj.pos += vec3(mouse.dif, 0);
     }
 
-    override Entity getEntity() {
+    override Entity entity() {
         return this.root;
     }
 

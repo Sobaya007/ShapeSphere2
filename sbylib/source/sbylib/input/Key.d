@@ -33,7 +33,7 @@ class Key {
     package(sbylib) void update() {
         foreach (button; EnumMembers!(KeyButton)) {
             this.before[button] = this.buttons[button];
-            this.buttons[button] = this.window.getKey(button);
+            this.buttons[button] = this.window.isPressed(button);
             if (!this.callbackFlag) continue;
             import std.algorithm : each;
             if (this.isPressed(button)) this.isPressedCallback[button].each!(cb => cb());

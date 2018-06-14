@@ -7,7 +7,7 @@ public {
 }
 
 interface IControllable {
-    Entity getEntity();
+    Entity entity();
     void onMousePressed(MouseButton mouseButton);
     void onMouseReleased(MouseButton mouseButton, bool isCollided);
     void onKeyPressed(KeyButton keyButton, bool shiftPressed, bool controlPressed);

@@ -28,7 +28,7 @@ uniform PointLightBlock {
 
 class PointLight {
 
-    private vec3 _diffuse;
+    private vec3 mDiffuse;
     Entity entity;
     private size_t index;
 
@@ -68,11 +68,11 @@ class PointLight {
     }
 
     vec3 diffuse() {
-        return _diffuse;
+        return mDiffuse;
     }
 
     void diffuse(vec3 d) {
-        this._diffuse = d;
+        this.mDiffuse = d;
         auto buffer = PointLightManager().useBlock(BufferAccess.Write);
         buffer.lights[this.index].diffuse = d;
     }

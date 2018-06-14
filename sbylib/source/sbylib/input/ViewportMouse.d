@@ -16,22 +16,22 @@ class ViewportMouse {
         this.mouse = Core().getMouse;
     }
 
-    vec2 getPos() {
-        vec2 mousePos = (this.mouse.getPos + vec2(1)) * 0.5 * vec2(this.window.getWidth, this.window.getHeight);
+    vec2 pos() {
+        vec2 mousePos = (this.mouse.pos + vec2(1)) * 0.5 * vec2(this.window.width, this.window.height);
         vec2 viewportPos = vec2(this.viewport.getX, this.viewport.getY);
         vec2 viewportSize = vec2(this.viewport.getWidth, this.viewport.getHeight);
         return (mousePos - viewportPos) / viewportSize * 2.0 - vec2(1);
     }
 
-    vec2 getDif() const {
-        return this.mouse.getDif;
+    vec2 dif() const {
+        return this.mouse.dif;
     }
 
     bool inViewport() {
-        vec2 pos = getPos();
+        vec2 p = pos;
         uint w = this.viewport.getWidth;
         uint h = this.viewport.getHeight;
-        return 0<=pos.x && pos.x<w && 0<=pos.y && pos.y<h;
+        return 0<=p.x && p.x<w && 0<=p.y && p.y<h;
     }
 
     bool isPressed(MouseButton button) const {

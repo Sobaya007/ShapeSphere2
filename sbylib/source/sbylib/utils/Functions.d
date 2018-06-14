@@ -401,17 +401,17 @@ void blitsTo(Texture texture, IRenderTarget dst, int x, int y, int w, int h) {
     static RenderTarget target;
     if (target is null) {
         target = new RenderTarget(texture.width(), texture.height());
-    } else if (target.getWidth() != texture.width()
-            || target.getHeight() != texture.height()) {
+    } else if (target.width != texture.width()
+            || target.height != texture.height()) {
         target.destroy();
-        target = new RenderTarget(texture.width(), texture.height());
+        target = new RenderTarget(texture.width, texture.height);
     }
     target.attachTexture(texture, FrameBufferAttachType.Color0);
     target.blitsTo(dst, x, y, w, h, ClearMode.Color);
 }
 
 void blitsTo(Texture texture, IRenderTarget dst) {
-    blitsTo(texture, dst, 0, 0, dst.getWidth(), dst.getHeight());
+    blitsTo(texture, dst, 0, 0, dst.width, dst.height);
 }
 
 void configure2D(World world) {

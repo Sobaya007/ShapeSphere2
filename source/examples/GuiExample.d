@@ -20,7 +20,7 @@ void guiExample() {
 
     auto timeline = new Timeline();
     timeline.add(0);
-    world.add(timeline.getEntity());
+    world.add(timeline.entity());
     timeline.add(0);
 
 

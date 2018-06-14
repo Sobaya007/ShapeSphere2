@@ -9,14 +9,14 @@ void framebufferExample() {
     auto internalWorld = new World;
 
 
-    auto renderTarget = new RenderTarget(window.getWidth, window.getHeight);
+    auto renderTarget = new RenderTarget(window.width, window.height);
     renderTarget.setClearColor(vec4(1));
     renderTarget.attachTexture!uint(FrameBufferAttachType.Color0);
     renderTarget.attachRenderBuffer!uint(FrameBufferAttachType.Depth);
 
 
     auto camera = new PerspectiveCamera(
-            window.getWidth() / window.getHeight(), /* Aspect Ratio   */
+            window.width / window.height, /* Aspect Ratio   */
             60.deg, /* FOV (in angle) */
             0.1, /* Near Clip      */
             100, /* Far Clip       */

@@ -40,11 +40,11 @@ void plotMain() {
     auto mouse = new ViewportMouse(viewport);
     auto mouseMove = delegate (Process proc) {
         if (mouse.isPressed(MouseButton.Button1)) {
-            camera.width  -= mouse.getDif().x * 0.001;
-            camera.height -= mouse.getDif().y * 0.001;
+            camera.width  -= mouse.dif.x * 0.001;
+            camera.height -= mouse.dif.y * 0.001;
         } else if (mouse.isPressed((MouseButton.Button2))) {
-            camera.pos.x += mouse.getDif().x * 0.001;
-            camera.pos.y += mouse.getDif().y * 0.001;
+            camera.pos.x += mouse.dif.x * 0.001;
+            camera.pos.y += mouse.dif.y * 0.001;
         }
     };
     core.addProcess(render, "render");

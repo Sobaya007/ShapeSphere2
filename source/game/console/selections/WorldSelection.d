@@ -29,7 +29,7 @@ class WorldSelection : Selectable {
         import std.algorithm : filter, map;
         import std.array : array;
 
-        return [cast(Selectable)new EntitySelection(this, world.getCamera)]
+        return [cast(Selectable)new EntitySelection(this, world.camera)]
         ~ world.getEntities.filter!(e => e.getParent.isNone).map!(e => cast(Selectable)new EntitySelection(this, e)).array;
     }
 

@@ -19,15 +19,15 @@ class Mesh {
     Material mat;
     private VertexArray vao;
     private const(Uniform) delegate()[] uniforms;
-    private Entity owner;
+    private Entity mOwner;
 
-    this(Geometry geom, Material mat, Entity owner) in {
+    this(Geometry geom, Material mat, Entity mOwner) in {
         assert(geom !is null);
         assert(mat !is null);
     } body {
         this.geom = geom;
         this.mat = mat;
-        this.owner = owner;
+        this.mOwner = mOwner;
         this.vao = new VertexArray;
         this.vao.setup(mat.program, geom.getBuffers(), geom.getIndexBuffer());
     }
@@ -50,7 +50,7 @@ class Mesh {
         foreach (demand; this.mat.getUniformDemands) {
             final switch (demand) {
             case UniformDemand.World:
-                this.uniforms ~= () => this.owner.worldMatrix.get();
+                this.uniforms ~= () => this.mOwner.worldMatrix.get();
                 break;
             case UniformDemand.View:
             case UniformDemand.Proj:
@@ -64,8 +64,8 @@ class Mesh {
         }
     }
 
-    Entity getOwner() {
-        return this.owner;
+    Entity owner() {
+        return this.mOwner;
     }
 
     override string toString() {

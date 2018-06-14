@@ -61,10 +61,10 @@ final class PixelCamera {
 
     this(Window window = Core().getWindow()) {
         this.window = window;
-        this.camera = new OrthoCamera(window.getWidth(), window.getHeight(), -1, 1);
+        this.camera = new OrthoCamera(window.width, window.height, -1, 1);
         this.window.addResizeCallback({
-            this.camera.width = this.window.getWidth();
-            this.camera.height = this.window.getHeight();
+            this.camera.width = this.window.width;
+            this.camera.height = this.window.height;
         });
     }
 }

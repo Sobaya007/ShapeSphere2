@@ -17,8 +17,8 @@ abstract class IRenderTarget {
     private debug bool hasCleared;
 
     const(FrameBuffer) getFrameBuffer();
-    int getWidth();
-    int getHeight();
+    int width();
+    int height();
 
     final void renderBegin() {
         getFrameBuffer().bind(FrameBufferBindType.Both);
@@ -32,14 +32,14 @@ abstract class IRenderTarget {
 
     final void blitsTo(IRenderTarget dstRenderTarget, ClearMode[] mode...) {
         auto dst = dstRenderTarget;
-        blitsTo(dstRenderTarget, 0, 0, dst.getWidth(), dst.getHeight(), mode);
+        blitsTo(dstRenderTarget, 0, 0, dst.width, dst.height, mode);
     }
 
     final void blitsTo(IRenderTarget dstRenderTarget, int x, int y, int w, int h, ClearMode[] mode...) {
         auto src = this;
         this.getFrameBuffer().blitsTo(
                 dstRenderTarget.getFrameBuffer(),
-                0, 0, src.getWidth(), src.getHeight(),
+                0, 0, src.width, src.height,
                 x, y, w, h, TextureFilter.Linear, mode);
     }
 
@@ -68,15 +68,15 @@ abstract class IRenderTarget {
 class RenderTarget : IRenderTarget {
     private FrameBuffer frameBuffer;
     private Texture[FrameBufferAttachType] textures;
-    private uint width, height;
+    private uint mWidth, mHeight;
     private vec4 clearColor = vec4(0, .5, .5, 1);
     private int clearStencil;
     private debug bool hasCleared;
 
     this(uint width, uint height) {
         this.frameBuffer = new FrameBuffer();
-        this.width = width;
-        this.height = height;
+        this.mWidth = width;
+        this.mHeight = height;
     }
 
     void destroy() {
@@ -143,11 +143,11 @@ class RenderTarget : IRenderTarget {
         return this.frameBuffer;
     }
 
-    override int getWidth() {
-        return this.width;
+    override int width() {
+        return this.mWidth;
     }
 
-    override int getHeight() {
-        return this.height;
+    override int height() {
+        return this.mHeight;
     }
 }

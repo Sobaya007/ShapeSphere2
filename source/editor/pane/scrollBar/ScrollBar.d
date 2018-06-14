@@ -9,7 +9,7 @@ class ScrollBar : IControllable {
 static const uint WIDTH = 20;
 
 private:
-    Entity _entity;
+    Entity mEntity;
     ScrollBarBack _scrollBarBack;
     ScrollBarFront _scrollBarFront;
 
@@ -38,18 +38,18 @@ public:
         /* Scroll Bar */
         _scrollBarBack = new ScrollBarBack(WIDTH, pane.height);
         _scrollBarFront = new ScrollBarFront(WIDTH, pane.height * pane.height/contentHeight, viewport.getHeight);
-        _scrollBarBack.getEntity.addChild(_scrollBarFront.getEntity);
+        _scrollBarBack.entity.addChild(_scrollBarFront.entity);
 
-        _entity = _scrollBarBack.getEntity;
-        _entity.pos.x = 0;
-        _entity.pos.y = pane.height;
+        mEntity = _scrollBarBack.entity;
+        mEntity.pos.x = 0;
+        mEntity.pos.y = pane.height;
 
         control.add(this);
-        world.add(_entity);
+        world.add(mEntity);
     }
 
-    override Entity getEntity() {
-        return _entity;
+    override Entity entity() {
+        return mEntity;
     }
 
     override void onMousePressed(MouseButton mouseButton) {

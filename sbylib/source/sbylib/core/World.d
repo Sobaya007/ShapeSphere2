@@ -21,7 +21,7 @@ import sbylib.core.RenderGroup;
 
 class World {
     private Entity[] entities;
-    private Maybe!Camera camera;
+    private Maybe!Camera mCamera;
     private IRenderGroup[string] renderGroups;
 
     this() {
@@ -32,12 +32,12 @@ class World {
        Camera Access
      */
     void setCamera(Camera camera) {
-        this.camera = Just(camera);
+        this.mCamera = Just(camera);
         this.renderGroups["transparent"] = new TransparentRenderGroup(camera);
     }
 
-    Camera getCamera() {
-        return camera.get();
+    Camera camera() {
+        return mCamera.get();
     }
 
 
@@ -168,9 +168,9 @@ class World {
     const(Uniform) delegate() getUniform(UniformDemand demand) {
         switch (demand) {
         case UniformDemand.View:
-            return () => this.camera.get().viewMatrix;
+            return () => this.mCamera.get().viewMatrix;
         case UniformDemand.Proj:
-            return () => this.camera.get().projMatrix;
+            return () => this.mCamera.get().projMatrix;
         case UniformDemand.Light:
             return () => PointLightManager().getUniform();
         default:

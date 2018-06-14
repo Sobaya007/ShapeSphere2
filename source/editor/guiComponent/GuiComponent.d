@@ -14,14 +14,12 @@ interface GuiComponent : IControllable {
     float width() @property;
     float height() @property;
 
-    Entity entity() @property;
-
 }
 
 package(editor.guiComponent) abstract class AGuiComponent : GuiComponent {
 
 private:
-    Entity _entity;
+    Entity mEntity;
 
     size_t _zIndex = 0;
     const float _zDetail = 0.1;
@@ -29,11 +27,11 @@ private:
 public:
     // zIndexが大きいほど手前で描画される
     this(Entity entity = null, bool createColEntryFlag = true) {
-        _entity = entity is null ? new Entity : entity;
-        if (_entity.mesh.isJust && createColEntryFlag) {
-            _entity.buildBVH();
+        mEntity = entity is null ? new Entity : entity;
+        if (mEntity.mesh.isJust && createColEntryFlag) {
+            mEntity.buildBVH();
         }
-        _entity.setUserData("controllable", cast(IControllable)this);
+        mEntity.setUserData("controllable", cast(IControllable)this);
     }
 
     override float x() {
@@ -63,13 +61,9 @@ public:
     abstract override float height();
 
     override Entity entity() {
-        return _entity;
+        return mEntity;
     }
 
-    // IControllable
-    override Entity getEntity() {
-        return entity;
-    }
     override void onMousePressed(MouseButton mouseButton) {}
     override void onMouseReleased(MouseButton mouseButton, bool isCollided) {}
     override void onKeyPressed(KeyButton keyButton, bool shiftPressed, bool controlPressed) {}

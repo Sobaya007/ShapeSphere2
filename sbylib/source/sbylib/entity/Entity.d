@@ -226,7 +226,7 @@ class Entity {
     }
 
     package(sbylib) void setMesh(Mesh m) in {
-        assert(m.getOwner() == this);
+        assert(m.owner == this);
         assert(this.world.isNone);
     } body {
         this._mesh = Just(m);

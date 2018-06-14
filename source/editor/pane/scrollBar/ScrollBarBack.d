@@ -5,7 +5,7 @@ import sbylib;
 class ScrollBarBack : IControllable {
 
 private:
-    Entity _entity;
+    Entity mEntity;
 
 public:
     this(float width, float height) {
@@ -17,11 +17,11 @@ public:
         entity.buildBVH();
         entity.pos.z = 1;
 
-        _entity = entity;
+        mEntity = entity;
     }
 
-    override Entity getEntity() {
-        return _entity;
+    override Entity entity() {
+        return mEntity;
     }
 
     override void onMousePressed(MouseButton mouseButton) {

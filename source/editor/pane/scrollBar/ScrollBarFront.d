@@ -5,7 +5,7 @@ import sbylib;
 class ScrollBarFront : IControllable {
 
 private:
-    Entity _entity;
+    Entity mEntity;
 
     float _width;
     float _height;
@@ -31,15 +31,15 @@ public:
         entity.buildBVH();
         entity.pos.z = 2;
 
-        _entity = entity;
+        mEntity = entity;
     }
 
-    override Entity getEntity() {
-        return _entity;
+    override Entity entity() {
+        return mEntity;
     }
 
     override void onMousePressed(MouseButton mouseButton) {
-        _offsetY = _entity.pos.y;
+        _offsetY = mEntity.pos.y;
         _mouseOffsetY = _mouseY;
         _keyPressed = true;
     }
@@ -57,10 +57,10 @@ public:
     }
 
     override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {
-        _mouseY = mouse.getPos().y;
+        _mouseY = mouse.pos.y;
 
         if (_keyPressed) {
-            _entity.pos.y = _offsetY + _viewportHeight*(_mouseY - _mouseOffsetY)/2;
+            mEntity.pos.y = _offsetY + _viewportHeight*(_mouseY - _mouseOffsetY)/2;
         }
     }
 }

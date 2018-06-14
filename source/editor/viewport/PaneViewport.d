@@ -25,14 +25,14 @@ class PaneViewport : IViewport {
         this.height = height;
         this.camera.height = this.height;
 
-        int initWindowHeight = this.window.getHeight();
+        int initWindowHeight = this.window.height;
         int initY = y;
 
         this.window.addResizeCallback(() {
             import std.conv;
-            int windowHeight = this.window.getHeight();
+            int windowHeight = this.window.height;
             this.y = initY + windowHeight - initWindowHeight;
-            this.camera.obj.pos = vec3(this.width/2, this.height/2, 0);
+            this.camera.pos = vec3(this.width/2, this.height/2, 0);
         });
     }
 

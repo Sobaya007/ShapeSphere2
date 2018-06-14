@@ -30,7 +30,7 @@ class CrystalMine : Stage {
 
 
         Core().getWindow().getScreen().setClearColor(vec4(0,0,0,1));
-        Game.getWorld3D().addRenderGroup("Crystal", new TransparentRenderGroup(Game.getWorld3D().getCamera()));
+        Game.getWorld3D().addRenderGroup("Crystal", new TransparentRenderGroup(Game.getWorld3D().camera));
 
 
         this.root = new Root;

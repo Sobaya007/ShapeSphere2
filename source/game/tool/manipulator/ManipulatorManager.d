@@ -41,7 +41,7 @@ private:
                         if (isAxis(e)) {
                             this.manipulator.setAxis(e);
 
-                            this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
+                            this.ray.build(this.mouse.pos, Game.getWorld3D.camera);
                             this.isMoving = this.manipulator.setRay(this.ray);
                         } else if (isTarget(e)) {
                             show();
@@ -55,7 +55,7 @@ private:
         }
 
         if (this.mouse.isPressed(MouseButton.Button1) && this.isMoving) {
-            this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
+            this.ray.build(this.mouse.pos, Game.getWorld3D.camera);
             this.manipulator.updateRay(this.ray);
         } else {
             this.isMoving = false;
@@ -65,7 +65,7 @@ private:
     Maybe!Entity getCollidedEntity() {
         import std.stdio;
         import std.algorithm, std.math, std.array;
-        this.ray.build(this.mouse.getPos(), Game.getWorld3D.getCamera);
+        this.ray.build(this.mouse.pos, Game.getWorld3D.camera);
 
         return Game.getWorld3D.rayCast(this.ray).fmap!((CollisionInfoRay colInfo) {
             Entity e = colInfo.entity;

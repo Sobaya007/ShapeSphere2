@@ -63,7 +63,7 @@ class CameraControl {
     }
 
     private void rotate() {
-        auto dif2 = Core().getMouse().getDif();
+        auto dif2 = Core().getMouse().dif;
         auto r = dif2.length.rad;
         auto a = safeNormalize(this.camera.rot * vec3(-dif2.y, dif2.x, 0));
         auto rot = mat3.axisAngle(a, r);

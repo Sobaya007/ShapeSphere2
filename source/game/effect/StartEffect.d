@@ -27,14 +27,14 @@ class StartEffect {
         const viewport = Game.getScene().viewport;
         const screenAspect = viewport.getWidth / viewport.getHeight;
         const FRAG_HEIGHT = 0.01;
-        const FRAG_WIDTH = FRAG_HEIGHT * Core().getWindow.getHeight / Core().getWindow.getWidth;
+        const FRAG_WIDTH = FRAG_HEIGHT * Core().getWindow.height / Core().getWindow.width;
         auto mat = new StartEffectMaterial(str);
         const W = 1.5;
         const H = W / mat.aspectRatio;
         auto X_DIV = W/FRAG_WIDTH;
         auto Y_DIV = H/FRAG_HEIGHT;
         Core().addProcess({
-            mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.getHeight * 0.5;
+            mat.sizeInPixel = FRAG_HEIGHT * Core().getWindow.height * 0.5;
             mat.fragWidth = FRAG_WIDTH/W;
             mat.fragHeight = FRAG_HEIGHT/H;
         }, "po");

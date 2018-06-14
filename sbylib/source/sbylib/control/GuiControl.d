@@ -126,7 +126,7 @@ private:
 
     Maybe!IControllable getCollidedControllable() {
         import std.algorithm, std.math, std.array;
-        this.ray.build(this.mouse.getPos(), this.camera);
+        this.ray.build(this.mouse.pos, this.camera);
         return this.world.rayCast(this.ray).fmapAnd!((CollisionInfoRay colInfo) {
             auto entity = colInfo.entity;
             while(entity.getUserData!(IControllable)("controllable").isNone) {

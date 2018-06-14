@@ -20,12 +20,12 @@ class GlfwWindow {
     alias ResizeCallback = void delegate();
     private {
         GLFWwindow *window;
-        int width, height;
+        int mWidth, mHeight;
         int windowedX, windowedY;
         int windowedWidth, windowedHeight;
         bool resized;
         bool isFullScreen;
-        string title;
+        string mTitle;
         ResizeCallback[] resizeCallbacks;
         bool[int] hasKeyPressed; // KeyButton -> bool
     }
@@ -35,15 +35,15 @@ class GlfwWindow {
             return window.glfwWindowShouldClose() > 0;
         }
 
-        void setSize(int width, int height) {
-            this.windowedWidth = width;
-            this.windowedHeight = height;
-            glfwSetWindowSize(window, width, height);
+        void setSize(int mWidth, int mHeight) {
+            this.windowedWidth = mWidth;
+            this.windowedHeight = mHeight;
+            glfwSetWindowSize(window, mWidth, mHeight);
         }
 
-        void setTitle(string title) {
-            this.title = title;
-            window.glfwSetWindowTitle(title.toStringz);
+        void setTitle(string mTitle) {
+            this.mTitle = mTitle;
+            window.glfwSetWindowTitle(mTitle.toStringz);
         }
 
         void toggleFullScreen() {
@@ -67,16 +67,16 @@ class GlfwWindow {
             }
         }
 
-        uint getWidth() const {
-            return this.width;
+        uint width() const {
+            return this.mWidth;
         }
 
-        uint getHeight() const {
-            return this.height;
+        uint height() const {
+            return this.mHeight;
         }
 
-        string getTitle() const {
-            return this.title;
+        string title() const {
+            return this.mTitle;
         }
 
         void addResizeCallback(ResizeCallback cb) {
@@ -98,15 +98,15 @@ class GlfwWindow {
 
     package(sbylib) {
 
-        this(string title, int width, int height) {
-            this.title = title;
+        this(string mTitle, int mWidth, int mHeight) {
+            this.mTitle = mTitle;
             this.resized = true; // for first resize callback
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,1);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-            auto window = glfwCreateWindow(width, height,title.toStringz, null, null);
+            auto window = glfwCreateWindow(mWidth, mHeight,mTitle.toStringz, null, null);
             if(!window){
                 assert(false, "Failed to create window");
             }
@@ -120,15 +120,15 @@ class GlfwWindow {
             assert(GL.glVersion > GLVersion.gl30, "OpenGL version is too low");
         }
 
-        bool getKey(KeyButton key) {
+        bool isPressed(KeyButton key) {
             return key in hasKeyPressed && hasKeyPressed[key];
         }
 
-        bool getMouseButton(MouseButton button) {
+        bool isPressed(MouseButton button) {
             return isPressed(glfwGetMouseButton(this.window, button));
         }
 
-        vec2 getMousePos() {
+        vec2 mousePos() {
             double x, y;
             glfwGetCursorPos(this.window, &x, &y);
             return vec2(cast(float)x, cast(float)y);
@@ -182,11 +182,11 @@ class GlfwWindow {
 
         glfwSetKeyCallback(this.window, &keyCallback);
 
-        this.setTitle(title);
+        this.setTitle(mTitle);
 
         //Actual window size might differ from given size.
         glfwGetWindowSize(this.window, &this.windowedWidth, &this.windowedHeight);
-        glfwGetWindowSize(this.window, &this.width, &this.height);
+        glfwGetWindowSize(this.window, &this.mWidth, &this.mHeight);
         glfwGetWindowPos(this.window, &this.windowedX, &this.windowedY);
 
         windows[this.window] = this;
@@ -203,8 +203,8 @@ private extern(C) void windowPosCallback(GLFWwindow *window, int x, int y) nothr
 
 private extern(C) void resizeCallback(GLFWwindow *window, int w, int h) nothrow {
     assert(window in windows);
-    windows[window].width = w;
-    windows[window].height = h;
+    windows[window].mWidth = w;
+    windows[window].mHeight = h;
     if (!windows[window].isFullScreen) {
         windows[window].windowedWidth = w;
         windows[window].windowedHeight = h;
