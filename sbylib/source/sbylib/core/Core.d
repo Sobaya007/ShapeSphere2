@@ -153,6 +153,13 @@ class Core {
             stdout.flush();
             return window.shouldClose() || endFlag;
         });
+        debug {
+            import std.file;
+            write("process.log", "");
+            foreach (p; this.processes) {
+                p.appendLog();
+            }
+        }
         this.processes.destroy();
     }
 

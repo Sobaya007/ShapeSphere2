@@ -395,7 +395,8 @@ class Entity {
 
     void addProcess(void delegate() func) {
         import sbylib.core.Core;
-        auto proc = Core().addProcess(func, this.name);
+        Process proc;
+        proc = Core().addProcess({func(); proc.name = this.name;}, this.name);
         processes ~= proc;
     }
 

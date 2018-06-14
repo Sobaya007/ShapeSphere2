@@ -26,6 +26,15 @@ class Process {
         this(func, name ~ line.stringof);
     }
 
+    ~this() {
+    }
+
+    debug void appendLog() {
+        import std.file, std.format;
+        enum FILE = "process.log";
+        append(FILE, format!"%s: %.2f\n"(this.name, this.averageTime));
+    }
+
     package(sbylib) bool step() in {
         assert(isAlive);
     } do {
