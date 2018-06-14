@@ -33,7 +33,7 @@ class BombEntity {
         auto time = 0;
         this.entity.addProcess({
             if (time++ % 200 == 0) {
-                explode();
+                //explode();
             }
         });
     }

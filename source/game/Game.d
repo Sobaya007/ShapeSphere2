@@ -53,7 +53,7 @@ static:
             this.label.top = 0.9 - label.height * stopWatch.keys.length;
             getWorld2D().add(this.label);
             this.label.addProcess({
-                this.label.renderText(format!"%s : %3.2fmsecs"(this.name, stopWatch[this.name].averageTime));
+                //this.label.renderText(format!"%s : %3.2fmsecs"(this.name, stopWatch[this.name].averageTime));
                 this.label.right = 1;
             });
         }

@@ -202,6 +202,8 @@ class ElasticSphere2 {
         float baloonForce = this.calcBaloonForce();
         this.contactNormal = None!vec3;
 
+        this.capsule.radius = this.particleList.map!(p => length(p.position - center)).maxElement;
+
         auto entities = Array!Entity(0);
         scope(exit) entities.destroy();
         alias col = (e) => e.traverse((Entity e) {
