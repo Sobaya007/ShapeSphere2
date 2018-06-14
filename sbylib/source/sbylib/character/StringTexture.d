@@ -7,15 +7,14 @@ import sbylib.wrapper.freetype.Font;
 import sbylib.character.Label;
 import std.traits;
 
-class StringTexture {
-
-    private Texture _texture;
+class StringTexture { 
+    private Texture mTexture;
     private float width, height;
     private ubyte[] buffer;
     private Font.LetterInfo[] beforeInfos;
 
     this() {
-        this._texture = new Texture(TextureTarget.Tex2D);
+        this.mTexture = new Texture(TextureTarget.Tex2D);
         this.texture.setWrapS(TextureWrap.ClampToEdge);
         this.texture.setWrapT(TextureWrap.ClampToEdge);
     }
@@ -82,7 +81,7 @@ class StringTexture {
     }
 
     Texture texture() {
-        return _texture;
+        return mTexture;
     }
 
     alias texture this;

@@ -58,7 +58,7 @@ struct Shape {
 
     auto radius(float r) {
         obj["radius"] = r;
-        auto capsule = this.entity.colEntry.getGeometry.wrapCast!(CollisionCapsule);
+        auto capsule = this.entity.colEntry.geometry.wrapCast!(CollisionCapsule);
         if (capsule.isJust) {
             capsule.get().radius = r;
         }

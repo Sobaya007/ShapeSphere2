@@ -21,7 +21,7 @@ class CollisionPolygon : CollisionGeometry {
     private WorldVectorNormalized mNormal;
     import std.algorithm;
     Depends!((vec3 v0, vec3 v1, vec3 v2) => AABB(minVector(v0, minVector(v1, v2)), maxVector(v0, maxVector(v1, v2)))) bound;
-    private Entity owner;
+    private Entity mOwner;
 
     this(vec3[3] positions...) {
         this.dummy = mat4.identity;
@@ -46,13 +46,13 @@ class CollisionPolygon : CollisionGeometry {
         return new GeometryNT(vertex, [0,1,2]);
     }
 
-    override void setOwner(Entity owner) {
-        assert(owner !is null);
-        this.owner = owner;
-        this.positions[0].depends(this.owner.worldMatrix, this.localPositions[0]);
-        this.positions[1].depends(this.owner.worldMatrix, this.localPositions[1]);
-        this.positions[2].depends(this.owner.worldMatrix, this.localPositions[2]);
-        this.mNormal.depends(this.owner.worldMatrix, this.localNormal);
+    override void setOwner(Entity mOwner) {
+        assert(mOwner !is null);
+        this.mOwner = mOwner;
+        this.positions[0].depends(this.mOwner.worldMatrix, this.localPositions[0]);
+        this.positions[1].depends(this.mOwner.worldMatrix, this.localPositions[1]);
+        this.positions[2].depends(this.mOwner.worldMatrix, this.localPositions[2]);
+        this.mNormal.depends(this.mOwner.worldMatrix, this.localNormal);
         this.bound.depends(this.positions[0], this.positions[1], this.positions[2]);
     }
 
@@ -60,8 +60,8 @@ class CollisionPolygon : CollisionGeometry {
         return this.bound.getTarget();
     }
 
-    Entity getOwner() {
-        return this.owner;
+    Entity owner() {
+        return this.mOwner;
     }
 
     override string toString() {

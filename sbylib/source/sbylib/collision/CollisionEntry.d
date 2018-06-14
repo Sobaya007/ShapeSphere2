@@ -14,63 +14,63 @@ public {
 }
 
 class CollisionEntry {
-    private CollisionGeometry geom;
-    private Entity owner;
+    private CollisionGeometry mGeometry;
+    private Entity mOwner;
 
-    this(CollisionGeometry geom, Entity owner)  {
-        this.geom = geom;
-        this.owner = owner;
-        this.geom.setOwner(this.owner);
+    this(CollisionGeometry mGeometry, Entity owner)  {
+        this.mGeometry = mGeometry;
+        this.mOwner = owner;
+        this.mGeometry.setOwner(this.owner);
     }
 
-    CollisionGeometry getGeometry() {
-        return this.geom;
+    CollisionGeometry geometry() {
+        return this.mGeometry;
     }
 
-    Entity getOwner() {
-        return this.owner;
+    Entity owner() {
+        return this.mOwner;
     }
 
     void collide(ref Array!CollisionInfo result, CollisionEntry collidable) {
-        collide(result, this.geom, collidable.geom);
+        collide(result, this.mGeometry, collidable.mGeometry);
     }
 
     void collide(ref Array!CollisionInfoRay result, CollisionRay ray) {
-        collide(result, this.geom, ray);
+        collide(result, this.mGeometry, ray);
     }
 
-    public static void collide(ref Array!CollisionInfo result, CollisionGeometry geom, CollisionGeometry geom2) {
+    public static void collide(ref Array!CollisionInfo result, CollisionGeometry mGeometry, CollisionGeometry mGeometry2) {
         void add(Maybe!CollisionInfo info) {
             if (info.isNone) return;
             result ~= info.get;
         }
 
-        if (auto cap = cast(CollisionCapsule)geom) {
-            if (auto cap2 = cast(CollisionCapsule)geom2) {
+        if (auto cap = cast(CollisionCapsule)mGeometry) {
+            if (auto cap2 = cast(CollisionCapsule)mGeometry2) {
                 add(collide(cap, cap2));
-            } else if (auto pol = cast(CollisionPolygon)geom2) {
+            } else if (auto pol = cast(CollisionPolygon)mGeometry2) {
                 add(collide(cap, pol));
-            } else if (auto bvh = cast(CollisionBVH)geom2) {
+            } else if (auto bvh = cast(CollisionBVH)mGeometry2) {
                 bvh.collide(result, cap);
             } else {
                 assert(false);
             }
-        } else if (auto pol = cast(CollisionPolygon)geom) {
-            if (auto cap = cast(CollisionCapsule)geom2) {
+        } else if (auto pol = cast(CollisionPolygon)mGeometry) {
+            if (auto cap = cast(CollisionCapsule)mGeometry2) {
                 add(collide(cap, pol));
-            } else if (auto pol2 = cast(CollisionPolygon)geom2) {
+            } else if (auto pol2 = cast(CollisionPolygon)mGeometry2) {
                 add(collide(pol, pol2));
-            } else if (auto bvh = cast(CollisionBVH)geom2) {
+            } else if (auto bvh = cast(CollisionBVH)mGeometry2) {
                 bvh.collide(result, pol);
             } else {
                 assert(false);
             }
-        } else if (auto bvh = cast(CollisionBVH)geom) {
-            if (auto cap = cast(CollisionCapsule)geom2) {
+        } else if (auto bvh = cast(CollisionBVH)mGeometry) {
+            if (auto cap = cast(CollisionCapsule)mGeometry2) {
                 bvh.collide(result, cap);
-            } else if (auto pol = cast(CollisionPolygon)geom2) {
+            } else if (auto pol = cast(CollisionPolygon)mGeometry2) {
                 bvh.collide(result, pol);
-            } else if (auto bvh2 = cast(CollisionBVH)geom2) {
+            } else if (auto bvh2 = cast(CollisionBVH)mGeometry2) {
                 bvh.collide(result, bvh2);
             } else {
                 assert(false);
@@ -80,16 +80,16 @@ class CollisionEntry {
         }
     }
 
-    public static void collide(ref Array!CollisionInfoRay result, CollisionGeometry geom, CollisionRay ray) {
+    public static void collide(ref Array!CollisionInfoRay result, CollisionGeometry mGeometry, CollisionRay ray) {
         void add(Maybe!CollisionInfoRay info) {
             if (info.isNone) return;
             result ~= info.get;
         }
-        if (auto cap = cast(CollisionCapsule)geom) {
+        if (auto cap = cast(CollisionCapsule)mGeometry) {
             add(collide(cap, ray));
-        } else if (auto pol = cast(CollisionPolygon)geom) {
+        } else if (auto pol = cast(CollisionPolygon)mGeometry) {
             add(collide(pol, ray));
-        } else if (auto bvh = cast(CollisionBVH)geom) {
+        } else if (auto bvh = cast(CollisionBVH)mGeometry) {
             bvh.collide(result, ray);
         } else {
             assert(false);
@@ -99,7 +99,7 @@ class CollisionEntry {
     public static Maybe!CollisionInfo collide(CollisionCapsule capsule1, CollisionCapsule capsule2) {
         auto v = segseg(capsule1.start, capsule1.end, capsule2.start, capsule2.end);
         if (v.length <= capsule1.radius + capsule2.radius) {
-            return Just(CollisionInfo(capsule1.getOwner(), capsule2.getOwner(), capsule1.radius + capsule2.radius - v.length, v.normalize));
+            return Just(CollisionInfo(capsule1.owner, capsule2.owner, capsule1.radius + capsule2.radius - v.length, v.normalize));
         }
         return None!CollisionInfo;
     }
@@ -112,7 +112,7 @@ class CollisionEntry {
         auto r = segPoly(capsule.start, capsule.end, polygon.positions[0], polygon.positions[1], polygon.positions[2], polygon.normal);
         if (r.dist <= capsule.radius) {
             auto depth = fmax(dot(polygon.positions[0] - capsule.start, polygon.normal), dot(polygon.positions[0] - capsule.end, polygon.normal)) + capsule.radius;
-            return Just(CollisionInfo(capsule.getOwner(), polygon.getOwner(), depth, r.pushVector));
+            return Just(CollisionInfo(capsule.owner, polygon.owner, depth, r.pushVector));
         }
         return None!CollisionInfo;
     }
@@ -120,7 +120,7 @@ class CollisionEntry {
     public static Maybe!CollisionInfo collide(CollisionPolygon polygon1, CollisionPolygon polygon2) {
         assert(false);
         //if (polygonDetection(polygon1, polygon2)) {
-        //    return Just(CollisionInfo(polygon1.getOwner(), polygon2.getOwner()));
+        //    return Just(CollisionInfo(polygon1.owner, polygon2.owner));
         //}
         //return None!CollisionInfo;
     }
@@ -131,14 +131,14 @@ class CollisionEntry {
         CollisionInfoRay info;
         if (rayCastSphere(ray.start, ray.dir, capsule.start, capsule.radius, p, d)
              && dot(p - capsule.start, capsule.end - capsule.start) < 0) {
-            return Just(CollisionInfoRay(capsule.getOwner(), ray, p));
+            return Just(CollisionInfoRay(capsule.owner, ray, p));
         } else if (rayCastSphere(ray.start, ray.dir, capsule.end, capsule.radius, p, d)
              && dot(p - capsule.end, capsule.start - capsule.end) < 0) {
-            return Just(CollisionInfoRay(capsule.getOwner(), ray, p));
+            return Just(CollisionInfoRay(capsule.owner, ray, p));
         } else if (rayCastPole(ray.start, ray.dir, capsule.start, capsule.end - capsule.start, capsule.radius, p, d)
              && dot(p - capsule.start, capsule.end - capsule.start) >= 0
             && dot(p - capsule.end ,capsule.start - capsule.end) >= 0) {
-            return Just(CollisionInfoRay(capsule.getOwner(), ray, p));
+            return Just(CollisionInfoRay(capsule.owner, ray, p));
         }
         return None!CollisionInfoRay;
     }
@@ -154,7 +154,7 @@ class CollisionEntry {
         auto s2 = dot(polygon.normal, cross(polygon.positions[0] - polygon.positions[2], p - polygon.positions[0]));
         if (s0 > 0 && s1 > 0 && s2 > 0
             || s0 < 0 && s1 < 0 && s2 < 0) {
-            return Just(CollisionInfoRay(polygon.getOwner(), ray, p));
+            return Just(CollisionInfoRay(polygon.owner, ray, p));
         }
         return None!CollisionInfoRay;
     }
@@ -480,6 +480,6 @@ class CollisionEntry {
     }
 
     override string toString() {
-        return geom.toString();
+        return mGeometry.toString();
     }
 }
