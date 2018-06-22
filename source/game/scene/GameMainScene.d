@@ -19,12 +19,12 @@ class GameMainScene : SceneBase {
 
 
         /* Camera Settings */
-        Camera camera = new PerspectiveCamera(1, 60.deg, 0.1, 200);
+        Camera camera = new PerspectiveCamera(16.0 / 9.0, 60.deg, 0.1, 200);
         Game.getWorld3D().setCamera(camera);
-        Game.getWorld2D().setCamera(new OrthoCamera(2,2,-1,1));
+        Game.getWorld2D().setCamera(new PixelCamera);
 
 
-        this.viewport = new AspectFixViewport(Core().getWindow);
+        this.viewport = new AspectFixViewport(Core().getWindow, 16.0 / 9.0);
 
 
         Game.initializeScene(this);
@@ -66,8 +66,8 @@ class GameMainScene : SceneBase {
         Core().addProcess((proc) {
             fpsCounter.update();
             fpsLabel.renderText(format!"FPS: %3d"(cast(int)fpsCounter.getFPS()).to!dstring);
-            fpsLabel.top = 0.9;
-            fpsLabel.left = -1;
+            fpsLabel.top = Core().getWindow().height/2;
+            fpsLabel.left = -Core().getWindow().width/2;
             Core().getWindow().setTitle(format!"FPS[%d]"(cast(int)fpsCounter.getFPS()).to!string);
         }, "fps update");
 
@@ -78,22 +78,22 @@ class GameMainScene : SceneBase {
             numberLabel3D.renderText(format!"World3D: %2d"(Game.getWorld3D().getEntityNum));
             numberLabel2D.renderText(format!"World2D: %2d"(Game.getWorld2D().getEntityNum));
             collisionCountLabel.renderText(format!"Player's collision: %2d"(Game.getPlayer().collisionCount));
-            numberLabel3D.left = -1;
-            numberLabel2D.left = -1;
-            collisionCountLabel.left = -1;
+            numberLabel3D.left = -Core().getWindow().width/2;
+            numberLabel2D.left = -Core().getWindow().width/2;
+            collisionCountLabel.left = -Core().getWindow().width/2;
         }, "label update");
 
         /* Label Settings */
         if (Game.getCommandManager().isPlaying()) {
             LabelFactory factory;
             factory.fontName = "HGRPP1.TTC";
-            factory.height = 0.1;
+            factory.height = 32.pixel;
             factory.strategy = Label.Strategy.Right;
             factory.textColor = vec4(1);
             factory.text = "REPLAYING...";
             auto label = factory.make();
-            label.right = 1;
-            label.top = 1;
+            label.right = Core().getWindow().width/2;
+            label.top = Core().getWindow().height/2;
             Game.getWorld2D().add(label);
             Core().addProcess((proc) {
                 if (Game.getCommandManager().isPlaying()) return;

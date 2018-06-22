@@ -67,11 +67,11 @@ class GlfwWindow {
             }
         }
 
-        uint width() const {
+        int width() const {
             return this.mWidth;
         }
 
-        uint height() const {
+        int height() const {
             return this.mHeight;
         }
 

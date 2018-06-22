@@ -41,20 +41,20 @@ static:
             this.name = name;
             auto factory = LabelFactory();
             factory.strategy = Label.Strategy.Left;
-            factory.height = 0.07;
+            factory.height = 24.pixel;
             factory.fontName = "consola.ttf";
             factory.backColor = vec4(0.5);
             factory.text = "poyo";
             this.label = factory.make();
-            this.label.right = 1;
 
             this.counter = new TimeCounter!100;
 
-            this.label.top = 0.9 - label.height * stopWatch.keys.length;
+            auto index = stopWatch.keys.length;
             getWorld2D().add(this.label);
             this.label.addProcess({
-                //this.label.renderText(format!"%s : %3.2fmsecs"(this.name, stopWatch[this.name].averageTime));
-                this.label.right = 1;
+                this.label.renderText(format!"%s : %3.2fmsecs"(this.name, stopWatch[this.name].averageTime));
+                this.label.top = Core().getWindow().height/2 - label.height * index;
+                this.label.right = (Core().getWindow().width/2).pixel;
             });
         }
     }
@@ -64,11 +64,14 @@ static:
         factory.text = text;
         factory.strategy = Label.Strategy.Left;
         factory.fontName = "meiryo.ttc";
-        factory.height = 0.06;
+        factory.height = 24.pixel;
         factory.backColor = vec4(vec3(1), 0.4);
         auto label = factory.make();
-        label.left = -1;
-        label.top = 0.9 - debugLabels.length * factory.height;
+        auto index = debugLabels.length;
+        label.addProcess({
+            label.left = -Core().getWindow().width/2;
+            label.top = Core().getWindow().height/2 - index * factory.height;
+        });
         Game.getWorld2D().add(label);
 
         debugLabels ~= label;
@@ -96,10 +99,10 @@ static:
             factory.fontName = "consola.ttf";
             factory.strategy = Label.Strategy.Right;
             factory.textColor = vec4(1);
-            factory.size = 0.05;
+            factory.size = 24.pixel;
             factory.rowNum = 10;
             this.logEntity = factory.make();
-            this.logEntity.pos.y = -0.95;
+            this.logEntity.pos.y = -Core().getWindow().height/2;
             this.world2d.add(this.logEntity);
         }
     }

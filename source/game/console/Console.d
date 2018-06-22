@@ -20,16 +20,18 @@ debug class Console {
     this() {
         LabelFactory factory;
         factory.fontName = "RictyDiminished-Regular-Powerline.ttf";
-        factory.height = 0.06;
+        factory.height = 24.pixel;
         factory.strategy = Label.Strategy.Left;
         factory.backColor = vec4(0,0,0,0.5);
         factory.textColor = vec4(1,1,1,1);
-        factory.wrapWidth = 2;
+        factory.wrapWidth = Core().getWindow().width;
         factory.text = ":";
 
         this.label = factory.make();
-        label.left = -1;
-        label.bottom = -1;
+        this.label.addProcess({
+            label.left = -Core().getWindow().width/2;
+            label.bottom = -Core().getWindow().height/2;
+        });
         label.pos.z = 0.1;
         Game.getWorld2D.add(label);
 
@@ -207,8 +209,6 @@ debug class Console {
         auto lastLine = text.back;
         lastLine = slice(lastLine,0,cursor)~'|'~slice(lastLine,cursor, lastLine.length);
         label.renderText(text.dropBack(1).map!(t=>" "~t).join('\n')~'\n'~(mode==0?":":">")~lastLine);
-        label.left = -1;
-        label.bottom = -1;
     }
 
     private string interpret(string str) {

@@ -2,12 +2,22 @@ module sbylib.utils.Unit;
 
 import std.typecons;
 
-struct Frame {
-    long f;
-    alias f this;
+mixin template GenerateUnit(string Struct, string Function, BaseType) {
+    import std.format;
+    mixin(format!q{
+        struct %s {
+            %s value;
+            alias value this;
 
-    Frame opBinary(string op)(Frame frame) {
-        return Frame(mixin("this.f "~op~" frame.f"));
-    }
+            auto opBinary(string op)(typeof(this) other) {
+                return typeof(this)(mixin("this.value "~op~" other.value"));
+            }
+        }
+
+        %s %s(%s value) { return %s(value); }
+    }(Struct, BaseType.stringof,
+        Struct, Function, BaseType.stringof, Struct));
 }
-Frame frame(long f) { return Frame(f);}
+
+mixin GenerateUnit!("Frame", "frame", long);
+mixin GenerateUnit!("Pixel", "pixel", float);
