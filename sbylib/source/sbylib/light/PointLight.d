@@ -34,7 +34,7 @@ class PointLight {
 
     alias entity this;
 
-    this(vec3 pos, vec3 diffuse) {
+    this() {
         import sbylib.geometry.geometry3d.Sphere;
         import sbylib.material.WireframeMaterial;
         debug {
@@ -43,8 +43,6 @@ class PointLight {
         } else {
             this.entity = makeEntity();
         }
-        this.pos = pos;
-        this.diffuse = diffuse;
         this.entity.onAdd ~= {
             auto buffer = PointLightManager().useBlock(BufferAccess.Both);
             this.index = buffer.num++;
@@ -57,7 +55,12 @@ class PointLight {
             });
             PointLightManager().lights ~= this;
         };
+    }
 
+    this(vec3 pos, vec3 diffuse) {
+        this();
+        this.pos = pos;
+        this.diffuse = diffuse;
     }
 
     private struct Struct {

@@ -1,0 +1,45 @@
+{
+    "world3D" : {
+        "template" : "3D",
+        "camera" : {
+            "type" : "PerspectiveCamera",
+            "fovy" : 60,
+            "nearZ" : 0.1,
+            "farZ" : 100,
+            "pos" : [3,2,9],
+            "lookAt" : [0,2,0]
+        },
+        "light"  : {
+            "type" : "PointLight",
+            "pos" : [10,10,10],
+            "diffuse": [1,1,1]
+        },
+        "texCube"  : {
+            "type" : "Model",
+            "path" : "texCube.x",
+            "material" : true,
+            "normal" : true,
+            "uv" : true,
+            "pos" : [-2,3,0]
+        },
+        "sphere"  : {
+            "type" : "Model",
+            "path" : "sphere.x",
+            "material" : true,
+            "normal" : true,
+            "uv" : false,
+            "pos" : [-4,3,0]
+        },
+        "parent"  : {
+            "type" : "Model",
+            "path" : "parent.x",
+            "material" : true,
+            "normal" : true,
+            "uv" : false,
+            "pos" : [2,2,0]
+        }
+    },
+    "KeyCommand" : {
+        "Escape" : "End"
+    }
+}

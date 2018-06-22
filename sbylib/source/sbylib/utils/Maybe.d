@@ -104,8 +104,13 @@ auto fmap(alias fun, T)(Maybe!T m) {
     return None!(typeof(return).Type);
 }
 
-T getOrElse(Range, T)(Range m, T defaultValue) {
+T getOrElse(T)(Maybe!T m, T defaultValue) {
     if (m.empty) return defaultValue;
+    return m.front;
+}
+
+T getOrError(T)(Maybe!T m, string errorMessage) {
+    assert(!m.empty, errorMessage);
     return m.front;
 }
 
@@ -148,6 +153,14 @@ auto wrapPointer(T)(T value) if (isPointer!T){
     }
 }
 
+auto wrapRange(T)(T value) if (isInputRange!T) {
+    if (value.empty) {
+        return None!(ElementType!T);
+    } else {
+        return Just(value.front);
+    }
+}
+
 auto wrap(T)(T value) {
     static if (isPointer!T) {
         if (value is null) {
@@ -170,6 +183,10 @@ auto wrap(T)(T value) {
     } else {
         return Just(value);
     }
+}
+
+auto wrapCast(T, S)(S m) if (!isInstanceOf!(Maybe, S)) {
+    return wrap(cast(T)m);
 }
 
 auto wrapCast(T, S)(Maybe!S m) {

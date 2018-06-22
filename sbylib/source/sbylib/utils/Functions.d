@@ -61,6 +61,7 @@ bool instanceof(T,S)(S o) if(is(T == class)) {
 
 template as(Type) {
     import std.json, std.traits;
+    import sbylib.math.Angle;
 
     static if (is(Type == bool)) {
         Type as(JSONValue v) {
@@ -102,6 +103,23 @@ template as(Type) {
             import std.algorithm : map;
             import std.array;
             return v.array().map!(as!(ForeachType!Type)).array;
+        }
+    } else static if (isInstanceOf!(Vector, Type)) {
+        Type as(JSONValue v) {
+            return Type(v.as!(float[]));
+        }
+    } else static if (is(Type == Degree)) {
+        Type as(JSONValue v) {
+            return v.as!(float).deg;
+        }
+    } else static if (is(Type == Radian)) {
+        Type as(JSONValue v) {
+            return v.as!(float).rad;
+        }
+    } else static if (is(Type == JSONValue[string])) {
+        Type as(JSONValue v) {
+            assert(v.type == JSON_TYPE.OBJECT);
+            return v.object;
         }
     } else {
         static assert(false);

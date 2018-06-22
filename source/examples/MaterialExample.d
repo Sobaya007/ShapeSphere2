@@ -8,24 +8,8 @@ alias Check2 = CheckerMaterial!(Check, Check);
 alias Check4 = CheckerMaterial!(Check2, Check2);
 
 void materialExample() {
-    auto core = Core();
-    auto window = core.getWindow();
-    auto world = new World;
 
-
-    auto screen = window.getScreen();
-    screen.setClearColor(vec4(0.2));
-
-
-    auto camera = new PerspectiveCamera(
-            window.width / window.height, /* Aspect Ratio   */
-            60.deg, /* FOV (in angle) */
-            0.1, /* Near Clip      */
-            100, /* Far Clip       */);
-    camera.pos = vec3(1,2,4);
-    camera.lookAt(vec3(0));
-    world.configure3D(camera);
-
+    auto world = createFromJson(ResourcePath("world/material.json")).at("world3D").get().world;
 
     auto polyEntity = makeEntity(Plane.create(10,10), new Check4);
     polyEntity.size = 0.02;
@@ -46,12 +30,8 @@ void materialExample() {
     world.add(polyEntity);
 
 
-    CameraControl.attach(camera);
+    CameraControl.attach(world.camera);
 
 
-    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
-
-
-
-    core.start();
+    Core().start();
 }

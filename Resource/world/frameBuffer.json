@@ -1,0 +1,50 @@
+{
+    "world3D" : {
+        "template" : "3D",
+        "camera" : {
+            "type" : "PerspectiveCamera",
+            "fovy" : 60,
+            "nearZ" : 0.1,
+            "farZ" : 100,
+            "pos" : [3,2,9],
+            "lookAt" : [0,2,0]
+        },
+        "boxEntity" : {
+            "type" : "Entity",
+            "geometry" : "Box",
+            "material" : "TextureMaterial",
+            "pos" : [0,2,0],
+            "scale" : [2,2,2]
+        }
+    },
+    "internalWorld" : {
+        "template" : "3D",
+        "target" : {
+            "color" : {
+                "type" : "uint",
+                "clear" : [1,1,1,1],
+                "object" : "texture"
+            },
+            "depth" : {
+                "type" : "uint",
+                "object" : "renderBuffer"
+            }
+        },
+        "camera" : {
+            "type" : "PerspectiveCamera",
+            "fovy" : 60,
+            "nearZ" : 0.1,
+            "farZ" : 100,
+            "pos" : [1,2,3],
+            "lookAt" : [0,0,0]
+        },
+        "boxEntity2" : {
+            "type" : "Entity",
+            "geometry" : "Box",
+            "material" : "NormalMaterial"
+        }
+    },
+    "KeyCommand" : {
+        "Escape" : "End"
+    }
+}

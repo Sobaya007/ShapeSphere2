@@ -25,15 +25,19 @@ public:
     Entity mEntity;
     alias entity this;
 
+    this() {
+        this.mEntity = new Entity();
+        this.mProjMatrix = ProjMatrix(new umat4("projMatrix"));
+        this.mProjMatrix.depends(this.aspectWperH, this.fovy, this.nearZ, this.farZ);
+        this.name = "Perspective Camera";
+    }
+
     this(float aspect, Degree fovy, float nearZ, float farZ) {
         this.aspectWperH = aspect;
         this.fovy = Radian(fovy);
         this.nearZ = nearZ;
         this.farZ = farZ;
-        this.mEntity = new Entity();
-        this.mProjMatrix = ProjMatrix(new umat4("projMatrix"));
-        this.mProjMatrix.depends(this.aspectWperH, this.fovy, this.nearZ, this.farZ);
-        this.name = "Perspective Camera";
+        this();
     }
 
     override inout(Entity) entity() inout {

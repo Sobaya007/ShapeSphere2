@@ -3,42 +3,24 @@ module examples.CameraControlExample;
 import sbylib;
 
 void cameraControlExample() {
-    auto core = Core();
-    auto window = core.getWindow();
-    auto world = new World;
+    
+    auto worldList = createFromJson(ResourcePath("world/basic.json"));
 
-
-    auto camera = new PerspectiveCamera(
-            window.width / window.height, /* Aspect Ratio   */
-            60.deg, /* FOV (in angle) */
-            0.1, /* Near Clip      */
-            100, /* Far Clip       */);
-    camera.pos = vec3(3, 2, 9);
-    camera.lookAt(vec3(0,2,0));
-    world.configure3D(camera);
-
+    auto world = worldList.at("world3D").get().world;
 
     auto planeEntity = makeEntity(
-            Plane.create(100,100), /* width, height */
-            new CheckerMaterial!(LambertMaterial, LambertMaterial)
+        Plane.create,
+        new CheckerMaterial!(ColorMaterial, ColorMaterial)
     );
-    planeEntity.ambient1 = vec3(1);
-    planeEntity.ambient2 = vec3(0.5);
+    planeEntity.color1 = vec4(1);
+    planeEntity.color2 = vec4(vec3(0.5), 1);
     planeEntity.size = 0.015; /* Checker Size (in UV) */
+    planeEntity.scale = vec3(100);
     world.add(planeEntity);
 
 
-    auto boxEntity = makeEntity(Box.create(), new NormalMaterial);
-    boxEntity.pos = vec3(0,2,0);
-    boxEntity.scale = vec3(4);
-    world.add(boxEntity);
+    CameraControl.attach(world.camera);
 
 
-    CameraControl.attach(camera);
-
-
-    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
-
-
-    core.start();
+    Core().start();
 }
