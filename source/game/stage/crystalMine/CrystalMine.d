@@ -26,6 +26,8 @@ class CrystalMine : Stage {
 
     this() {
 
+        Core().addProcess(&this.step, "CrystalMine step");
+
         this.renderer = new Renderer;
 
 
@@ -35,7 +37,7 @@ class CrystalMine : Stage {
 
         this.root = new Root;
         Game.getWorld3D().add(this.currentArea.entity);
-        Game.getPlayer().setCenter(vec3(0));
+        Game.getPlayer().setCenter(vec3(0,1,0));
 
 
         this.fadeRect = makeColorEntity(vec4(0), 2,2);
@@ -129,7 +131,7 @@ class CrystalMine : Stage {
     }
 
 
-    override void step() {
+    void step() {
         if (!paused) {
             this.currentArea.step();
         }

@@ -74,7 +74,7 @@ class CollisionPolygon : CollisionGeometry {
     }
 
     vec3 normal() {
-        assert(!mNormal.hasNaN, toString);
-        return mNormal;
+        //assert(!mNormal.hasNaN, toString);
+        return mNormal.hasNaN ? vec3(1,0,0) : mNormal;
     }
 }

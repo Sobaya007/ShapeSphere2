@@ -111,10 +111,6 @@ private:
         core.addProcess((proc) {
             player.step();
         }, "player update");
-        core.addProcess((proc) {
-            if (!_isActive) return;
-            Game.update();
-        }, "game update");
 
 
         auto map = new Map;

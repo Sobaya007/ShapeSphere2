@@ -150,8 +150,10 @@ struct Area {
     }
 
     void step() {
+        debug Game.startTimer("load receive");
         import std.concurrency, std.datetime;
         receiveTimeout(0.msecs, &onReceive);
+        debug Game.stopTimer("load receive");
 
         debug Game.startTimer("character.step()");
         this.characters.each!(c => c.step);

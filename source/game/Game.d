@@ -52,7 +52,7 @@ static:
             auto index = stopWatch.keys.length;
             getWorld2D().add(this.label);
             this.label.addProcess({
-                this.label.renderText(format!"%s : %3.2fmsecs"(this.name, stopWatch[this.name].averageTime));
+                this.label.renderText(format!"%s : %3.1fmsecs"(this.name, stopWatch[this.name].averageTime));
                 this.label.top = Core().getWindow().height/2 - label.height * index;
                 this.label.right = (Core().getWindow().width/2).pixel;
             });
@@ -88,6 +88,7 @@ static:
 
     void initialize(string[] args) {
         this.commandManager = selectCommandManager(args);
+        Core().addProcess(&this.commandManager.update, "commandManager update");
         this.world2d = new World;
         this.world3d = new World;
         this.message = new Message;
@@ -181,14 +182,6 @@ static:
     debug void log(dstring text) {
         this.logEntity.insert(text);
         this.logEntity.right = 0.95;
-    }
-
-
-    void update() {
-        debug Game.startTimer("Game");
-        commandManager.update();
-        map.step();
-        debug Game.stopTimer("Game");
     }
 
     private ICommandManager selectCommandManager(string[] args) {

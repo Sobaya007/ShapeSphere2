@@ -34,7 +34,6 @@ class GameMainScene : SceneBase {
         Game.initializePlayer(camera);
         auto player = Game.getPlayer();
         Game.getCommandManager().setReceiver(player);
-        Core().addProcess(&Game.update, "game update");
 
 
         /* Map Settings */

@@ -13,6 +13,4 @@ interface Stage {
     void resume();
     void save();
     void render();
-    void step();
-
 }
