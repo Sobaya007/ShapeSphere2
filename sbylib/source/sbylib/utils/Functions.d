@@ -238,7 +238,7 @@ struct RectangleBuffer(T) {
     import sbylib.utils.Maybe;
     import std.traits;
     alias S = ForeachType!(T);
-    private T array;
+    T array;
     private size_t width, height;
     private bool flip;
 
@@ -285,6 +285,16 @@ struct RectangleBuffer(T) {
         if (y >= height) return None!S;
         if (flip) y = height-y-1;
         return Just(array[x+y*width]);
+    }
+
+    auto opIndex(SliceObject a, SliceObject b) {
+        auto result = typeof(this)(a.end-a.begin, b.end-b.begin);
+        foreach (i; a.begin..a.end) {
+            foreach (j; b.begin..b.end) {
+                result[i-a.begin, j-b.begin] = this[i,j].get();
+            }
+        }
+        return result;
     }
 
     void opIndexAssign(U)(U value, long x, long y) {

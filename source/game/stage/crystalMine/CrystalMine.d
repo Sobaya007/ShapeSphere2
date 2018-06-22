@@ -48,6 +48,7 @@ class CrystalMine : Stage {
 
         debug addDebugActions;
 
+        /*
         import game.effect.StartEffect;
         auto startEffect = new StartEffect(this.stageName);
         auto anim = AnimationManager().startAnimation(
@@ -124,6 +125,7 @@ class CrystalMine : Stage {
                 )
             );
         });
+        */
     }
 
 
