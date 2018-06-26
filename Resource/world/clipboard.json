@@ -1,0 +1,23 @@
+{
+    "world2D": {
+        "template" : "2D",
+        "label" : {
+            "type" : "Text",
+            "fontName" : "meiryo.ttc",
+            "height" : 64,
+            "wrapWidth" : 700,
+            "text" : "Press C to copy here, or press V to paste here."
+        },
+        "back" : {
+            "type" : "Entity",
+            "geometry" : "Rect",
+            "material" : "ColorMaterial",
+            "pos" : [0,0,-0.1],
+            "scale" : [700, 500, 1],
+            "color" : [1,1,1,1]
+        }
+    },
+    "KeyCommand" : {
+        "Escape" : "End"
+    }
+}

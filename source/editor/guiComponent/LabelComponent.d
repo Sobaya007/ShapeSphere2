@@ -12,7 +12,7 @@ private:
 public:
     this(Label label) {
         _label = label;
-        super(label.entity);
+        super(label);
     }
 
     this(

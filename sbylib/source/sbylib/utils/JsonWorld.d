@@ -59,6 +59,8 @@ private JsonWorld createWorld(string name, JSONValue[string] worldContent) {
         .getOrElse(Core().getWindow().getScreen);
 
     auto world = new World;
+    if (templateType == "2D") world.configure2D();
+
     foreach (name, content; worldContent) {
         assert(content.type == JSON_TYPE.OBJECT, format!"%s's value is not an object"(name));
         auto obj = content.object();
@@ -66,25 +68,24 @@ private JsonWorld createWorld(string name, JSONValue[string] worldContent) {
             .getOrError(format!"%s must have 'type' as string"(name));
         switch (type) {
             case "PerspectiveCamera":
-                auto camera = createPerspectiveCamera(obj);
-                camera.name = name;
-                if (templateType == "3D") world.configure3D(camera, target);
-                else world.setCamera(camera);
+                auto camera = createPerspectiveCamera(name, obj);
+                setCamera(world, camera, target, templateType);
+                break;
+            case "PixelCamera":
+                auto camera = createPixelCamera(name, obj);
+                setCamera(world, camera, target, templateType);
                 break;
             case "PointLight":
-                auto light = createPointLight(obj);
-                light.name = name;
-                world.add(light);
+                world.add(createPointLight(name, obj));
                 break;
             case "Model":
-                auto model = createModel(obj);
-                model.name = name;
-                world.add(model);
+                world.add(createModel(name, obj));
+                break;
+            case "Text":
+                world.add(createLabel(name, obj));
                 break;
             case "Entity":
-                auto entity = createEntity(obj);
-                entity.name = name;
-                world.add(entity);
+                world.add(createEntity(name, obj));
                 break;
             default:
                 assert(false, format!"Unknown type '%s'"(type));
@@ -93,8 +94,14 @@ private JsonWorld createWorld(string name, JSONValue[string] worldContent) {
     return JsonWorld(world, target);
 }
 
-private PerspectiveCamera createPerspectiveCamera(JSONValue[string] param) {
+private void setCamera(World world, Camera camera, IRenderTarget target, string templateType) {
+    if (templateType == "3D") world.configure3D(camera, target);
+    else world.setCamera(camera);
+}
+
+private PerspectiveCamera createPerspectiveCamera(string name, JSONValue[string] param) {
     auto camera = new PerspectiveCamera();
+    camera.name = name;
     camera.aspectWperH = Core().getWindow().width / Core().getWindow().height;
     setParameter!(
         ParamList!(
@@ -102,10 +109,24 @@ private PerspectiveCamera createPerspectiveCamera(JSONValue[string] param) {
             Param!("fovy", Degree, true),
             Param!("nearZ", float, true),
             Param!("farZ", float, true),
+            Param!("aspectWperH", float, false),
             Param!("pos", vec3, false),
             Param!("lookAt", vec3, false)
-            )
-        )(camera, param);
+        )
+    )(camera, param);
+    return camera;
+}
+
+private PixelCamera createPixelCamera(string name, JSONValue[string] param) {
+    auto camera = new PixelCamera();
+    camera.name = name;
+    setParameter!(
+        ParamList!(
+            PixelCamera,
+            Param!("pos", vec3, false),
+            Param!("lookAt", vec3, false)
+        )
+    )(camera, param);
     return camera;
 }
 
@@ -121,6 +142,11 @@ private IRenderTarget createTarget(JSONValue[string] params) {
         auto type = depth.fetch!string("type").getOrError("'depth' must have 'type' as string");
         auto object = depth.fetch!string("object").getOrError("'depth' must have 'object' as string");
         getAttachFunc(result, type, object)(FrameBufferAttachType.Depth);
+    });
+    params.fetch!(JSONValue[string])("stencil").apply!((stencil) {
+        auto type = stencil.fetch!string("type").getOrError("'stencil' must have 'type' as string");
+        auto object = stencil.fetch!string("object").getOrError("'stencil' must have 'object' as string");
+        getAttachFunc(result, type, object)(FrameBufferAttachType.Stencil);
     });
     return result;
 }
@@ -147,8 +173,9 @@ private void delegate(FrameBufferAttachType) getAttachFunc(RenderTarget target, 
     }
 }
 
-private PointLight createPointLight(JSONValue[string] param) {
+private PointLight createPointLight(string name, JSONValue[string] param) {
     auto light = new PointLight();
+    light.name = name;
     setParameter!(
         ParamList!(
             PointLight,
@@ -159,13 +186,14 @@ private PointLight createPointLight(JSONValue[string] param) {
     return light;
 }
 
-private Entity createModel(JSONValue[string] param) {
+private Entity createModel(string name, JSONValue[string] param) {
     auto path = ModelPath(param.fetch!string("path")
             .getOrError("'Model' must have path as a string"));
     auto material = param.fetch!bool("material").getOrElse(true);
     auto normal = param.fetch!bool("normal").getOrElse(true);
     auto uv = param.fetch!bool("uv").getOrElse(true);
     auto model = XLoader().load(path, material, normal, uv).buildEntity();
+    model.name = name;
     setParameter!(
         ParamList!(
             Entity,
@@ -175,15 +203,49 @@ private Entity createModel(JSONValue[string] param) {
     return model;
 }
 
-private Entity createEntity(JSONValue[string] params) {
+private Label createLabel(string name, JSONValue[string] param) {
+    auto pos = param.fetch!vec3("pos").getOrElse(vec3(0));
+    LabelFactory factory;
+    setParameter!(
+        ParamList!(
+            LabelFactory,
+            Param!("fontName", string, false),
+            Param!("text", dstring, false),
+            Param!("height", float, false),
+            Param!("fontResolution", int, false),
+            Param!("wrapWidth", float, false),
+            Param!("textColor", vec4, false),
+            Param!("backColor", vec4, false),
+        )
+    )(factory, param);
+    auto label = factory.make();
+    label.name = name;
+    label.pos = pos;
+    return label;
+}
+
+private Entity createEntity(string name, JSONValue[string] params) {
     alias G = ParamList;
     alias M = ParamList;
     import std.meta;
 
-    alias Geoms = AliasSeq!(G!(Box));
+    alias Geoms = AliasSeq!(
+        G!(Rect),
+        G!(Box),
+        G!(Dodecahedron),
+        G!(Plane),
+        G!(Sphere),
+        G!(SphereUV),
+    );
     alias Mats = AliasSeq!(
+        M!(ColorMaterial, Param!("color", vec4, true)),
+        M!(LambertMaterial, Param!("ambient", vec3, true), Param!("diffuse", vec3, true)),
         M!(NormalMaterial),
-        M!(TextureMaterial)
+        M!(PhongMaterial, Param!("ambient", vec4, true), Param!("diffuse", vec3, true), Param!("specular", vec3, true)),
+        M!(TextureMaterial),
+        M!(CheckerMaterial!(ColorMaterial, ColorMaterial), Param!("color1", vec4, true), Param!("color2", vec4, true), Param!("size", float, true)),
+        M!(UvMaterial),
+        M!(WireframeMaterial)
     );
 
     auto geometry = params.fetch!string("geometry")
@@ -195,6 +257,7 @@ private Entity createEntity(JSONValue[string] params) {
             static foreach (Mat; Mats) {
                 if (Mat.Type.stringof == material) {
                     auto entity = makeEntity(Geom.Type.create(), new Mat.Type);
+                    entity.name = name;
                     setParameter!(
                         ParamList!(
                             typeof(entity),
@@ -224,7 +287,7 @@ private struct ParamList(type, params...) {
     alias Params = params;
 }
 
-private void setParameter(ParamList)(ParamList.Type entity, JSONValue[string] params) {
+private void setParameter(ParamList)(ref ParamList.Type entity, JSONValue[string] params) {
     static foreach (Param; ParamList.Params) {
         entity.setParameter!(Param.Name, Param.Type, Param.Necessary)(params);
     }
@@ -233,10 +296,10 @@ private void setParameter(ParamList)(ParamList.Type entity, JSONValue[string] pa
     assert(params.keys.empty, format!"Unknown Parameters: '%s'"(params.keys.join(", ")));
 }
 
-private void setParameter(string paramName, ParamType, bool necessary, E)(E target, JSONValue[string] params) {
+private void setParameter(string paramName, ParamType, bool necessary, E)(ref E target, JSONValue[string] params) {
     auto value = params.fetch!ParamType(paramName);
     if (value.isNone) {
-        static if (necessary) assert(false, format!"'%s' must have '%s'"(target.name, paramName));
+        static if (necessary) assert(false, format!"'%s' must have '%s' as '%s'"(target.name, paramName, ParamType.stringof));
         else return;
     }
     mixin("target."~paramName) = value.get();

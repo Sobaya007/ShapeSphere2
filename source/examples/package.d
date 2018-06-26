@@ -1,6 +1,7 @@
 module examples;
 
 public:
+import examples.BlitsExample;
 import examples.BasicExample;
 import examples.CameraControlExample;
 import examples.GuiExample;

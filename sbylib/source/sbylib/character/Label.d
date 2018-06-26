@@ -11,36 +11,35 @@ import sbylib.character.Sentence;
 import std.typecons;
 import std.math;
 
-class Label {
+class Label : Entity {
 
-    alias entity this;
+    alias obj this;
 
     enum Strategy {Center, Left, Right}
 
-    Entity entity;
     private vec4 mColor;
     private vec4 backColor;
     private Font font;
     private float wrapWidth;
     float size; //1 letter height
     private float mWidth, mHeight;
-    private dstring text;
-    private dstring[] textByRow;
+    private dstring mText;
+    private dstring[] mTextByRow;
     private Sentence[] sentences;
     private Strategy strategy;
 
-    this(Font font, float size, float wrapWidth, Strategy strategy, vec4 color, vec4 backColor, dstring text) {
+    this(Font font, float size, float wrapWidth, Strategy strategy, vec4 color, vec4 backColor, dstring mText) {
         this.font = font;
         this.size = size;
         this.wrapWidth = wrapWidth;
         this.strategy = strategy;
         this.mColor = color;
         this.backColor = backColor;
-        this.text = text;
-        this.entity = new Entity;
-        this.entity.name = "Label";
+        this.mText = mText;
+        this.name = "Label";
         this.mWidth = this.mHeight = 0;
-        this.renderText(text);
+        this.renderText(mText);
+        this.setUserData("Label", this);
     }
 
     vec4 color() {
@@ -62,18 +61,22 @@ class Label {
         return this.mHeight;
     }
 
-    void renderText(string text) {
-        import std.conv;
-        renderText(text.to!dstring);
+    dstring text() {
+        return this.mText;
     }
 
-    void renderText(dstring text) {
-        if (text != text) return;
-        this.text = text;
+    void renderText(string mText) {
+        import std.conv;
+        renderText(mText.to!dstring);
+    }
+
+    void renderText(dstring mText) {
+        if (mText != mText) return;
+        this.mText = mText;
         this.mWidth = this.mHeight = 0;
         this.lineUp();
         import std.conv;
-        this.name = "Label '"~text.to!string~"'";
+        this.name = "Label '"~mText.to!string~"'";
     }
 
     import sbylib.utils.Functions;
@@ -82,29 +85,29 @@ class Label {
     private void lineUp() {
         import std.array, std.algorithm, std.range;
         Font.LetterInfo[][] rows;
-        auto text = this.text;
+        auto mText = this.mText;
         auto wrapWidth = this.wrapWidth * font.size / this.size;
         auto pen = 0;
-        this.textByRow = null;
-        while (!text.empty) {
+        this.mTextByRow = null;
+        while (!mText.empty) {
             pen = 0;
             Font.LetterInfo[] infos;
             dstring rowString;
-            while (!text.empty) {
-                if (text.front == '\n') {
+            while (!mText.empty) {
+                if (mText.front == '\n') {
                     rowString ~= '\n';
-                    text.popFront;
+                    mText.popFront;
                     break;
                 }
-                auto info = font.getLetterInfo(text.front);
+                auto info = font.getLetterInfo(mText.front);
                 if (pen + info.advance > wrapWidth) break;
                 infos ~= info;
-                rowString ~= text.front;
-                text = text[1..$];
+                rowString ~= mText.front;
+                mText = mText[1..$];
                 pen += info.advance;
             }
             rows ~= infos;
-            textByRow ~= rowString;
+            mTextByRow ~= rowString;
         }
         this.mWidth = rows.map!(row => row.map!(i => i.advance).sum).fold!(max)(0L) * this.size / font.size;
         this.mHeight = rows.length * this.size;
@@ -112,9 +115,9 @@ class Label {
             auto newSentences = iota(rows.length-sentences.length).map!(_ => new Sentence).array;
             sentences ~= newSentences;
         }
-        this.entity.clearChildren();
+        this.clearChildren();
         foreach (s; sentences[0..rows.length]) {
-            this.entity.addChild(s);
+            this.addChild(s);
         }
         zip(rows, sentences).each!(t => t[1].setBuffer(t[0], this.size));
         final switch (this.strategy) {
@@ -132,6 +135,4 @@ class Label {
         this.sentences.each!(s => s.color = color);
         this.sentences.each!(s => s.backColor = backColor);
     }
-
-    alias entity this;
 }

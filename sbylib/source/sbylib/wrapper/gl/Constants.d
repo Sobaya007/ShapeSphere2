@@ -74,6 +74,7 @@ enum ImageInternalFormat {
     RGBA16F = GL_RGBA16F,
     RGBA32F = GL_RGBA32F,
     Depth = GL_DEPTH_COMPONENT24,
+    Stencil = GL_STENCIL_INDEX8,
     DepthStencil = GL_DEPTH_STENCIL
 };
 
@@ -84,8 +85,8 @@ enum ImageFormat {
     BGR = GL_BGR,
     RGBA = GL_RGBA,
     BGRA = GL_BGRA,
-    Depth = GL_DEPTH_COMPONENT24,
-    DepthStencil = GL_DEPTH_STENCIL
+    Depth = GL_DEPTH_COMPONENT,
+    DepthStencil = GL_DEPTH_STENCIL,
 }
 
 enum ShaderType {

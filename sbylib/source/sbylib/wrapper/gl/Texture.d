@@ -177,6 +177,12 @@ class Texture {
         this.unbind();
     }
 
+    import sbylib.render.RenderTarget;
+    void blitsTo(IRenderTarget dst) {
+        import sbylib.utils.Functions : blitsTo;
+        blitsTo(this, dst);
+    }
+
     int width() {
         return mWidth;
     }
@@ -187,6 +193,10 @@ class Texture {
 
     ImageInternalFormat internalFormat() {
         return mInternalFormat;
+    }
+
+    void depthStencilMode(DepthStencilMode mode) {
+        this.setParameter(TextureParamName.DepthStencilMode, mode);
     }
 
     alias id this;

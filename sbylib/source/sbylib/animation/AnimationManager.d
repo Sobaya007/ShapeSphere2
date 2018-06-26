@@ -16,6 +16,9 @@ class AnimationManager {
 
     this() {
         this.procedures = Array!AnimationProcedure(0);
+
+        import sbylib;
+        Core().addProcess(&this.step, "AnimationManager");
     }
 
     AnimationProcedure startAnimation(IAnimation anim) {

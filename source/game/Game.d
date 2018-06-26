@@ -103,7 +103,10 @@ static:
             factory.size = 24.pixel;
             factory.rowNum = 10;
             this.logEntity = factory.make();
-            this.logEntity.pos.y = -Core().getWindow().height/2;
+            this.logEntity.addProcess({
+                this.logEntity.pos.y = -Core().getWindow().height/2 + 24.pixel;
+                this.logEntity.right = Core().getWindow().width/2 - 24.pixel;
+            });
             this.world2d.add(this.logEntity);
         }
     }
@@ -181,7 +184,6 @@ static:
 
     debug void log(dstring text) {
         this.logEntity.insert(text);
-        this.logEntity.right = 0.95;
     }
 
     private ICommandManager selectCommandManager(string[] args) {

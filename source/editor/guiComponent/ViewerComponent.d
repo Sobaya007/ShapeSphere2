@@ -168,20 +168,17 @@ private:
         core.getKey().justPressed(KeyButton.KeyF).add({window.toggleFullScreen();});
 
 
-        /* Animation */
-        core.addProcess(&AnimationManager().step, "Animation Manager");
-
-
         /* Render */
-        auto renderer = new Renderer();
+        auto renderer3D = new Renderer(Game.getWorld3D(), screen, _viewport);
+        auto renderer2D = new Renderer(Game.getWorld2D(), screen, _viewport);
         core.addProcess((proc) {
             screen.clear(ClearMode.Depth);
-            renderer.render(Game.getWorld3D(), screen, _viewport, "regular");
-            renderer.render(Game.getWorld3D(), screen, _viewport, "transparent");
+            renderer3D.render("regular");
+            renderer3D.render("transparent");
             screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
-            renderer.render(Game.getWorld3D(), screen, _viewport, "Crystal");
+            renderer3D.render("Crystal");
             screen.clear(ClearMode.Depth);
-            renderer.render(Game.getWorld2D(), screen, _viewport);
+            renderer2D.render();
         }, "render");
     }
 

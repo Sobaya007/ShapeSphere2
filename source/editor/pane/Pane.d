@@ -45,14 +45,11 @@ public:
         camera.obj.pos = vec3(viewport.getWidth / 2, viewport.getHeight /2, 0);
         world.setCamera(camera);
 
-        auto renderer = new Renderer();
-        auto render = delegate (Process proc) {
-            renderer.render(world, screen, viewport);
-        };
+        auto renderer = new Renderer(world, screen, viewport);
 
         auto control = new GuiControl(window, camera, viewport, world, core.getKey());
 
-        core.addProcess(render, "render");
+        core.addProcess(&renderer.render, "render");
         core.addProcess(&control.update, "control");
 
         _content = createContent();

@@ -22,13 +22,14 @@ class CrystalMine : Stage {
     private debug bool wireVisible = false;
 
 
-    private Renderer renderer;
+    private Renderer renderer3D, renderer2D;
 
     this() {
 
         Core().addProcess(&this.step, "CrystalMine step");
 
-        this.renderer = new Renderer;
+        this.renderer3D = new Renderer(Game.getWorld3D(), Core().getWindow().getScreen(), Game.getScene().viewport);
+        this.renderer2D = new Renderer(Game.getWorld2D(), Core().getWindow().getScreen(), Game.getScene().viewport);
 
 
         Core().getWindow().getScreen().setClearColor(vec4(0,0,0,1));
@@ -164,13 +165,13 @@ class CrystalMine : Stage {
     override void render() {
         auto screen = Core().getWindow().getScreen();
         auto viewport = Game.getScene.viewport;
-        renderer.render(Game.getWorld3D(), screen, viewport, "regular");
-        renderer.render(Game.getWorld3D(), screen, viewport, "transparent");
+        renderer3D.render("regular");
+        renderer3D.render("transparent");
         screen.blitsTo(Game.getBackBuffer(), BufferBit.Color);
-        renderer.render(Game.getWorld3D(), screen, viewport, "Crystal");
+        renderer3D.render("Crystal");
         screen.clear(ClearMode.Depth);
-        renderer.render(Game.getWorld2D(), screen, viewport, "regular");
-        renderer.render(Game.getWorld2D(), screen, viewport, "transparent");
+        renderer2D.render("regular");
+        renderer2D.render("transparent");
     }
 
     override void transit(string name) {

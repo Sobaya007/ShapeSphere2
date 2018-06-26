@@ -24,7 +24,7 @@ class Rect {
         Top = 1
     }
 
-    public static GeometryRect create(float width=0.5, float height = 0.5, OriginX originX = OriginX.Center, OriginY originY = OriginY.Center) {
+    public static GeometryRect create(float width=1, float height = 1, OriginX originX = OriginX.Center, OriginY originY = OriginY.Center) {
         vec3 center = vec3(
             -originX * (width/2),
             -originY * (height/2),
@@ -37,10 +37,10 @@ class Rect {
             vec3(-width/2, +height/2, 0) + center,
         ];
         const uvs = [
-        vec2(0,0),
-        vec2(1,0),
-        vec2(1,1),
-        vec2(0,1)
+            vec2(0,0),
+            vec2(1,0),
+            vec2(1,1),
+            vec2(0,1)
         ];
         VertexT[] vertices;
         foreach(tuple; zip(positions, uvs)) {

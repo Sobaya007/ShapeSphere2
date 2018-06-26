@@ -5,19 +5,10 @@ import game.scene;
 import game.Game;
 
 void gameMain(string[] args) {
-    auto core = Core();
-    auto window = core.getWindow();
-    auto screen = window.getScreen();
-    auto renderer = new Renderer();
-    auto viewport = new AspectFixViewport(window);
-
-    screen.setClearColor(vec4(0.2));
-
-    core.addProcess(&AnimationManager().step, "Animation Manager");
 
     setGameTransition(args);
 
-    core.start();
+    Core().start();
 }
 
 void setGameTransition(string[] args) {

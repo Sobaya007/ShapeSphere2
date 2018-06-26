@@ -165,7 +165,9 @@ class World {
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 
-    const(Uniform) delegate() getUniform(UniformDemand demand) {
+    const(Uniform) delegate() getUniform(UniformDemand demand) in {
+        assert(this.mCamera.isJust(), "camera is not set.");
+    } do {
         switch (demand) {
         case UniformDemand.View:
             return () => this.mCamera.get().viewMatrix;

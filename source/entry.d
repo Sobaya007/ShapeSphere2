@@ -6,18 +6,20 @@ import game.GameMain;
 import plot.Main;
 
 enum RunMode {
-    XFileLoad,
     Game,
+    Blits,
     Editor,
     Basic,
     Material,
     CameraControl,
+    XFileLoad,
     Framebuffer,
     Gui,
     Text,
     Clipboard,
     Plot,
     Scene,
+    Test,
 };
 
 void run(RunMode mode, string[] args) {
@@ -60,6 +62,12 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Framebuffer:
         framebufferExample();
+        break;
+    case RunMode.Test:
+        framebufferExample();
+        break;
+    case RunMode.Blits:
+        blitsExample();
         break;
     }
 }

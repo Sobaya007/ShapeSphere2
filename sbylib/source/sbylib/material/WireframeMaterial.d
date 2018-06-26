@@ -8,8 +8,13 @@ import sbylib.math.Vector;
 
 class WireframeMaterial : ColorMaterial {
 
-    this(vec4 color) {
-        super(color);
+    this() {
+        super();
         this.config.polygonMode = PolygonMode.Line;
+    }
+
+    this(vec4 color) {
+        this();
+        this.color = color;
     }
 }

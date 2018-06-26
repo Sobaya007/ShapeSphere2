@@ -8,26 +8,22 @@ void textExample() {
     auto core = Core();
     auto window = core.getWindow();
     auto world = new World;
-    auto renderer = new Renderer();
-    auto viewport = new AspectFixViewport(window);
 
 
-    auto camera = new OrthoCamera(2,2,-1,1);
-    world.setCamera(camera);
-
-
-    auto screen = window.getScreen();
-    screen.setClearColor(vec4(0.2));
+    world.configure2D();
 
 
     auto createLabel(float size, Label.Strategy s, string y, vec2 pos, vec4 color, dstring text) {
+        pos.xy = pos.xy * vec2(Core().getWindow().width, Core().getWindow().height) / 2;
+
         LabelFactory factory;
         factory.fontName = "meiryo.ttc";
         factory.strategy = s;
         factory.textColor = color;
         factory.backColor = vec4(vec3(1) - color.rgb, 1);
+        factory.height = 32.pixel;
         factory.text = text;
-        factory.wrapWidth = 1.5;
+        factory.wrapWidth = Core().getWindow().width * 0.8;
         auto label = factory.make();
         final switch (s) {
             case Label.Strategy.Left:
@@ -80,12 +76,6 @@ void textExample() {
 
 
     core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
-
-
-    core.addProcess({
-        screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
-    }, "render");
 
 
     core.start();

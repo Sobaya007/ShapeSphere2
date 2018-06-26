@@ -78,11 +78,11 @@ template as(Type) {
         Type as(JSONValue v) {
             switch (v.type) {
                 case JSON_TYPE.INTEGER:
-                    return v.integer();
+                    return cast(Type)v.integer();
                 case JSON_TYPE.UINTEGER:
-                    return v.uinteger();
+                    return cast(Type)v.uinteger();
                 case JSON_TYPE.FLOAT:
-                    return v.floating();
+                    return cast(Type)v.floating();
                 default:
                     assert(false);
             }
@@ -442,28 +442,26 @@ void blitsTo(Texture texture, IRenderTarget dst) {
     blitsTo(texture, dst, 0, 0, dst.width, dst.height);
 }
 
-void configure2D(World world) {
+void configure2D(World world, IRenderTarget target = Core().getWindow().getScreen()) {
     import sbylib;
-    auto renderer = new Renderer;
-    auto viewport = new AutoFitViewport;
+    auto renderer = new Renderer(world, target, new AutoFitViewport);
 
     auto camera = new PixelCamera;
     world.setCamera(camera);
     Core().addProcess({
-        Core().getWindow().getScreen().clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, Core().getWindow().getScreen(), viewport);
+        target.clear(ClearMode.Color, ClearMode.Depth, ClearMode.Stencil);
+        renderer.render();
     }, "render");
 }
 
 void configure3D(World world, Camera camera, IRenderTarget target = Core().getWindow().getScreen()) {
     import sbylib;
-    auto renderer = new Renderer;
-    auto viewport = new AspectFixViewport(Core().getWindow());
+    auto renderer = new Renderer(world, target, new AspectFixViewport(Core().getWindow()));
 
     world.setCamera(camera);
     Core().addProcess({
-        target.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, target, viewport);
+        target.clear(ClearMode.Color, ClearMode.Depth, ClearMode.Stencil);
+        renderer.render();
     }, "render");
 }
 

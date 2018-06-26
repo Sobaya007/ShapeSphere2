@@ -16,8 +16,8 @@ void plotMain() {
     auto window = core.getWindow();
     auto screen = window.getScreen();
     auto world = new World();
-    auto renderer = new Renderer();
     auto viewport = new AspectFixViewport(window);
+    auto renderer = new Renderer(world, screen, viewport);
 
     OrthoCamera camera = new OrthoCamera(1, 1, -1, 1);
     camera.pos = vec3(+0.5, +0.5, 0);
@@ -29,12 +29,12 @@ void plotMain() {
         world.add(value);
     }
     foreach (key, value; dataset.labels) {
-        world.add(value.entity);
+        world.add(value);
     }
 
     auto render = delegate (Process proc) {
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
+        renderer.render();
     };
 
     auto mouse = new ViewportMouse(viewport);

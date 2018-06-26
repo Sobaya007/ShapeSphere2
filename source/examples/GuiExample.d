@@ -6,12 +6,13 @@ void guiExample() {
     auto core = Core();
     auto window = core.getWindow();
     auto world = new World;
-    auto renderer = new Renderer();
     auto viewport = new AspectFixViewport(window);
 
 
     auto screen = window.getScreen();
     screen.setClearColor(vec4(0.2));
+
+    auto renderer = new Renderer(world, screen, viewport);
 
 
     auto camera = new OrthoCamera(2,2,-1,1);
@@ -37,7 +38,7 @@ void guiExample() {
 
     core.addProcess({
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render(world, screen, viewport);
+        renderer.render();
         fpsCounter.update();
         timeline.add(fpsCounter.getFPS());
     }, "render");

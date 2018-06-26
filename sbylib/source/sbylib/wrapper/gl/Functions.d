@@ -24,7 +24,9 @@ static:
     void clear(BufferBit[] mode...) out {
         checkError();
     } body {
+        if (mode.canFind(ClearMode.Color)) glColorMask(true,true,true,true); //これしないとColorをClearできない
         if (mode.canFind(ClearMode.Depth)) glDepthMask(true); //これしないとDepthをClearできない
+        if (mode.canFind(ClearMode.Stencil)) glStencilMask(~0); //これしないとStencilをClearできない
         glClear(reduce!((a,b)=>a|b)(mode));
     }
 
@@ -58,6 +60,12 @@ static:
         checkError();
     } body {
         glDisable(cap);
+    }
+
+    void colorWrite(bool colorWrite) out {
+        checkError();
+    } body {
+        glColorMask(colorWrite, colorWrite, colorWrite, colorWrite);
     }
 
     void depthTest(bool depthTest) out {
@@ -108,6 +116,12 @@ static:
                 break;
             }
         }
+    }
+
+    void stencilWrite(bool stencilWrite) out {
+        checkError();
+    } body {
+        glStencilMask(stencilWrite);
     }
 
     void stencil(TestFunc test, uint reffer, uint mask, StencilWrite sfail, StencilWrite dpfail, StencilWrite pass) out {
@@ -201,8 +215,10 @@ static:
                 return 32;
             case ImageInternalFormat.Depth:
                 return 24;
+            case ImageInternalFormat.Stencil:
+                assert(false); //知らん
             case ImageInternalFormat.DepthStencil:
-                return 24; //????
+                assert(false); //知らん
         }
         assert(false);
     }

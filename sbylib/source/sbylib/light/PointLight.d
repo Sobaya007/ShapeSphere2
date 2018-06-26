@@ -38,7 +38,7 @@ class PointLight {
         import sbylib.geometry.geometry3d.Sphere;
         import sbylib.material.WireframeMaterial;
         debug {
-            this.entity = makeEntity(Sphere.create(3, 2), new WireframeMaterial(vec4(vec3(1) - diffuse, 1)));
+            this.entity = makeEntity(Sphere.create(0.2, 2), new WireframeMaterial(vec4(vec3(1) - diffuse, 1)));
             this.entity.name = "Debug Wire Sphere";
         } else {
             this.entity = makeEntity();

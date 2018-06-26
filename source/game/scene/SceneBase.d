@@ -8,6 +8,7 @@ class SceneProtoType : SceneBase {
     private TypedEntity!(GeometryRect, ColorMaterial) fadeRect;
     protected World world;
     protected Camera camera;
+    protected Renderer renderer;
 
     this() {
         this(new OrthoCamera(2, 2, -1, 1));
@@ -33,10 +34,12 @@ class SceneProtoType : SceneBase {
             camera.width = camera.height * viewport.getWidth() / viewport.getHeight();
             fadeRect.scale.x = cast(float)viewport.getWidth() / viewport.getHeight();
         });
+
+        this.renderer = new Renderer(this.world, this.screen, this.viewport);
     }
 
     override void render() {
-        this.renderer.render(this.world, this.screen, this.viewport);
+        this.renderer.render();
     }
 
     auto fade(AnimSetting!vec4 setting) {
@@ -56,7 +59,6 @@ class SceneBase {
 
     protected Maybe!FinishCallback _finish;
     protected Maybe!SelectCallback _select;
-    protected Renderer renderer;
     protected Screen screen;
     private State state;
     public Maybe!SceneTransition transition;
@@ -71,7 +73,6 @@ class SceneBase {
     this() {
         auto window = Core().getWindow();
         this.screen = window.getScreen;
-        this.renderer = new Renderer;
     }
 
     void initialize() {

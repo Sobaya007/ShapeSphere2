@@ -13,7 +13,7 @@ import std.stdio;
 abstract class IRenderTarget {
     
     private vec4 clearColor = vec4(0, .5, .5, 1);
-    private int clearStencil;
+    private int clearStencil = 0;
     private debug bool hasCleared;
 
     const(FrameBuffer) getFrameBuffer();
@@ -40,7 +40,7 @@ abstract class IRenderTarget {
         this.getFrameBuffer().blitsTo(
                 dstRenderTarget.getFrameBuffer(),
                 0, 0, src.width, src.height,
-                x, y, w, h, TextureFilter.Linear, mode);
+                x, y, w, h, TextureFilter.Nearest, mode);
     }
 
     void clear(ClearMode[] clearMode...) {
@@ -84,7 +84,13 @@ class RenderTarget : IRenderTarget {
     }
 
     void attachTexture(T)(FrameBufferAttachType attachType) {
-        Texture tex = new Texture(TextureTarget.Tex2D, 0, this.getInternalFormat!T(attachType), this.width, this.height, ImageFormat.RGBA, cast(T*)null);
+        Texture tex = new Texture(
+            TextureTarget.Tex2D,
+            0,
+            this.getInternalFormat!T(attachType),
+            this.width, this.height,
+            this.getImageFormat(attachType),
+            cast(T*)null);
         this.attach(tex, attachType);
     }
 
@@ -114,6 +120,19 @@ class RenderTarget : IRenderTarget {
         this.textures[attachType] = texture;
     }
 
+    private ImageFormat getImageFormat(FrameBufferAttachType attachType) {
+        switch (attachType) {
+            case FrameBufferAttachType.Color0, FrameBufferAttachType.Color1, FrameBufferAttachType.Color2:
+                return ImageFormat.RGBA;
+            case FrameBufferAttachType.Depth:
+                return ImageFormat.Depth;
+            case FrameBufferAttachType.DepthStencil:
+                return ImageFormat.DepthStencil;
+            default:
+                assert(false);
+        }
+    }
+
     private ImageInternalFormat getInternalFormat(Type)(FrameBufferAttachType attachType) {
         switch (attachType) {
             case FrameBufferAttachType.Color0, FrameBufferAttachType.Color1, FrameBufferAttachType.Color2:
@@ -124,6 +143,8 @@ class RenderTarget : IRenderTarget {
                 }
             case FrameBufferAttachType.Depth:
                 return ImageInternalFormat.Depth;
+            case FrameBufferAttachType.Stencil:
+                return ImageInternalFormat.Stencil;
             case FrameBufferAttachType.DepthStencil:
                 return ImageInternalFormat.DepthStencil;
             default:
@@ -137,6 +158,10 @@ class RenderTarget : IRenderTarget {
 
     Texture getDepthTexture()  {
         return textures[FrameBufferAttachType.Depth];
+    }
+
+    Texture getStencilTexture()  {
+        return textures[FrameBufferAttachType.Stencil];
     }
 
     override const(FrameBuffer) getFrameBuffer() {

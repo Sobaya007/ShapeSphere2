@@ -9,17 +9,27 @@ public {
 
 class Renderer {
 
-    void render(World world, IRenderTarget renderTarget, IViewport viewport) {
-        viewport.set();
-        renderTarget.renderBegin();
-        world.render();
-        renderTarget.renderEnd();
+    private World world;
+    private IRenderTarget target;
+    private IViewport viewport;
+
+    this(World world, IRenderTarget target, IViewport viewport) {
+        this.world = world;
+        this.target = target;
+        this.viewport = viewport;
     }
 
-    void render(World world, IRenderTarget renderTarget, IViewport viewport, string renderGroupName) {
+    void render(string renderGroupName) {
         viewport.set();
-        renderTarget.renderBegin();
+        target.renderBegin();
         world.render(renderGroupName);
-        renderTarget.renderEnd();
+        target.renderEnd();
+    }
+
+    void render() {
+        viewport.set();
+        target.renderBegin();
+        world.render();
+        target.renderEnd();
     }
 }
