@@ -40,7 +40,7 @@ class RenderConfig {
         this.stencilWrite = false;
         this.stencilFunc = stencilFunc.Always;
         this.stencilValue = 1;
-        this.stencilMask = ~0;
+        this.stencilMask = 0xff;
         this.sfail = StencilWrite.Keep;
         this.dpfail = StencilWrite.Keep;
         this.pass = StencilWrite.Keep;

@@ -488,6 +488,14 @@ mixin template ImplPositionSetter(alias width, alias height) {
     }
 }
 
+void screenShot(string path) {
+    auto target = new RenderTarget(Core().getWindow().width, Core().getWindow().height);
+    target.attachTexture!(uint)(FrameBufferAttachType.Color0);
+    Core().getWindow().getScreen().blitsTo(target, BufferBit.Color);
+    target.getColorTexture().generateImage().save(path);
+    target.destroy();
+}
+
 
 enum red    = vec4(1,0,0,1);
 enum green  = vec4(0,1,0,1);

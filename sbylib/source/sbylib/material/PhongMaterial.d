@@ -20,8 +20,8 @@ class PhongMaterial : Material {
         super();
 
         this.diffuse = vec3(0);
-        this.specular = vec3(0);
+        this.specular = vec3(1);
         this.ambient = vec4(0);
-        this.power = 0.0;
+        this.power = 1.0;
     }
 }

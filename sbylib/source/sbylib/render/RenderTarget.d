@@ -74,7 +74,11 @@ class RenderTarget : IRenderTarget {
     private debug bool hasCleared;
 
     this(uint width, uint height) {
-        this.frameBuffer = new FrameBuffer();
+        this(new FrameBuffer(), width, height);
+    }
+
+    this(FrameBuffer frameBuffer, uint width, uint height) {
+        this.frameBuffer = frameBuffer;
         this.mWidth = width;
         this.mHeight = height;
     }

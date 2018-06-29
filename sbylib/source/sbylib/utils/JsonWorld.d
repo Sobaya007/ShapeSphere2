@@ -36,19 +36,39 @@ private void createKeyCommand(JSONValue[string] commandList) {
     import std.array;
     auto keys = [EnumMembers!KeyButton];
     foreach (key, command; commandList) {
-        assert(command.type == JSON_TYPE.STRING, format!"Key Command %s's value is not a string"(key));
         auto findResult = keys.find!(keyButton => keyButton.to!string == key);
         assert(!findResult.empty, format!"'%s' is not a valid key name"(key));
-
         auto button = findResult.front;
-        Core().getKey().justPressed(button).add(getCommand(command.str()));
+
+        switch (command.type) {
+            case JSON_TYPE.STRING:
+                Core().getKey().justPressed(button).add(getCommand(command.str()));
+                break;
+            case JSON_TYPE.OBJECT:
+                Core().getKey().justPressed(button).add(getCommand(command.object()));
+                break;
+            default:
+                assert(false, format!"Key Command %s's value must be string or object"(key));
+        }
     }
 }
 
 private auto getCommand(string command) {
     switch (command) {
         case "End": return &Core().end;
+        case "ScreenShot": return { screenShot("ScreenShot.png"); };
         default: assert(false, format!"'%s' is not a valid command name"(command));
+    }
+}
+
+private auto getCommand(JSONValue[string] obj) {
+    auto type = obj.fetch!(string)("type")
+        .getOrError("command must have paramter 'type' as string");
+    switch (type) {
+        case "ScreenShort":
+            auto path = obj.fetch!(string)("path").getOrElse("ScreenShot.png");
+            return { screenShot(path); };
+        default: assert(false, format!"'%s' is not a valid command name"(type));
     }
 }
 

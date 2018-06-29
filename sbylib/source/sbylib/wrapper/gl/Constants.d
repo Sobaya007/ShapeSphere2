@@ -422,6 +422,22 @@ enum ParamName {
     MaxVaryingVectors = GL_MAX_VARYING_VECTORS,
     MaxVaryingFloats = GL_MAX_VARYING_FLOATS,
 
-    SmoothLineWidthRange = GL_SMOOTH_LINE_WIDTH_RANGE
+    SmoothLineWidthRange = GL_SMOOTH_LINE_WIDTH_RANGE,
 
+    StencilBackFail = GL_STENCIL_BACK_FAIL,
+    StencilBackFunc = GL_STENCIL_BACK_FUNC,
+    StencilBackPassDepthFail = GL_STENCIL_BACK_PASS_DEPTH_FAIL,
+    StencilBackPassDepthPass = GL_STENCIL_BACK_PASS_DEPTH_PASS,
+    StencilBackRef = GL_STENCIL_BACK_REF,
+    StencilBackValueMask = GL_STENCIL_BACK_VALUE_MASK,
+    StencilBackWriteMask = GL_STENCIL_BACK_WRITEMASK,
+    StencilClearValue = GL_STENCIL_CLEAR_VALUE,
+    StencilFrontFail = GL_STENCIL_FAIL,
+    StencilFrontBunc = GL_STENCIL_FUNC,
+    StencilFrontPassDepthFail = GL_STENCIL_PASS_DEPTH_FAIL,
+    StencilFrontPassDepthPass = GL_STENCIL_PASS_DEPTH_PASS,
+    StencilFrontRef = GL_STENCIL_REF,
+    StencilFrontValueMask = GL_STENCIL_VALUE_MASK,
+    StencilFrontWriteMask = GL_STENCIL_WRITEMASK,
+    StencilTest = GL_STENCIL_TEST
 }

@@ -48,6 +48,30 @@ class Image {
         return FreeImage_GetImageType(bitmap).to!ImageType;
     }
 
+    void save(string path) {
+        import std.path;
+        switch(path.extension) {
+            case ".bmp":
+                saveAsBmp(path);
+                break;
+            case ".exr":
+                saveAsExr(path);
+                break;
+            case ".jpeg":
+            case ".jpg":
+                saveAsExr(path);
+                break;
+            case ".png":
+                saveAsPng(path);
+                break;
+            case ".tiff":
+                saveAsTiff(path);
+                break;
+            default:
+                assert(false, "Unrecognized format '" ~ path.extension ~ "'");
+        }
+    }
+
     void saveAsBmp(string path, bool rle = false) {
         int option;
         if (rle) option = BMP_SAVE_RLE;

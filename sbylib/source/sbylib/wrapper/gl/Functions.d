@@ -121,10 +121,10 @@ static:
     void stencilWrite(bool stencilWrite) out {
         checkError();
     } body {
-        glStencilMask(stencilWrite);
+        glStencilMask(stencilWrite ? 0xff : 0);
     }
 
-    void stencil(TestFunc test, uint reffer, uint mask, StencilWrite sfail, StencilWrite dpfail, StencilWrite pass) out {
+    void stencil(TestFunc test, int reffer, uint mask, StencilWrite sfail, StencilWrite dpfail, StencilWrite pass) out {
         checkError();
     } body {
         enable(Capability.StencilTest);
