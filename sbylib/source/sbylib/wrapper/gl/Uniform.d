@@ -4,6 +4,8 @@ import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.Program;
+import sbylib.wrapper.gl.Texture;
+import sbylib.wrapper.gl.UniformTexture;
 import std.traits;
 import std.conv;
 import std.string;
@@ -29,6 +31,7 @@ auto createUniform(T)(T val, string name) {
     else static if (is(T == int)) return new TypedUniform!(T)(name, val);
     else static if (is(T == float)) return new TypedUniform!(T)(name, val);
     else static if (is(T == Texture)) return new UniformTexture(name, val);
+    else static assert(false);
 }
 
 class TypedUniform(Type) : Uniform {

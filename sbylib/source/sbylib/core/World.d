@@ -56,13 +56,13 @@ class World {
        事後条件:
             - entityはWorldと接続
      */
-    auto add(E)(E entity) in {
+    auto add(Entity entity) in {
         assert(isConnected(entity) == false, "add's argument must not be added to World");
         assert(entity.isParentConnected == false, "add's argument must not have parent");
     } out {
         assert(isConnected(entity) == true);
     } body {
-        entity.traverse((Entity e) {
+        (cast(Entity)entity).traverse((Entity e) {
             this.entities ~= e;
             e.setWorld(this);
             auto groupName = e.mesh.mat.config.renderGroupName;
@@ -70,6 +70,11 @@ class World {
                 this.renderGroups[groupName.get()].add(e);
             }
         });
+        return entity;
+    }
+
+    auto add(E)(E entity) if (!is(E == Entity)) {
+        add(entity);
         return entity;
     }
 

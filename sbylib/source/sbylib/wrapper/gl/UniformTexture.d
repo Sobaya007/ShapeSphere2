@@ -34,6 +34,7 @@ class UniformTexture : Uniform {
     }
 
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
+        assert(this.value !is null, "UniformTexture's value is null");
         auto loc = this.getLocation(program);
 
         glActiveTexture(GL_TEXTURE0 + textureUnit);

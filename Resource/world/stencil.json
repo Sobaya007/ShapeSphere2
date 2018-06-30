@@ -1,19 +1,6 @@
 {
-    "world" : {
+    "world3D" : {
         "template" : "3D",
-        "target" : {
-            "type" : "RenderTarget",
-            "color" : {
-                "type" : "uint",
-                "clear" : [0,0,0,0],
-                "object" : "texture"
-            },
-            "depth" : {
-                "type" : "uint",
-                "clear" : 0,
-                "object" : "renderBuffer"
-            }
-        },
         "camera" : {
             "type" : "PerspectiveCamera",
             "fovy" : 60,
@@ -34,7 +21,23 @@
             "type" : "Entity",
             "geometry" : "Plane",
             "material" : "UnrealFloorMaterial",
-            "scale" : [100, 100, 100]
+            "scale" : [100, 100, 100],
+            "stencilFunc" : "Equal",
+            "stencilValue" : 0
+        }
+    },
+    "world2D" : {
+        "template" : "2D",
+        "Sphere" : {
+            "type" : "Entity",
+            "geometry" : "Sphere",
+            "material" : "ColorMaterial",
+            "color" : [1,1,0,1],
+            "scale" : [600,600,1],
+            "pass" : "Increment",
+            "colorWrite" : false,
+            "depthWrite" : false,
+            "stencilWrite" : true
         }
     },
     "KeyCommand" : {
@@ -43,13 +46,15 @@
     "Render" : [
         {
             "type" : "Clear",
-            "target" : "target"
+            "target" : "Screen"
         },
-        "Render",
         {
-            "type" : "Blit",
-            "from" : "target",
-            "to" : "Screen"
+            "type" : "Render",
+            "target" : "world2D"
+        },
+        {
+            "type" : "Render",
+            "target" : "world3D"
         }
     ]
 }

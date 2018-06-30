@@ -7,21 +7,20 @@ import game.scene;
 import game.Game;
 
 void sceneExample(string[] args) {
-    auto core = Core();
-    auto window = core.getWindow();
+    auto window = Core().getWindow();
 
 
     auto screen = window.getScreen();
     screen.setClearColor(vec4(0.2));
 
 
-    core.addProcess(&AnimationManager().step, "Animation Manager");
+    Core().addProcess(&AnimationManager().step, "Animation Manager");
 
 
     setGameTransition(args);
 
 
-    core.start();
+    Core().start();
 }
 
 void setGameTransition(string[] args) {

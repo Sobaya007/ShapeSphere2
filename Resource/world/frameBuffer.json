@@ -1,5 +1,5 @@
 {
-    "world3D" : {
+    "world" : {
         "template" : "3D",
         "camera" : {
             "type" : "PerspectiveCamera",
@@ -7,19 +7,27 @@
             "nearZ" : 0.1,
             "farZ" : 100,
             "pos" : [3,2,9],
-            "lookAt" : [0,2,0]
+            "lookAt" : [0,2,0],
+            "control" : true
         },
-        "boxEntity" : {
+        "box" : {
             "type" : "Entity",
             "geometry" : "Box",
             "material" : "TextureMaterial",
             "pos" : [0,2,0],
             "scale" : [2,2,2]
+        },
+        "plane" : {
+            "type" : "Entity",
+            "geometry" : "Plane",
+            "material" : "UnrealFloorMaterial",
+            "scale" : [100, 100, 100]
         }
     },
     "internalWorld" : {
         "template" : "3D",
         "target" : {
+            "type" : "RenderTarget",
             "color" : {
                 "type" : "uint",
                 "clear" : [1,1,1,1],
@@ -38,7 +46,7 @@
             "pos" : [1,2,3],
             "lookAt" : [0,0,0]
         },
-        "boxEntity2" : {
+        "box2" : {
             "type" : "Entity",
             "geometry" : "Box",
             "material" : "NormalMaterial"
@@ -46,5 +54,23 @@
     },
     "KeyCommand" : {
         "Escape" : "End"
-    }
+    },
+    "Render" : [
+        {
+            "type" : "Clear",
+            "target" : "target"
+        },
+        {
+            "type" : "Render",
+            "target" : "internalWorld"
+        },
+        {
+            "type" : "Clear",
+            "target" : "Screen"
+        },
+        {
+            "type" : "Render",
+            "target" : "world"
+        }
+    ]
 }

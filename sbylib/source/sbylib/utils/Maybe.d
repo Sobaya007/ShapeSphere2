@@ -87,6 +87,10 @@ struct Maybe(T) {
         return this;
     }
 
+    Maybe!S opCast(S)() {
+        return wrap(cast(S)this.value);
+    }
+
     string toString() {
         if (this.isJust) return format!"Just(%s)"(this.value.to!string);
         return "None";

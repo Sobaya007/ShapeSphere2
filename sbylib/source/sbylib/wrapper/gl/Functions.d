@@ -207,6 +207,8 @@ static:
                 return 32;
             case ImageInternalFormat.RGB:
                 return 32;
+            case ImageInternalFormat.RGB8:
+                return 24;
             case ImageInternalFormat.RGBA:
                 return 32;
             case ImageInternalFormat.RGBA16F:

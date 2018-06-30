@@ -1,5 +1,5 @@
 {
-    "world3D" : {
+    "world" : {
         "template" : "3D",
         "camera" : {
             "type" : "PerspectiveCamera",
@@ -7,7 +7,8 @@
             "nearZ" : 0.1,
             "farZ" : 100,
             "pos" : [3,2,9],
-            "lookAt" : [0,2,0]
+            "lookAt" : [0,2,0],
+            "control" : true
         },
         "light"  : {
             "type" : "PointLight",
@@ -37,6 +38,12 @@
             "normal" : true,
             "uv" : false,
             "pos" : [2,2,0]
+        },
+        "plane" : {
+            "type" : "Entity",
+            "geometry" : "Plane",
+            "material" : "UnrealFloorMaterial",
+            "scale" : [100, 100, 100]
         }
     },
     "KeyCommand" : {

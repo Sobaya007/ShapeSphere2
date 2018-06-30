@@ -3,13 +3,15 @@ module examples.ClipboardExample;
 import sbylib;
 
 void clipboardExample() {
-    auto world = createFromJson(ResourcePath("world/clipboard.json")).at("world2D").get().world;
+    auto universe = Universe.createFromJson(ResourcePath("world/clipboard.json"));
+
+    auto world = universe.getWorld("world").get();
 
     Label label = world.findByName("label")
         .wrapRange
-        .getOrError("label was not found")
+        .get()
         .getUserData!(Label)("Label")
-        .getOrError("type mismatch");
+        .get();
 
 
     Clipboard clipboard = Core().getClipboard;

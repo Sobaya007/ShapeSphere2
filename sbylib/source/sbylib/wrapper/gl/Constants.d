@@ -70,6 +70,7 @@ enum ImageInternalFormat {
     R = GL_RED,
     RG = GL_RG,
     RGB = GL_RGB,
+    RGB8 = GL_RGB8,
     RGBA = GL_RGBA,
     RGBA16F = GL_RGBA16F,
     RGBA32F = GL_RGBA32F,

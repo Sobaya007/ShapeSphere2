@@ -282,10 +282,13 @@ class Material {
 
         template opDispatch(string mem) if (hasMember!(mem)) {
             import sbylib.utils.Functions;
+            enum hasMemberConfig = hasDirectMember!(RenderConfig, mem);
             enum hasMemberThis = hasDirectMember!(typeof(this), mem);
             enum hasMemberA = hasDirectMember!(typeof(this.a), mem);
             enum hasMemberB = hasDirectMember!(typeof(this.b), mem);
-            static if (hasMemberThis) {
+            static if (hasMemberConfig) {
+                enum MemberCall = "this.config." ~ mem;
+            } else static if (hasMemberThis) {
                 enum MemberCall = "this." ~ mem;
             } else static if (!hasMemberThis && hasMemberA && !hasMemberB) {
                 enum MemberCall = "this.a." ~ mem;
@@ -311,7 +314,7 @@ class Material {
                 }
             }
 
-            auto ref opDispatch(Args...)(auto ref Args args) {
+            auto ref opDispatch(Args)(auto ref Args args) {
                 return mixin(MemberCall ~ "= args");
             }
 
@@ -322,10 +325,13 @@ class Material {
 
         template hasMember(string mem) {
             import sbylib.utils.Functions;
+            enum hasMemberConfig = hasDirectMember!(RenderConfig, mem);
             enum hasMemberThis = hasDirectMember!(typeof(this), mem);
             enum hasMemberA = hasDirectMember!(A, mem);
             enum hasMemberB = hasDirectMember!(B, mem);
-            static if (hasMemberThis) {
+            static if (hasMemberConfig) {
+                enum hasMember = true;
+            } else static if (hasMemberThis) {
                 enum hasMember = true;
             } else static if (!hasMemberThis && hasMemberA && !hasMemberB) {
                 enum hasMember = true;

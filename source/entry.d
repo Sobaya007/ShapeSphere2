@@ -6,20 +6,19 @@ import game.GameMain;
 import plot.Main;
 
 enum RunMode {
+    Stencil,
     Game,
-    Blits,
-    Editor,
-    Basic,
-    Material,
-    CameraControl,
     XFileLoad,
+    Material,
     Framebuffer,
+    Blits,
+    Basic,
+    Editor,
     Gui,
     Text,
     Clipboard,
     Plot,
     Scene,
-    Test,
 };
 
 void run(RunMode mode, string[] args) {
@@ -29,9 +28,6 @@ void run(RunMode mode, string[] args) {
     final switch(mode) {
     case RunMode.Basic:
         basicExample();
-        break;
-    case RunMode.CameraControl:
-        cameraControlExample();
         break;
     case RunMode.Gui:
         guiExample();
@@ -63,11 +59,11 @@ void run(RunMode mode, string[] args) {
     case RunMode.Framebuffer:
         framebufferExample();
         break;
-    case RunMode.Test:
-        framebufferExample();
-        break;
     case RunMode.Blits:
         blitsExample();
+        break;
+    case RunMode.Stencil:
+        stencilExample();
         break;
     }
 }
