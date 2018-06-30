@@ -9,7 +9,8 @@ alias Check4 = CheckerMaterial!(Check2, Check2);
 
 void materialExample() {
 
-    auto world = createFromJson(ResourcePath("world/material.json")).at("world3D").get().world;
+    auto universe = Universe.createFromJson(ResourcePath("world/material.json"));
+    auto world = universe.getWorld("world").get();
 
     auto polyEntity = makeEntity(Plane.create(10,10), new Check4);
     polyEntity.size = 0.02;
@@ -28,9 +29,6 @@ void materialExample() {
     polyEntity.ambient221 = vec3(0.5, 0.5, 0.8);
     polyEntity.ambient222 = vec3(0.8, 0.8, 0.8);
     world.add(polyEntity);
-
-
-    CameraControl.attach(world.camera);
 
 
     Core().start();

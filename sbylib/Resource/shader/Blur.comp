@@ -1,0 +1,22 @@
+#version 430
+ 
+layout(local_size_x=32, local_size_y=32) in;
+ 
+writeonly uniform image2D destTex;
+
+const float PI = 3.1415926535;
+
+vec4 mainImage(ivec2 coord) {
+    vec2 pos = coord / vec2(512);
+    pos -= 0.5;
+    pos *= 0.8;
+    float t = min(1, length(pos))*PI/2;
+    return vec4(pow(cos(t), 2));
+}
+ 
+void main() {
+  ivec2 storePos = ivec2( gl_GlobalInvocationID.xy );
+  imageStore( destTex, 
+              storePos, 
+              mainImage(storePos));
+}

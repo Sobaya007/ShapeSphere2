@@ -2,7 +2,7 @@ module sbylib.material.ShaderMaterial;
 
 import sbylib.material.Material;
 
-class ShaderMaterial(string configStr) : Material {
+class ShaderMaterial(string configStr="{}") : Material {
 
     mixin ConfigureMaterial!(configStr);
 
@@ -10,9 +10,6 @@ class ShaderMaterial(string configStr) : Material {
 
     auto opDispatch(string op, T)(T val) {
         this.uniformList ~= createUniform(val, op);
-    }
-
-    this() {
-        this.po = 3;
+        return val;
     }
 }

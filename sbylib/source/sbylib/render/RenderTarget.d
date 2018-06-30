@@ -16,7 +16,7 @@ abstract class IRenderTarget {
     private int clearStencil = 0;
     private debug bool hasCleared;
 
-    const(FrameBuffer) getFrameBuffer();
+    const(FrameBuffer) getFrameBuffer() out(r) { assert(r !is null);};
     int width();
     int height();
 
@@ -36,11 +36,10 @@ abstract class IRenderTarget {
     }
 
     final void blitsTo(IRenderTarget dstRenderTarget, int x, int y, int w, int h, ClearMode[] mode...) {
-        auto src = this;
         this.getFrameBuffer().blitsTo(
-                dstRenderTarget.getFrameBuffer(),
-                0, 0, src.width, src.height,
-                x, y, w, h, TextureFilter.Nearest, mode);
+            dstRenderTarget.getFrameBuffer(),
+            0, 0, this.width, this.height,
+            x, y, w, h, TextureFilter.Nearest, mode);
     }
 
     void clear(ClearMode[] clearMode...) {

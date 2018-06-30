@@ -10,10 +10,14 @@ public {
 class Renderer {
 
     private World world;
-    private IRenderTarget target;
+    protected IRenderTarget target;
     private IViewport viewport;
 
-    this(World world, IRenderTarget target, IViewport viewport) {
+    this(World world, IRenderTarget target, IViewport viewport) in {
+        assert(world);
+        assert(target);
+        assert(viewport);
+    } do {
         this.world = world;
         this.target = target;
         this.viewport = viewport;

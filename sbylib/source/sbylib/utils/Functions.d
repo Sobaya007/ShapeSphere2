@@ -63,7 +63,16 @@ template as(Type) {
     import std.json, std.traits;
     import sbylib.math.Angle;
 
-    static if (is(Type == bool)) {
+    static if (is(Type == enum)) {
+        Type as(JSONValue v) {
+            import std.conv;
+            return v.as!(string).to!Type;
+        }
+    } else static if (is(Type == JSONValue[])) {
+        Type as(JSONValue v) {
+            return v.array;
+        }
+    } else static if (is(Type == bool)) {
         Type as(JSONValue v) {
             switch (v.type) {
                 case JSON_TYPE.TRUE:
@@ -442,23 +451,34 @@ void blitsTo(Texture texture, IRenderTarget dst) {
     blitsTo(texture, dst, 0, 0, dst.width, dst.height);
 }
 
-void configure2D(World world, IRenderTarget target = Core().getWindow().getScreen()) {
+auto createRenderer2D(World world, IRenderTarget target = Core().getWindow().getScreen()) {
     import sbylib;
-    auto renderer = new Renderer(world, target, new AutoFitViewport);
-
     auto camera = new PixelCamera;
     world.setCamera(camera);
+    return new Renderer(world, target, new AutoFitViewport);
+}
+
+void configure2D(World world, IRenderTarget target = Core().getWindow().getScreen()) {
+    import sbylib;
+
+    auto renderer = createRenderer2D(world, target);
     Core().addProcess({
         target.clear(ClearMode.Color, ClearMode.Depth, ClearMode.Stencil);
         renderer.render();
     }, "render");
 }
 
+auto createRenderer3D(World world, Camera camera, IRenderTarget target = Core().getWindow().getScreen()) {
+    import sbylib;
+    world.setCamera(camera);
+    return new Renderer(world, target, new AspectFixViewport(Core().getWindow()));
+
+}
+
 void configure3D(World world, Camera camera, IRenderTarget target = Core().getWindow().getScreen()) {
     import sbylib;
-    auto renderer = new Renderer(world, target, new AspectFixViewport(Core().getWindow()));
 
-    world.setCamera(camera);
+    auto renderer = createRenderer3D(world, camera, target);
     Core().addProcess({
         target.clear(ClearMode.Color, ClearMode.Depth, ClearMode.Stencil);
         renderer.render();

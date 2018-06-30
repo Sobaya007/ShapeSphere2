@@ -3,45 +3,30 @@ module examples.FramebufferExample;
 import sbylib;
 
 void framebufferExample() {
-    auto worldList = createFromJson(ResourcePath("world/frameBuffer.json"));
-    auto world = worldList.at("world3D").get().world;
-    auto internalWorld = worldList.at("internalWorld").get().world;
+    auto universe = Universe.createFromJson(ResourcePath("world/frameBuffer.json"));
+    auto world = universe.getWorld("world").get();
+    auto internalWorld = universe.getWorld("internalWorld").get();
 
 
     auto renderTarget = 
-        worldList.at("internalWorld")
-        .target
+        universe.getTarget("target")
         .wrapCast!RenderTarget
         .get();
 
 
-    auto planeEntity = makeEntity(
-        Plane.create,
-        new CheckerMaterial!(ColorMaterial, ColorMaterial)
-    );
-    planeEntity.color1 = vec4(1);
-    planeEntity.color2 = vec4(vec3(0.5), 1);
-    planeEntity.size = 0.015; /* Checker Size (in UV) */
-    planeEntity.scale = vec3(100);
-    world.add(planeEntity);
-
-
-    auto boxEntity = world.findByName("boxEntity")
+    auto box = world.findByName("box")
         .wrapRange
-        .getOrError("boxEntity was not found")
+        .get()
         .mesh.mat
         .wrapCast!(TextureMaterial)
-        .getOrError("type mismatch");
-    boxEntity.texture = renderTarget.getColorTexture;
+        .get();
+    box.texture = renderTarget.getColorTexture;
 
 
-    auto boxEntity2 = internalWorld.findByName("boxEntity2")
+    auto box2 = internalWorld.findByName("box2")
         .wrapRange
         .get();
-    boxEntity2.addProcess({ boxEntity2.rot *= mat3.axisAngle(vec3(1,1,1).normalize, 0.02.rad); });
-
-
-    CameraControl.attach(world.camera);
+    box2.addProcess({ box2.rot *= mat3.axisAngle(vec3(1,1,1).normalize, 0.02.rad); });
 
 
     Core().start();
