@@ -23,6 +23,7 @@ class Mouse {
     this(Window window) {
         this.window = window;
         foreach (button; EnumMembers!MouseButton) {
+            this.before[button] = false;
             this.pressed[button] = false;
         }
         this.mDif = vec2(0);

@@ -296,7 +296,7 @@ class Entity {
             debug {
                 import sbylib.material.WireframeMaterial;
                 import sbylib.core.Core;
-                Core().addProcess((proc) {
+                Core().addProcess((Process proc) {
                     capsule.apply!((capsule) {
                         auto geom = capsule.createGeometry();
                         auto mat = new WireframeMaterial(vec4(1));
@@ -317,7 +317,7 @@ class Entity {
             debug {
                 import sbylib.material.WireframeMaterial;
                 import sbylib.core.Core;
-                Core().addProcess((proc) {
+                Core().addProcess((Process proc) {
                     capsule.apply!((capsule) {
                         auto geom = capsule.createGeometry();
                         auto mat = new WireframeMaterial(vec4(1));

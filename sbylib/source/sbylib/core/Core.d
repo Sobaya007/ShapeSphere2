@@ -69,12 +69,9 @@ class Core {
     }
 
     private Window window; //現在のウインドウ
-    private Key key;
-    private Mouse mouse;
-    private JoyStick joy;
+    private Universe universe;
     private Clipboard clipboard;
     private FpsBalancer fpsBalancer;
-    private Array!Process processes;
     private bool endFlag;
 
     //初期化関数
@@ -85,12 +82,9 @@ class Core {
         FreeType.init();
         FreeImage.init();
         this.window = new Window("Window Title", config.windowWidth, config.windowHeight);
-        this.key = new Key(this.window);
-        this.mouse = new Mouse(this.window);
-        this.joy = new JoyStick();
         this.clipboard = new Clipboard(this.window);
         this.fpsBalancer = new FpsBalancer(config.fps);
-        this.processes = Array!Process(0);
+        this.universe = new Universe();
 
         _config = null;
     }
@@ -103,7 +97,6 @@ class Core {
 
     void start() {
         writeln("APPLICATION STARTED");
-        //各種初期化
 
         mainLoop();
 
@@ -115,39 +108,10 @@ class Core {
         this.endFlag = true;
     }
 
-    Process addProcess(const void delegate(Process) func, string name) {
-        auto proc = new Process(func, name);
-        synchronized(this) {
-            this.processes ~= proc;
-        }
-        return proc;
-    }
-
-    Process addProcess(const void delegate() func, string name) {
-        return this.addProcess((Process proc) {
-            func();
-        }, name);
-    }
-
-    Process addProcess(const void function() func, string name) {
-        return this.addProcess((Process proc) {
-            func();
-        }, name);
-    }
-
-    ref Array!Process allProcess() {
-        return processes;
-    }
-
     //メインループ
     private void mainLoop() {
         this.fpsBalancer.loop({
-            this.key.update();
-            this.mouse.update();
-            this.joy.update();
-            synchronized(this) {
-                this.processes.filter!(proc => proc.step());
-            }
+            this.universe.update();
             this.window.swapBuffers();
             this.window.pollEvents();
             stdout.flush();
@@ -156,30 +120,21 @@ class Core {
         debug {
             import std.file;
             write("process.log", "");
-            foreach (p; this.processes) {
-                p.appendLog();
-            }
+            this.appendLog();
         }
-        this.processes.destroy();
     }
 
     Window getWindow() {
         return this.window;
     }
 
-    Key getKey() {
-        return this.key;
-    }
-
-    Mouse getMouse() {
-        return this.mouse;
-    }
-
-    JoyStick getJoyStick() {
-        return this.joy;
+    Universe getUniverse() {
+        return this.universe;
     }
 
     Clipboard getClipboard() {
         return this.clipboard;
     }
+
+    alias getUniverse this;
 }

@@ -8,23 +8,21 @@ import sbylib.math.Vector;
 class ViewportMouse {
     private IViewport viewport;
     private Window window;
-    private Mouse mouse;
 
     this(IViewport viewport) {
         this.viewport = viewport;
         this.window = Core().getWindow;
-        this.mouse = Core().getMouse;
     }
 
     vec2 pos() {
-        vec2 mousePos = (this.mouse.pos + vec2(1)) * 0.5 * vec2(this.window.width, this.window.height);
+        vec2 mousePos = (Core().mousePos + vec2(1)) * 0.5 * vec2(this.window.width, this.window.height);
         vec2 viewportPos = vec2(this.viewport.getX, this.viewport.getY);
         vec2 viewportSize = vec2(this.viewport.getWidth, this.viewport.getHeight);
         return (mousePos - viewportPos) / viewportSize * 2.0 - vec2(1);
     }
 
     vec2 dif() const {
-        return this.mouse.dif;
+        return Core().mouseDif;
     }
 
     bool inViewport() {
@@ -35,30 +33,30 @@ class ViewportMouse {
     }
 
     bool isPressed(MouseButton button) const {
-        return this.mouse.isPressed(button);
+        return Core().isPressed(button);
     }
 
     bool justPressed(MouseButton button) const {
-        return this.mouse.justPressed(button);
+        return Core().justPressed(button);
     }
 
     bool justReleased(MouseButton button) const {
-        return this.mouse.justReleased(button);
+        return Core().justReleased(button);
     }
 
     bool justPressed() const {
-        return this.mouse.justPressed();
+        return Core().justPressed();
     }
 
     bool justReleased() const {
-        return this.mouse.justReleased();
+        return Core().justReleased();
     }
 
     MouseButton justPressedButton() const {
-        return this.mouse.justPressedButton();
+        return Core().justPressedButton();
     }
 
     MouseButton justReleasedButton() const {
-        return this.mouse.justReleasedButton();
+        return Core().justReleasedButton();
     }
 }

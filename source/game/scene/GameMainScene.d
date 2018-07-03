@@ -62,7 +62,7 @@ class GameMainScene : SceneBase {
         /* FPS Observe */
         auto fpsCounter = new FpsCounter!100();
         auto fpsLabel = Game.addLabel();
-        Core().addProcess((proc) {
+        Core().addProcess((Process proc) {
             fpsCounter.update();
             fpsLabel.renderText(format!"FPS: %3d"(cast(int)fpsCounter.getFPS()).to!dstring);
             fpsLabel.top = Core().getWindow().height/2;
@@ -94,7 +94,7 @@ class GameMainScene : SceneBase {
             label.right = Core().getWindow().width/2;
             label.top = Core().getWindow().height/2;
             Game.getWorld2D().add(label);
-            Core().addProcess((proc) {
+            Core().addProcess((Process proc) {
                 if (Game.getCommandManager().isPlaying()) return;
                 label.renderText("STOPPED");
                 proc.kill();
@@ -123,12 +123,12 @@ class GameMainScene : SceneBase {
         Game.addLabel("J: Goto Fly Mode");
 
         /* Key Input */
-        Core().getKey().justPressed(KeyButton.KeyO).add({ConfigManager().load(); Game.log("Config Reloaded");});
-        Core().getKey().justPressed(KeyButton.Key0).add({Game.getPlayer().setCenter(vec3(0));});
-        Core().getKey().justPressed(KeyButton.KeyF).add({Core().getWindow().toggleFullScreen();});
-        Core().getKey().justPressed(KeyButton.KeyN).add({Game.toggleDebugLabel(); });
-        Core().getKey().justPressed(KeyButton.KeyI).add({console.on();});
-        Core().getKey().justPressed(KeyButton.KeyJ).add({Game.getPlayer().camera.fly(); Game.log("Start Fly Mode");});
+        Core().justPressed(KeyButton.KeyO).add({ConfigManager().load(); Game.log("Config Reloaded");});
+        Core().justPressed(KeyButton.Key0).add({Game.getPlayer().setCenter(vec3(0));});
+        Core().justPressed(KeyButton.KeyF).add({Core().getWindow().toggleFullScreen();});
+        Core().justPressed(KeyButton.KeyN).add({Game.toggleDebugLabel(); });
+        Core().justPressed(KeyButton.KeyI).add({console.on();});
+        Core().justPressed(KeyButton.KeyJ).add({Game.getPlayer().camera.fly(); Game.log("Start Fly Mode");});
 
         /* Console */
         this.console = new Console;
@@ -137,7 +137,7 @@ class GameMainScene : SceneBase {
         /* Manipulator */
         import game.tool.manipulator;
         auto manipulatorManager = new ManipulatorManager;
-        Core().addProcess((proc) {
+        Core().addProcess((Process proc) {
             manipulatorManager.update();
         }, "manipulator update");
     }

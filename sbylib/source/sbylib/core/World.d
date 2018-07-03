@@ -45,6 +45,11 @@ class World {
        Entity Management
      */
 
+    void destroy() {
+        foreach (e; entities) e.destroy();
+        camera.destroy();
+    }
+
     /*
        接続の確立
        entityとそれ以下の子すべてをWorldと接続

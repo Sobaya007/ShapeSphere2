@@ -14,7 +14,7 @@ class TouchManager {
         this.callback = callback;
     }
 
-    void exec(vec2 pos = Core().getMouse().pos) {
+    void exec(vec2 pos = Core().mousePos) {
         auto ray = CollisionRay.get(pos, world.camera);
         auto r = this.world.rayCast(ray);
         r.apply!(r => callback(r.entity()));

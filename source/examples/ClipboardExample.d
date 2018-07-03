@@ -13,10 +13,9 @@ void clipboardExample() {
         .getUserData!(Label)("Label")
         .get();
 
-
     Clipboard clipboard = Core().getClipboard;
-    Core().getKey.justPressed(KeyButton.KeyC).add({ clipboard.set(label.text); });
-    Core().getKey.justPressed(KeyButton.KeyV).add({
+    Core().justPressed(KeyButton.KeyC).add({ clipboard.set(label.text); });
+    Core().justPressed(KeyButton.KeyV).add({
         import std.format, std.conv, std.algorithm;
         enum maximum = 100;
         dstring pasteText = clipboard.get();

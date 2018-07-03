@@ -28,32 +28,32 @@ class CameraControl {
         this.camera = camera;
         this.cameraRotate = false;
 
-        Core().getKey().isPressed(KeyButton.KeyW).add({
+        Core().isPressed(KeyButton.KeyW).add({
             this.camera.pos -= this.camera.rot.column[2] * speed;
         });
-        Core().getKey().isPressed(KeyButton.KeyS).add({
+        Core().isPressed(KeyButton.KeyS).add({
             this.camera.pos += this.camera.rot.column[2] * speed;
         });
-        Core().getKey().isPressed(KeyButton.KeyA).add({
+        Core().isPressed(KeyButton.KeyA).add({
             this.camera.pos -= this.camera.rot.column[0] * speed;
         });
-        Core().getKey().isPressed(KeyButton.KeyD).add({
+        Core().isPressed(KeyButton.KeyD).add({
             this.camera.pos += this.camera.rot.column[0] * speed;
         });
-        Core().getKey().isPressed(KeyButton.KeyQ).add({
+        Core().isPressed(KeyButton.KeyQ).add({
             this.camera.pos -= this.camera.rot.column[1] * speed;
         });
-        Core().getKey().isPressed(KeyButton.KeyE).add({
+        Core().isPressed(KeyButton.KeyE).add({
             this.camera.pos += this.camera.rot.column[1] * speed;
         });
     }
 
     void update() {
-        if (Core().getMouse().justPressed(MouseButton.Button1)) {
+        if (Core().justPressed(MouseButton.Button1)) {
             this.cameraRotate = true;
             Core().getWindow().setCursorMode(CursorMode.Disabled);
         }
-        if (Core().getMouse().justPressed(MouseButton.Button2)) {
+        if (Core().justPressed(MouseButton.Button2)) {
             this.cameraRotate = false;
             Core().getWindow().setCursorMode(CursorMode.Normal);
         }
@@ -63,7 +63,7 @@ class CameraControl {
     }
 
     private void rotate() {
-        auto dif2 = Core().getMouse().dif;
+        auto dif2 = Core().mouseDif;
         auto r = dif2.length.rad;
         auto a = safeNormalize(this.camera.rot * vec3(-dif2.y, dif2.x, 0));
         auto rot = mat3.axisAngle(a, r);

@@ -46,7 +46,7 @@ debug class Console {
             render();
             return;
         }
-        auto mKey = Core().getKey().justPressedKey();
+        auto mKey = Core().justPressedKey();
         if (mKey.isNone) return;
         handle(mKey.get());
         render();
@@ -55,7 +55,7 @@ debug class Console {
     void on() {
         this.mode = 1;
         this.cursor = 0;
-        Core().getKey().preventCallback();
+        Core().preventCallback();
         Controller().available = false;
         Game.getMap().pause();
         text = [""];
@@ -64,7 +64,7 @@ debug class Console {
     void off() {
         this.mode = 0;
         this.cursor = 0;
-        Core().getKey().allowCallback();
+        Core().allowCallback();
         Controller().available = true;
         Game.getMap().resume();
         text = [""];
@@ -101,8 +101,8 @@ debug class Console {
     private void handle(KeyButton key) {
         scope (exit) text = text.tail(LINE_NUM);
         import std.ascii;
-        auto shift = Core().getKey().isPressed(KeyButton.LeftShift) || Core().getKey().isPressed(KeyButton.RightShift);
-        auto ctrl = Core().getKey().isPressed(KeyButton.LeftControl) || Core().getKey().isPressed(KeyButton.RightControl);
+        auto shift = Core().isPressed(KeyButton.LeftShift) || Core().isPressed(KeyButton.RightShift);
+        auto ctrl = Core().isPressed(KeyButton.LeftControl) || Core().isPressed(KeyButton.RightControl);
         if (ctrl && shift && key == KeyButton.Semicolon) {
             this.label.size *= 1.01;
         } else if (ctrl && shift && key == KeyButton.Minus) {

@@ -25,7 +25,7 @@ void guiExample() {
     timeline.add(0);
 
 
-    auto control = new GuiControl(window, camera, viewport, world, core.getKey());
+    auto control = new GuiControl(window, camera, viewport, world);
     control.add(timeline);
     core.addProcess(&control.update, "control");
 
@@ -33,7 +33,7 @@ void guiExample() {
     auto fpsCounter = new FpsCounter!100;
 
 
-    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
+    core.justPressed(KeyButton.Escape).add(() => core.end);
 
 
     core.addProcess({

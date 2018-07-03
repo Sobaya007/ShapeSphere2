@@ -95,7 +95,7 @@ class CrystalMine : Stage {
             )
         );
 
-        Core().getKey().justPressed(KeyButton.Enter).add({
+        Core().justPressed(KeyButton.Enter).add({
             if (anim is null) return;
             anim.forceFinish();
             anim = null;
@@ -232,16 +232,16 @@ class CrystalMine : Stage {
         import game.effect.Effect;
         import game.effect.StartEffect;
 
-        Core().getKey().justPressed(KeyButton.KeyL).add(&reload);
-        Core().getKey().justPressed(KeyButton.KeyP).add({
+        Core().justPressed(KeyButton.KeyL).add(&reload);
+        Core().justPressed(KeyButton.KeyP).add({
             Game.getPlayer().setCenter(this.currentArea.debugPos);
         });
 
-        Core().getKey().justPressed(KeyButton.KeyU).add({
+        Core().justPressed(KeyButton.KeyU).add({
             AnimationManager().startAnimation(new StartEffect(this.stageName));
         });
 
-        Core().getKey().justPressed(KeyButton.KeyT).add({
+        Core().justPressed(KeyButton.KeyT).add({
             wireVisible = !wireVisible;
             this.currentArea.entity.traverse((Entity e) {
                 e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
@@ -250,13 +250,13 @@ class CrystalMine : Stage {
             });
         });
 
-        Core().getKey().justPressed(KeyButton.KeyQ).add({
+        Core().justPressed(KeyButton.KeyQ).add({
             auto pos = Game.getPlayer().getCenter();
             this.currentArea.debugPos = pos;
             this.root.save();
         });
 
-        Core().addProcess((proc) {
+        Core().addProcess((Process proc) {
             this.currentArea.entity.traverse((Entity e) {
                 e.mesh.mat.wrapCast!(WireframeMaterial).apply!(
                     mat => e.visible = wireVisible

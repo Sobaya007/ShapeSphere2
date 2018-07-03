@@ -8,24 +8,30 @@ public {
 }
 
 class Key {
-    alias Callback = void delegate();
+    import sbylib.utils.Array;
+    import sbylib.core.Process;
+
+    private alias Callback = void delegate();
+
+    alias HandlerList = Array!(Process);
+
     private Window window;
     private bool[KeyButton] before;
     private bool[KeyButton] buttons;
-    private Callback[][KeyButton] isPressedCallback;
-    private Callback[][KeyButton] isReleasedCallback;
-    private Callback[][KeyButton] justPressedCallback;
-    private Callback[][KeyButton] justReleasedCallback;
+    private HandlerList[KeyButton] isPressedCallback;
+    private HandlerList[KeyButton] isReleasedCallback;
+    private HandlerList[KeyButton] justPressedCallback;
+    private HandlerList[KeyButton] justReleasedCallback;
     private bool callbackFlag = true;
 
     package(sbylib) this(Window window) {
         this.window = window;
         foreach (button; EnumMembers!(KeyButton)) {
             this.before[button] = this.buttons[button] = false;
-            this.isPressedCallback[button] = [];
-            this.isReleasedCallback[button] = [];
-            this.justPressedCallback[button] = [];
-            this.justReleasedCallback[button] = [];
+            this.isPressedCallback[button] = HandlerList(0);
+            this.isReleasedCallback[button] = HandlerList(0);
+            this.justPressedCallback[button] = HandlerList(0);
+            this.justReleasedCallback[button] = HandlerList(0);
         }
     }
 
@@ -36,10 +42,10 @@ class Key {
             this.buttons[button] = this.window.isPressed(button);
             if (!this.callbackFlag) continue;
             import std.algorithm : each;
-            if (this.isPressed(button)) this.isPressedCallback[button].each!(cb => cb());
-            if (this.isReleased(button)) this.isReleasedCallback[button].each!(cb => cb());
-            if (this.justPressed(button)) this.justPressedCallback[button].each!(cb => cb());
-            if (this.justReleased(button)) this.justReleasedCallback[button].each!(cb => cb());
+            if (this.isPressed(button)) this.isPressedCallback[button].each!((cb) { cb.step(); return cb.isAlive; });
+            if (this.isReleased(button)) this.isReleasedCallback[button].each!((cb) { cb.step(); return cb.isAlive; });
+            if (this.justPressed(button)) this.justPressedCallback[button].each!((cb) { cb.step(); return cb.isAlive; });
+            if (this.justReleased(button)) this.justReleasedCallback[button].each!((cb) { cb.step(); return cb.isAlive; });
         }
     }
 
@@ -51,30 +57,32 @@ class Key {
         this.callbackFlag = true;
     }
 
-    private void addIsPressedCallback(KeyButton button, Callback cb) {
+    private void addIsPressedCallback(KeyButton button, Process cb) {
         this.isPressedCallback[button] ~= cb;
     }
 
-    private void addIsReleasedCallback(KeyButton button, Callback cb) {
+    private void addIsReleasedCallback(KeyButton button, Process cb) {
         this.isReleasedCallback[button] ~= cb;
     }
 
-    private void addJustPressedCallback(KeyButton button, Callback cb) {
+    private void addJustPressedCallback(KeyButton button, Process cb) {
         this.justPressedCallback[button] ~= cb;
     }
 
-    private void addJustReleasedCallback(KeyButton button, Callback cb) {
+    private void addJustReleasedCallback(KeyButton button, Process cb) {
         this.justReleasedCallback[button] ~= cb;
     }
 
     struct KeyEvent {
-        private void delegate(KeyButton, Callback) _add;
+        private void delegate(KeyButton, Process) _add;
         KeyButton button;
         bool value;
         alias value this;
 
-        void add(Callback cb) {
-            this._add(button, cb);
+        Process add(Callback cb) {
+            auto handler = new Process(cb, "key");
+            this._add(button, handler);
+            return handler;
         }
     }
 

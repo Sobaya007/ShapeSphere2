@@ -24,7 +24,7 @@ void sceneExample(string[] args) {
 }
 
 void setGameTransition(string[] args) {
-    Game.initialize(args);
+    //Game.initialize(args);
     //アニメーション情報をどこまで詳細に載せるか
     //具体的に見えるものは後。
     //とりあえず遷移図を記す。

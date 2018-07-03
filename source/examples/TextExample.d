@@ -75,7 +75,7 @@ void textExample() {
     }
 
 
-    core.getKey().justPressed(KeyButton.Escape).add(() => core.end);
+    core.justPressed(KeyButton.Escape).add(() => core.end);
 
 
     core.start();

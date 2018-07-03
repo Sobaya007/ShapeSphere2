@@ -1,4 +1,5 @@
 module examples.EditorExample;
+/*
 
 import sbylib;
 
@@ -71,3 +72,4 @@ protected:
         return component;
     }
 }
+*/

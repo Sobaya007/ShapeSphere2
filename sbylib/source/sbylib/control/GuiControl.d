@@ -19,8 +19,9 @@ import sbylib.render.Viewport;
 
 class GuiControl {
 
+    import sbylib.core.Core;
+
     private ViewportMouse mouse;
-    private Key key;
     private Maybe!IControllable[MouseButton] colEntry;
     private World world;
     private CollisionRay ray;
@@ -31,12 +32,11 @@ class GuiControl {
     private Maybe!KeyButton lastPressedKeyButton = None!KeyButton;
     private int lastPressedKeyCount = 0;
 
-    this(Window window, OrthoCamera camera, IViewport viewport, World world, Key key) {
+    this(Window window, OrthoCamera camera, IViewport viewport, World world) {
         this.ray = new CollisionRay();
         this.mouse = new ViewportMouse(viewport);
         this.world = world;
         this.camera = camera;
-        this.key = key;
 
         import std.traits;
         foreach (button; EnumMembers!MouseButton) {
@@ -80,16 +80,16 @@ private:
 
     void updateKey() {
         import std.traits;
-        bool shiftPressed = this.key.isPressed(KeyButton.LeftShift) || this.key.isPressed(KeyButton.RightShift);
-        bool controlPressed = this.key.isPressed(KeyButton.LeftControl) || this.key.isPressed(KeyButton.RightControl);
+        bool shiftPressed = Core().isPressed(KeyButton.LeftShift) || Core().isPressed(KeyButton.RightShift);
+        bool controlPressed = Core().isPressed(KeyButton.LeftControl) || Core().isPressed(KeyButton.RightControl);
         foreach (button; EnumMembers!KeyButton) {
-            if (this.key.justPressed(button)) {
+            if (Core().justPressed(button)) {
                 refreshLastPressedKey(button);
                 this.selectedControllable.apply!(
                     c => c.onKeyPressed(button, shiftPressed, controlPressed)
                 );
             }
-            if (this.key.justReleased(button)) {
+            if (Core().justReleased(button)) {
                 this.selectedControllable.apply!(
                     c => c.onKeyReleases(button, shiftPressed, controlPressed)
                 );
@@ -97,7 +97,7 @@ private:
         }
         this.lastPressedKeyButton.apply!(
             (button) {
-                if (this.key.isPressed(button)) {
+                if (Core().isPressed(button)) {
                     this.lastPressedKeyCount++;
                 } else {
                     clearLastPressedKey();

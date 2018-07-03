@@ -9,4 +9,7 @@ dflags "-gs"
 
 buildRequirements "disallowOptimization" "disallowInlining"
 
+excludedSourceFiles "source/editor/*.d"
+excludedImportFiles "source/editor/*.d"
+
 subPackage "./sbylib"

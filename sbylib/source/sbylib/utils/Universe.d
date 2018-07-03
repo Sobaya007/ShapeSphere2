@@ -11,6 +11,33 @@ class Universe {
     private IRenderTarget[string] targetList;
     private Renderer[World] rendererList;
 
+    private ProcessManager mProcess;
+    private Key mKey;
+    private Mouse mMouse;
+    private JoyStick mJoy;
+    private Maybe!Process thisUpdate;
+
+    mixin Dispatch!(
+        [
+            "addProcess" : ["process.addProcess"],
+            "appendLog" : ["process.appendLog"],
+            "isPressed" :  ["key.isPressed", "mouse.isPressed", "joy.isPressed"],
+            "isReleased" : ["key.isReleased", "mouse.isReleased", "joy.isReleased"],
+            "justPressed" :  ["key.justPressed", "mouse.justPressed", "joy.justPressed"],
+            "justReleased" : ["key.justReleased", "mouse.justReleased", "joy.justReleased"],
+            "justPressedKey" : ["key.justPressedKey"],
+            "justReleasedKey" : ["key.justReleasedKey"],
+            "preventCallback" : ["key.preventCallback"],
+            "allowCallback" : ["key.allowCallback"],
+            "mousePos" : ["mouse.pos"],
+            "mouseDif" : ["mouse.dif"],
+            "justPressedButton" : ["mouse.justPressedButton"],
+            "justReleasedButton" : ["mouse.justReleasedButton"],
+            "joyCanUse" : ["joy.canUse"],
+            "getAxis" : ["joy.getAxis"],
+        ]
+    );
+
     Maybe!(World) getWorld(string name) {
         return worldList.at(name);
     }
@@ -19,8 +46,48 @@ class Universe {
         return targetList.at(name);
     }
 
-    private this() {
-        targetList["Screen"] = Core().getWindow().getScreen();
+    void update() {
+        this.key.update();
+        this.mouse.update();
+        this.joy.update();
+        this.process.update();
+    }
+
+    void destroy() {
+        foreach (name, world; worldList) world.destroy();
+        foreach (name, target; targetList) target.destroy();
+    }
+
+    void pause() {
+        thisUpdate.pause();
+    }
+
+    void resume() {
+        thisUpdate.resume();
+    }
+
+    private Key key() {
+        if (mKey is null)
+            this.mKey = new Key(Core().getWindow());
+        return mKey;
+    }
+
+    private Mouse mouse() {
+        if (mMouse is null)
+            this.mMouse = new Mouse(Core().getWindow());
+        return mMouse;
+    }
+
+    private JoyStick joy() {
+        if (mJoy is null)
+            this.mJoy = new JoyStick();
+        return mJoy;
+    }
+
+    private ProcessManager process() {
+        if (mProcess is null)
+            this.mProcess = new ProcessManager();
+        return mProcess;
     }
 
     static Universe createFromJson(string path) {
@@ -30,6 +97,9 @@ class Universe {
     }
 
     private void createFromJsonImpl(string path) {
+
+        this.targetList["Screen"] = Core().getWindow().getScreen(); //for Core Implementation, initialization is placed here.
+
         import std.file;
 
         auto root = wrapException!(() => parseJSON(readText(path)).as!(JSONValue[string]))
@@ -56,8 +126,6 @@ class Universe {
             );
         } else {
             auto worldName = worldList.keys.wrapRange();
-            import std.stdio;
-            writeln(worldName);
             if (worldName.isJust) {
                 createRender(parseJSON(format!q{
                     [
@@ -70,6 +138,7 @@ class Universe {
                 }(worldName.get())).array);
             }
         }
+        thisUpdate = Just(Core().addProcess(&update, "universe"));
     }
 
     private void createKeyCommand(JSONValue[string] commandList) {
@@ -81,7 +150,7 @@ class Universe {
             auto button = wrapException!(() => key.to!KeyButton)
                 .getOrError(format!"'%s' is not a valid key name"(key));
 
-            Core().getKey().justPressed(button).add(createCommand(command));
+            this.justPressed(button).add(createCommand(command));
         }
     }
 
@@ -89,7 +158,7 @@ class Universe {
         import std.algorithm : map;
         import std.array;
         auto process = array.map!(v => createCommand(v)).array;
-        Core().addProcess({ foreach (proc; process) proc();}, "render");
+        this.addProcess({ foreach (proc; process) proc();}, "Render");
     }
 
     private void createWorld(string name, JSONValue[string] worldContent) {
@@ -468,4 +537,14 @@ private auto fetch(Type)(JSONValue[string] object, string key) {
     auto result = object.at(key).fmapAnd!((JSONValue v) => wrapException!(() => v.as!Type));
     if (result.isJust) object.remove(key);
     return result;
+}
+
+private mixin template Dispatch(string[][string] dispatchList) {
+    auto opDispatch(string mem, Args...)(auto ref Args args) {
+        import std.meta;
+        enum OK(string f) = is(typeof(mixin(f~"(args)")));
+        static foreach (c; dispatchList[mem]) {{
+            static if (OK!(c)) return mixin(c~"(args)");
+        }}
+    }
 }
