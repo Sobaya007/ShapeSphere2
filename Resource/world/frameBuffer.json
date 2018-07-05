@@ -15,7 +15,11 @@
             "geometry" : "Box",
             "material" : "TextureMaterial",
             "pos" : [0,2,0],
+<<<<<<< HEAD
             "scale" : [4,4,4]
+=======
+            "scale" : [2,2,2]
+>>>>>>> 5048a9593c50830f81a4fe7877cb995de47efa7b
         },
         "plane" : {
             "type" : "Entity",
