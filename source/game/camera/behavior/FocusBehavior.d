@@ -10,7 +10,7 @@ class FocusBehavior : CameraController.Behavior {
     mixin BehaviorPack;
     mixin HandleConfig;
 
-    private Object3D obj;
+    private Entity obj;
     private vec3 dir;
 
     @config(ConfigPath("camera.json")) {
@@ -18,7 +18,7 @@ class FocusBehavior : CameraController.Behavior {
         float FOCUS_DEFAULT_LENGTH;
     }
 
-    void initialize(Object3D obj, vec3 dir) {
+    void initialize(Entity obj, vec3 dir) {
         this.initializeConfig();
         this.obj = obj;
         this.dir = dir;

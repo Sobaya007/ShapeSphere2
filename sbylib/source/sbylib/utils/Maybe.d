@@ -2,7 +2,6 @@ module sbylib.utils.Maybe;
 
 import std.traits;
 import std.format;
-import std.conv;
 import std.range;
 import std.algorithm;
 
@@ -91,8 +90,20 @@ struct Maybe(T) {
         return wrap(cast(S)this.value);
     }
 
+    static if (is(typeof(this.value[0]))) {
+        auto opIndex(size_t i) {
+            if (this.isJust) {
+                return Just(this.value[i]);
+            } else {
+                import std.traits;
+                return None!(typeof(this.value[i]));
+            }
+        }
+    }
+
     string toString() {
-        if (this.isJust) return format!"Just(%s)"(this.value.to!string);
+        import std.conv : to;
+        if (this.isJust) return format!"Just(%s)"(to!string(this.value));
         return "None";
     }
 

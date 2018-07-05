@@ -16,9 +16,7 @@ void framebufferExample() {
 
     auto box = world.findByName("box")
         .wrapRange
-        .get()
-        .mesh.mat
-        .wrapCast!(TextureMaterial)
+        .wrapCast!(TypedEntity!(GeometryBox, TextureMaterial))
         .get();
     box.texture = renderTarget.getColorTexture;
 

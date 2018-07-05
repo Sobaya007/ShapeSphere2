@@ -20,6 +20,5 @@ import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Texture;
 import sbylib.wrapper.gl.Uniform;
 import sbylib.wrapper.gl.UniformBuffer;
-import sbylib.wrapper.gl.UniformTexture;
 import sbylib.wrapper.gl.VertexArray;
 import sbylib.wrapper.gl.VertexBuffer;

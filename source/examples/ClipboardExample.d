@@ -9,8 +9,7 @@ void clipboardExample() {
 
     Label label = world.findByName("label")
         .wrapRange
-        .get()
-        .getUserData!(Label)("Label")
+        .wrapCast!(Label)
         .get();
 
     Clipboard clipboard = Core().getClipboard;

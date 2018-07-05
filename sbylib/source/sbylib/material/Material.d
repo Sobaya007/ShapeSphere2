@@ -176,10 +176,12 @@ class Material {
                 static if (is(typeof({const(Uniform) u = Type.init;}))) {
                     const(Uniform) u = mixin(name);
                     program.applyUniform(u);
-                } else static if (isArray!(Type)) {
+                } else static if (isArray!(Type) || isAssociativeArray!(Type)) {
                     alias ElementType = ForeachType!(Type);
                     static if (is(typeof({const(Uniform) u = ElementType.init;}))) {
-                        program.applyUniform(mixin(name));
+                        foreach (val; mixin(name)) {
+                            program.applyUniform(val);
+                        }
                     }
                 }
             }}

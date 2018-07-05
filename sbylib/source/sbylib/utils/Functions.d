@@ -153,6 +153,15 @@ template staticFindIndex(alias F, T...) {
     enum staticFindIndex = _staticFindIndex!(F, 0, T);
 }
 
+template Reduce(alias F, T...) {
+    static assert(T.length > 0);
+    static if (T.length == 1) {
+        alias Reduce = T[0];
+    } else {
+        alias Reduce = F!(T[0], Reduce!(F, T[1..$]));
+    }
+}
+
 template hasDirectMember(Type, string member) {
     import std.meta, std.traits;
     enum hasDirectMember = Filter!(ApplyLeft!(isSame, member), __traits(allMembers, Type)).length > 0;
@@ -198,9 +207,6 @@ mixin template Proxy() {
             auto opDispatch(this X, Args...)(Args args) {
                 return mixin(MemberCall ~ "(args)");
             }
-        } else static if (is(typeof({ enum x = mixin(MemberCall); }))) {
-            // built-in type field, manifest constant, and static non-mutable field
-            enum opDispatch = mixin(MemberCall);
         } else static if (is(typeof(mixin(MemberCall))) || __traits(getOverloads, TargetType, name).length != 0) {
             // field or property function
             @property auto ref opDispatch() {

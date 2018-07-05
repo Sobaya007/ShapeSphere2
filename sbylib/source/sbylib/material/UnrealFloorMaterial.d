@@ -3,7 +3,6 @@ module sbylib.material.UnrealFloorMaterial;
 import sbylib.material.CheckerMaterial;
 import sbylib.material.ColorMaterial;
 import sbylib.wrapper.gl.Uniform;
-import sbylib.wrapper.gl.UniformTexture;
 import sbylib.math.Vector;
 
 private alias Mat = CheckerMaterial!(ColorMaterial, ColorMaterial);

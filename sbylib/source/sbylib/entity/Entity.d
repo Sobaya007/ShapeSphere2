@@ -40,8 +40,9 @@ class Entity {
     import sbylib.utils.Functions;
 
     mixin buildReadonly!(Maybe!Mesh, "mesh");
-    mixin buildReadonly!(Object3D, "obj");
     mixin buildReadonly!(Maybe!World, "world");
+
+    @Proxied Object3D obj;
     string name;
     Maybe!CollisionEntry colEntry;
     private Maybe!Entity parent;
@@ -54,13 +55,13 @@ class Entity {
 
     private Process[] processes;
 
-    alias obj this;
+    mixin Proxy;
 
     /*
        Create/Destroy
      */
     this(string file = __FILE__, int line = __LINE__){
-        this._obj = new Object3D(this);
+        this.obj = new Object3D(this);
         import std.conv;
         this.name = file ~ " : " ~ line.to!string;
         this.visible = true;

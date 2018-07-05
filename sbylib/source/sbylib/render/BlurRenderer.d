@@ -6,7 +6,6 @@ import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Texture;
 import sbylib.wrapper.gl.Program;
-import sbylib.wrapper.gl.UniformTexture;
 
 /*
 class BlurRenderer : Renderer {

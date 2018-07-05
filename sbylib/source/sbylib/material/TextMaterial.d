@@ -2,7 +2,7 @@ module sbylib.material.TextMaterial;
 
 import sbylib.material.Material;
 import sbylib.wrapper.gl.Uniform;
-import sbylib.wrapper.gl.UniformTexture;
+import sbylib.wrapper.gl.Texture;
 import sbylib.math.Vector;
 
 class TextMaterial : Material {

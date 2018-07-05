@@ -183,6 +183,12 @@ class Texture {
         blitsTo(this, dst);
     }
 
+    static void activate(uint unit) out {
+        GlFunction.checkError();
+    } do {
+        glActiveTexture(GL_TEXTURE0 + unit);
+    }
+
     int width() {
         return mWidth;
     }
@@ -197,6 +203,10 @@ class Texture {
 
     void depthStencilMode(DepthStencilMode mode) {
         this.setParameter(TextureParamName.DepthStencilMode, mode);
+    }
+
+    override string toString() const {
+        return format!("Texture(%d)")(this.id);
     }
 
     alias id this;

@@ -20,8 +20,8 @@ alias Vector!(int,   4) vec4i;
 struct Vector(T, uint S) {
 public:
 
-    enum dimension = S;
-    enum type = T.stringof;
+    enum Dimension = S;
+    alias ElementType = T;
 
     T[S] elements;
     alias elements this;
@@ -45,8 +45,10 @@ public:
                 cnt++;
                 //isInstanceOfでやろうとしたが、この時点ではVectorの型情報が正しく作られていないため参照できない。
             } else {
-                this.elements[cnt..cnt+arg.array.length] = arg.array;
-                cnt += arg.array.length;
+                foreach (i; 0..arg.array.length) {
+                    this.elements[cnt] = cast(T)arg.array[i];
+                    cnt++;
+                }
             }
         }
     }

@@ -13,8 +13,6 @@ import std.math;
 
 class Label : Entity {
 
-    alias obj this;
-
     enum Strategy {Center, Left, Right}
 
     private vec4 mColor;
@@ -39,7 +37,6 @@ class Label : Entity {
         this.name = "Label";
         this.mWidth = this.mHeight = 0;
         this.renderText(mText);
-        this.setUserData("Label", this);
     }
 
     vec4 color() {

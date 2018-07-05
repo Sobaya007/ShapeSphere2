@@ -34,11 +34,12 @@ struct Matrix(T, uint U, uint V) if (__traits(isArithmetic, T) && 1 <= U && U <=
 private:
     T[U*V] element;
 public:
-    enum dimension1 = U;
-    enum dimension2 = V;
-    enum type = T.stringof;
-    alias vec3 = Vector!(T, 3);
-    alias vec4 = Vector!(T, 4);
+    enum Row = U;
+    enum Column = V;
+    alias ElementType = T;
+
+    private alias vec3 = Vector!(T, 3);
+    private alias vec4 = Vector!(T, 4);
 
     this(T e) {
         foreach (ref el; this.element) el = e;

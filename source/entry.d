@@ -3,20 +3,18 @@ module entry;
 import std.stdio, std.format, std.traits, std.conv, std.range, std.algorithm, std.array;
 import examples;
 import game.GameMain;
-import plot.Main;
 
 enum RunMode {
     Basic,
-    Framebuffer,
-    Stencil,
-    Game,
     XFileLoad,
     Material,
+    Framebuffer,
+    Stencil,
     Blits,
-    Gui,
     Text,
     Clipboard,
-    Plot,
+    Gui,
+    Game,
     Scene,
 };
 
@@ -42,9 +40,6 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Game:
         gameMain(args);
-        break;
-    case RunMode.Plot:
-        plotMain();
         break;
     case RunMode.XFileLoad:
         xFileLoadExample();

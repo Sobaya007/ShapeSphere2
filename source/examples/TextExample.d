@@ -5,13 +5,10 @@ import std.algorithm, std.array;
 import std.math;
 
 void textExample() {
-    auto core = Core();
-    auto window = core.getWindow();
-    auto world = new World;
+    
+    auto universe = Universe.createFromJson(ResourcePath("world/text.json"));
 
-
-    world.configure2D();
-
+    auto world = universe.getWorld("world").get();
 
     auto createLabel(float size, Label.Strategy s, string y, vec2 pos, vec4 color, dstring text) {
         pos.xy = pos.xy * vec2(Core().getWindow().width, Core().getWindow().height) / 2;
@@ -75,9 +72,6 @@ void textExample() {
     }
 
 
-    core.justPressed(KeyButton.Escape).add(() => core.end);
-
-
-    core.start();
+    Core().start();
 }
 

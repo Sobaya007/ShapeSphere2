@@ -22,7 +22,6 @@ class RenderConfig {
     uint stencilValue;
     uint stencilMask;
     StencilWrite sfail, dpfail, pass;
-    float lineWidth;
     string renderGroupName;
     void delegate(void delegate()) process;
 
@@ -44,7 +43,6 @@ class RenderConfig {
         this.sfail = StencilWrite.Keep;
         this.dpfail = StencilWrite.Keep;
         this.pass = StencilWrite.Keep;
-        this.lineWidth = 1f;
         this.renderGroupName = "regular";
         this.process = render => render();
     }
@@ -61,7 +59,6 @@ class RenderConfig {
         GlFunction.depthTest(this.depthTest);
         GlFunction.stencilWrite(this.stencilWrite);
         GlFunction.stencil(this.stencilFunc, this.stencilValue, this.stencilMask, this.sfail, this.dpfail, this.pass);
-        GlFunction.lineWidth(this.lineWidth);
     }
 
     void render(void delegate() impl) {

@@ -86,14 +86,14 @@ class CameraController {
         lookOver.initialize(dir);
     }
 
-    void focus(Object3D obj) {
+    void focus(Entity e) {
         auto focus = transit!(FocusBehavior);
-        auto v = obj.pos - camera.pos;
+        auto v = e.pos - camera.pos;
         v.y = 0;
         v = normalize(v);
         v.y = -1;
         v = normalize(v);
-        focus.initialize(obj, v);
+        focus.initialize(e, v);
     }
 
     void trace(TraceBehavior.Trail[] trailList, void delegate() onFinish) {

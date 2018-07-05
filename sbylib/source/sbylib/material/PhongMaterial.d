@@ -2,7 +2,6 @@ module sbylib.material.PhongMaterial;
 
 import sbylib.material.Material;
 import sbylib.wrapper.gl.Uniform;
-import sbylib.wrapper.gl.UniformTexture;
 import sbylib.math.Vector;
 
 class PhongMaterial : Material {
