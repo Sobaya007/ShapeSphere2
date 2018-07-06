@@ -13,25 +13,15 @@ class VertexArray : ObjectGL {
     import std.typecons : Tuple;
 
     this() {
-        super(GlUtils.genVertexArray());
+        super(GlUtils.genVertexArray(),
+                &GlUtils.deleteVertexArray);
     }
 
-    override void destroy()
-        in(isAlive())
-    {
-        super.destroy();
-        GlUtils.deleteVertexArray(this.id);
-    }
-
-    void bind() const
-        in(isAlive())
-    {
+    void bind() const {
         GlFunction.bindVertexArray(this.id);
     }
 
-    void unbind() const
-        in(isAlive())
-    {
+    void unbind() const {
         GlFunction.bindVertexArray(0);
     }
 

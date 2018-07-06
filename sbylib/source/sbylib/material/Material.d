@@ -30,10 +30,6 @@ class Material {
         this.debugCounter = new TypedUniform!int("DebugCounter");
     }
 
-    void destroy() {
-        this.program.destroy();
-    }
-
     final void set(const(Uniform) delegate()[] uniforms) {
         this.config.set();
         static Program before;

@@ -15,17 +15,11 @@ class Shader : ObjectGL {
             this.sourceCode = sourceCode;
             this.type = type;
         }
-        super(GlFunction.createShader(type));
+        super(GlFunction.createShader(type),
+                &GlFunction.deleteShader);
         GlUtils.shaderSource(this.id, sourceCode);
         GlFunction.compileShader(this.id);
         assert(this.compileSuccess(), getLogString(sourceCode));
-    }
-
-    override void destroy() 
-        in(isAlive())
-    {
-        super.destroy();
-        GlFunction.deleteShader(this.id);
     }
 
     inout {

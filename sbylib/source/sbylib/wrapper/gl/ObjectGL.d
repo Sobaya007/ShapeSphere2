@@ -1,27 +1,29 @@
 module sbylib.wrapper.gl.ObjectGL;
 
+import sbylib.core.Core;
+import sbylib.core.Process;
+
 class ObjectGL {
-    private bool alive = true;
-    public bool isAlive() const { return this.alive; }
 
     immutable uint id;
+    private Process destroyProc;
 
-    this(uint id) {
+    this(uint id, void function(uint) f) {
         this.id = id;
+        this.destroyProc = Core().addProcess(delegate(Process proc) {
+            f(id);
+            proc.kill();
+        }, "destroy");
+        this.destroyProc.pause();
     }
 
-    this(uint id) immutable {
+    this(uint id, void function(uint) destroy) immutable {
         this.id = id;
     }
 
     ~this() {
-        import std.stdio;
-        if (isAlive) writeln("Invalid Destruction For " ~ typeof(this).stringof);
-    }
-
-    void destroy() 
-        in(this.isAlive)
-    {
-        this.alive = false;
+        if (this.destroyProc !is null) {
+            this.destroyProc.resume();
+        }
     }
 }

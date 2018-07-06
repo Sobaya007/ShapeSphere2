@@ -96,7 +96,7 @@ class Universe {
 
     void destroy() {
         foreach (name, world; worldList) world.destroy();
-        foreach (name, target; targetList) target.destroy();
+        thisUpdate.kill();
     }
 
     void pause() {
@@ -145,7 +145,10 @@ class Universe {
         return universe;
     }
 
+    string po;
+
     private void createFromJsonImpl(Additional...)(string path) {
+        po = path;
 
         this.targetList["Screen"] = Core().getWindow().getScreen(); //for Core Implementation, initialization is placed here.
 

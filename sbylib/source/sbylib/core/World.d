@@ -46,7 +46,10 @@ class World {
      */
 
     void destroy() {
-        foreach (e; entities) e.destroy();
+        foreach (e; entities) {
+            e.remove();
+            e.destroy();
+        }
         camera.destroy();
     }
 

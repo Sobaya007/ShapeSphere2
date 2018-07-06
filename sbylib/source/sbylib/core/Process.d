@@ -19,7 +19,10 @@ class ProcessManager {
 
     void update() {
         synchronized(this) {
+            import std.algorithm : all;
+            assert(this.processes.all!(proc => proc.isAlive()));
             this.processes.filter!(proc => proc.step());
+            assert(this.processes.all!(proc => proc.isAlive()));
         }
     }
 
@@ -93,7 +96,7 @@ class Process {
     }
 
     package(sbylib) bool step()
-        in(this.isAlive)
+        in(this.isAlive, this.name)
     {
         if (!paused) {
             debug this.counter.start();

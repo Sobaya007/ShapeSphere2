@@ -10,17 +10,13 @@ class Renderbuffer : ObjectGL {
     private bool allocated;
 
     this() {
-        super(GlUtils.genRenderbuffer());
+        super(GlUtils.genRenderbuffer(),
+                &GlUtils.deleteRenderbuffer);
     }
 
     this(uint width, uint height, ImageInternalFormat format) {
         this();
         this.allocate(width, height, format);
-    }
-
-    override void destroy() {
-        super.destroy();
-        GlUtils.deleteRenderbuffer(this.id);
     }
 
     void bind() {

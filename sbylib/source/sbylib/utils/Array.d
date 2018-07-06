@@ -35,11 +35,15 @@ struct Array(T) {
         this.valid = false;
     }
 
-    void opOpAssign(string op)(T value) if (op == "~")
+    void add(T value)
         in(this.valid, invalidMessage)
     {
         this.incLength(1);
         this[this._length-1] = value;
+    }
+
+    void opOpAssign(string op)(T value) if (op == "~") {
+        add(value);
     }
 
     void opOpAssign(string op)(Array!T value) if (op == "~") 

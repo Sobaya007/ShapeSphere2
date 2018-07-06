@@ -18,6 +18,41 @@ enum RunMode {
     Scene,
 };
 
+void run(string[] args) {
+    import sbylib;
+    auto universe = Universe.createFromJson(ResourcePath("world/entry.json"));
+    auto world = universe.getWorld("world").get();
+    auto factory = LabelFactory();
+    factory.height = 40;
+    factory.strategy = Label.Strategy.Left;
+    
+    enum ModeList = [EnumMembers!(RunMode)];
+    auto selection = new Selection!(Label)(SelectionStrategy.Repeat);
+    foreach (i, mode; ModeList) {
+        factory.text = format!"%s%s"(i==0 ? ">" : "", ModeList[i].to!string).to!dstring;
+        auto label = factory.make();
+        world.add(label);
+        label.left = -Core().getWindow().width/2 + 30;
+        label.top = i * -factory.height + ModeList.length * factory.height * 0.5;
+        label.setUserData("mode", mode);
+        auto handler = selection.register(label);
+        handler.onFocusIn.add((Label label) {
+            label.renderText(format!">%s"(label.getUserData!(RunMode)("mode").get()));
+        });
+        handler.onFocusOut.add((Label label) {
+            label.renderText(format!"%s"(label.getUserData!(RunMode)("mode").get()));
+        });
+        handler.onSelect.add((Label label) {
+            universe.destroy();
+            run(label.getUserData!(RunMode)("mode").get(), args);
+        });
+    }
+    universe.justPressed(KeyButton.Up).add(&selection.prev);
+    universe.justPressed(KeyButton.Down).add(&selection.next);
+    universe.justPressed(KeyButton.Enter).add(&selection.select);
+    Core().start();
+}
+
 void run(RunMode mode, string[] args) {
     writeln("=".repeat(13).join ~ "RUN!" ~ "=".repeat(13).join);
     writeln([EnumMembers!(RunMode)].to!(string[]).map!(a => a == mode.to!string ? a ~ "(*)" : a).join(", \n"));

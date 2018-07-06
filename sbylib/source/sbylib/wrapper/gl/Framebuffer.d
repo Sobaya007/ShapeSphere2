@@ -10,27 +10,19 @@ class Framebuffer : ObjectGL {
     import sbylib.wrapper.gl.Functions;
 
     private immutable this(bool b) {
-        super(0);
+        super(0, &GlUtils.deleteFramebuffer);
     }
 
     this() {
-        super(GlUtils.genFramebuffer());
+        super(GlUtils.genFramebuffer(),
+            &GlUtils.deleteFramebuffer);
     }
 
-    override void destroy() {
-        super.destroy();
-        GlUtils.deleteFramebuffer(id);
-    }
-
-    void bind(FramebufferBindType type) const
-        in(isAlive)
-    {
+    void bind(FramebufferBindType type) const {
         GlFunction.bindFramebuffer(type, this.id);
     }
 
-    void unbind(FramebufferBindType type) const
-        in(isAlive)
-    {
+    void unbind(FramebufferBindType type) const {
         GlFunction.bindFramebuffer(type, 0);
     }
 

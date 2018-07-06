@@ -13,24 +13,14 @@ class BufferObject(BufferType Type, T) : ObjectGL, IBufferObject {
     import sbylib.wrapper.gl.Functions;
 
     this() {
-        super(GlUtils.genBuffer());
+        super(GlUtils.genBuffer(), &GlUtils.deleteBuffer);
     }
 
-    override void destroy() {
-        super.destroy();
-        GlUtils.deleteBuffer(this.id);
-    }
-
-
-    override void bind() const
-        in(isAlive)
-    {
+    override void bind() const {
         GlFunction.bindBuffer(Type, this.id);
     }
 
-    override void unbind() const
-        in(isAlive())
-    {
+    override void unbind() const {
         GlFunction.bindBuffer(Type, 0);
     }
 

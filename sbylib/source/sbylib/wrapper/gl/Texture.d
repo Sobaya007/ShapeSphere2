@@ -45,7 +45,8 @@ class Texture : ObjectGL {
     private ImageInternalFormat mInternalFormat;
 
     this(TextureTarget target) {
-        super(GlUtils.genTexture());
+        super(GlUtils.genTexture(),
+                &GlUtils.deleteTexture);
         this.target = target;
         this.setMagFilter(TextureFilter.Linear);
         this.setMinFilter(TextureFilter.Linear);
@@ -90,11 +91,6 @@ class Texture : ObjectGL {
         this.unbind();
     }
 
-    override void destroy() {
-        super.destroy();
-        GlUtils.deleteTexture(this.id);
-    }
-
     void setMagFilter(TextureFilter type) {
         this.setParameter(TextureParamName.MagFilter, type);
     }
@@ -117,15 +113,11 @@ class Texture : ObjectGL {
         this.unbind();
     }
 
-    void bind() const
-        in(isAlive())
-    {
+    void bind() const {
         GlFunction.bindTexture(this.target, this.id);
     }
 
-    void unbind() const
-        in(isAlive())
-    {
+    void unbind() const {
         GlFunction.bindTexture(this.target, 0);
     }
 

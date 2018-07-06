@@ -509,9 +509,9 @@ static:
 
     void clear(BufferBit[] mode...) {
         import std.algorithm : canFind;
-        if (mode.canFind(ClearMode.Color)) GlUtils.colorWrite(true);  //これしないとColorをClearできない
-        if (mode.canFind(ClearMode.Depth)) GlUtils.depthWrite(true); //これしないとDepthをClearできない
-        if (mode.canFind(ClearMode.Stencil)) GlUtils.stencilWrite(true); //これしないとStencilをClearできない
+        if (mode.canFind(ClearMode.Color)) colorWrite(true);  //これしないとColorをClearできない
+        if (mode.canFind(ClearMode.Depth)) depthWrite(true); //これしないとDepthをClearできない
+        if (mode.canFind(ClearMode.Stencil)) stencilWrite(true); //これしないとStencilをClearできない
 
         GlFunction.clear(mode);
     }

@@ -28,17 +28,13 @@ class Program : ObjectGL {
         }
     } 
     do {
-        super(GlFunction.createProgram());
+        super(GlFunction.createProgram(),
+                &GlFunction.deleteProgram);
         foreach (shader; shaders) {
             this.attachShader(shader);
         }
         this.linkProgram();
         assert(this.getLinkStatus, getLogString());
-    }
-
-    override void destroy() {
-        super.destroy();
-        GlFunction.deleteProgram(id);
     }
 
     void beginUniform()
@@ -85,9 +81,7 @@ class Program : ObjectGL {
 
     inout {
 
-        void use()
-            in(isAlive())
-        {
+        void use() {
             GlFunction.useProgram(id);
         }
 
@@ -106,9 +100,7 @@ class Program : ObjectGL {
             return vLoc != -1;
         }
 
-        uint getAttribLocation(string name) 
-            in(isAlive())
-        {
+        uint getAttribLocation(string name) {
             int vLoc = GlFunction.getAttribLocation(this.id, name);
             assert(vLoc != -1);
             return vLoc;

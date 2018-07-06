@@ -33,10 +33,6 @@ class Mesh {
         this.vao.setup(mat.program, geom.getBuffers(), geom.getIndexBuffer());
     }
 
-    void destroy() {
-        this.vao.destroy();
-    }
-
     void render() {
         this.mat.render(&renderImpl);
     }
