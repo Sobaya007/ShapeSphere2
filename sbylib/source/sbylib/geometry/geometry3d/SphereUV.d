@@ -21,9 +21,9 @@ class SphereUV {
         return g;
     }
 
-    public static Vertex[] getVertices(Vertex=VertexNT)(float radius, uint tCut, uint pCut) out(res) {
-        assert(res.length == (pCut*2-1) * tCut + 2);
-    } body {
+    public static Vertex[] getVertices(Vertex=VertexNT)(float radius, uint tCut, uint pCut)
+        out(res; res.length == (pCut*2-1) * tCut + 2)
+    {
         struct TP {float t; float p;}
         TP[] tps;
         //T = [0, 1)
@@ -51,11 +51,11 @@ class SphereUV {
         }).array;
     }
 
-    public static uint[] getIndices(uint tCut, uint pCut) out (res) {
-        assert(res.length == 3 * ((2*pCut-1) * tCut * 2));
-        assert(res.minElement == 0);
-        assert(res.maxElement == (pCut*2-1) * tCut + 1);
-    } body {
+    public static uint[] getIndices(uint tCut, uint pCut)
+        out(res; res.length == 3 * ((2*pCut-1) * tCut * 2))
+        out(res; res.minElement == 0)
+        out(res; res.maxElement == (pCut*2-1) * tCut + 1)
+    {
         uint[] result;
         foreach (i; 0..tCut) {
             result ~= [0, i+1, i+2];

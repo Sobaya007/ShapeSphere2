@@ -1,10 +1,10 @@
 module sbylib.animation.AnimationManager;
 
-import sbylib.animation.Animation;
-import sbylib.utils.Array;
-import sbylib.utils.Maybe;
-
 class AnimationManager {
+    import sbylib.animation.Animation;
+    import sbylib.utils.Array;
+    import sbylib.utils.Maybe;
+
     private static AnimationManager instance;
     public static AnimationManager opCall() {
         if (instance is null) {
@@ -36,7 +36,10 @@ class AnimationManager {
 }
 
 class AnimationProcedure {
-    private Frame frame;
+    import sbylib.animation.Animation;
+    import sbylib.utils.Maybe;
+
+    private Frame currentFrame;
     private IAnimation animation;
  
     private Maybe!(void delegate()) finishCallback = None!(void delegate());
@@ -44,7 +47,7 @@ class AnimationProcedure {
 
     this(IAnimation animation) {
         this.animation = animation;
-        this.frame = 0.frame;
+        this.currentFrame = 0.frame;
     }
 
     void onFinish(void delegate() finishCallback) {
@@ -53,8 +56,8 @@ class AnimationProcedure {
 
     void step() {
         if (this.done) return;
-        this.animation.eval(this.frame);
-        this.frame++;
+        this.animation.eval(this.currentFrame);
+        this.currentFrame++;
         if (this.done) {
             this.finishCallback.apply!(f => f());
         }

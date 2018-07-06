@@ -129,7 +129,7 @@ class BombMaterial : Material {
 
         this.noise = ImageLoader.load(ImagePath("noise.jpg")).generateTexture();
         this.time = 0;
-        Core().addProcess({ this.time++; }, "bomb");
+        //Core().addProcess({ this.time++; }, "bomb");
         this.lightScale = 1;
     }
 }

@@ -95,11 +95,11 @@ class Capsule {
         return result;
     }
 
-    public static uint[] getNorthernIndices(uint tCut, uint pCut) out (res) {
-        assert(res.length == 3 * (tCut + (pCut-1) * tCut * 2));
-        assert(res.minElement == 0);
-        assert(res.maxElement == tCut * pCut);
-    } body {
+    public static uint[] getNorthernIndices(uint tCut, uint pCut)
+        out(res; res.length == 3 * (tCut + (pCut-1) * tCut * 2))
+        out(res; res.minElement == 0)
+        out(res; res.maxElement == tCut * pCut)
+    {
         uint[] result;
         foreach (i; 0..tCut) {
             result ~= [0, i+1, i+2];
@@ -123,11 +123,11 @@ class Capsule {
         return result;
     }
 
-    public static uint[] getSouthernIndices(uint tCut, uint pCut) out (res) {
-        assert(res.length == 3 * (tCut + (pCut-1) * tCut * 2));
-        assert(res.minElement == tCut * pCut + 1);
-        assert(res.maxElement == tCut * pCut * 2 + 1);
-    } body {
+    public static uint[] getSouthernIndices(uint tCut, uint pCut)
+        out(res; res.length == 3 * (tCut + (pCut-1) * tCut * 2))
+        out(res; res.minElement == tCut * pCut + 1)
+        out(res; res.maxElement == tCut * pCut * 2 + 1)
+    {
         uint[] result;
         foreach (i; 0..tCut) {
             result ~= [0, i+2, i+1];

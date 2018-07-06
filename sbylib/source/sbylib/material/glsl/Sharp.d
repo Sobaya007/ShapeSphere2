@@ -49,21 +49,21 @@ class Sharp : Statement {
             return "";
     }
 
-    Space getVertexSpace() in {
-        assert(this.type == "vertex");
-    } body {
+    Space getVertexSpace()
+        in(this.type == "vertex")
+    {
         return convert!(Space, getSpaceName)(this.value);
     }
 
-    RequireAttribute getRequireAttribute() in {
-        assert(this.type == "vertex");
-    } body {
+    RequireAttribute getRequireAttribute()
+        in(this.type == "vertex")
+    {
         return new RequireAttribute(format!"require Position in %s as vec3 po;"(this.value));
     }
 
-    string getGlPositionCode() in {
-        assert(this.type == "vertex");
-    } body {
+    string getGlPositionCode()
+        in(this.type == "vertex")
+    {
         // * vec4(_position,1)
         return format!"gl_Position = %s;"((this.getVertexSpace().getUniformDemands().map!(u => getUniformDemandName(u)).array~"vec4(_position, 1)").join(" * "));
     }

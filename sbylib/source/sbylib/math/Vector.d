@@ -54,10 +54,8 @@ public:
     }
 
     Vector opBinary(string op, U)(const Vector!(U,S) v) const //=============================Vectorに対する二項演算
-in {
-        assert(S == v.elements.length);
-    }
-body {
+        in(S == v.elements.length)
+    {
         Vector!(T, S) result;
         mixin("result.elements[] = elements[]" ~ op ~ "v.elements[];");
         return result;
@@ -81,18 +79,16 @@ body {
         return result;
     }
 
-    Vector opAssign(T[] a) in {
-        assert(a.length == this.elements.length);
-    } body {
+    Vector opAssign(T[] a)
+        in(a.length == this.elements.length)
+    {
         this.elements[] = a;
         return this;
     }
 
     Vector opOpAssign(string op)(Vector v) //=============================ベクトルに対する代入算術演算子
-in {
-        assert(v.elements.length == S);
-    }
-body {
+        in(v.elements.length == S)
+    {
         mixin("elements[] " ~ op ~"= v.elements[];");
         return this;
     }
@@ -391,9 +387,9 @@ T computeSignedVolume(T)(Vector!(T, 3)[4] positions...) {
 }
 
 //与えられた点列に対し、分散が最大化するベクトルを含む正規直交基底を返す
-Vector!(T,3)[] mostDispersionBasis(T)(Vector!(T,3)[] vertices...) in {
-    assert(vertices.length > 0);
-} body {
+Vector!(T,3)[] mostDispersionBasis(T)(Vector!(T,3)[] vertices...)
+    in(vertices.length > 0)
+{
     import std.algorithm, std.array, std.range;
     import sbylib.math.Matrix;
     auto c = vertices.sum / vertices.length;

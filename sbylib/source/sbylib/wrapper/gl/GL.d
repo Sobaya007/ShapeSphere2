@@ -1,8 +1,6 @@
 module sbylib.wrapper.gl.GL;
 
-public import derelict.opengl;
-
-import sbylib.wrapper.glfw.Window;
+import derelict.opengl;
 
 class GL {
     

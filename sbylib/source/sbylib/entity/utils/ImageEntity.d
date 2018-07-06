@@ -26,9 +26,9 @@ struct ImageEntityFactory {
         return make(ImageLoader.load(path));
     }
 
-    auto make(Image image) in {
-        assert(this.mWidth.isJust || this.mHeight.isJust, "'width' or 'height' must be assigned");
-    } do {
+    auto make(Image image)
+        in(this.mWidth.isJust || this.mHeight.isJust, "'width' or 'height' must be assigned")
+    {
         auto texture = generateTexture(image);
         if (this.mWidth.isJust && this.mHeight.isJust)
             return make(texture, this.mWidth.get(), this.mHeight.get());
@@ -38,10 +38,10 @@ struct ImageEntityFactory {
             return make(texture, this.mHeight.get() * image.getWidth() / image.getHeight(), this.mHeight.get());
     }
 
-    auto make(Texture texture) in {
-        assert(this.mWidth.isJust, "'width' must be assigned");
-        assert(this.mHeight.isJust, "'height' must be assigned");
-    } do {
+    auto make(Texture texture)
+        in(this.mWidth.isJust, "'width' must be assigned")
+        in(this.mHeight.isJust, "'height' must be assigned")
+    {
         return make(texture, this.mWidth.get(), this.mHeight.get());
     }
 

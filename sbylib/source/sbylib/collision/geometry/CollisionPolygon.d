@@ -12,6 +12,8 @@ import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionGeometry;
 
 class CollisionPolygon : CollisionGeometry {
+    import sbylib.entity.Entity;
+
     alias WorldVector = Depends!((mat4 world, vec3 p) => (world * vec4(p, 1)).xyz);
     alias WorldVectorNormalized = Depends!((mat4 world, vec3 p) => normalize((world * vec4(p, 0)).xyz));
     private ChangeObserved!(vec3)[3] localPositions;
@@ -47,7 +49,6 @@ class CollisionPolygon : CollisionGeometry {
     }
 
     override void setOwner(Entity mOwner) {
-        assert(mOwner !is null);
         this.mOwner = mOwner;
         this.positions[0].depends(this.mOwner.worldMatrix, this.localPositions[0]);
         this.positions[1].depends(this.mOwner.worldMatrix, this.localPositions[1]);

@@ -21,10 +21,11 @@ class Mesh {
     private const(Uniform) delegate()[] uniforms;
     private Entity mOwner;
 
-    this(Geometry geom, Material mat, Entity mOwner) in {
-        assert(geom !is null);
-        assert(mat !is null);
-    } body {
+    this(Geometry geom, Material mat, Entity mOwner)
+        in(geom !is null)
+        in(mat !is null)
+        in(mOwner !is null)
+    {
         this.geom = geom;
         this.mat = mat;
         this.mOwner = mOwner;

@@ -1,14 +1,13 @@
 module sbylib.collision.geometry.CollisionCapsule;
 
-import sbylib.math.Vector;
-import sbylib.math.Matrix;
-import sbylib.geometry.Geometry;
-import sbylib.geometry.geometry3d.Capsule;
-import sbylib.utils.Change;
-import sbylib.collision.CollisionEntry;
 import sbylib.collision.geometry.CollisionGeometry;
 
 class CollisionCapsule : CollisionGeometry {
+    import sbylib.entity.Entity;
+    import sbylib.math.Matrix;
+    import sbylib.math.Vector;
+    import sbylib.utils.Change;
+
     ChangeObserved!(float) radius;
     private ChangeObserved!(vec3) startLocal;
     private ChangeObserved!(vec3) endLocal;
@@ -26,14 +25,15 @@ class CollisionCapsule : CollisionGeometry {
     }
 
     void setStart(const vec3 start) {
-        this.startLocal = (this.mOwner.obj.viewMatrix * vec4(start, 1)).xyz;
+        this.startLocal = (this.mOwner.viewMatrix * vec4(start, 1)).xyz;
     }
 
     void setEnd(const vec3 end) {
-        this.endLocal = (this.mOwner.obj.viewMatrix * vec4(end, 1)).xyz;
+        this.endLocal = (this.mOwner.viewMatrix * vec4(end, 1)).xyz;
     }
 
-    GeometryNT createGeometry() {
+    auto createGeometry() {
+        import sbylib.geometry.geometry3d.Capsule;
         return Capsule.create(this.radius, this.startLocal, this.endLocal, 10, 10);
     }
 

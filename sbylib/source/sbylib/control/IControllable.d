@@ -7,6 +7,8 @@ public {
 }
 
 interface IControllable {
+    import sbylib.entity.Entity;
+
     Entity entity();
     void onMousePressed(MouseButton mouseButton);
     void onMouseReleased(MouseButton mouseButton, bool isCollided);

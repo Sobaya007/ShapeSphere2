@@ -331,18 +331,18 @@ class Universe {
         param.fetch!(JSONValue[string])("color").apply!((color) {
             auto type = color.fetch!string("type").getOrElse("uint");
             auto object = color.fetch!string("object").getOrError("'color' must have 'object' as string");
-            getAttachFunc(result, type, object)(FrameBufferAttachType.Color0);
+            getAttachFunc(result, type, object)(FramebufferAttachType.Color0);
             color.fetch!vec4("clear").apply!((vec4 clear) => result.setClearColor(clear));
         });
         param.fetch!(JSONValue[string])("depth").apply!((depth) {
             auto type = depth.fetch!string("type").getOrElse("uint");
             auto object = depth.fetch!string("object").getOrError("'depth' must have 'object' as string");
-            getAttachFunc(result, type, object)(FrameBufferAttachType.Depth);
+            getAttachFunc(result, type, object)(FramebufferAttachType.Depth);
         });
         param.fetch!(JSONValue[string])("stencil").apply!((stencil) {
             auto type = stencil.fetch!string("type").getOrElse("uint");
             auto object = stencil.fetch!string("object").getOrError("'stencil' must have 'object' as string");
-            getAttachFunc(result, type, object)(FrameBufferAttachType.Stencil);
+            getAttachFunc(result, type, object)(FramebufferAttachType.Stencil);
         });
         return result;
     }
@@ -464,13 +464,13 @@ class Universe {
         }
     }
 
-    private void delegate(FrameBufferAttachType) getAttachFunc(RenderTarget target, string type, string object) {
+    private void delegate(FramebufferAttachType) getAttachFunc(RenderTarget target, string type, string object) {
         import std.meta : AliasSeq;
         import std.string : capitalize;
 
-        void delegate(FrameBufferAttachType) func;
+        void delegate(FramebufferAttachType) func;
         switch (object) {
-            static foreach (Func; AliasSeq!("texture", "renderBuffer")) {
+            static foreach (Func; AliasSeq!("texture", "renderbuffer")) {
                 case Func:
                     switch (type) {
                         static foreach (T; AliasSeq!(uint, float)) {
@@ -478,7 +478,7 @@ class Universe {
                                 return &mixin("target.attach"~Func[0..1].capitalize~Func[1..$]~"!T");
                         }
                         default:
-                        assert(false, format!"'%s' is not a valid type name"(type));
+                            assert(false, format!"'%s' is not a valid type name"(type));
                     }
             }
             default:

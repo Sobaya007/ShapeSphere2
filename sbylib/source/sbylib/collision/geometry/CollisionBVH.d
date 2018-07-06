@@ -1,16 +1,14 @@
 module sbylib.collision.geometry.CollisionBVH;
 
-import dconfig;
-import sbylib.utils.Change;
 import sbylib.collision.geometry;
-import sbylib.entity.Entity;
-import sbylib.utils;
-import std.algorithm, std.functional, std.array, std.typecons;
-import sbylib.math;
 
 class CollisionBVH : CollisionGeometry {
 
     private {
+
+        import sbylib.entity.Entity;
+        import sbylib.math.Vector;
+        import sbylib.utils.Change;
 
         struct GeomWithCenter {
             CollisionGeometry geom;
@@ -25,18 +23,25 @@ class CollisionBVH : CollisionGeometry {
         };
 
         class Node : INode {
+            
+            import std.algorithm : map, reduce;
+
             INode[] children;
             private ChangeObservedArray!AABB bounds;
 
             Depends!((const AABB[] bounds) => AABB(bounds.map!(b => b.min).reduce!minVector, bounds.map!(b => b.max).reduce!maxVector)) bound;
 
             this(INode[] children) {
+                import std.array : array;
+
                 this.children = children;
                 this.bounds = ChangeObservedArray!(AABB)(children.map!(c => c.getBound()).array);
                 this.bound.depends(this.bounds);
             }
 
             override void setOwner(Entity owner) {
+                import std.algorithm : each;
+
                 children.each!(child => child.setOwner(owner));
             }
 
@@ -86,6 +91,9 @@ class CollisionBVH : CollisionGeometry {
         }
 
         INode buildWithTopDown(GeomWithCenter[] geomCenterList) {
+            import std.algorithm : map, sort;
+            import std.array : array, empty;
+
             assert(geomCenterList.length > 0);
             if (geomCenterList.length == 1) return new Leaf(geomCenterList[0].geom);
             // calculate most long vector in the center points of geometries.
@@ -141,9 +149,13 @@ class CollisionBVH : CollisionGeometry {
             return result;
         }
 
-        INode buildWithTopDown(CollisionGeometry[] geoms) in {
-            assert(geoms.length > 0);
-        } body {
+        INode buildWithTopDown(CollisionGeometry[] geoms)
+            in(geoms.length > 0)
+        {
+            import std.algorithm : map;
+            import std.array : array;
+            import std.functional : pipe;
+
             return buildWithTopDown(geoms.map!(g => GeomWithCenter(g, g.getBound().pipe!(aabb => (aabb.min + aabb.max) / 2))).array);
         }
     }
@@ -151,9 +163,9 @@ class CollisionBVH : CollisionGeometry {
 
     private INode root;
 
-    this(CollisionGeometry[] geoms) in {
-        assert(geoms.length > 0);
-    } body {
+    this(CollisionGeometry[] geoms)
+        in(geoms.length > 0)
+    {
         this.root = buildWithTopDown(geoms);
     }
 

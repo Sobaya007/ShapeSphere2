@@ -16,9 +16,7 @@ private struct P(A, B) {
     Maybe!(A) a;
     Maybe!(B) b;
 
-    invariant {
-        assert(a.isJust && b.isNone || a.isNone && b.isJust);
-    }
+    invariant(a.isJust && b.isNone || a.isNone && b.isJust);
 
     static auto left(A a) {
         P!(A, B) p;

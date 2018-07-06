@@ -61,12 +61,11 @@ class World {
        事後条件:
             - entityはWorldと接続
      */
-    auto add(Entity entity) in {
-        assert(isConnected(entity) == false, "add's argument must not be added to World");
-        assert(entity.isParentConnected == false, "add's argument must not have parent");
-    } out {
-        assert(isConnected(entity) == true);
-    } body {
+    auto add(Entity entity)
+        in(isConnected(entity) == false, "add's argument must not be added to World")
+        in(entity.isParentConnected == false, "add's argument must not have parent")
+        out(;isConnected(entity) == true)
+    {
         (cast(Entity)entity).traverse((Entity e) {
             this.entities ~= e;
             e.setWorld(this);
@@ -93,11 +92,10 @@ class World {
        事後条件:
             - entityはWorldと未接続
      */
-    void remove(Entity entity) in {
-        assert(isConnected(entity) == true, "remove's argument must be added to this World");
-    } out {
-        assert(isConnected(entity) == false);
-    } body {
+    void remove(Entity entity)
+        in(isConnected(entity) == true, "remove's argument must be added to this World")
+        out(;isConnected(entity) == false)
+    {
         entity.traverse((Entity entity) {
             auto num = this.entities.length;
             this.entities = this.entities.aremove!(e => e == entity);
@@ -117,9 +115,9 @@ class World {
        事前条件:
             - groupNameが正しいグループ名をしていること
      */
-    void clear(string groupName) in {
-        assert(groupName in this.renderGroups, groupName ~ " is invalid group name");
-    } body {
+    void clear(string groupName)
+        in(groupName in this.renderGroups, groupName ~ " is invalid group name")
+    {
         this.renderGroups[groupName].clear();
         this.entities.filter!(e => e.mesh.mat.config.renderGroupName.getOrElse("") == groupName)
             .each!(e => e.unsetWorld());
@@ -175,9 +173,9 @@ class World {
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 
-    const(Uniform) delegate() getUniform(UniformDemand demand) in {
-        assert(this.mCamera.isJust(), "camera is not set.");
-    } do {
+    const(Uniform) delegate() getUniform(UniformDemand demand)
+        in(this.mCamera.isJust(), "camera is not set.")
+    {
         switch (demand) {
         case UniformDemand.View:
             return () => this.mCamera.get().viewMatrix;
@@ -190,12 +188,14 @@ class World {
         }
     }
 
-    private bool isConnected(Entity e) out (connected) {
-        import std.array;
-        e.getRootParent().traverse((Entity e) {
-            assert((this.entities.find(e).empty == false) == connected);
-        });
-    } body {
+    private bool isConnected(Entity e)
+        out (connected) {
+            import std.array;
+            e.getRootParent().traverse((Entity e) {
+                assert((this.entities.find(e).empty == false) == connected);
+            });
+        }
+    do {
         import std.algorithm, std.array;
         return this.entities.find(e).empty == false;
     }

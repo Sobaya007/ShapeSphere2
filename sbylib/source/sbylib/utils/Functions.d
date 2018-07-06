@@ -15,6 +15,7 @@ import sbylib.wrapper.gl.Constants;
 import sbylib.camera.Camera;
 import sbylib.collision.geometry.CollisionRay;
 import sbylib.core.Core;
+import sbylib.core.World;
 
 
 float[] solveLinearEquation(float a, float b) {
@@ -111,8 +112,9 @@ template as(Type) {
             }
         }
     } else static if (isArray!(Type)) {
-        Type as(JSONValue v) {
-            assert(v.type == JSON_TYPE.ARRAY);
+        Type as(JSONValue v) 
+            in(v.type == JSON_TYPE.ARRAY)
+        {
             import std.algorithm : map;
             import std.array;
             return v.array().map!(as!(ForeachType!Type)).array;
@@ -130,8 +132,9 @@ template as(Type) {
             return v.as!(float).rad;
         }
     } else static if (is(Type == JSONValue[string])) {
-        Type as(JSONValue v) {
-            assert(v.type == JSON_TYPE.OBJECT);
+        Type as(JSONValue v) 
+            in(v.type == JSON_TYPE.OBJECT)
+        {
             return v.object;
         }
     } else {
@@ -257,7 +260,7 @@ Texture generateTexture(Image image) {
 
 Image generateImage(Texture texture) {
     import sbylib.wrapper.gl.Functions;
-    auto img = new Image(texture.width, texture.height, GlFunction.getBitPerPixel(texture.internalFormat));
+    auto img = new Image(texture.width, texture.height, GlUtils.getBitPerPixel(texture.internalFormat));
     texture.blitsTo(img.getBits, ImageFormat.BGRA);
     return img;
 }
@@ -453,7 +456,7 @@ void blitsTo(Texture texture, IRenderTarget dst, int x, int y, int w, int h) {
         target.destroy();
         target = new RenderTarget(texture.width, texture.height);
     }
-    target.attachTexture(texture, FrameBufferAttachType.Color0);
+    target.attachTexture(texture, FramebufferAttachType.Color0);
     target.blitsTo(dst, x, y, w, h, ClearMode.Color);
 }
 
@@ -520,7 +523,7 @@ mixin template ImplPositionSetter(alias width, alias height) {
 
 void screenShot(string path) {
     auto target = new RenderTarget(Core().getWindow().width, Core().getWindow().height);
-    target.attachTexture!(uint)(FrameBufferAttachType.Color0);
+    target.attachTexture!(uint)(FramebufferAttachType.Color0);
     Core().getWindow().getScreen().blitsTo(target, BufferBit.Color);
     target.getColorTexture().generateImage().save(path);
     target.destroy();

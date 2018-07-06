@@ -1,6 +1,7 @@
 module sbylib.collision.geometry.CollisionRay;
 
 import sbylib.math.Vector;
+import sbylib.math.Matrix;
 
 class CollisionRay {
     vec3 start;

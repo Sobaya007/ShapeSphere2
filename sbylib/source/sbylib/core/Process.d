@@ -69,9 +69,9 @@ class Process {
         this((Process proc) { func(); }, name);
     }
 
-    this(const void delegate(Process) func, string name) in {
-        assert(func !is null);
-    } body {
+    this(const void delegate(Process) func, string name)
+        in(func !is null)
+    {
         this.func = func;
         this.alive = true;
         this.paused = false;
@@ -79,9 +79,7 @@ class Process {
         debug this.counter = new TimeCounter!100;
     }
 
-    this(const void delegate(Process) func, string name = __FILE__, int line = __LINE__) in {
-        assert(func !is null);
-    } body {
+    this(const void delegate(Process) func, string name = __FILE__, int line = __LINE__) {
         this(func, name ~ line.stringof);
     }
 
@@ -94,9 +92,9 @@ class Process {
         append(FILE, format!"%s: %.2f\n"(this.name, this.averageTime));
     }
 
-    package(sbylib) bool step() in {
-        assert(alive);
-    } do {
+    package(sbylib) bool step()
+        in(this.isAlive)
+    {
         if (!paused) {
             debug this.counter.start();
             this.func(this);
@@ -106,21 +104,21 @@ class Process {
         return this.alive;
     }
 
-    void kill() in {
-        assert(this.alive == true);
-    } do {
+    void kill()
+        in(this.isAlive)
+    {
         this.alive = false;
     }
 
-    void pause() in {
-        assert(this.paused == false);
-    } do {
+    void pause()
+        in(!this.isPaused)
+    {
         this.paused = true;
     }
 
-    void resume() in {
-        assert(this.paused == true);
-    } do {
+    void resume()
+        in(this.isPaused)
+    {
         this.paused = false;
     }
 

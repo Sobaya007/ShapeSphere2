@@ -1,97 +1,69 @@
 module sbylib.wrapper.gl.BufferObject;
 
-public import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.gl.Functions;
+import sbylib.wrapper.gl.Constants;
+import sbylib.wrapper.gl.ObjectGL;
 
-interface BufferObject(BufferType Type) {
+interface IBufferObject {
     void bind() const;
     void unbind() const;
 }
 
-class BufferObject(BufferType Type, T) : BufferObject!Type {
+class BufferObject(BufferType Type, T) : ObjectGL, IBufferObject {
 
-    import derelict.opengl;
+    import sbylib.wrapper.gl.Functions;
 
-    protected immutable uint id;
-    private bool alive = true;
-
-    this() out {
-        GlFunction.checkError();
-    } body {
-        uint id;
-        glGenBuffers(1, &id);
-        this.id = id;
-        GlFunction.checkError();
+    this() {
+        super(GlUtils.genBuffer());
     }
 
-    ~this() {
-        //assert(!alive);
-        import std.stdio;
-        if (alive) writeln("Invalid Destruction For BufferObject");
-    }
-
-    void destroy() in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body {
-        this.alive = false;
-        glDeleteVertexArrays(1, &this.id);
+    override void destroy() {
+        super.destroy();
+        GlUtils.deleteBuffer(this.id);
     }
 
 
-    override void bind() const in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body {
-        glBindBuffer(Type, this.id);
+    override void bind() const
+        in(isAlive)
+    {
+        GlFunction.bindBuffer(Type, this.id);
     }
 
-    override void unbind() const in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body {
-        glBindBuffer(Type, 0);
-        GlFunction.checkError();
+    override void unbind() const
+        in(isAlive())
+    {
+        GlFunction.bindBuffer(Type, 0);
     }
 
     static if (is(T == struct)) {
-        void sendData(T data, BufferUsage freq = BufferUsage.Static) {
+        void sendData(T data, BufferUsage usage = BufferUsage.Static) {
             this.bind();
-            glBufferData(Type, T.sizeof, &data, freq);
-            GlFunction.checkError();
+            GlFunction.bufferData(Type, T.sizeof, &data, usage);
             this.unbind();
         }
     } else {
-        void sendData(S)(S data, BufferUsage freq = BufferUsage.Static) {
+        void sendData(S)(S data, BufferUsage usage = BufferUsage.Static) {
             this.bind();
-            glBufferData(Type, data.length * T.sizeof, cast(void*)data, freq);
-            GlFunction.checkError();
+            GlFunction.bufferData(Type, data.length * T.sizeof, cast(void*)data, usage);
             this.unbind();
         }
     }
 
     void sendSubData(T[] data) {
         this.bind();
-        glBufferSubData(Type, 0, data.length * T.sizeof, cast(void*)data);
-        GlFunction.checkError();
+        GlFunction.bufferSubData(Type, 0, data.length * T.sizeof, cast(void*)data);
         this.unbind();
     }
 
     T* map(BufferAccess access) {
         this.bind();
-        auto res = glMapBuffer(Type, access);
-        GlFunction.checkError();
+        auto res = GlFunction.mapBuffer(Type, access);
         this.unbind();
         return cast(T*)res;
     }
 
     void unmap() {
         this.bind();
-        glUnmapBuffer(Type);
-        GlFunction.checkError();
+        GlFunction.unmapBuffer(Type);
         this.unbind();
     }
 

@@ -3,12 +3,6 @@ module sbylib.wrapper.glfw.Window;
 import derelict.glfw3.glfw3;
 import derelict.opengl;
 
-import std.string, std.stdio, std.algorithm;
-import sbylib.math.Vector;
-import sbylib.wrapper.glfw.Constants;
-import sbylib.wrapper.gl.Functions;
-import sbylib.wrapper.gl.GL;
-
 /*
    GLFW準拠のウインドウのクラスです
  */
@@ -16,6 +10,9 @@ import sbylib.wrapper.gl.GL;
 private GlfwWindow[GLFWwindow*] windows;
 
 class GlfwWindow {
+    
+    import sbylib.wrapper.glfw.Constants;
+    import sbylib.math.Vector;
 
     alias ResizeCallback = void delegate();
     private {
@@ -42,6 +39,8 @@ class GlfwWindow {
         }
 
         void setTitle(string mTitle) {
+            import std.string : toStringz;
+
             this.mTitle = mTitle;
             window.glfwSetWindowTitle(mTitle.toStringz);
         }
@@ -84,6 +83,7 @@ class GlfwWindow {
         }
 
         void removeResizeCallback(ResizeCallback cb) {
+            import std.algorithm : remove;
             this.resizeCallbacks = this.resizeCallbacks.remove!(r => r is cb);
         }
 
@@ -99,6 +99,11 @@ class GlfwWindow {
     package(sbylib) {
 
         this(string mTitle, int mWidth, int mHeight) {
+            import std.string : toStringz;
+            import std.stdio : writeln;
+            import derelict.opengl;
+            import sbylib.wrapper.gl.GL;
+
             this.mTitle = mTitle;
             this.resized = true; // for first resize callback
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
@@ -157,12 +162,14 @@ class GlfwWindow {
         }
 
         void setClipboardString(dstring str) {
-            import std.conv;
+            import std.conv : to;
+            import std.string : toStringz;
             window.glfwSetClipboardString(str.to!string.toStringz);
         }
 
         dstring getClipboardString() {
-            import std.conv;
+            import std.conv : to;
+            import std.string : fromStringz;
             return window.glfwGetClipboardString().fromStringz.to!dstring;
         }
     }
@@ -193,16 +200,18 @@ class GlfwWindow {
     }
 }
 
-private extern(C) void windowPosCallback(GLFWwindow *window, int x, int y) nothrow {
-    assert(window in windows);
+private extern(C) void windowPosCallback(GLFWwindow *window, int x, int y) nothrow 
+    in(window in windows)
+{
     if (!windows[window].isFullScreen) {
         windows[window].windowedX = x;
         windows[window].windowedY = y;
     }
 }
 
-private extern(C) void resizeCallback(GLFWwindow *window, int w, int h) nothrow {
-    assert(window in windows);
+private extern(C) void resizeCallback(GLFWwindow *window, int w, int h) nothrow 
+    in(window in windows)
+{
     windows[window].mWidth = w;
     windows[window].mHeight = h;
     if (!windows[window].isFullScreen) {

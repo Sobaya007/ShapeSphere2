@@ -3,6 +3,7 @@ import std.math;
 import std.variant;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
+
 public {
     import sbylib.collision.geometry.CollisionCapsule;
     import sbylib.collision.geometry.CollisionPolygon;
@@ -14,6 +15,8 @@ public {
 }
 
 class CollisionEntry {
+    import sbylib.entity.Entity;
+
     private CollisionGeometry mGeometry;
     private Entity mOwner;
 

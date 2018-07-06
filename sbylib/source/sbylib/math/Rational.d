@@ -9,9 +9,9 @@ struct Rational(T) if (__traits(isIntegral, T) || is(T == BigInt)) {
     T nume = 0; // numerator
     T deno = 1; // denominator
 
-    this(T nume, T deno) in {
-        assert(deno != 0);
-    } body {
+    this(T nume, T deno)
+        in(deno != 0)
+    {
         this.nume = nume;
         this.deno = deno;
         simplify;
@@ -41,9 +41,9 @@ struct Rational(T) if (__traits(isIntegral, T) || is(T == BigInt)) {
         mixin("return this" ~ op ~ "Rational!T(rhs, 1.to!T);");
     }
 
-    Rational opBinary(string op, U)(U n) if (op == "^^" && __traits(isIntegral, U)) in {
-        assert(n >= 0);
-    } body {
+    Rational opBinary(string op, U)(U n) if (op == "^^" && __traits(isIntegral, U))
+        in(n >= 0)
+    {
         Rational r = this;
         Rational result = Rational!T(1.to!T, 1.to!T);
         while (n > 0) {
@@ -92,9 +92,9 @@ private:
         return (a>0 ? 1 : a<0 ? -1 : 0).to!T;
     }
 
-    T gcd(T a, T b) in {
-        assert(a>=0 && b>=0);
-    } body {
+    T gcd(T a, T b)
+        in(a>=0 && b>=0)
+    {
         if (b == 0) {
             return a;
         } else {
