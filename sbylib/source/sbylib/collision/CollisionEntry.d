@@ -45,7 +45,7 @@ class CollisionEntry {
     public static void collide(ref Array!CollisionInfo result, CollisionGeometry mGeometry, CollisionGeometry mGeometry2) {
         void add(Maybe!CollisionInfo info) {
             if (info.isNone) return;
-            result ~= info.get;
+            result ~= info.unwrap();
         }
 
         if (auto cap = cast(CollisionCapsule)mGeometry) {
@@ -86,7 +86,7 @@ class CollisionEntry {
     public static void collide(ref Array!CollisionInfoRay result, CollisionGeometry mGeometry, CollisionRay ray) {
         void add(Maybe!CollisionInfoRay info) {
             if (info.isNone) return;
-            result ~= info.get;
+            result ~= info.unwrap();
         }
         if (auto cap = cast(CollisionCapsule)mGeometry) {
             add(collide(cap, ray));

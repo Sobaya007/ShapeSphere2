@@ -129,7 +129,7 @@ class Title : SceneProtoType {
 
         void unselect() {
             if (this.animation.isJust) {
-                this.animation.get.finish();
+                this.animation.unwrap().finish();
             }
             this.animation = Just(AnimationManager().startAnimation(
                 multi(

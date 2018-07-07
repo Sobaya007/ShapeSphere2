@@ -197,7 +197,7 @@ class ElasticSphere : BaseSphere {
             auto e = colInfo.getOther(this.elasticSphere2.entity);
             auto move = e.getUserData!Move("Move");
             if (move.isJust) {
-                auto next = move.get().arrivalName;
+                auto next = move.unwrap().arrivalName;
                 Game.getMap().transit(next);
             }
 

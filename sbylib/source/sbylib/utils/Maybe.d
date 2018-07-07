@@ -54,7 +54,7 @@ struct Maybe(T) {
         }
     }
 
-    auto ref get() inout 
+    auto ref unwrap() inout 
         in(!_none, "this is none")
     {
         return this.value;
@@ -111,13 +111,13 @@ struct Maybe(T) {
 
     alias empty = isNone;
 
-    alias front = get;
+    alias front = unwrap;
 
     alias popFront = take;
 }
 
 auto fmap(alias fun, T)(Maybe!T m) {
-    if (m.isJust) return Just(fun(m.get));
+    if (m.isJust) return Just(fun(m.unwrap));
     return None!(typeof(return).Type);
 }
 
@@ -133,18 +133,18 @@ T getOrError(T)(Maybe!T m, string errorMessage) {
 
 Maybe!S fmapAnd(alias fun, T, S = ReturnType!fun.Type)(Maybe!T m) {
     if (m.isNone) return None!S;
-    return fun(m.get);
+    return fun(m.unwrap);
 }
 
 void apply(alias fun, T)(Maybe!T m) {
     if (m.isJust) {
-        fun(m.get);
+        fun(m.unwrap);
     }
 }
 
 auto match(alias funJust, alias funNone, T)(Maybe!T m) {
     if (m.isJust) {
-        return funJust(m.get);
+        return funJust(m.unwrap);
     } else {
         return funNone();
     }
@@ -224,7 +224,7 @@ auto wrapException(T)(lazy T f) {
 
 // InputRange!(Maybe!T) -> InputRange!T
 auto catMaybe(Range)(Range r) if (isInputRange!Range && isInstanceOf!(Maybe, ElementType!Range)) {
-    return r.filter!(m => m.isJust).map!(m => m.get);
+    return r.filter!(m => m.isJust).map!(m => m.unwrap);
 }
 
 auto at(T)(T[] array, long index) {
@@ -253,7 +253,7 @@ class MaybeEnvironment {
 unittest {
     auto po = Just(3);
 
-    assert(po.get == 3);
+    assert(po.unwrap() == 3);
     assert(!po.isNone);
 }
 

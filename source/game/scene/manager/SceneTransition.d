@@ -12,7 +12,7 @@ interface SceneTransition {
 class MoveTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneBase)) {
 
     override void opCall(ref SceneBase[] scenes) {
-        auto newScene = SceneManager.find!SceneClass.get;
+        auto newScene = SceneManager.find!SceneClass.unwrap();
         newScene.initialize();
         scenes = [newScene];
     }
@@ -20,7 +20,7 @@ class MoveTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneBase
 
 class OverTransition(SceneClass) : SceneTransition if (is(SceneClass : SceneBase)) { 
     override void opCall(ref SceneBase[] scenes) {
-        auto newScene = SceneManager.find!SceneClass.get;
+        auto newScene = SceneManager.find!SceneClass.unwrap();
         newScene.initialize();
         scenes ~= newScene;
     }

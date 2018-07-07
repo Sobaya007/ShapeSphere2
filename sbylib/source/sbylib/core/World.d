@@ -37,7 +37,7 @@ class World {
     }
 
     Camera camera() {
-        return mCamera.get();
+        return mCamera.unwrap();
     }
 
 
@@ -74,7 +74,7 @@ class World {
             e.setWorld(this);
             auto groupName = e.mesh.mat.config.renderGroupName;
             if (groupName.isJust) {
-                this.renderGroups[groupName.get()].add(e);
+                this.renderGroups[groupName.unwrap()].add(e);
             }
         });
         return entity;
@@ -106,7 +106,7 @@ class World {
             entity.unsetWorld();
             auto groupName = entity.mesh.mat.config.renderGroupName;
             if (groupName.isJust) {
-                this.renderGroups[groupName.get()].remove(entity);
+                this.renderGroups[groupName.unwrap()].remove(entity);
             }
         });
     }
@@ -181,9 +181,9 @@ class World {
     {
         switch (demand) {
         case UniformDemand.View:
-            return () => this.mCamera.get().viewMatrix;
+            return () => this.mCamera.unwrap().viewMatrix;
         case UniformDemand.Proj:
-            return () => this.mCamera.get().projMatrix;
+            return () => this.mCamera.unwrap().projMatrix;
         case UniformDemand.Light:
             return () => PointLightManager().getUniform();
         default:

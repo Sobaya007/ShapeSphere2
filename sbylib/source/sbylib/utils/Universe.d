@@ -160,7 +160,7 @@ class Universe {
         auto keyCommand = root.fetch("KeyCommand");
         if (keyCommand.isJust) {
             createKeyCommand(
-                wrapException(keyCommand.get().as!(JSONValue[string]))
+                wrapException(keyCommand.unwrap().as!(JSONValue[string]))
                 .getOrError("KeyCommand's value must be object")
             );
         }
@@ -173,7 +173,7 @@ class Universe {
         }
         if (render.isJust) {
             createRender(
-                wrapException(render.get().as!(JSONValue[]))
+                wrapException(render.unwrap().as!(JSONValue[]))
                 .getOrError("Render's value must be object")
             );
         } else {
@@ -187,7 +187,7 @@ class Universe {
                             "target" : "%s"
                         }
                     ]
-                }(worldName.get())).array);
+                }(worldName.unwrap())).array);
             }
         }
         thisUpdate = Just(Core().addProcess(&update, "universe"));
@@ -258,7 +258,7 @@ class Universe {
         }
         if (templateType.isJust) {
             Renderer renderer;
-            switch (templateType.get()) {
+            switch (templateType.unwrap()) {
                 case "2D":
                     assert(camera.isNone, "template '2D' cannot have Camera");
                     renderer = createRenderer2D(world, target);
@@ -266,14 +266,14 @@ class Universe {
                     break;
                 case "3D":
                     assert(camera.isJust, "template '3D' requires any camera");
-                    renderer = createRenderer3D(world, camera.get(), target);
+                    renderer = createRenderer3D(world, camera.unwrap(), target);
                     break;
                 default:
                     assert(false, format!"Unknown template type '%s'"(templateType));
             }
             rendererList[world] = renderer;
         } else if (camera.isJust) {
-            world.setCamera(camera.get());
+            world.setCamera(camera.unwrap());
         }
         assert(camera.isJust, "camera is not defined");
         foreach (entity; entities) {
@@ -570,7 +570,7 @@ private void setParameter(string paramName, ParamType, bool necessary, E)(ref E 
         static if (necessary) assert(false, format!"'%s' must have '%s' as '%s'"(target.name, paramName, ParamType.stringof));
         else return;
     }
-    mixin("target."~paramName) = value.get();
+    mixin("target."~paramName) = value.unwrap();
 }
 
 struct GeometryList(Geoms...) { alias List = AliasSeq!(Geoms); }

@@ -34,7 +34,7 @@ public:
     void setAxis(Entity axis) in {
         assert(axis.getUserData!Axis("Axis").isJust);
     } body {
-        final switch(axis.getUserData!Axis("Axis").get) {
+        final switch(axis.getUserData!Axis("Axis").unwrap()) {
             case Axis.X: this.axisDir = vec3(1, 0, 0); break;
             case Axis.Y: this.axisDir = vec3(0, 1, 0); break;
             case Axis.Z: this.axisDir = vec3(0, 0, 1); break;

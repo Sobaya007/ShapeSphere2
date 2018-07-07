@@ -49,7 +49,7 @@ class ChaseBehavior : CameraController.Behavior {
         ray.dir = dir;
         auto colInfo = Game.getMap().mapEntity.rayCast(ray);
         if (colInfo.isJust) {
-            auto r = length(colInfo.get().point - target);
+            auto r = length(colInfo.unwrap().point - target);
             this.arrivalRadius = min(r, CHASE_MAX_LENGTH);
         }
         this.radius += (this.arrivalRadius - this.radius) * CHASE_RADIUS_RATE;

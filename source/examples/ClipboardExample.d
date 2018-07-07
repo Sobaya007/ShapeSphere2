@@ -5,12 +5,12 @@ import sbylib;
 void clipboardExample() {
     auto universe = Universe.createFromJson(ResourcePath("world/clipboard.json"));
 
-    auto world = universe.getWorld("world").get();
+    auto world = universe.getWorld("world").unwrap();
 
     Label label = world.findByName("label")
         .wrapRange
         .wrapCast!(Label)
-        .get();
+        .unwrap();
 
     Clipboard clipboard = Core().getClipboard;
     Core().justPressed(KeyButton.KeyC).add({ clipboard.set(label.text); });

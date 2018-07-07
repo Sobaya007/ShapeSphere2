@@ -44,7 +44,7 @@ class Sharp : Statement {
         if (this.type == "version")
             return format!"#%s %s"(this.type, this.value);
         else if (this.type == "extension") 
-            return format!"#%s %s : %s"(this.type, this.value, this.value2.get());
+            return format!"#%s %s : %s"(this.type, this.value, this.value2.unwrap());
         else
             return "";
     }

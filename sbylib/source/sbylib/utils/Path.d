@@ -31,9 +31,8 @@ private mixin template CreatePath(string prefix, bool enableReadLibray) {
             if (!callerFile.canFind("sbylib")) return;
             auto root = findRoot(callerFile);
             if (root.isNone) return;
-            this._path = root.get() ~ "/" ~ this._path;
-        }
-    }
+            this._path = root.unwrap() ~ "/" ~ this._path;
+        } }
 
     string getPath() {
         return _path;

@@ -173,7 +173,7 @@ struct Area {
         m.traverse!((Entity e) {
             auto name = e.mesh.mat.wrapCast!(StageMaterial).name;
             if (name.isNone) return;
-            e.setUserData("MaterialName", name.get);
+            e.setUserData("MaterialName", name.unwrap());
         });
         writeln("BVH construction was finished.");
     }

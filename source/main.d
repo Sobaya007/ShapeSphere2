@@ -14,7 +14,7 @@ void main(string[] args) {
     if (po.helpWanted) {
         showHelp();
     } else if (runMode.isJust) {
-        run(runMode.get(), args);
+        run(runMode.unwrap(), args);
     } else {
         run(args);
     }

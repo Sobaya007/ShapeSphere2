@@ -8,7 +8,7 @@ void textExample() {
     
     auto universe = Universe.createFromJson(ResourcePath("world/text.json"));
 
-    auto world = universe.getWorld("world").get();
+    auto world = universe.getWorld("world").unwrap();
 
     auto createLabel(float size, Label.Strategy s, string y, vec2 pos, vec4 color, dstring text) {
         pos.xy = pos.xy * vec2(Core().getWindow().width, Core().getWindow().height) / 2;
