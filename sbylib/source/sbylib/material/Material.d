@@ -77,7 +77,7 @@ class Material {
 
         static auto getConfig(T)(ConfigKey key, T defaultValue) {
             import std.conv;
-            return wrapException!(() => parsed[key].as!T).getOrElse(defaultValue);
+            return wrapException(parsed[key].as!T).getOrElse(defaultValue);
         }
 
         enum VertexShaderAutoGen = getConfig(ConfigKey.VertexShaderAutoGen, true);

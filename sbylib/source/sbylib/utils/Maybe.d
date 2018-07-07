@@ -217,6 +217,11 @@ auto wrapException(alias f)() {
     return Just(f());
 }
 
+auto wrapException(T)(lazy T f) {
+    scope(failure) return None!(T);
+    return Just(f());
+}
+
 // InputRange!(Maybe!T) -> InputRange!T
 auto catMaybe(Range)(Range r) if (isInputRange!Range && isInstanceOf!(Maybe, ElementType!Range)) {
     return r.filter!(m => m.isJust).map!(m => m.get);

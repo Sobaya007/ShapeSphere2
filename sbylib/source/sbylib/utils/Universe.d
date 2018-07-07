@@ -154,13 +154,13 @@ class Universe {
 
         import std.file;
 
-        auto root = wrapException!(() => parseJSON(readText(path)).as!(JSONValue[string]))
+        auto root = wrapException(parseJSON(readText(path)).as!(JSONValue[string]))
             .getOrError("root must be object");
 
         auto keyCommand = root.fetch("KeyCommand");
         if (keyCommand.isJust) {
             createKeyCommand(
-                wrapException!(() => keyCommand.get().as!(JSONValue[string]))
+                wrapException(keyCommand.get().as!(JSONValue[string]))
                 .getOrError("KeyCommand's value must be object")
             );
         }
@@ -173,7 +173,7 @@ class Universe {
         }
         if (render.isJust) {
             createRender(
-                wrapException!(() => render.get().as!(JSONValue[]))
+                wrapException(render.get().as!(JSONValue[]))
                 .getOrError("Render's value must be object")
             );
         } else {
@@ -197,7 +197,7 @@ class Universe {
         import std.conv;
 
         foreach (key, command; commandList) {
-            auto button = wrapException!(() => key.to!KeyButton)
+            auto button = wrapException(key.to!KeyButton)
                 .getOrError(format!"'%s' is not a valid key name"(key));
 
             this.justPressed(button).add(createCommand(command));
@@ -595,7 +595,7 @@ private auto fetch(JSONValue[string] object, string key) {
 }
 
 private auto fetch(Type)(JSONValue[string] object, string key) {
-    auto result = object.at(key).fmapAnd!((JSONValue v) => wrapException!(() => v.as!Type));
+    auto result = object.at(key).fmapAnd!((JSONValue v) => wrapException(v.as!Type));
     if (result.isJust) object.remove(key);
     return result;
 }
