@@ -22,7 +22,6 @@ import std.typecons;
 
 interface Geometry {
     void render(VertexArray vao);
-    void destroy();
     Tuple!(Attribute, VertexBuffer)[] getBuffers();
     IndexBuffer getIndexBuffer();
     void updateBuffer();
@@ -56,9 +55,10 @@ class VertexGroup(Attribute[] Attributes) {
         }}
     }
 
-    void destroy() {
-        import std.algorithm;
-        buffers.each!(buffer => buffer[1].destroy());
+    ~this() {
+        foreach (attr, buf; buffers) {
+            buf.destroy();
+        }
     }
 
     void updateBuffer() {
@@ -90,7 +90,7 @@ class FaceGroup(Prim Mode) {
         this.faces = calcFaces(indices);
     }
 
-    void destroy() {
+    ~this() {
         this.ibo.destroy();
     }
 

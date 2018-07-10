@@ -1,9 +1,5 @@
 module sbylib.wrapper.gl.Attribute;
 
-import derelict.opengl;
-import sbylib.wrapper.gl.BufferObject;
-import std.conv;
-
 struct Attribute {
 
     enum Position = Attribute(3, "_position");

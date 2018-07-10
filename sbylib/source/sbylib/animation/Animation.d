@@ -1,12 +1,10 @@
 module sbylib.animation.Animation;
 
-public {
-    import sbylib.entity.Entity;
-    import sbylib.animation.Ease;
-    import sbylib.utils.Unit : Frame, frame;
-}
-import sbylib.math;
-import std.algorithm;
+import sbylib.entity.Entity;
+import sbylib.animation.Ease;
+import sbylib.math.Angle;
+import sbylib.math.Vector;
+public import sbylib.utils.Unit : Frame, frame;
 
 AnimSetting!T setting(T)(T start, T end, Frame period, EaseFunc ease) {
     return AnimSetting!T(start, end, period, ease);
@@ -26,9 +24,9 @@ struct AnimSetting(T) {
         this.ease = ease;
     }
 
-    T eval(Frame frame) in {
-        assert(0 <= frame && frame <= period);
-    } body {
+    T eval(Frame frame) 
+        in(0 <= frame && frame <= period)
+    {
         return start + (end - start) * ease(cast(float)frame / period);
     }
 }
@@ -36,7 +34,7 @@ struct AnimSetting(T) {
 interface IAnimation {
     void eval(Frame);
     bool done();
-    void finish() out { assert(done); }
+    void finish() out(;done());
 }
 
 interface IAnimationWithPeriod : IAnimation {
@@ -183,22 +181,26 @@ class MultiAnimation(Base) : Base {
     }
 
     override void eval(Frame frame) {
+        import std.algorithm : filter;
         foreach (anim; this.animations.filter!(a => !a.done)) {
             anim.eval(frame);
         }
     }
 
     override bool done() {
+        import std.algorithm : all;
         return this.animations.all!(a => a.done);
     }
 
     static if (is(Base == IAnimationWithPeriod)) {
         override Frame period() {
+            import std.algorithm : map, maxElement;
             return this.animations.map!(a => a.period).maxElement;
         }
     }
 
     override void finish() {
+        import std.algorithm : filter, each;
         this.animations.filter!(a => !a.done).each!(a => a.finish());
     }
 }
@@ -222,14 +224,17 @@ class SequenceAnimation : IAnimationWithPeriod {
     }
 
     override Frame period() {
+        import std.algorithm : map, sum;
         return this.animations.map!(a => a.period).sum;
     }
 
     override bool done() {
+        import std.algorithm : all;
         return this.animations.all!(a => a.done);
     }
 
     override void finish() {
+        import std.algorithm : filter, each;
         this.animations.filter!(a => !a.done).each!(a => a.finish());
     }
 }
@@ -248,6 +253,7 @@ auto translate(Entity entity, AnimSetting!vec2 evaluator) {
 }
 
 auto rotate(Entity entity, AnimSetting!Radian evaluator) {
+    import sbylib.math.Matrix;
     auto e = entity;
     return animation((Radian rad) => e.rot = mat3.axisAngle(vec3(0,0,1), rad), evaluator);
 }

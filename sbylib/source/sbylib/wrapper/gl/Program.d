@@ -1,26 +1,23 @@
 module sbylib.wrapper.gl.Program;
 
-import sbylib.wrapper.gl.Attribute;
-import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.gl.Shader;
-import sbylib.wrapper.gl.Functions;
-import sbylib.wrapper.gl.VertexBuffer;
-import sbylib.wrapper.gl.Uniform;
-import derelict.opengl;
-import std.file, std.stdio, std.string, std.conv, std.range, std.algorithm;
-import std.ascii;
+import sbylib.wrapper.gl.ObjectGL;
 
-class Program {
+class Program : ObjectGL {
 
-    package immutable uint id;
-    private bool alive = true;
+    import sbylib.wrapper.gl.Attribute;
+    import sbylib.wrapper.gl.Constants;
+    import sbylib.wrapper.gl.Functions;
+    import sbylib.wrapper.gl.Shader;
+    import sbylib.wrapper.gl.Uniform;
+    import sbylib.wrapper.gl.VertexBuffer;
 
     /* For Uniform */
     private uint uniformBlockPoint = 0;
     private uint textureUnit = 0;
     private debug bool inUseOfUniform;
 
-    this(const Shader[] shaders) in {
+    this(const Shader[] shaders)
+    in {
         debug {
             import std.algorithm : canFind;
 
@@ -29,49 +26,36 @@ class Program {
             bool hasCompute = shaders.canFind!(shader => shader.getType() == ShaderType.Compute);
             assert(hasVertex && hasFragment || hasCompute);
         }
-    } out {
-        GlFunction.checkError();
-    } body {
-        this.id = glCreateProgram();
+    } 
+    do {
+        super(GlFunction.createProgram(),
+                &GlFunction.deleteProgram);
         foreach (shader; shaders) {
             this.attachShader(shader);
         }
-        this.linkProgram;
+        this.linkProgram();
         assert(this.getLinkStatus, getLogString());
     }
 
-    ~this() {
-        // Material Exampleにて爆発。
-        // なんか謎のMaterial解放が原因っぽい。
-        // とりあえずめんどいので放置。
-        //assert(!alive);
-        import std.stdio;
-        if (alive) writeln("Invalid Destruction For Program");
-    }
-
-    void destroy() in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } do {
-        alive = false;
-        glDeleteProgram(id);
-    }
-
-    void beginUniform() in {
+    void beginUniform()
+    in {
         debug assert(!inUseOfUniform);
-    } out {
+    } 
+    out {
         debug assert(inUseOfUniform);
-    } do {
+    } 
+    do {
         this.use();
         this.uniformBlockPoint = 0;
         this.textureUnit = 0;
         debug this.inUseOfUniform = true;
     }
 
-    void applyUniform(const Uniform uniform) in {
+    void applyUniform(const Uniform uniform)
+    in {
         debug assert(inUseOfUniform);
-    } do {
+    }
+    do {
         uniform.apply(this, uniformBlockPoint, textureUnit);
     }
 
@@ -97,82 +81,57 @@ class Program {
 
     inout {
 
-        void use() in {
-            assert(alive);
-        } out {
-            GlFunction.checkError();
-        } body {
-            glUseProgram(id);
+        void use() {
+            GlFunction.useProgram(id);
         }
 
-        void enableAttribute(Attribute attr) out {
-            GlFunction.checkError();
-        } body {
+        void enableAttribute(Attribute attr) {
             immutable loc = this.getAttribLocation(attr.name);
-            glEnableVertexAttribArray(loc);
+            GlFunction.enableVertexAttribArray(loc);
         }
 
-        void attachAttribute(Attribute attr, VertexBuffer buffer) out {
-            GlFunction.checkError();
-        } body {
+        void attachAttribute(Attribute attr, VertexBuffer buffer) {
             immutable loc = this.getAttribLocation(attr.name);
             buffer.asAttribute(attr.dim, loc);
         }
 
-        bool hasAttribute(string name) in {
-            assert(alive);
-        } out {
-            GlFunction.checkError();
-        } body {
-            int vLoc = glGetAttribLocation(this.id, name.toStringz);
+        bool hasAttribute(string name) {
+            int vLoc = GlFunction.getAttribLocation(this.id, name);
             return vLoc != -1;
         }
 
-        uint getAttribLocation(string name) in {
-            assert(alive);
-        } out {
-            GlFunction.checkError();
-        } body {
-            int vLoc = glGetAttribLocation(this.id, name.toStringz);
+        uint getAttribLocation(string name) {
+            int vLoc = GlFunction.getAttribLocation(this.id, name);
             assert(vLoc != -1);
             return vLoc;
         }
 
-        private void attachShader(const Shader shader) out {
-            GlFunction.checkError();
-        } body {
-            glAttachShader(this.id, shader.id);
+        private void attachShader(const Shader shader) {
+            GlFunction.attachShader(this.id, shader.id);
         }
 
-        private void linkProgram() out {
-            GlFunction.checkError();
-        } body {
-            glLinkProgram(id);
+        private void linkProgram() {
+            GlFunction.linkProgram(this.id);
         }
 
-        private int getInfo(ProgramParamName name) out {
-            GlFunction.checkError();
-        } body {
-            int res;
-            glGetProgramiv(this.id, name, &res);
-            return res;
+        private int getInfo(ProgramParamName name) {
+            return GlFunction.getProgram!(int, 1)(this.id, name)[0];
         }
 
         private bool getLinkStatus() {
-            return getInfo(ProgramParamName.LinkStatus) == GL_TRUE;
+            return getInfo(ProgramParamName.LinkStatus) > 0;
         }
 
         private int getLogLength() {
             return getInfo(ProgramParamName.InfoLogLength);
         }
 
-        private string getInfoLog() out {
-            GlFunction.checkError();
-        } body {
-            immutable logLength = this.getLogLength;
+        private string getInfoLog() {
+            auto logLength = this.getLogLength;
             char[] log = new char[logLength];
-            int a;
-            glGetProgramInfoLog(this.id, logLength, &a, &log[0]);
+            GlFunction.getProgramInfoLog(this.id, logLength, &logLength, &log[0]);
+
+            import std.conv;
             return log.to!string;
         }
 

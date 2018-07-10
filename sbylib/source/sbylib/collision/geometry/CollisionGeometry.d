@@ -1,12 +1,9 @@
 module sbylib.collision.geometry.CollisionGeometry;
 
-public {
-    import sbylib.entity.Entity;
-    import sbylib.math.Vector;
-    import sbylib.utils.Change;
-}
-
 struct AABB {
+    import sbylib.math.Vector;
+    import sbylib.collision.geometry.CollisionRay;
+
     vec3 min, max;
 
     bool collide(const AABB bound) const {
@@ -39,7 +36,10 @@ struct AABB {
 }
 
 interface CollisionGeometry {
-    void setOwner(Entity);
+    import sbylib.entity.Entity;
+    import sbylib.utils.Change;
+
+    void setOwner(Entity e) in(e !is null);
     ChangeObserveTarget!AABB getBound();
     string toString();
 }

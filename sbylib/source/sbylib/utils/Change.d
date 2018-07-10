@@ -114,11 +114,13 @@ struct ChangeObserved(T) {
 
         enum isConst = hasFunctionAttributes!(mixin(Member), "const");
 
-        const(Unqual!R) get() @safe in {
+        const(Unqual!R) get() @safe
+        in {
             static if (is(typeof(this.value is null))) {
                 assert(this.value !is null);
             }
-        } body {
+        }
+        do {
             auto r = mixin(Member ~ "()");
             static if (!isConst) {
                 this.onChange();
@@ -309,9 +311,9 @@ struct Depends(alias Function, Type = ReturnType!Function) {
         this.onChange();
     }
 
-    Type get()  in {
-        assert(this.initialized, "You must call 'depends' before use of this.");
-    } body {
+    Type get()
+        in(this.initialized, "You must call 'depends' before use of this.")
+    {
         if (this.needsUpdate) {
             this.needsUpdate = false;
             import std.algorithm, std.range, std.format;
@@ -322,9 +324,9 @@ struct Depends(alias Function, Type = ReturnType!Function) {
 
     alias get this;
 
-    void notify() in {
-        assert(this.initialized, "You must call 'depends' before use of this.");
-    } body {
+    void notify()
+        in(this.initialized, "You must call 'depends' before use of this.")
+    {
         if (this.needsUpdate) return;
         this.needsUpdate = true;
         this.onChange();

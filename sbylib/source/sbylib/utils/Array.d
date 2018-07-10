@@ -16,9 +16,9 @@ struct Array(T) {
 
     private enum invalidMessage = "This array is invalid.(before initialize or after destroy)";
 
-    this(size_t capacity) out {
-        assert(this.ptr);
-    } body {
+    this(size_t capacity)
+        out(; this.ptr)
+    {
         this.realLength = capacity;
         this._length = 0;
         auto size = this.realLength * T.sizeof;
@@ -27,24 +27,28 @@ struct Array(T) {
         GC.addRange(this.ptr, size);
     }
 
-    void destroy() in {
-        assert(this.valid, invalidMessage);
-    } body {
+    void destroy()
+        in(this.valid, invalidMessage)
+    {
         GC.removeRange(cast(void*)this.ptr);
         free(cast(void*)this.ptr);
         this.valid = false;
     }
 
-    void opOpAssign(string op)(T value) if (op == "~") in {
-        assert(this.valid, invalidMessage);
-    } body {
+    void add(T value)
+        in(this.valid, invalidMessage)
+    {
         this.incLength(1);
         this[this._length-1] = value;
     }
 
-    void opOpAssign(string op)(Array!T value) if (op == "~") in {
-        assert(this.valid, invalidMessage);
-    } body {
+    void opOpAssign(string op)(T value) if (op == "~") {
+        add(value);
+    }
+
+    void opOpAssign(string op)(Array!T value) if (op == "~") 
+        in(this.valid, invalidMessage)
+    {
         auto oldLength = this._length;
         this.incLength(value._length);
         foreach (i; 0..value._length) {
@@ -52,11 +56,11 @@ struct Array(T) {
         }
     }
 
-    ref T opIndex(size_t idx) in {
-        assert(0 <= idx, format!"index must not be negative. index is %d."(idx));
-        assert(idx < length, format!"index must be less than %d. index is %d."(this.length, idx));
-        assert(valid, invalidMessage);
-    } body {
+    ref T opIndex(size_t idx)
+        in(0 <= idx, format!"index must not be negative. index is %d."(idx))
+        in(idx < length, format!"index must be less than %d. index is %d."(this.length, idx))
+        in(valid, invalidMessage)
+    {
         return this.ptr[idx+offset];
     }
 
@@ -75,9 +79,9 @@ struct Array(T) {
         return res;
     }
 
-    int opApply(int delegate(size_t, ref T) dg) in {
-        assert(this.valid, invalidMessage);
-    } body {
+    int opApply(int delegate(size_t, ref T) dg)
+        in(this.valid, invalidMessage)
+    {
         int result = 0;
         size_t pos = 0;
         while (pos < this._length) {
@@ -88,9 +92,9 @@ struct Array(T) {
         return result;
     }
 
-    int opApply(int delegate(ref T) dg) in {
-        assert(this.valid, invalidMessage);
-    } body {
+    int opApply(int delegate(ref T) dg)
+        in(this.valid, invalidMessage)
+    {
         int result = 0;
         auto pos = 0;
         while (pos < this._length) {
@@ -117,9 +121,9 @@ struct Array(T) {
         return None!T;
     }
 
-    private void incLength(size_t _length) out {
-        assert(this.ptr);
-    } body {
+    private void incLength(size_t _length)
+        out(; this.ptr)
+    {
         this._length += _length;
         if (this._length > this.realLength) {
             this.realLength = this._length + 10;

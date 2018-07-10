@@ -96,9 +96,9 @@ class Entity {
        備考:
             デストラクタでやらないのは、他スレッドでGCが起動してデストラクタが起動した場合にOpenGLの命令を呼べなくなるから
      */
-    void destroy() in {
-        assert(this.isWorldConnected == false, "Calling 'destroy' must be after 'remove'");
-    } body {
+    void destroy()
+        in(this.isWorldConnected == false, "Calling 'destroy' must be after 'remove'")
+    {
         this.mesh.destroy();
         foreach (p; this.processes) p.kill();
     }
@@ -133,15 +133,12 @@ class Entity {
         備考:
             - obj同士の親子関係も確立される
     */
-    void addChild(Entity child) in {
-        import std.array;
-        assert(child.isParentConnected == false, "addChild's argument must not have parent.");
-        assert(child.isWorldConnected == false, "addChild's argument must not be added to World.");
-    } out {
-        import std.array;
-        assert(child.isParentConnected == true);
-        assert(this.isWorldConnected == child.isWorldConnected);
-    } body {
+    void addChild(Entity child)
+        in(child.isParentConnected == false, "addChild's argument must not have parent.")
+        in(child.isWorldConnected == false, "addChild's argument must not be added to World.")
+        out(;child.isParentConnected == true)
+        out(;this.isWorldConnected == child.isWorldConnected)
+    {
 
         // Worldとの接続
         if (this.world.isJust) {
@@ -165,10 +162,10 @@ class Entity {
         備考:
             - this以下の親子関係は維持される
     */
-    void remove() out {
-        assert(this.isWorldConnected == false);
-        assert(this.isParentConnected == false);
-    } body {
+    void remove()
+        out(;this.isWorldConnected == false)
+        out(;this.isParentConnected == false)
+    {
 
         // 親子の接続解消
         import std.algorithm : aremove = remove;
@@ -193,11 +190,13 @@ class Entity {
         備考:
             - chlidren以下の親子関係は維持される
     */
-    void clearChildren() out {
-        import std.algorithm;
+    void clearChildren()
+    out {
+        import std.algorithm : all;
         assert(children.all!(child => child.isWorldConnected == false));
         assert(children.all!(child => child.isParentConnected == false));
-    } body {
+    }
+    do {
         import std.algorithm : each;
 
         /*
@@ -216,9 +215,9 @@ class Entity {
         this.children.length = 0;
     }
 
-    package(sbylib) void setWorld(World world) in {
-        assert(this.world.isNone);
-    } body {
+    package(sbylib) void setWorld(World world)
+        in(this.world.isNone)
+    {
         import std.algorithm : each;
 
         this._world = Just(world);
@@ -230,10 +229,10 @@ class Entity {
         this._world = None!World;
     }
 
-    package(sbylib) void setMesh(Mesh m) in {
-        assert(m.owner == this);
-        assert(this.world.isNone);
-    } body {
+    package(sbylib) void setMesh(Mesh m)
+        in(m.owner == this)
+        in(this.world.isNone)
+    {
         this._mesh = Just(m);
     }
 
@@ -245,9 +244,9 @@ class Entity {
         return this.parent;
     }
 
-    Entity getRootParent() out (res) {
-        assert(res !is null);
-    } body {
+    Entity getRootParent()
+        out(res; res !is null)
+    {
         return this.parent.getRootParent().getOrElse(this);
     }
 
@@ -257,9 +256,9 @@ class Entity {
         return children.map!(child => max(1, child.getDescendantNum)).sum;
     }
 
-    void render() in {
-        assert(this.world.isJust, this.toString());
-    } body {
+    void render()
+        in(this.world.isJust)
+    {
         import std.algorithm : each;
 
         if (!this.visible) return;
@@ -282,6 +281,41 @@ class Entity {
         }
     }
 
+    Maybe!Entity getNext() {
+        import std.algorithm;
+        import std.array;
+        if (this.children.empty) {
+            return this.parent.fmap!((Entity parent) {
+                auto brothers = parent.getChildren();
+                auto idx = brothers.countUntil(this);
+                return brothers[idx];
+            });
+        } else {
+            return Just(this.children.front);
+        }
+    }
+
+    auto toRange() {
+        import std.range;
+        struct Iterator {
+            private Maybe!Entity e;
+
+            bool empty() {
+                return e.isJust;
+            }
+
+            Entity front() {
+                return e.get();
+            }
+            
+            void popFront() {
+                e = front.getNext();
+            }
+        }
+        static assert(isInputRange!(Iterator));
+        return Iterator(Just(this));
+    }
+
     void buildBVH() {
         this.traverse((Entity e) {
             auto polygons = e.mesh.geom.createCollisionPolygon();
@@ -295,15 +329,19 @@ class Entity {
             auto capsule = e.mesh.geom.createCollisionSphere();
             e.colEntry = capsule.fmap!((CollisionGeometry g) => new CollisionEntry(g, e));
             debug {
-                import sbylib.material.WireframeMaterial;
                 import sbylib.core.Core;
+                import sbylib.material.WireframeMaterial;
+                import sbylib.entity.Entity;
+                import sbylib.math.Vector;
+                import sbylib.utils.Maybe;
                 Core().addProcess((Process proc) {
                     capsule.apply!((capsule) {
+
                         auto geom = capsule.createGeometry();
                         auto mat = new WireframeMaterial(vec4(1));
-                        auto debugEntity = new Entity(geom, mat);
-                        debugEntity.name = "Debug Wire Capsule";
-                        e.addChild(debugEntity);
+                        //auto debugEntity = new Entity(geom, mat);
+                        //debugEntity.name = "Debug Wire Capsule";
+                        //e.addChild(debugEntity);
                     });
                     proc.kill();
                 }, "build capsule");
@@ -316,8 +354,11 @@ class Entity {
             auto capsule = e.mesh.geom.createCollisionCapsule();
             e.colEntry = capsule.fmap!((CollisionGeometry g) => new CollisionEntry(g, e));
             debug {
-                import sbylib.material.WireframeMaterial;
                 import sbylib.core.Core;
+                import sbylib.material.WireframeMaterial;
+                import sbylib.entity.Entity;
+                import sbylib.math.Vector;
+                import sbylib.utils.Maybe;
                 Core().addProcess((Process proc) {
                     capsule.apply!((capsule) {
                         auto geom = capsule.createGeometry();
@@ -341,9 +382,9 @@ class Entity {
         }
     }
 
-    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry) in {
-        assert(colEntry !is null);
-    } body {
+    void collide(ref Array!CollisionInfo result, CollisionEntry colEntry)
+        in(colEntry !is null)
+    {
         this.colEntry.collide(result, colEntry);
         foreach (child; this.children) {
             child.collide(result, colEntry);
@@ -375,11 +416,13 @@ class Entity {
             WorldとEntityが接続されている⇔ WorldがEntityを持っている && EntityがWorldを持っている
             だが、片方だけが持っているような状態を仮定しないので、片側のみの確認で良い
      */
-    private bool isWorldConnected() out (connected) {
+    private bool isWorldConnected()
+    out (connected) {
         this.getRootParent().traverse((Entity e) {
             assert(e.world.isJust == connected);
         });
-    } body {
+    }
+    do {
         return this.world.isJust;
     }
 

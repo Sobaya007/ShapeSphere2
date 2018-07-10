@@ -10,12 +10,13 @@ public:
 import sbylib.wrapper.gl.Attribute;
 import sbylib.wrapper.gl.BufferObject;
 import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.gl.FrameBuffer;
+import sbylib.wrapper.gl.Framebuffer;
 import sbylib.wrapper.gl.Functions;
 import sbylib.wrapper.gl.GL;
+import sbylib.wrapper.gl.ObjectGL;
 import sbylib.wrapper.gl.IndexBuffer;
 import sbylib.wrapper.gl.Program;
-import sbylib.wrapper.gl.RenderBuffer;
+import sbylib.wrapper.gl.Renderbuffer;
 import sbylib.wrapper.gl.Shader;
 import sbylib.wrapper.gl.Texture;
 import sbylib.wrapper.gl.Uniform;

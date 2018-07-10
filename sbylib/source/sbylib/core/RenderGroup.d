@@ -52,6 +52,7 @@ class TransparentRenderGroup : IRenderGroup {
     }
 
     override void render() {
+        import sbylib.math.Vector;
         this.entities.sort!((a,b) => dot(camera.pos - a.pos, camera.rot.column[2]) > dot(camera.pos - b.pos, camera.rot.column[2]));
         this.entities.each!(e => e.render());
     }

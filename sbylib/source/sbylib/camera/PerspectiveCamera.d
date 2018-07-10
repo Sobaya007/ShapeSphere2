@@ -1,13 +1,6 @@
 module sbylib.camera.PerspectiveCamera;
 
 import sbylib.camera.Camera;
-import sbylib.wrapper.gl.Uniform;
-import sbylib.math.Matrix;
-import sbylib.math.Vector;
-import sbylib.math.Angle;
-import sbylib.entity.Entity;
-import sbylib.utils.Change;
-import std.math;
 
 /*
    視錐台モデルを採用したカメラです。
@@ -15,13 +8,20 @@ import std.math;
  */
 
 final class PerspectiveCamera : Camera {
+
+    import sbylib.math.Matrix;
+    import sbylib.math.Angle;
+    import sbylib.entity.Entity;
+    import sbylib.utils.Change;
+
     ChangeObserved!float aspectWperH;
     ChangeObserved!Radian fovy;
     ChangeObserved!float nearZ;
     ChangeObserved!float farZ;
+
     alias ProjMatrix = Depends!((float aspect, Radian fovy, float near, float far) => mat4.perspective(aspect, fovy, near, far), umat4);
     private ProjMatrix mProjMatrix;
-public:
+
     Entity mEntity;
     alias entity this;
 

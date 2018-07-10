@@ -1,22 +1,20 @@
 module sbylib.wrapper.freeimage.Image;
 
-import derelict.freeimage.freeimage;
-import sbylib.wrapper.freeimage.Constants;
-import std.conv;
 
 class Image {
 
+    import derelict.freeimage.freeimage;
+    import sbylib.wrapper.freeimage.Constants;
+
     private FIBITMAP* bitmap;
 
-    this(int width, int height, int bpp) out {
-        assert(this.bitmap !is null, "Cannot Allocate Bitmap!");
-    } do {
-        this.bitmap = FreeImage_Allocate(width, height, bpp);
+    this(int width, int height, int bpp) {
+        this(FreeImage_Allocate(width, height, bpp));
     }
 
-    package this(FIBITMAP* bitmap) in {
-        assert(bitmap !is null);
-    } do {
+    package this(FIBITMAP* bitmap)
+        in(bitmap !is null)
+    {
         this.bitmap = bitmap;
     }
 
@@ -45,6 +43,7 @@ class Image {
     }
 
     ImageType getImageType() {
+        import std.conv : to;
         return FreeImage_GetImageType(bitmap).to!ImageType;
     }
 
@@ -88,21 +87,21 @@ class Image {
         save(ImageFormat.Exr, path, option);
     }
 
-    void saveAsJ2k(string path, int rate = J2K_DEFAULT) in {
-        assert(1 <= rate && rate <= 512);
-    } do {
+    void saveAsJ2k(string path, int rate = J2K_DEFAULT)
+        in(1 <= rate && rate <= 512)
+    {
         save(ImageFormat.J2k, path, rate);
     }
 
-    void saveAsJp2(string path, int rate = JP2_DEFAULT) in {
-        assert(1 <= rate && rate <= 512);
-    } do {
+    void saveAsJp2(string path, int rate = JP2_DEFAULT)
+        in(1 <= rate && rate <= 512)
+    {
         save(ImageFormat.Jp2, path, rate);
     }
 
-    void saveAsJpeg(string path, int quality, JpegSaveSubsamplingOption subsamplingOption = JpegSaveSubsamplingOption.Subsampling420, bool progressive = false) in {
-        assert(0 <= quality && quality <= 100);
-    } do {
+    void saveAsJpeg(string path, int quality, JpegSaveSubsamplingOption subsamplingOption = JpegSaveSubsamplingOption.Subsampling420, bool progressive = false)
+        in(0 <= quality && quality <= 100)
+    {
         int option = quality;
         option |= subsamplingOption;
         if (progressive) option |= JPEG_PROGRESSIVE;

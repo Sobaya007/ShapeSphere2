@@ -1,59 +1,28 @@
 module sbylib.wrapper.gl.VertexArray;
 
-import sbylib.wrapper.gl.Program;
-import sbylib.wrapper.gl.Attribute;
-import sbylib.wrapper.gl.VertexBuffer;
-import sbylib.wrapper.gl.IndexBuffer;
-import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.gl.Functions;
-import derelict.opengl;
-import std.algorithm;
-import std.typecons;
-import std.format;
-import sbylib.utils.Maybe;
+import sbylib.wrapper.gl.ObjectGL;
 
-class VertexArray {
+class VertexArray : ObjectGL {
 
-    immutable uint id;
-    private bool alive = true;
+    import sbylib.wrapper.gl.Attribute;
+    import sbylib.wrapper.gl.Constants;
+    import sbylib.wrapper.gl.Functions;
+    import sbylib.wrapper.gl.Program;
+    import sbylib.wrapper.gl.IndexBuffer;
+    import sbylib.wrapper.gl.VertexBuffer;
+    import std.typecons : Tuple;
 
-    this() out {
-        GlFunction.checkError();
-    } body {
-        uint vao;
-        glGenVertexArrays(1, &vao);
-        this.id = vao;
+    this() {
+        super(GlUtils.genVertexArray(),
+                &GlUtils.deleteVertexArray);
     }
 
-    ~this() {
-        //assert(!alive);
-        import std.stdio;
-        if (alive) writeln("Invalid Destruction For VertexArray");
+    void bind() const {
+        GlFunction.bindVertexArray(this.id);
     }
 
-    void destroy() in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body {
-        this.alive = false;
-        glDeleteVertexArrays(1, &this.id);
-    }
-
-    void bind() const in {
-        assert(alive);
-    } out {
-        GlFunction.checkError(format!"%d"(this.id));
-    } body {
-        glBindVertexArray(id);
-    }
-
-    void unbind() const in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body {
-        glBindVertexArray(0);
+    void unbind() const {
+        GlFunction.bindVertexArray(0);
     }
 
     void setup(const Program program, Tuple!(Attribute, VertexBuffer)[] buffers, IndexBuffer ibo) {
@@ -70,24 +39,21 @@ class VertexArray {
 
     void drawArrays(Prim prim, uint offset, uint count) {
         this.bind();
-        glDrawArrays(prim, offset, count);
-        GlFunction.checkError();
+        GlFunction.drawArrays(prim, offset, count);
         this.unbind();
     }
 
     void drawElements(IndexType)(Prim prim, IndexType[] indices)
     if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
         this.bind();
-        glDrawElements(prim, indices.length, getTypeEnum!(IndexType), indices.ptr);
-        GlFunction.checkError();
+        GlFunction.drawElements(prim, indices.length, indices.ptr);
         this.unbind();
     }
 
     void drawElements(IndexType)(Prim prim, uint count)
     if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
         this.bind();
-        glDrawElements(prim, count, GlFunction.getTypeEnum!(IndexType), null);
-        GlFunction.checkError();
+        GlFunction.drawElements!(IndexType)(prim, count, null);
         this.unbind();
     }
 }

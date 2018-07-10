@@ -2,9 +2,6 @@ module sbylib.wrapper.freeimage.FreeImage;
 
 import derelict.freeimage.freeimage;
 import derelict.util.exception;
-
-import std.algorithm : any;
-
 import sbylib.utils.Path;
 
 private ShouldThrow missingSymFunc(string symName) {

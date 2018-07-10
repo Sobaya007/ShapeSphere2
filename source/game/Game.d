@@ -93,7 +93,7 @@ static:
         this.world3d = new World;
         this.message = new Message;
         this.backBuffer = new RenderTarget(512, 512);
-        this.backBuffer.attachTexture!ubyte(FrameBufferAttachType.Color0);
+        this.backBuffer.attachTexture!ubyte(FramebufferAttachType.Color0);
 
         debug {
             LogFactory factory;

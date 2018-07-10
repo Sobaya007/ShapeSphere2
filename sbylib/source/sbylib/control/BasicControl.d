@@ -16,6 +16,8 @@ import std.array;
 
 class BasicControl {
 
+    import sbylib.entity.Entity;
+
     enum Mode {None, Translate, Rotate}
 
     private ViewportMouse mouse;

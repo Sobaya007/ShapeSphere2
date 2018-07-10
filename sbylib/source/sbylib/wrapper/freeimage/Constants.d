@@ -1,7 +1,6 @@
 module sbylib.wrapper.freeimage.Constants;
 
 import derelict.freeimage.freeimage;
-import std.variant;
 
 enum ImageType {
     Unknown = FIT_UNKNOWN,

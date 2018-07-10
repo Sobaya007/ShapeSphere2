@@ -1,13 +1,6 @@
 module sbylib.camera.OrthoCamera;
 
-public {
-    import sbylib.camera.Camera;
-    import sbylib.wrapper.gl.Uniform;
-    import sbylib.math.Matrix;
-    import sbylib.math.Vector;
-    import sbylib.entity.Entity;
-    import sbylib.utils.Change;
-}
+import sbylib.camera.Camera;
 
 /*
    平行投影モデルを採用したカメラです。
@@ -15,7 +8,10 @@ public {
  */
 
 final class OrthoCamera : Camera {
-public:
+    import sbylib.math.Matrix;
+    import sbylib.math.Vector;
+    import sbylib.entity.Entity;
+    import sbylib.utils.Change;
 
     ChangeObserved!float width;
     ChangeObserved!float height;

@@ -1,14 +1,7 @@
 module sbylib.wrapper.gl.Uniform;
-import derelict.opengl;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
-import sbylib.wrapper.gl.Functions;
-import sbylib.wrapper.gl.Program;
 import sbylib.wrapper.gl.Texture;
-import std.traits;
-import std.conv;
-import std.string;
-import std.format;
 
 alias ubool = TypedUniform!(bool);
 alias ufloat = TypedUniform!(float);
@@ -19,6 +12,9 @@ alias umat4 = TypedUniform!(mat4);
 alias utexture = TypedUniform!(Texture);
 
 interface Uniform {
+
+    import sbylib.wrapper.gl.Program;
+
     string getName() const;
     void setName(string);
     void apply(const Program, ref uint, ref uint) const;
@@ -29,6 +25,8 @@ auto createUniform(T)(T val, string name) if (isAcceptable!(T)) {
 }
 
 private template isAcceptable(T) {
+    import std.traits : isInstanceOf;
+
     static if (is(T == bool) || is(T == int) || is(T == float) || is(T == Texture)) {
         enum isAcceptable = true;
     } else static if (isInstanceOf!(Vector, T)) {
@@ -42,6 +40,9 @@ private template isAcceptable(T) {
 
 class TypedUniform(Type) : Uniform
     if (isAcceptable!(Type)) {
+
+    import sbylib.wrapper.gl.Program;
+
     string name;
     Type value;
 
@@ -66,33 +67,29 @@ class TypedUniform(Type) : Uniform
         this.name = name;
     }
 
-    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const out {
-        GlFunction.checkError();
-    } body {
+    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
+        import sbylib.wrapper.gl.Functions;
+        import std.traits : isInstanceOf;
+
         auto loc = this.getLocation(program);
         static if (is(Type == Texture)) {
             assert(this.value !is null, "UniformTexture's value is null");
             Texture.activate(textureUnit);
             this.value.bind();
-            glUniform1i(loc, textureUnit);
+            GlUtils.uniform!(int)(loc, textureUnit);
             textureUnit++;
         } else static if (isInstanceOf!(Vector, Type)) {
-            mixin(format!"glUniform%d%sv(loc, 1, this.value.array.ptr);"(Type.Dimension, Type.ElementType.stringof[0]));
+            GlUtils.uniform!(Type.ElementType, Type.Dimension)(loc, this.value.array);
         } else static if(isInstanceOf!(Matrix, Type)) {
-            mixin(format!"glUniformMatrix%d%sv(loc, 1, GL_TRUE, this.value.array.ptr);"(Type.Row, Type.ElementType.stringof[0]));
-        } else static if (is(Type == bool)) {
-            glUniform1i(loc, this.value);
+            GlUtils.uniformMatrix!(Type.ElementType, Type.Row)(loc, this.value.array);
         } else {
-            mixin(format!"glUniform1%s(loc, this.value);"(Type.stringof[0]));
+            GlUtils.uniform(loc, this.value);
         }
     }
 
-    private uint getLocation(const Program program) const out {
-        GlFunction.checkError();
-    } body {
-        int uLoc = glGetUniformLocation(program.id, this.name.toStringz);
-        //assert(uLoc != -1, name ~ " is not found or used."); 
-        return uLoc;
+    private uint getLocation(const Program program) const {
+        import sbylib.wrapper.gl.Functions;
+        return GlFunction.getUniformLocation(program.id, this.name);
     }
 
     override string toString() {
@@ -104,5 +101,5 @@ class TypedUniform(Type) : Uniform
         return value;
     }
 
-    alias value this;
+    alias get this;
 }

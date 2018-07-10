@@ -26,24 +26,21 @@ uniform PointLightBlock {
 }(MAX_LIGHT_NUM);
 
 
-class PointLight {
+class PointLight : Entity {
 
     private vec3 mDiffuse;
-    Entity entity;
     private size_t index;
-
-    alias entity this;
 
     this() {
         import sbylib.geometry.geometry3d.Sphere;
         import sbylib.material.WireframeMaterial;
         debug {
-            this.entity = makeEntity(Sphere.create(0.02, 2), new WireframeMaterial(vec4(vec3(1) - diffuse, 1)));
-            this.entity.name = "Debug Wire Sphere";
+            super(Sphere.create(0.02, 2), new WireframeMaterial(vec4(vec3(1) - diffuse, 1)));
+            this.name = "Debug Wire Sphere";
         } else {
-            this.entity = makeEntity();
+            super();
         }
-        this.entity.onAdd ~= {
+        this.onAdd ~= {
             auto buffer = PointLightManager().useBlock(BufferAccess.Both);
             this.index = buffer.num++;
             assert(buffer.num <= MAX_LIGHT_NUM);

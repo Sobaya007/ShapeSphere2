@@ -15,15 +15,17 @@ struct Maybe(T) {
     private T value;
     private bool _none = true;
 
-    invariant {
-        static if (RefuseNullType!(T)) {
-            assert(_none || value !is null, T.stringof);
-        }
+    static if (RefuseNullType!(T)) {
+        invariant(_none || value !is null, T.stringof);
     }
 
-    private this(T value) in {
-        static if (RefuseNullType!(T)) assert(value !is null);
-    } body {
+    private this(T value) 
+    in {
+        static if (RefuseNullType!(T)) {
+            assert(value !is null);
+        }
+    }
+    do {
         this.value = value;
         this._none = false;
     }
@@ -52,9 +54,9 @@ struct Maybe(T) {
         }
     }
 
-    auto ref get() inout in {
-        assert(!_none, "this is none");
-    } body {
+    auto ref get() inout 
+        in(!_none, "this is none")
+    {
         return this.value;
     }
 
@@ -74,9 +76,9 @@ struct Maybe(T) {
         return _none;
     }
 
-    int opCmp(S)(S value) in {
-        assert(this.isJust);
-    } body {
+    int opCmp(S)(S value)
+        in(this.isJust)
+    {
         return this.value > value;
     }
 
@@ -148,11 +150,13 @@ auto match(alias funJust, alias funNone, T)(Maybe!T m) {
     }
 }
 
-Maybe!T Just(T)(T v) in {
-    static if (is(typeof(v == null)) && !isArray!(T)) {
-        assert(v != null);
+Maybe!T Just(T)(T v)
+in {
+    static if (RefuseNullType!(T)) {
+        assert(v !is null);
     }
-} body {
+}
+do {
     return Maybe!T(v);
 }
 

@@ -2,7 +2,6 @@ module sbylib.wrapper.glfw.GLFW;
 
 import derelict.glfw3.glfw3;
 import sbylib.utils.Path;
-import std.stdio;
 
 class GLFW {
 
@@ -32,6 +31,8 @@ class GLFW {
 
     private extern(C) void errorCallback(int error, const(char)* description) nothrow {
         import sbylib.wrapper.glfw.Constants : ErrorCode;
+        import std.stdio : printf;
+
         printf("error code: %x\n", error);
         printf("description: %s\n", description);
         assert(false, "GLFW error");

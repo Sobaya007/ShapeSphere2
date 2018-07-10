@@ -1,19 +1,19 @@
 module sbylib.character.StringTexture;
 
-import sbylib.wrapper.gl.Texture;
-import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.gl.Functions;
-import sbylib.wrapper.freetype.Font;
-import sbylib.character.Label;
-import std.traits;
 
 class StringTexture { 
+
+    import sbylib.wrapper.gl.Texture;
+    import sbylib.wrapper.freetype.Font;
+    import std.traits : isSomeString;
+
     private Texture mTexture;
     private float width, height;
     private ubyte[] buffer;
     private Font.LetterInfo[] beforeInfos;
 
     this() {
+        import sbylib.wrapper.gl.Constants;
         this.mTexture = new Texture(TextureTarget.Tex2D);
         this.texture.setWrapS(TextureWrap.ClampToEdge);
         this.texture.setWrapT(TextureWrap.ClampToEdge);
@@ -25,12 +25,18 @@ class StringTexture {
     }
 
     void setBuffer(String)(Font font, String str) if (isSomeString!(String)) {
-        import std.algorithm, std.array;
+        import std.algorithm : map;
+        import std.array : array;
         setBuffer(str.map!(c => font.getLetterInfo(c)).array);
     }
 
     void setBuffer(Font.LetterInfo[] infos) {
-        import std.algorithm, std.range;
+        import std.algorithm : map, sum, maxElement;
+        import std.range;
+        import std.array : empty;
+        import sbylib.wrapper.gl.Constants;
+        import sbylib.wrapper.gl.Functions;
+
         if (infos.empty) return;
         auto totalWidth = infos.map!(i=>i.advance).sum;
         auto minHeight = infos.map!(i => i.maxHeight).maxElement;

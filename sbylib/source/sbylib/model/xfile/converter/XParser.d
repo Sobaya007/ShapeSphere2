@@ -20,9 +20,10 @@ class XParser : XConverter!(DList!XToken, XFrameNode) {
 
 private:
 
-    XFrameNode parse(DList!XToken tokens) {
+    XFrameNode parse(DList!XToken tokens) 
+        out(; tokens.empty)
+    {
         XFrameNode frame = parseFrame(tokens);
-        assert(tokens.empty);
         return frame;
     }
 

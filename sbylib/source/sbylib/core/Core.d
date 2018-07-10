@@ -72,6 +72,7 @@ class Core {
     private Universe universe;
     private Clipboard clipboard;
     private FpsBalancer fpsBalancer;
+    private bool startFlag;
     private bool endFlag;
 
     //初期化関数
@@ -96,7 +97,9 @@ class Core {
     }
 
     void start() {
+        if (startFlag) return; //prevent dual start
         writeln("APPLICATION STARTED");
+        startFlag = true;
 
         mainLoop();
 

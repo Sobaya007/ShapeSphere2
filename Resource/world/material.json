@@ -9,15 +9,12 @@
             "pos" : [3,2,9],
             "lookAt" : [0,2,0],
             "control" : true
-<<<<<<< HEAD
         },
         "plane" : {
             "type" : "Entity",
             "geometry" : "Plane",
             "material" : "Check",
             "scale" : [10,10,10]
-=======
->>>>>>> 5048a9593c50830f81a4fe7877cb995de47efa7b
         }
     },
     "KeyCommand" : {

@@ -2,6 +2,16 @@ module sbylib.wrapper.gl.Constants;
 
 import derelict.opengl;
 
+alias VertexArrayID = uint;
+alias BufferID = uint;
+alias RenderbufferID = uint;
+alias FramebufferID = uint;
+alias TextureID = uint;
+alias ProgramID = uint;
+alias ShaderID = uint;
+alias AttribLoc = uint;
+alias UniformLoc = uint;
+
 enum BufferBit {
     Color = GL_COLOR_BUFFER_BIT,
     Depth = GL_DEPTH_BUFFER_BIT,
@@ -154,13 +164,13 @@ enum BufferAccess {
     Both = GL_READ_WRITE
 }
 
-enum FrameBufferBindType {
+enum FramebufferBindType {
     Read = GL_READ_FRAMEBUFFER,
     Write = GL_DRAW_FRAMEBUFFER,
     Both = GL_FRAMEBUFFER
 }
 
-enum FrameBufferAttachType {
+enum FramebufferAttachType {
     Color0 = GL_COLOR_ATTACHMENT0,
     Color1 = GL_COLOR_ATTACHMENT1,
     Color2 = GL_COLOR_ATTACHMENT2,
@@ -169,7 +179,7 @@ enum FrameBufferAttachType {
     DepthStencil = GL_DEPTH_STENCIL_ATTACHMENT
 }
 
-enum RenderBufferBindType {
+enum RenderbufferBindType {
     Both = GL_RENDERBUFFER //リファレンス曰く、これしかない。草。
 }
 
@@ -353,8 +363,8 @@ enum ParamName {
     DoubleBuffer = GL_DOUBLEBUFFER,
     DrawBuffer = GL_DRAW_BUFFER,
     //DrawBuffer[i]
-    DrawFrameBufferBinding = GL_DRAW_FRAMEBUFFER_BINDING,
-    ReadFrameBufferBinding = GL_READ_FRAMEBUFFER_BINDING,
+    DrawFramebufferBinding = GL_DRAW_FRAMEBUFFER_BINDING,
+    ReadFramebufferBinding = GL_READ_FRAMEBUFFER_BINDING,
     ElementArrayBufferBinding = GL_ELEMENT_ARRAY_BUFFER_BINDING,
     FragmentShaderDerivativeHint = GL_FRAGMENT_SHADER_DERIVATIVE_HINT,
     ImplementationColorReadFormat = GL_IMPLEMENTATION_COLOR_READ_FORMAT,
@@ -387,10 +397,10 @@ enum ParamName {
     MaxFragmentUniformComponents = GL_MAX_FRAGMENT_UNIFORM_COMPONENTS,
     MaxFragmentUniformVectors = GL_MAX_FRAGMENT_UNIFORM_VECTORS,
     MaxFragmentUniformBlocks = GL_MAX_FRAGMENT_UNIFORM_BLOCKS,
-    MaxFrameBufferWidth = GL_MAX_FRAMEBUFFER_WIDTH,
-    MaxFrameBufferHeight = GL_MAX_FRAMEBUFFER_HEIGHT,
-    MaxFrameBufferLayers = GL_MAX_FRAMEBUFFER_LAYERS,
-    MaxFrameBufferSamples = GL_MAX_FRAMEBUFFER_SAMPLES,
+    MaxFramebufferWidth = GL_MAX_FRAMEBUFFER_WIDTH,
+    MaxFramebufferHeight = GL_MAX_FRAMEBUFFER_HEIGHT,
+    MaxFramebufferLayers = GL_MAX_FRAMEBUFFER_LAYERS,
+    MaxFramebufferSamples = GL_MAX_FRAMEBUFFER_SAMPLES,
     MaxGeometryAtomicCounters = GL_MAX_GEOMETRY_ATOMIC_COUNTERS,
     MaxGeometryShaderStorageBlocks = GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS,
     MaxGeometryInputComponents = GL_MAX_GEOMETRY_INPUT_COMPONENTS,
@@ -404,7 +414,7 @@ enum ParamName {
     MaxProgramTexelOffset = GL_MAX_PROGRAM_TEXEL_OFFSET,
     MinProgramTexelOffset = GL_MIN_PROGRAM_TEXEL_OFFSET,
     MaxRectangleTextureSize = GL_MAX_RECTANGLE_TEXTURE_SIZE,
-    MaxRenderBufferSize = GL_MAX_RENDERBUFFER_SIZE,
+    MaxRenderbufferSize = GL_MAX_RENDERBUFFER_SIZE,
     MaxSampleMaskWords = GL_MAX_SAMPLE_MASK_WORDS,
     MaxServerWaitTimeout = GL_MAX_SERVER_WAIT_TIMEOUT,
     MaxShaderStorageBufferBindings = GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS,

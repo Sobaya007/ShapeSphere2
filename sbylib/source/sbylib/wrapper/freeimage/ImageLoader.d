@@ -1,7 +1,9 @@
 module sbylib.wrapper.freeimage.ImageLoader;
 
-public import sbylib.wrapper.freeimage.Image;
-public import sbylib.wrapper.freeimage.Constants;
+public {
+    import sbylib.wrapper.freeimage.Image;
+    import sbylib.wrapper.freeimage.Constants;
+}
 
 import derelict.freeimage.freeimage;
 
@@ -58,20 +60,22 @@ class ImageLoader {
         return new Image(load(ImageFormat.Tiff, path, option));
     }
 
-    static ImageFormat getFormat(string path) in {
+    static ImageFormat getFormat(string path)
+    in {
         import std.file : exists;
         import std.format;
         assert(exists(path), format!"'%s' does not exist."(path));
-    } body {
+    }
+    do {
         import std.string : toStringz;
 
         // 第2引数は現在使われていないらしい。
         return cast(ImageFormat)FreeImage_GetFileType(path.toStringz,0);
     }
 
-    private static FIBITMAP* load(ImageFormat format, string path, int option = 0) out(result) {
-        assert(result, path ~ " exists, but cannot load.");
-    } do {
+    private static FIBITMAP* load(ImageFormat format, string path, int option = 0)
+        out(result; result, path ~ " exists, but cannot load.")
+    {
         import std.string : toStringz;
         return FreeImage_Load(format, path.toStringz, option);
     }

@@ -14,9 +14,9 @@ class Spline(uint Dim) {
     private Point[] pointList;
     private float[] timeList;
 
-    this(Vec[] points, float speed) in {
-        assert(points.length >= 2);
-    } do {
+    this(Vec[] points, float speed)
+        in(points.length >= 2)
+    {
         foreach (i, p; points) {
             if (i == 0) pointList ~= Point(p, speed * normalize(points[1] - p));
             else if (i == points.length-1) {

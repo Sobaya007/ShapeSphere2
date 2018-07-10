@@ -1,12 +1,7 @@
 module sbylib.wrapper.gl.Texture;
 
-import derelict.opengl;
-import derelict.freeimage.freeimage;
-import std.stdio, std.string, std.conv;
-
 import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.gl.Functions;
-import sbylib.wrapper.freeimage.Image;
+import sbylib.wrapper.gl.ObjectGL;
 
 class TextureBuilder {
     import sbylib.utils;
@@ -38,11 +33,11 @@ class TextureBuilder {
     }
 }
 
-class Texture {
+class Texture : ObjectGL {
 
-    immutable uint id;
-    private immutable TextureTarget target;
-    private bool alive = true;
+    import sbylib.wrapper.gl.Functions;
+
+    private TextureTarget target;
     private bool allocated;
 
     private uint mWidth, mHeight;
@@ -50,10 +45,8 @@ class Texture {
     private ImageInternalFormat mInternalFormat;
 
     this(TextureTarget target) {
-        uint id;
-        glGenTextures(1, &id);
-        GlFunction.checkError();
-        this.id = id;
+        super(GlUtils.genTexture(),
+                &GlUtils.deleteTexture);
         this.target = target;
         this.setMagFilter(TextureFilter.Linear);
         this.setMinFilter(TextureFilter.Linear);
@@ -66,19 +59,15 @@ class Texture {
         this.allocate(mipmapLevel, iformat, width, height, format, data);
     }
 
-    ~this() {
-        import std.stdio;
-        if (alive) writeln("Invalid Destruction For Texture");
-    }
-
-    void allocate(Type)(uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, ImageFormat format, Type* data) in {
+    void allocate(Type)(uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, ImageFormat format, Type* data) 
+    in {
         if (this.target == TextureTarget.Rect || this.target == TextureTarget.ProxyRect) {
             assert(mipmapLevel == 0);
         }
-    } body {
+    }
+    do {
         this.bind();
-        glTexImage2D(this.target, mipmapLevel, iformat, width, height, 0, format, GlFunction.getTypeEnum!Type, data);
-        GlFunction.checkError();
+        GlFunction.texImage2D(this.target, mipmapLevel, iformat, width, height, 0, format, data);
         this.unbind();
         this.allocated = true;
         this.mWidth = width;
@@ -98,18 +87,8 @@ class Texture {
         offsetY = max(0, offsetY);
         width  = min(width,  this.width  - offsetX);
         height = min(height, this.height - offsetY);
-        glTexSubImage2D(this.target, mipmapLevel, offsetX, offsetY, width, height, iformat, GlFunction.getTypeEnum!Type, data);
-        GlFunction.checkError();
+        GlFunction.texSubImage2D(this.target, mipmapLevel, offsetX, offsetY, width, height, this.mFormat, data);
         this.unbind();
-    }
-
-    void destroy() in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body {
-        alive = false;
-        glDeleteTextures(1, &id);
     }
 
     void setMagFilter(TextureFilter type) {
@@ -130,50 +109,35 @@ class Texture {
 
     private void setParameter(T)(TextureParamName pname, T value) {
         this.bind();
-        glTexParameteri(this.target, pname, value);
-        GlFunction.checkError();
+        GlFunction.texParameter(this.target, pname, value);
         this.unbind();
     }
 
-    void bind() const in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body {
-        glBindTexture(this.target, this.id);
+    void bind() const {
+        GlFunction.bindTexture(this.target, this.id);
     }
 
-    void unbind() const in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body{
-        glBindTexture(this.target, 0);
+    void unbind() const {
+        GlFunction.bindTexture(this.target, 0);
     }
 
-    void bindForCompute(uint unit, uint level, bool layered, uint layer, BufferAccess access) in {
-        assert(unit < GL_MAX_IMAGE_UNITS);
-    } out {
-        GlFunction.checkError();
-    } body {
-        glBindImageTexture(unit, this.id, level, layered, layer, access, this.mInternalFormat);
+    void bindForCompute(uint unit, uint level, bool layered, uint layer, BufferAccess access) {
+        GlFunction.bindImageTexture(unit, this.id, level, layered, layer, access, this.mInternalFormat);
     }
 
-    void attachFrameBuffer(FrameBufferBindType bindType, FrameBufferAttachType attachType) in {
-        assert(this.allocated);
-    } out {
-        GlFunction.checkError();
-    } body {
+    void attachFramebuffer(FramebufferBindType bindType, FramebufferAttachType attachType)
+        in(this.allocated)
+    {
         this.bind();
-        glFramebufferTexture2D(bindType, attachType, this.target, this.id, 0);
+        GlFunction.framebufferTexture2D(bindType, attachType, this.target, this.id, 0);
         this.unbind();
     }
 
-    void blitsTo(T)(T* result, ImageFormat format, int level = 0) in {
-        assert(this.allocated);
-    } body {
+    void blitsTo(T)(T* result, ImageFormat format, int level = 0) 
+        in(this.allocated)
+    {
         this.bind();
-        glGetTexImage(this.target, level, format, GlFunction.getTypeEnum!(T), result);
+        GlFunction.getTexImage(this.target, level, format, result);
         this.unbind();
     }
 
@@ -183,10 +147,8 @@ class Texture {
         blitsTo(this, dst);
     }
 
-    static void activate(uint unit) out {
-        GlFunction.checkError();
-    } do {
-        glActiveTexture(GL_TEXTURE0 + unit);
+    static void activate(uint unit) {
+        GlFunction.activeTexture(unit);
     }
 
     int width() {
@@ -206,8 +168,7 @@ class Texture {
     }
 
     override string toString() const {
+        import std.format;
         return format!("Texture(%d)")(this.id);
     }
-
-    alias id this;
 }

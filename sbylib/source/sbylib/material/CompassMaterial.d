@@ -8,6 +8,8 @@ import sbylib.utils.Change;
 
 class CompassMaterial : Material {
 
+    import sbylib.math.Matrix;
+
     mixin ConfigureMaterial;
 
     alias Vec(uint i) = Depends!((mat4 world) => normalize(world.column[i].xy), uvec2);

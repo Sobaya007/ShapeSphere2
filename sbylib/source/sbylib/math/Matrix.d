@@ -45,9 +45,9 @@ public:
         foreach (ref el; this.element) el = e;
     }
 
-    this(T[] elements) in {
-        assert(elements.length == U * V);
-    } do {
+    this(T[] elements)
+        in(elements.length == U * V)
+    {
         foreach(i, e; elements) {
             this[i/V,i%V] = e;
         }

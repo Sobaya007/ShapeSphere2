@@ -1,11 +1,6 @@
 module sbylib.wrapper.glfw.JoyStick;
 
 import derelict.glfw3.glfw3;
-import std.conv;
-import std.format;
-import std.range;
-import std.array;
-import std.algorithm;
 
 class GlfwJoyStick {
 
@@ -14,9 +9,9 @@ class GlfwJoyStick {
 
     private int joy;
 
-    this(int joy) in {
-        assert(GLFW_JOYSTICK_1 <= joy && joy <= GLFW_JOYSTICK_LAST);
-    } body {
+    this(int joy) 
+        in(GLFW_JOYSTICK_1 <= joy && joy <= GLFW_JOYSTICK_LAST)
+    {
         this.joy = joy;
     }
 
@@ -25,6 +20,7 @@ class GlfwJoyStick {
     }
 
     string getName() {
+        import std.conv : to;
         return glfwGetJoystickName(this.joy).to!string;
     }
 
@@ -51,6 +47,11 @@ class GlfwJoyStick {
     }
 
     override string toString() {
+        import std.format;
+        import std.algorithm : map;
+        import std.range : iota;
+        import std.array;
+
         return format!"Name = %s\nButton = %s\nAxis = %s"
         (this.getName(),
                 iota(this.getButtonNum()).map!(i => this.getButton(i)).array,

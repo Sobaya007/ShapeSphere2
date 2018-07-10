@@ -1,13 +1,13 @@
 module sbylib.character.Sentence;
 
-import sbylib.wrapper.freetype.Font;
-import sbylib.geometry.geometry2d.Rect;
-import sbylib.material.TextMaterial;
-import sbylib.math.Vector;
-import sbylib.entity.TypedEntity;
-import sbylib.character.StringTexture;
-
 class Sentence {
+
+    import sbylib.geometry.geometry2d.Rect;
+    import sbylib.material.TextMaterial;
+    import sbylib.math.Vector;
+    import sbylib.entity.TypedEntity;
+    import sbylib.character.StringTexture;
+    import sbylib.wrapper.freetype.Font;
 
     alias LetterEntity = TypedEntity!(GeometryRect, TextMaterial);
 

@@ -1,43 +1,25 @@
 module sbylib.wrapper.gl.Shader;
 
-import sbylib.wrapper.gl.Constants;
-import sbylib.wrapper.gl.Functions;
-import derelict.opengl;
-import std.file, std.stdio, std.string, std.conv, std.range, std.algorithm;
-import std.ascii;
+import sbylib.wrapper.gl.ObjectGL;
 
-class Shader {
-    package immutable uint id;
-    private bool alive = true;
+class Shader : ObjectGL {
+
+    import sbylib.wrapper.gl.Constants;
+    import sbylib.wrapper.gl.Functions;
+
     private debug string sourceCode;
     private debug ShaderType type;
 
-    this(string sourceCode, ShaderType type) out {
-        GlFunction.checkError();
-    } body {
+    this(string sourceCode, ShaderType type) {
         debug {
             this.sourceCode = sourceCode;
             this.type = type;
         }
-        this.id = glCreateShader(type);
-        auto str = sourceCode.toStringz;
-        glShaderSource(this.id, 1, &str, null);
-        glCompileShader(this.id);
+        super(GlFunction.createShader(type),
+                &GlFunction.deleteShader);
+        GlUtils.shaderSource(this.id, sourceCode);
+        GlFunction.compileShader(this.id);
         assert(this.compileSuccess(), getLogString(sourceCode));
-    }
-
-    ~this() {
-        import std.stdio;
-        if (alive) writeln("Invalid Destruction For Shader");
-    }
-
-    void destroy() in {
-        assert(alive);
-    } out {
-        GlFunction.checkError();
-    } body {
-        this.alive = false;
-        glDeleteShader(this.id);
     }
 
     inout {
@@ -61,27 +43,31 @@ class Shader {
         }
 
         bool compileSuccess() {
-            return getInfo(ShaderParamName.CompileStatus) == GL_TRUE;
+            return getInfo(ShaderParamName.CompileStatus) == true;
         }
 
-        int getInfo(ShaderParamName name) out {
-            GlFunction.checkError();
-        } body {
-            int res;
-            glGetShaderiv(this.id, name, &res);
-            return res;
+        int getInfo(ShaderParamName name) {
+            return GlFunction.getShader!(int, 1)(this.id, name)[0];
         }
 
-        string getInfoLog() out {
-            GlFunction.checkError();
-        } body {
+        string getInfoLog() {
             auto logLength = getLogLength();
             char[] log = new char[logLength];
-            glGetShaderInfoLog(this.id, logLength, &logLength, &log[0]);
-            return log.to!string.chomp;
+            GlFunction.getShaderInfoLog(this.id, logLength, &logLength, &log[0]);
+
+            import std.conv : to;
+            return log.to!string;
         }
 
         private string getLogString(string sourceCode) {
+            import std.string : splitLines, split;
+            import std.algorithm : all, sort, canFind;
+            import std.range : assumeSorted;
+            import std.array :array;
+            import std.ascii : isDigit;
+            import std.conv : to;
+            import std.stdio : writeln;
+
             auto log = getInfoLog;
             auto lines = log.splitLines;
             int[] lineNum;

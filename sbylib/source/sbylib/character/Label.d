@@ -1,17 +1,12 @@
 module sbylib.character.Label;
 
-import sbylib.geometry.geometry2d.Rect;
-import sbylib.wrapper.freetype.Constants;
-import sbylib.wrapper.freetype.Font;
-import sbylib.entity.Mesh;
-import sbylib.material.TextMaterial;
-import sbylib.entity.Object3D;
-import sbylib.math.Vector;
-import sbylib.character.Sentence;
-import std.typecons;
-import std.math;
+import sbylib.entity.Entity;
 
 class Label : Entity {
+
+    import sbylib.character.Sentence;
+    import sbylib.math.Vector;
+    import sbylib.wrapper.freetype.Font;
 
     enum Strategy {Center, Left, Right}
 

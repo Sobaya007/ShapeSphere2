@@ -1,11 +1,9 @@
 module sbylib.wrapper.freetype.Font;
 
-import derelict.freetype.ft;
-import sbylib.wrapper.gl;
-import std.string;
-import sbylib.wrapper.freetype.Constants;
-
 class Font {
+
+    import derelict.freetype.ft;
+    import sbylib.wrapper.freetype.Constants;
 
     private {
         FT_Face face;

@@ -44,9 +44,9 @@ class Mouse {
         return this.mPos;
     }
 
-    vec2 dif() const in {
-        assert(!this.mDif.hasNaN);
-    } body {
+    vec2 dif() const 
+        in(!this.mDif.hasNaN)
+    {
         return this.mDif;
     }
 
