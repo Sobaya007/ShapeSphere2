@@ -13,7 +13,7 @@ uniform float lightScale;
 
 vec3 noiseF(vec2 seed) {
     seed /= 50.5141919;
-    return texture2D(noise, seed).rgb;
+    return texture(noise, seed).rgb;
 }
 
 float rand(vec2 seed) {
