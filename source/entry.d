@@ -21,7 +21,7 @@ enum RunMode {
 void run(string[] args) {
     import sbylib;
     auto universe = Universe.createFromJson(ResourcePath("world/entry.json"));
-    auto world = universe.getWorld("world").get();
+    auto world = universe.getWorld("world").unwrap();
     auto factory = LabelFactory();
     factory.height = 40;
     factory.strategy = Label.Strategy.Left;
@@ -37,14 +37,14 @@ void run(string[] args) {
         label.setUserData("mode", mode);
         auto handler = selection.register(label);
         handler.onFocusIn.add((Label label) {
-            label.renderText(format!">%s"(label.getUserData!(RunMode)("mode").get()));
+            label.renderText(format!">%s"(label.getUserData!(RunMode)("mode").unwrap()));
         });
         handler.onFocusOut.add((Label label) {
-            label.renderText(format!"%s"(label.getUserData!(RunMode)("mode").get()));
+            label.renderText(format!"%s"(label.getUserData!(RunMode)("mode").unwrap()));
         });
         handler.onSelect.add((Label label) {
             universe.destroy();
-            run(label.getUserData!(RunMode)("mode").get(), args);
+            run(label.getUserData!(RunMode)("mode").unwrap(), args);
         });
     }
     universe.justPressed(KeyButton.Up).add(&selection.prev);

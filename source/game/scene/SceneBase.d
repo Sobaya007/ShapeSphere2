@@ -101,7 +101,7 @@ class SceneBase {
         import std.format;
         assert(this._finish.isJust, format!"%s don't have 'finish'"(typeid(this)));
     } body {
-        this.transition = Just(this._finish.get()());
+        this.transition = Just(this._finish.unwrap()());
         this.state = State.Finished;
     }
 
@@ -110,7 +110,7 @@ class SceneBase {
         //assert(this._select.isJust, format!"%s don't have 'select'"(typeid(this)));
     } body {
         import std.stdio;
-        this.transition = Just(this._select.get()(idx));
+        this.transition = Just(this._select.unwrap()(idx));
         this.state = State.Finished;
     }
 

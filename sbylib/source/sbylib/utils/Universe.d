@@ -19,6 +19,9 @@ class Universe {
     private JoyStick mJoy;
     private Maybe!Process thisUpdate;
 
+    alias CameraSetCallback = void delegate(Camera);
+    private CameraSetCallback[][World] cameraSetCallbackList;
+
     mixin Dispatch!(
         [
             "addProcess" : ["process.addProcess"],
@@ -115,6 +118,10 @@ class Universe {
         return targetList.at(name);
     }
 
+    Maybe!(Renderer) findRendererByWorld(World world){
+        return rendererList.at(world);
+    }
+
     private Key key() {
         if (mKey is null)
             this.mKey = new Key(Core().getWindow());
@@ -145,22 +152,19 @@ class Universe {
         return universe;
     }
 
-    string po;
-
     private void createFromJsonImpl(Additional...)(string path) {
-        po = path;
 
         this.targetList["Screen"] = Core().getWindow().getScreen(); //for Core Implementation, initialization is placed here.
 
         import std.file;
 
-        auto root = wrapException!(() => parseJSON(readText(path)).as!(JSONValue[string]))
+        auto root = wrapException(parseJSON(readText(path)).as!(JSONValue[string]))
             .getOrError("root must be object");
 
         auto keyCommand = root.fetch("KeyCommand");
         if (keyCommand.isJust) {
             createKeyCommand(
-                wrapException!(() => keyCommand.get().as!(JSONValue[string]))
+                wrapException(keyCommand.unwrap().as!(JSONValue[string]))
                 .getOrError("KeyCommand's value must be object")
             );
         }
@@ -173,7 +177,7 @@ class Universe {
         }
         if (render.isJust) {
             createRender(
-                wrapException!(() => render.get().as!(JSONValue[]))
+                wrapException(render.unwrap().as!(JSONValue[]))
                 .getOrError("Render's value must be object")
             );
         } else {
@@ -187,7 +191,7 @@ class Universe {
                             "target" : "%s"
                         }
                     ]
-                }(worldName.get())).array);
+                }(worldName.unwrap())).array);
             }
         }
         thisUpdate = Just(Core().addProcess(&update, "universe"));
@@ -197,7 +201,7 @@ class Universe {
         import std.conv;
 
         foreach (key, command; commandList) {
-            auto button = wrapException!(() => key.to!KeyButton)
+            auto button = wrapException(key.to!KeyButton)
                 .getOrError(format!"'%s' is not a valid key name"(key));
 
             this.justPressed(button).add(createCommand(command));
@@ -257,27 +261,49 @@ class Universe {
             }
         }
         if (templateType.isJust) {
-            Renderer renderer;
-            switch (templateType.get()) {
+            switch (templateType.unwrap()) {
                 case "2D":
                     assert(camera.isNone, "template '2D' cannot have Camera");
-                    renderer = createRenderer2D(world, target);
+                    rendererList[world] = createRenderer2D(world, target);
                     camera = Just(world.camera);
                     break;
                 case "3D":
-                    assert(camera.isJust, "template '3D' requires any camera");
-                    renderer = createRenderer3D(world, camera.get(), target);
+                    if (camera.isJust) {
+                        rendererList[world] = createRenderer3D(world, camera.unwrap(), target);
+                    } else {
+                        cameraSetCallbackList[world] ~= (Camera camera) {
+                            rendererList[world] = createRenderer3D(world, camera, target);
+                        };
+                    }
                     break;
                 default:
                     assert(false, format!"Unknown template type '%s'"(templateType));
             }
-            rendererList[world] = renderer;
-        } else if (camera.isJust) {
-            world.setCamera(camera.get());
+        } else {
+            if (camera.isJust) {
+                world.setCamera(camera.unwrap());
+            } else {
+                cameraSetCallbackList[world] ~= (Camera camera) {
+                    world.setCamera(camera);
+                };
+            }
         }
-        assert(camera.isJust, "camera is not defined");
-        foreach (entity; entities) {
-            world.add(entity);
+        if (camera.isJust) {
+            foreach (entity; entities) {
+                world.add(entity);
+            }
+        } else {
+            cameraSetCallbackList[world] ~= (Camera camera) {
+                foreach (entity; entities) {
+                    world.add(entity);
+                }
+            };
+        }
+    }
+
+    void setCamera(World world, Camera camera) {
+        foreach (cb; cameraSetCallbackList[world]) {
+            cb(camera);
         }
     }
 
@@ -570,7 +596,7 @@ private void setParameter(string paramName, ParamType, bool necessary, E)(ref E 
         static if (necessary) assert(false, format!"'%s' must have '%s' as '%s'"(target.name, paramName, ParamType.stringof));
         else return;
     }
-    mixin("target."~paramName) = value.get();
+    mixin("target."~paramName) = value.unwrap();
 }
 
 struct GeometryList(Geoms...) { alias List = AliasSeq!(Geoms); }
@@ -595,7 +621,7 @@ private auto fetch(JSONValue[string] object, string key) {
 }
 
 private auto fetch(Type)(JSONValue[string] object, string key) {
-    auto result = object.at(key).fmapAnd!((JSONValue v) => wrapException!(() => v.as!Type));
+    auto result = object.at(key).fmapAnd!((JSONValue v) => wrapException(v.as!Type));
     if (result.isJust) object.remove(key);
     return result;
 }

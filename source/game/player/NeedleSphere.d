@@ -160,9 +160,9 @@ class NeedleSphere : BaseSphere {
             }
         }
         if (newWallIndex.isJust) {
-            contacts[newWallIndex.get].wall = SAND_WALL;
+            contacts[newWallIndex.unwrap()].wall = SAND_WALL;
         } else if (lastWallIndex.isJust) {
-            contacts[lastWallIndex.get].wall = SAND_WALL;
+            contacts[lastWallIndex.unwrap()].wall = SAND_WALL;
         }
         foreach (ref c; contacts) {
             c.initialize();

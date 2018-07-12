@@ -48,7 +48,7 @@ debug class Console {
         }
         auto mKey = Core().justPressedKey();
         if (mKey.isNone) return;
-        handle(mKey.get());
+        handle(mKey.unwrap());
         render();
     }
 

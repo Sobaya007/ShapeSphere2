@@ -305,7 +305,7 @@ class Entity {
             }
 
             Entity front() {
-                return e.get();
+                return e.unwrap();
             }
             
             void popFront() {
@@ -375,7 +375,7 @@ class Entity {
 
     void collide(ref Array!CollisionInfo result, Entity entity) {
         if (this.colEntry.isJust) {
-            entity.collide(result, this.colEntry.get);
+            entity.collide(result, this.colEntry.unwrap);
         }
         foreach (child; this.children) {
             child.collide(result, entity);

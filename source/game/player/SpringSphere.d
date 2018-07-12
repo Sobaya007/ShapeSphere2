@@ -86,10 +86,10 @@ class SpringSphere : BaseSphere {
     void initialize(ElasticSphere elasticSphere) {
         this.wallContact = elasticSphere.getWallContact();
         assert(this.wallContact.isJust);
-        auto v = this.wallContact.get().dir;
+        auto v = this.wallContact.unwrap().dir;
         auto t = v.getOrtho;
         auto b = cross(t, v).normalize;
-        this.entity.obj.pos = this.wallContact.get().pos;
+        this.entity.obj.pos = this.wallContact.unwrap().pos;
         this.entity.obj.rot = mat3(t, v, b);
         auto length = 
               elasticSphere.getParticleList.map!(p => p.position.dot(v)).maxElement

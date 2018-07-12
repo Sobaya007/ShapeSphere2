@@ -8,13 +8,13 @@ void main(string[] args) {
     Maybe!RunMode runMode;
     auto po = getopt(args, std.getopt.config.passThrough, "mode", (string mode) {
         import std.conv : to;
-        runMode = wrapException!(() => mode.to!RunMode);
+        runMode = wrapException(mode.to!RunMode);
     });
 
     if (po.helpWanted) {
         showHelp();
     } else if (runMode.isJust) {
-        run(runMode.get(), args);
+        run(runMode.unwrap(), args);
     } else {
         run(args);
     }

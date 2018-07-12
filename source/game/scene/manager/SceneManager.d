@@ -32,7 +32,7 @@ static:
         }
 
         if (tr.isNone) return;
-        tr.get()(currentScene);
+        tr.unwrap()(currentScene);
     }
 
     Maybe!SceneBase find(SceneClass)() if (is(SceneClass : SceneBase)) {

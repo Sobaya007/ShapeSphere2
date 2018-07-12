@@ -54,10 +54,10 @@ class BasicControl {
         this.ray.build(this.mouse.pos, this.camera);
         auto colInfo = this.world.rayCast(this.ray);
         if (colInfo.isNone) return;
-        this.entity = colInfo.get.entity.getRootParent();
+        this.entity = colInfo.unwrap.entity.getRootParent();
         if (this.mouse.justPressed(MouseButton.Button1)) {
             this.mode = Mode.Translate;
-            this.z = -(colInfo.get.point - this.camera.pos).dot(this.camera.worldMatrix.column[2].xyz);
+            this.z = -(colInfo.unwrap.point - this.camera.pos).dot(this.camera.worldMatrix.column[2].xyz);
         }
         if (this.mouse.justPressed(MouseButton.Button2)) {
             this.mode = Mode.Rotate;

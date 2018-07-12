@@ -182,7 +182,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
 
         void unselect() {
             if (this.anim.isJust) {
-                this.anim.get.finish();
+                this.anim.unwrap().finish();
             }
             this.anim = Just(AnimationManager().startAnimation(
                 multi(

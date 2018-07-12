@@ -14,12 +14,12 @@ void materialExample() {
             DefineMaterial!(Check4, "Check")
         )
     )(ResourcePath("world/material.json"));
-    auto world = universe.getWorld("world").get();
+    auto world = universe.getWorld("world").unwrap();
 
     auto plane = world.findByName("plane")
         .wrapRange()
         .wrapCast!(TypedEntity!(GeometryPlane, Check4))
-        .get();
+        .unwrap();
     plane.size = 0.02;
     plane.size1 = 0.01;
     plane.size2 = 0.01;

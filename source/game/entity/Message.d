@@ -80,7 +80,7 @@ class Message : CommandReceiver {
     }
 
     private void onDecisideJustPressed() {
-        if (!this.procedure.get().done) return;
+        if (!this.procedure.unwrap().done) return;
         this.setMessage("");
         this.procedure.onFinish({
             this.entity.remove();

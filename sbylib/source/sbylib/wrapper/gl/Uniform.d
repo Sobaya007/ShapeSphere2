@@ -55,8 +55,21 @@ class TypedUniform(Type) : Uniform
         this = value;
     }
 
-    void opAssign(Type value) {
+    auto opAssign(Type value) {
         this.value = value;
+        return value;
+    }
+
+    auto opUnary(string op)() {
+        return mixin("this.value" ~ op);
+    }
+
+    auto opBinary(string op, T)(auto ref T value) const {
+        return mixin("this.value " ~ op ~ "value");
+    }
+
+    auto opOpAssign(string op, T)(auto ref T value) {
+        return mixin("this.value " ~ op ~ "= value");
     }
 
     override string getName() const {

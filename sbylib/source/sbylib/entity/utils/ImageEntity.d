@@ -31,18 +31,18 @@ struct ImageEntityFactory {
     {
         auto texture = generateTexture(image);
         if (this.mWidth.isJust && this.mHeight.isJust)
-            return make(texture, this.mWidth.get(), this.mHeight.get());
+            return make(texture, this.mWidth.unwrap(), this.mHeight.unwrap());
         else if (this.mWidth.isJust)
-            return make(texture, this.mWidth.get(), this.mWidth.get() * image.getHeight() / image.getWidth());
+            return make(texture, this.mWidth.unwrap(), this.mWidth.unwrap() * image.getHeight() / image.getWidth());
         else
-            return make(texture, this.mHeight.get() * image.getWidth() / image.getHeight(), this.mHeight.get());
+            return make(texture, this.mHeight.unwrap() * image.getWidth() / image.getHeight(), this.mHeight.unwrap());
     }
 
     auto make(Texture texture)
         in(this.mWidth.isJust, "'width' must be assigned")
         in(this.mHeight.isJust, "'height' must be assigned")
     {
-        return make(texture, this.mWidth.get(), this.mHeight.get());
+        return make(texture, this.mWidth.unwrap(), this.mHeight.unwrap());
     }
 
     private auto make(Texture texture, float w, float h) {

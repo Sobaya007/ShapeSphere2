@@ -38,7 +38,7 @@ immutable:
             entity.addChild(child.buildEntity(materialBuilder));
         }
         if (this.geometry.isJust) {
-            VertexNT[] vertices = this.geometry.get().buildVertices();
+            VertexNT[] vertices = this.geometry.unwrap().buildVertices();
             auto vertexGroup = new VertexGroupNT(vertices);
             foreach(leviathan; this.leviathans) {
                 entity.addChild(leviathan.buildEntity(vertexGroup, materialBuilder));

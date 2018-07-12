@@ -177,7 +177,7 @@ class CrystalMine : Stage {
     override void transit(string name) {
         paused = true;
         AnimationManager().startAnimation(
-            new Animation!vec4(color => this.fadeRect.color = color,
+            new Animation!vec4((vec4 color) {this.fadeRect.color = color;},
                 setting(
                     vec4(0,0,0,0),
                     vec4(0,0,0,1),
@@ -195,7 +195,7 @@ class CrystalMine : Stage {
             Game.getWorld3D().add(this.currentArea.entity);
             Game.getPlayer().setCenter(vec3(0));
             AnimationManager().startAnimation(
-                new Animation!vec4(color => this.fadeRect.color = color,
+                new Animation!vec4((vec4 color) { this.fadeRect.color = color;},
                     setting(
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),

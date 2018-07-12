@@ -72,7 +72,7 @@ private:
             while(e.getParent.isJust) {
                 if (isTarget(e)) break;
                 if (isAxis(e)) break;
-                e = e.getParent.get;
+                e = e.getParent.unwrap();
             }
             return e;
         });
