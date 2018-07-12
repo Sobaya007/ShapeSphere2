@@ -19,6 +19,9 @@ class Universe {
     private JoyStick mJoy;
     private Maybe!Process thisUpdate;
 
+    alias CameraSetCallback = void delegate(Camera);
+    private CameraSetCallback[][World] cameraSetCallbackList;
+
     mixin Dispatch!(
         [
             "addProcess" : ["process.addProcess"],
@@ -115,6 +118,10 @@ class Universe {
         return targetList.at(name);
     }
 
+    Maybe!(Renderer) findRendererByWorld(World world){
+        return rendererList.at(world);
+    }
+
     private Key key() {
         if (mKey is null)
             this.mKey = new Key(Core().getWindow());
@@ -145,10 +152,7 @@ class Universe {
         return universe;
     }
 
-    string po;
-
     private void createFromJsonImpl(Additional...)(string path) {
-        po = path;
 
         this.targetList["Screen"] = Core().getWindow().getScreen(); //for Core Implementation, initialization is placed here.
 
@@ -257,27 +261,49 @@ class Universe {
             }
         }
         if (templateType.isJust) {
-            Renderer renderer;
             switch (templateType.unwrap()) {
                 case "2D":
                     assert(camera.isNone, "template '2D' cannot have Camera");
-                    renderer = createRenderer2D(world, target);
+                    rendererList[world] = createRenderer2D(world, target);
                     camera = Just(world.camera);
                     break;
                 case "3D":
-                    assert(camera.isJust, "template '3D' requires any camera");
-                    renderer = createRenderer3D(world, camera.unwrap(), target);
+                    if (camera.isJust) {
+                        rendererList[world] = createRenderer3D(world, camera.unwrap(), target);
+                    } else {
+                        cameraSetCallbackList[world] ~= (Camera camera) {
+                            rendererList[world] = createRenderer3D(world, camera, target);
+                        };
+                    }
                     break;
                 default:
                     assert(false, format!"Unknown template type '%s'"(templateType));
             }
-            rendererList[world] = renderer;
-        } else if (camera.isJust) {
-            world.setCamera(camera.unwrap());
+        } else {
+            if (camera.isJust) {
+                world.setCamera(camera.unwrap());
+            } else {
+                cameraSetCallbackList[world] ~= (Camera camera) {
+                    world.setCamera(camera);
+                };
+            }
         }
-        assert(camera.isJust, "camera is not defined");
-        foreach (entity; entities) {
-            world.add(entity);
+        if (camera.isJust) {
+            foreach (entity; entities) {
+                world.add(entity);
+            }
+        } else {
+            cameraSetCallbackList[world] ~= (Camera camera) {
+                foreach (entity; entities) {
+                    world.add(entity);
+                }
+            };
+        }
+    }
+
+    void setCamera(World world, Camera camera) {
+        foreach (cb; cameraSetCallbackList[world]) {
+            cb(camera);
         }
     }
 
