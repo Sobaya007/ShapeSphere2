@@ -19,18 +19,14 @@ struct Maybe(T) {
         invariant(_none || value !is null, T.stringof);
     }
 
-    private this(T value) 
+    private this(T value, bool none) 
     in {
         static if (RefuseNullType!(T)) {
-            assert(value !is null);
+            assert(none == true || value !is null);
         }
     }
     do {
         this.value = value;
-        this._none = false;
-    }
-
-    private this(bool none) {
         this._none = none;
     }
 
@@ -157,11 +153,11 @@ in {
     }
 }
 do {
-    return Maybe!T(v);
+    return Maybe!T(v, false);
 }
 
 Maybe!T None(T)() {
-    return Maybe!T();
+    return Maybe!T(T.init, true);
 }
 
 auto wrapPointer(T)(T value) if (isPointer!T){
