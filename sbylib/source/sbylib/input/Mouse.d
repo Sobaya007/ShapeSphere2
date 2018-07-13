@@ -41,12 +41,9 @@ class Mouse {
             this.justReleasedCallback[button] = HandlerList(0);
         }
         this.mDif = vec2(0);
-
-        import sbylib.core.Core;
-        Core().addProcess(&update, "mouse.update");
     }
 
-    private void update() {
+    package(sbylib) void update() {
         auto before = this.mPos;
         this.mPos = (this.window.mousePos / vec2(this.window.width, this.window.height) * 2 - 1) * vec2(1, -1);
         if (!before.hasNaN)

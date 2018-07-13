@@ -128,14 +128,18 @@ class Universe {
     }
 
     private Key key() {
-        if (mKey is null)
-            this.mKey = Core().getWindow().key;
+        if (mKey is null) {
+            this.mKey = new Key(Core().getWindow());
+            this.addProcess(&mKey.update, "key.update");
+        }
         return mKey;
     }
 
     private Mouse mouse() {
-        if (mMouse is null)
-            this.mMouse = Core().getWindow().mouse;
+        if (mMouse is null) {
+            this.mMouse = new Mouse(Core().getWindow());
+            this.addProcess(&mMouse.update, "mouse.update");
+        }
         return mMouse;
     }
 

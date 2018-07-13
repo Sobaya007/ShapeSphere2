@@ -31,12 +31,20 @@ class Window {
     }
 
     Key key() {
-        if (mKey is null) mKey = new Key(this);
+        if (mKey is null) {
+            mKey = new Key(this);
+            import sbylib.core.Core;
+            Core().addProcess(&mKey.update, "key.update");
+        }
         return mKey;
     }
 
     Mouse mouse() {
-        if (mMouse is null) mMouse = new Mouse(this);
+        if (mMouse is null) {
+            mMouse = new Mouse(this);
+            import sbylib.core.Core;
+            Core().addProcess(&mMouse.update, "key.update");
+        }
         return mMouse;
     }
 
