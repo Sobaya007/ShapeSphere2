@@ -82,12 +82,8 @@ class Core {
         GLFW.init();
         FreeType.init();
         FreeImage.init();
-        this.window = new Window("Window Title", config.windowWidth, config.windowHeight);
-        this.clipboard = new Clipboard(this.window);
         this.fpsBalancer = new FpsBalancer(config.fps);
-        this.universe = new Universe();
-
-        _config = null;
+        this.universe = new Universe(true); //notify this universe is special
     }
 
     ~this() {
@@ -98,6 +94,7 @@ class Core {
 
     void start() {
         if (startFlag) return; //prevent dual start
+        getWindow(); // for initialize window
         writeln("APPLICATION STARTED");
         startFlag = true;
 
@@ -115,8 +112,6 @@ class Core {
     private void mainLoop() {
         this.fpsBalancer.loop({
             this.universe.update();
-            this.window.swapBuffers();
-            this.window.pollEvents();
             stdout.flush();
             return window.shouldClose() || endFlag;
         });
@@ -128,6 +123,10 @@ class Core {
     }
 
     Window getWindow() {
+        if (this.window is null) {
+            this.window = new Window("Window Title", config.windowWidth, config.windowHeight);
+            _config = null;
+        }
         return this.window;
     }
 
@@ -136,6 +135,9 @@ class Core {
     }
 
     Clipboard getClipboard() {
+        if (this.clipboard is null) {
+            this.clipboard = new Clipboard(this.getWindow());
+        }
         return this.clipboard;
     }
 

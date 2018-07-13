@@ -24,6 +24,7 @@ class Renderer {
     }
 
     void render(string renderGroupName) {
+        world.getWindow().makeCurrent();
         viewport.set();
         target.renderBegin();
         world.render(renderGroupName);
@@ -31,6 +32,7 @@ class Renderer {
     }
 
     void render() {
+        world.getWindow().makeCurrent();
         viewport.set();
         target.renderBegin();
         world.render();

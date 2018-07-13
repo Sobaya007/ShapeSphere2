@@ -15,7 +15,6 @@ class FlyBehavior : CameraController.Behavior {
     }
 
     override void step() {
-        this.control.update();
         if (Core().justPressed(KeyButton.Escape)) {
             reset(); 
             import game.player.Controller;

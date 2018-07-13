@@ -16,6 +16,7 @@ enum RunMode {
     Gui,
     Game,
     Scene,
+    MultiWindow,
 };
 
 void run(string[] args) {
@@ -90,6 +91,9 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Stencil:
         stencilExample();
+        break;
+    case RunMode.MultiWindow:
+        multiWindowExample();
         break;
     }
 }

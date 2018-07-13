@@ -21,7 +21,7 @@ class ProcessManager {
         synchronized(this) {
             import std.algorithm : all;
             assert(this.processes.all!(proc => proc.isAlive()));
-            this.processes.filter!(proc => proc.step());
+            this.processes.filter!(proc => proc.isAlive() && proc.step());
             assert(this.processes.all!(proc => proc.isAlive()));
         }
     }

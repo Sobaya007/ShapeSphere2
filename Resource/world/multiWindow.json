@@ -1,0 +1,89 @@
+{
+    "world1" : {
+        "template" : "3D",
+        "Window" : "Window1",
+        "camera" : {
+            "type" : "PerspectiveCamera",
+            "fovy" : 60,
+            "nearZ" : 0.1,
+            "farZ" : 100,
+            "pos" : [3,2,9],
+            "lookAt" : [0,2,0],
+            "control" : true
+        },
+        "box" : {
+            "type" : "Entity",
+            "geometry" : "Box",
+            "material" : "NormalMaterial",
+            "pos" : [0,2,0],
+            "scale" : [4,4,4]
+        },
+        "plane" : {
+            "type" : "Entity",
+            "geometry" : "Plane",
+            "material" : "UnrealFloorMaterial",
+            "scale" : [100, 100, 100]
+        }
+    },
+    "world2" : {
+        "template" : "3D",
+        "Window" : "Window2",
+        "camera" : {
+            "type" : "PerspectiveCamera",
+            "fovy" : 60,
+            "nearZ" : 0.1,
+            "farZ" : 100,
+            "pos" : [3,2,9],
+            "lookAt" : [0,2,0],
+            "control" : true
+        },
+        "box" : {
+            "type" : "Entity",
+            "geometry" : "Box",
+            "material" : "UvMaterial",
+            "pos" : [0,2,0],
+            "scale" : [4,4,4]
+        },
+        "plane" : {
+            "type" : "Entity",
+            "geometry" : "Plane",
+            "material" : "UnrealFloorMaterial",
+            "scale" : [100, 100, 100]
+        }
+    },
+    "Window" : {
+        "Window1" : {
+            "Screen" : "Screen",
+            "pos" : [200,100],
+            "size" : [400, 600],
+            "title" : "window1"
+        },
+        "Window2" : {
+            "Screen" : "Screen2",
+            "pos" : [600,100],
+            "size" : [400, 600],
+            "title" : "window2"
+        }
+    },
+    "KeyCommand" : {
+        "Escape" : "End"
+    },
+    "Render" : [
+        {
+            "type" : "Clear",
+            "target" : "Screen"
+        },
+        {
+            "type" : "Render",
+            "target" : "world1"
+        },
+        {
+            "type" : "Clear",
+            "target" : "Screen2"
+        },
+        {
+            "type" : "Render",
+            "target" : "world2"
+        }
+    ]
+}

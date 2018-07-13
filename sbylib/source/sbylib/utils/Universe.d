@@ -12,6 +12,7 @@ class Universe {
     private World[string] worldList;
     private IRenderTarget[string] targetList;
     private Renderer[World] rendererList;
+    private Window[string] windowList;
 
     private ProcessManager mProcess;
     private Key mKey;
@@ -21,6 +22,8 @@ class Universe {
 
     alias CameraSetCallback = void delegate(Camera);
     private CameraSetCallback[][World] cameraSetCallbackList;
+
+    private bool isCoreUniverse;
 
     mixin Dispatch!(
         [
@@ -90,9 +93,11 @@ class Universe {
         Param!("lookAt", vec3, false),
     );
 
-    void update() {
-        this.key.update();
-        this.mouse.update();
+    this(bool isCoreUniverse = false) {
+        this.isCoreUniverse = isCoreUniverse;
+    }
+
+    package(sbylib) void update() {
         this.joy.update();
         this.process.update();
     }
@@ -124,13 +129,13 @@ class Universe {
 
     private Key key() {
         if (mKey is null)
-            this.mKey = new Key(Core().getWindow());
+            this.mKey = Core().getWindow().key;
         return mKey;
     }
 
     private Mouse mouse() {
         if (mMouse is null)
-            this.mMouse = new Mouse(Core().getWindow());
+            this.mMouse = Core().getWindow().mouse;
         return mMouse;
     }
 
@@ -162,18 +167,21 @@ class Universe {
             .getOrError("root must be object");
 
         auto keyCommand = root.fetch("KeyCommand");
+        auto render = root.fetch("Render");
+        auto window = root.fetch("Window");
+
         if (keyCommand.isJust) {
-            import std.stdio;
-                wrapException(keyCommand.unwrap().as!(JSONValue[string]))
-                .getOrError("KeyCommand's value must be object")
-                .writeln;
             createKeyCommand(
                 wrapException(keyCommand.unwrap().as!(JSONValue[string]))
                 .getOrError("KeyCommand's value must be object")
             );
         }
-
-        auto render = root.fetch("Render");
+        if (window.isJust) {
+            createWindows(
+                wrapException(window.unwrap().as!(JSONValue[string]))
+                .getOrError("Window's value must be object")
+            );
+        }
 
         foreach (key, value; root) {
             assert(value.type == JSON_TYPE.OBJECT, format!"%s's value is not an object"(key));
@@ -198,7 +206,7 @@ class Universe {
                 }(worldName.unwrap())).array);
             }
         }
-        thisUpdate = Just(Core().addProcess(&update, "universe"));
+        if (!this.isCoreUniverse) thisUpdate = Just(Core().addProcess(&update, isCoreUniverse ? "CoreUniverse.update" : "universe.update"));
     }
 
     private void createKeyCommand(JSONValue[string] commandList) {
@@ -220,11 +228,44 @@ class Universe {
         this.addProcess({ foreach (proc; process) proc();}, "Render");
     }
 
+    private void createWindows(JSONValue[string] obj) {
+        foreach (name, content; obj) {
+            assert(content.type == JSON_TYPE.OBJECT, format!"%s's value is not an object"(name));
+            windowList[name] = createWindow(content.object());
+        }
+    }
+
+    private Window createWindow(JSONValue[string] obj) {
+        auto screenName = obj.fetch!(string)("Screen")
+            .getOrElse("Screen");
+        auto title = obj.fetch!(string)("title")
+            .getOrElse("");
+        auto pos = obj.fetch!(vec2)("pos")
+            .getOrElse(vec2(100, 50) + vec2(100) * windowList.length);
+        auto size = obj.fetch!(vec2)("size")
+            .getOrError("Window must have 'size' as vec2");
+        Window window;
+        if (screenName == "Screen") {
+            window = Core().getWindow();
+            window.setSize(cast(uint)size.x, cast(uint)size.y);
+            window.setTitle(title);
+        } else {
+            window = new Window(title, cast(uint)size.x, cast(uint)size.y);
+        }
+        window.pos = cast(vec2i)pos;
+        targetList[screenName] = window.getScreen();
+        return window;
+    }
+
     private void createWorld(Additional...)(string name, JSONValue[string] worldContent) {
 
         auto templateType = worldContent.fetch!string("template");
+        auto window = worldContent.fetch!string("Window")
+            .fmapAnd!((string name) => windowList.at(name))
+            .getOrElse(Core().getWindow);
+        window.makeCurrent();
 
-        auto world = new World;
+        auto world = new World(window);
         worldList[name] = world;
 
         Maybe!Camera camera;

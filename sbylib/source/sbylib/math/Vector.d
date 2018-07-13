@@ -22,6 +22,7 @@ public:
 
     enum Dimension = S;
     alias ElementType = T;
+    enum isVector = true;
 
     T[S] elements;
     alias elements this;
@@ -108,6 +109,15 @@ public:
 
     T opIndexOpAssign(string op)(T value, size_t idx) {
         mixin("return this.elements[idx] " ~ op ~ "= value;");
+    }
+
+    auto opCast(V)() const {
+        import std.conv;
+        static if (is(typeof(V.isVector))) {
+            return V(this.elements.to!(V.ElementType[]));
+        } else {
+            return this.elements.to!(V);
+        }
     }
 
     auto array() inout { //===================================================配列化

@@ -13,30 +13,20 @@ class Material {
     import sbylib.utils.Functions;
 
     Program program;
-    private static Program[TypeInfo] programs;
     @Proxied RenderConfig config;
     TypedUniform!int debugCounter;
 
     mixin Proxy;
 
     this() {
-        if (auto program = typeid(this) in programs) {
-            this.program = *program;
-        } else {
-            this.program = new Program(getShaders);
-            programs[typeid(this)] = this.program;
-        }
+        this.program = new Program(getShaders);
         this.config = new RenderConfig();
         this.debugCounter = new TypedUniform!int("DebugCounter");
     }
 
     final void set(const(Uniform) delegate()[] uniforms) {
         this.config.set();
-        static Program before;
-        if (before !is program) {
-            before = program;
-            this.program.use();
-        }
+        this.program.use();
         import std.stdio;
         import std.algorithm;
         this.program.beginUniform();
@@ -96,13 +86,13 @@ class Material {
 
         alias config this;
 
-        private static UniformDemand[] demands;
-        private static Shader vertexShader, fragmentShader;
+        private UniformDemand[] demands;
+        private Shader vertexShader, fragmentShader;
         static if (UseGeometryShader) {
-            private static Shader geomtryShader;
+            private Shader geomtryShader;
         }
 
-        private static void initializeShader() {
+        private void initializeShader() {
             import std.file : readText;
             static if (UseGeometryShader) {
                 auto fragAST = generateFragmentAST();

@@ -74,8 +74,33 @@ class GlfwWindow {
             return this.mHeight;
         }
 
+        vec2i size() const {
+            return vec2i(this.mWidth, this.mHeight);
+        }
+
+        vec2i size(vec2i s) {
+            glfwSetWindowSize(this.window, s.x, s.y);
+            glfwGetWindowSize(this.window, &mWidth, &mHeight);
+            return s;
+        }
+
+        vec2i pos(vec2i p) {
+            glfwSetWindowPos(this.window, p.x, p.y);
+            return p;
+        }
+
+        vec2i pos() {
+            int x, y;
+            glfwGetWindowPos(this.window, &x, &y);
+            return vec2i(x, y);
+        }
+
         string title() const {
             return this.mTitle;
+        }
+
+        void makeCurrent() {
+            glfwMakeContextCurrent(this.window);
         }
 
         void addResizeCallback(ResizeCallback cb) {
@@ -111,14 +136,13 @@ class GlfwWindow {
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+
             auto window = glfwCreateWindow(mWidth, mHeight,mTitle.toStringz, null, null);
             if(!window){
                 assert(false, "Failed to create window");
             }
 
             this.setWindow(window);
-
-            glfwSetWindowPos(window, 200, 200);
 
             GL.glVersion = DerelictGL3.reload();
             writeln("Version = ", GL.glVersion);
@@ -174,6 +198,7 @@ class GlfwWindow {
         }
     }
 
+
     private void destroy() {
         glfwDestroyWindow(this.window);
         windows.remove(this.window);
@@ -183,7 +208,7 @@ class GlfwWindow {
         this.window = window;
         glfwSetWindowSizeCallback(this.window, &resizeCallback);
         glfwSetWindowPosCallback(this.window, &windowPosCallback);
-        glfwMakeContextCurrent(this.window);
+        this.makeCurrent();
 
         glfwSwapInterval(1);
 

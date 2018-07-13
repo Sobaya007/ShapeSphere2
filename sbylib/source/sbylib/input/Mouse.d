@@ -13,23 +13,40 @@ public {
 }
 
 class Mouse {
+    import sbylib.utils.Array;
+    import sbylib.core.Process;
 
-    private vec2 mPos;
-    private vec2 mDif;
+    private alias Callback = void delegate();
+
+    alias HandlerList = Array!(Process);
+
+    private Window window;
     private bool[MouseButton] before;
     private bool[MouseButton] pressed;
-    private Window window;
+    private HandlerList[MouseButton] isPressedCallback;
+    private HandlerList[MouseButton] isReleasedCallback;
+    private HandlerList[MouseButton] justPressedCallback;
+    private HandlerList[MouseButton] justReleasedCallback;
+    private vec2 mPos;
+    private vec2 mDif;
 
     this(Window window) {
         this.window = window;
         foreach (button; EnumMembers!MouseButton) {
             this.before[button] = false;
             this.pressed[button] = false;
+            this.isPressedCallback[button] = HandlerList(0);
+            this.isReleasedCallback[button] = HandlerList(0);
+            this.justPressedCallback[button] = HandlerList(0);
+            this.justReleasedCallback[button] = HandlerList(0);
         }
         this.mDif = vec2(0);
+
+        import sbylib.core.Core;
+        Core().addProcess(&update, "mouse.update");
     }
 
-    package(sbylib) void update() {
+    private void update() {
         auto before = this.mPos;
         this.mPos = (this.window.mousePos / vec2(this.window.width, this.window.height) * 2 - 1) * vec2(1, -1);
         if (!before.hasNaN)
@@ -37,6 +54,11 @@ class Mouse {
         foreach (button; EnumMembers!MouseButton) {
             this.before[button] = this.pressed[button];
             this.pressed[button] = this.window.isPressed(button);
+            import std.algorithm : each;
+            if (this.isPressed(button)) this.isPressedCallback[button].each!((cb) { cb.step(); return cb.isAlive; });
+            if (this.isReleased(button)) this.isReleasedCallback[button].each!((cb) { cb.step(); return cb.isAlive; });
+            if (this.justPressed(button)) this.justPressedCallback[button].each!((cb) { cb.step(); return cb.isAlive; });
+            if (this.justReleased(button)) this.justReleasedCallback[button].each!((cb) { cb.step(); return cb.isAlive; });
         }
     }
 
@@ -50,40 +72,73 @@ class Mouse {
         return this.mDif;
     }
 
-    bool isPressed(MouseButton button) const {
-        return this.pressed[button];
+    private void addIsPressedCallback(MouseButton button, Process cb) {
+        this.isPressedCallback[button] ~= cb;
     }
 
-    bool justPressed(MouseButton button) const {
-        return !this.before[button] && this.pressed[button];
+    private void addIsReleasedCallback(MouseButton button, Process cb) {
+        this.isReleasedCallback[button] ~= cb;
     }
 
-    bool justReleased(MouseButton button) const {
-        return this.before[button] && !this.pressed[button];
+    private void addJustPressedCallback(MouseButton button, Process cb) {
+        this.justPressedCallback[button] ~= cb;
     }
 
-    bool justPressed() const {
+    private void addJustReleasedCallback(MouseButton button, Process cb) {
+        this.justReleasedCallback[button] ~= cb;
+    }
+
+    struct MouseEvent {
+        private void delegate(MouseButton, Process) _add;
+        MouseButton button;
+        bool value;
+        alias value this;
+
+        Process add(Callback cb) {
+            auto handler = new Process(cb, "mouse");
+            this._add(button, handler);
+            return handler;
+        }
+    }
+
+    MouseEvent isPressed(MouseButton button) {
+        return MouseEvent(&addIsPressedCallback, button, this.pressed[button]);
+    }
+
+    MouseEvent isReleased(MouseButton button) {
+        return MouseEvent(&addIsReleasedCallback, button, !this.pressed[button]);
+    }
+
+    MouseEvent justPressed(MouseButton button) {
+        return MouseEvent(&addJustPressedCallback, button, !this.before[button] && this.pressed[button]);
+    }
+
+    MouseEvent justReleased(MouseButton button) {
+        return MouseEvent(&addJustReleasedCallback, button, this.before[button] && !this.pressed[button]);
+    }
+
+    bool justPressed() {
         foreach (button; EnumMembers!MouseButton) {
             if (this.justPressed(button)) return true;
         }
         return false;
     }
 
-    bool justReleased() const {
+    bool justReleased() {
         foreach (button; EnumMembers!MouseButton) {
             if (this.justReleased(button)) return true;
         }
         return false;
     }
 
-    MouseButton justPressedButton() const {
+    MouseButton justPressedButton() {
         foreach (button; EnumMembers!MouseButton) {
             if (this.justPressed(button)) return button;
         }
         assert(false);
     }
 
-    MouseButton justReleasedButton() const {
+    MouseButton justReleasedButton() {
         foreach (button; EnumMembers!MouseButton) {
             if (this.justReleased(button)) return button;
         }

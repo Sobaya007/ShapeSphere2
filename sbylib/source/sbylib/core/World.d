@@ -18,14 +18,26 @@ import std.traits;
 import std.algorithm;
 import std.algorithm : aremove = remove;
 import sbylib.core.RenderGroup;
+import sbylib.core.Core;
+import sbylib.core.Window;
 
 class World {
     private Entity[] entities;
     private Maybe!Camera mCamera;
     private IRenderGroup[string] renderGroups;
+    private Window window;
 
     this() {
+        this(Core().getWindow);
+    }
+
+    this(Window window) {
         this.renderGroups["regular"] = new RegularRenderGroup;
+        this.window = window;
+    }
+
+    Window getWindow() {
+        return window;
     }
 
     /*
@@ -34,6 +46,7 @@ class World {
     void setCamera(Camera camera) {
         this.mCamera = Just(camera);
         this.renderGroups["transparent"] = new TransparentRenderGroup(camera);
+        this.add(camera);
     }
 
     Camera camera() {
@@ -50,6 +63,7 @@ class World {
             e.remove();
             e.destroy();
         }
+        camera.remove();
         camera.destroy();
     }
 

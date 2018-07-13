@@ -12,3 +12,4 @@ import examples.EditorExample;
 import examples.SceneExample;
 import examples.StencilExample;
 import examples.FramebufferExample;
+import examples.MultiWindowExample;

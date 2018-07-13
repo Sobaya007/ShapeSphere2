@@ -28,42 +28,44 @@ class CameraControl {
         this.camera = camera;
         this.cameraRotate = false;
 
-        Core().isPressed(KeyButton.KeyW).add({
-            this.camera.pos -= this.camera.rot.column[2] * speed;
-        });
-        Core().isPressed(KeyButton.KeyS).add({
-            this.camera.pos += this.camera.rot.column[2] * speed;
-        });
-        Core().isPressed(KeyButton.KeyA).add({
-            this.camera.pos -= this.camera.rot.column[0] * speed;
-        });
-        Core().isPressed(KeyButton.KeyD).add({
-            this.camera.pos += this.camera.rot.column[0] * speed;
-        });
-        Core().isPressed(KeyButton.KeyQ).add({
-            this.camera.pos -= this.camera.rot.column[1] * speed;
-        });
-        Core().isPressed(KeyButton.KeyE).add({
-            this.camera.pos += this.camera.rot.column[1] * speed;
-        });
+        void setupFromWindow(Window window) {
+            window.key.isPressed(KeyButton.KeyW).add({
+                this.camera.pos -= this.camera.rot.column[2] * speed;
+            });
+            window.key.isPressed(KeyButton.KeyS).add({
+                this.camera.pos += this.camera.rot.column[2] * speed;
+            });
+            window.key.isPressed(KeyButton.KeyA).add({
+                this.camera.pos -= this.camera.rot.column[0] * speed;
+            });
+            window.key.isPressed(KeyButton.KeyD).add({
+                this.camera.pos += this.camera.rot.column[0] * speed;
+            });
+            window.key.isPressed(KeyButton.KeyQ).add({
+                this.camera.pos -= this.camera.rot.column[1] * speed;
+            });
+            window.key.isPressed(KeyButton.KeyE).add({
+                this.camera.pos += this.camera.rot.column[1] * speed;
+            });
+            window.mouse.justPressed(MouseButton.Button1).add({
+                this.cameraRotate = true;
+                window.setCursorMode(CursorMode.Disabled);
+            });
+            window.mouse.justPressed(MouseButton.Button2).add({
+                this.cameraRotate = false;
+                window.setCursorMode(CursorMode.Normal);
+            });
+            camera.addProcess({
+                if (cameraRotate) rotate(window.mouse.dif);
+            });
+        }
+
+        auto window = camera.world.getWindow();
+        if (window.isJust) setupFromWindow(window.unwrap());
+        else camera.onAdd ~= {setupFromWindow(camera.world.getWindow().unwrap);};
     }
 
-    void update() {
-        if (Core().justPressed(MouseButton.Button1)) {
-            this.cameraRotate = true;
-            Core().getWindow().setCursorMode(CursorMode.Disabled);
-        }
-        if (Core().justPressed(MouseButton.Button2)) {
-            this.cameraRotate = false;
-            Core().getWindow().setCursorMode(CursorMode.Normal);
-        }
-        if (cameraRotate) {
-            this.rotate();
-        }
-    }
-
-    private void rotate() {
-        auto dif2 = Core().mouseDif;
+    private void rotate(vec2 dif2) {
         auto r = dif2.length.rad;
         auto a = safeNormalize(this.camera.rot * vec3(-dif2.y, dif2.x, 0));
         auto rot = mat3.axisAngle(a, r);
@@ -76,8 +78,6 @@ class CameraControl {
 
     static auto attach(Camera camera) {
         auto control = new CameraControl(camera);
-
-        camera.addProcess(&control.update);
         
         return control;
     }

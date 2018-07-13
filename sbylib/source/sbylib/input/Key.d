@@ -33,10 +33,13 @@ class Key {
             this.justPressedCallback[button] = HandlerList(0);
             this.justReleasedCallback[button] = HandlerList(0);
         }
+
+        import sbylib.core.Core;
+        Core().addProcess(&update, "key.update");
     }
 
 
-    package(sbylib) void update() {
+    private void update() {
         foreach (button; EnumMembers!(KeyButton)) {
             this.before[button] = this.buttons[button];
             this.buttons[button] = this.window.isPressed(button);

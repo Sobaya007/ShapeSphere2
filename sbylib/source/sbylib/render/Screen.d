@@ -25,7 +25,13 @@ class Screen : IRenderTarget {
     override int width() {
         return this.window.width;
     }
+
     override int height() {
         return this.window.height;
+    }
+
+    override void clear(BufferBit[] clearMode...) {
+        this.window.makeCurrent();
+        super.clear(clearMode);
     }
 }
