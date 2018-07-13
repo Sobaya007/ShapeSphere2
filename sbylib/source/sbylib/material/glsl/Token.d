@@ -28,6 +28,13 @@ private Token[] tokenize(string code, Token buffer, Token[] tokens, uint line, u
         return tokens;
     }
 
+    if (code.isBeginningOfLineComment) {
+        return tokenizeLineComment(code[2..$], tokens, line, column);
+    }
+    if (code.isBeginningOfBlockComment) {
+        return tokenizeBlockComment(code[2..$], tokens, line, column);
+    }
+
     char frontCharacter = code[0];
 
     if (frontCharacter.isDelimitor()) {
@@ -45,16 +52,7 @@ private Token[] tokenize(string code, Token buffer, Token[] tokens, uint line, u
         tokens.addToken(new Token(frontCharacter.to!string, line, column));
         return tokenize(code[1..$], null, tokens, line, column+1);
     }
-    if (code.isBeginningOfLineComment) {
-        return tokenizeLineComment(code[2..$], tokens, line, column+2);
-    }
-    if (code.isBeginningOfBlockComment) {
-        return tokenizeBlockComment(code[2..$], tokens, line, column+2);
-    }
-    if (buffer is null) {
-        buffer = new Token("", line, column);
-    }
-    buffer.str ~= frontCharacter;
+    buffer.addCharacter(frontCharacter, line, column);
     return tokenize(code[1..$], buffer, tokens, line, column+1);
 }
 
@@ -64,23 +62,35 @@ private Token[] tokenizeLineComment(string code, Token[] tokens, uint line, uint
 
     auto count = code.countUntil!(isBreak);
     if (count == -1) count = code.length;
-    tokens.addToken(new Token("//" ~ code[0..count], line, column));
+    tokens.addToken(new Token("//", line, column));
+    tokens.addToken(new Token(code[0..count], line, column+2));
     return tokenize(code[count..$], null, tokens, line+1, 0);
 }
 
 private Token[] tokenizeBlockComment(string code, Token[] tokens, uint line, uint column) {
-    import std.algorithm : countUntil;
+    import std.algorithm : countUntil, count;
     import std.conv : to;
 
-    int count = 0;
-    while (count < code.length && code[count..$].isEndOfBlockComment) count++;
-    if (count < code.length-1) count++; // because end of blocks comment consists of two characters.
-    tokens.addToken(new Token("/*" ~ code[0..count], line, column));
-    return tokenize(code[count..$], null, tokens, line+1, 0);
+    int cnt = 0;
+    while (cnt < code.length && code[cnt..$].isEndOfBlockComment) cnt++;
+    if (cnt < code.length-1) cnt++; // because end of blocks comment consists of two characters.
+    tokens.addToken(new Token("/*", line, column));
+    tokens.addToken(new Token(code[0..cnt-2], line, column+2));
+
+    auto breaks = cast(uint)code[0..cnt].count!(isBreak);
+    tokens.addToken(new Token("*/", line+breaks, column)); //雑
+    return tokenize(code[cnt..$], null, tokens, line+breaks, 0);
 }
 
 private void addToken(ref Token[] tokens, Token newToken) {
     if (newToken !is null) tokens ~= newToken;
+}
+
+private void addCharacter(ref Token buffer, dchar character, int line, int column) {
+    if (buffer is null) {
+        buffer = new Token("", line, column);
+    }
+    buffer.str ~= character;
 }
 
 private bool isDelimitor(dchar c) {
