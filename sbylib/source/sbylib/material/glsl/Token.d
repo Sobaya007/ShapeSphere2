@@ -1,6 +1,4 @@
 module sbylib.material.glsl.Token;
-import std.conv;
-import std.algorithm;
 
 class Token {
     string str;
@@ -18,68 +16,99 @@ class Token {
     }
 }
 
-enum Delimitor = [' ', '\t', '\n', '\r'];
-enum Symbol = [';', '{', '}', '(', ')', ',', '#', '+', '-', '*'];
-
 Token[] tokenize(string code) {
-    auto po = tokenize(code, null, new Token[0], 1, 0, false);
-    return po;
+    return tokenize(code, null, new Token[0], 1, 0);
 }
 
-Token[] tokenize(string code, Token buffer, Token[] tokens, uint line, uint column, bool commentFlag) {
-    if (code.length == 0) {
-        if (buffer) {
-            tokens ~= buffer;
-        }
+private Token[] tokenize(string code, Token buffer, Token[] tokens, uint line, uint column) {
+    import std.array;
+
+    if (code.empty) {
+        tokens.addToken(buffer);
         return tokens;
     }
-    column++;
-    const c = code[0];
-    if (Delimitor.any!(d => d == c)) {
-        if (c == '\n') {
-            column = 0;
-            line++;
-        }
-        if (buffer) {
-            tokens ~= buffer;
-        }
-        return tokenize(code[1..$], null, tokens, line, column, false);
-    }
-    if (Symbol.any!(s => s == c)) {
-        if (buffer) {
-            tokens ~= buffer;
-        }
-        tokens ~= new Token(to!string(c), line, column);
-        return tokenize(code[1..$], null, tokens, line, column, false);
-    }
-    if (c == '/') {
-        if (commentFlag) {
-            buffer.str ~= c;
-            tokens ~= buffer;
-            return tokenizeComment(code[1..$], tokens, line, column);
+
+    char frontCharacter = code[0];
+
+    if (frontCharacter.isDelimitor()) {
+        tokens.addToken(buffer);
+        if (frontCharacter.isBreak()) {
+            return tokenize(code[1..$], null, tokens, line+1, 0);
         } else {
-            if (buffer) {
-                tokens ~= buffer;
-            }
-            return tokenize(code[1..$], new Token("/", line, column), tokens, line, column, true);
+            return tokenize(code[1..$], null, tokens, line, column+1);
         }
     }
-    if (commentFlag) {
-        tokens ~= buffer;
-        buffer = null;
+    if (frontCharacter.isSymbol()) {
+        import std.conv : to;
+
+        tokens.addToken(buffer);
+        tokens.addToken(new Token(frontCharacter.to!string, line, column));
+        return tokenize(code[1..$], null, tokens, line, column+1);
     }
-    if (!buffer) {
+    if (code.isBeginningOfLineComment) {
+        return tokenizeLineComment(code[2..$], tokens, line, column+2);
+    }
+    if (code.isBeginningOfBlockComment) {
+        return tokenizeBlockComment(code[2..$], tokens, line, column+2);
+    }
+    if (buffer is null) {
         buffer = new Token("", line, column);
     }
-    buffer.str ~= c;
-    return tokenize(code[1..$], buffer, tokens, line, column, false);
+    buffer.str ~= frontCharacter;
+    return tokenize(code[1..$], buffer, tokens, line, column+1);
 }
 
-Token[] tokenizeComment(string code, Token[] tokens, uint line, int column) {
-    column++;
-    uint pos = 0;
-    while (code[pos] != '\n') pos++;
-    Token buffer = new Token(code[0..pos], line, column);
-    tokens ~= buffer;
-    return tokenize(code[pos+1..$], null, tokens, line+1, 0, false);
+private Token[] tokenizeLineComment(string code, Token[] tokens, uint line, uint column) {
+    import std.algorithm : countUntil;
+    import std.conv : to;
+
+    auto count = code.countUntil!(isBreak);
+    if (count == -1) count = code.length;
+    tokens.addToken(new Token("//" ~ code[0..count], line, column));
+    return tokenize(code[count..$], null, tokens, line+1, 0);
+}
+
+private Token[] tokenizeBlockComment(string code, Token[] tokens, uint line, uint column) {
+    import std.algorithm : countUntil;
+    import std.conv : to;
+
+    int count = 0;
+    while (count < code.length && code[count..$].isEndOfBlockComment) count++;
+    if (count < code.length-1) count++; // because end of blocks comment consists of two characters.
+    tokens.addToken(new Token("/*" ~ code[0..count], line, column));
+    return tokenize(code[count..$], null, tokens, line+1, 0);
+}
+
+private void addToken(ref Token[] tokens, Token newToken) {
+    if (newToken !is null) tokens ~= newToken;
+}
+
+private bool isDelimitor(dchar c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+private bool isSymbol(dchar c) {
+    import std.algorithm : canFind;
+
+    enum Symbol = [';', '{', '}', '(', ')', ',', '#', '+', '-', '*', '/'];
+    static foreach (s; Symbol) {
+        if (c == s) return true;
+    }
+    return false;
+}
+
+bool isBreak(dchar c) {
+    return c == '\n' || c == '\r';
+}
+
+private bool isBeginningOfLineComment(string str) {
+    return str.length >= 2 && str[0..2] == "//";
+}
+
+private bool isBeginningOfBlockComment(string str) {
+    return str.length >= 2 && str[0..2] == "/*";
+}
+
+bool isEndOfBlockComment(string str) {
+    return str.length >= 2 && str[0..2] == "*/";
 }

@@ -163,6 +163,10 @@ class Universe {
 
         auto keyCommand = root.fetch("KeyCommand");
         if (keyCommand.isJust) {
+            import std.stdio;
+                wrapException(keyCommand.unwrap().as!(JSONValue[string]))
+                .getOrError("KeyCommand's value must be object")
+                .writeln;
             createKeyCommand(
                 wrapException(keyCommand.unwrap().as!(JSONValue[string]))
                 .getOrError("KeyCommand's value must be object")

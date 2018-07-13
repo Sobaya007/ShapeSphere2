@@ -55,9 +55,20 @@ private mixin template CreatePath(string prefix, bool enableReadLibray) {
 
 struct GeneralPath { mixin CreatePath!("./", false); }
 struct ResourcePath { mixin CreatePath!("./Resource/", false); }
-struct DllPath { mixin CreatePath!("../dll/", false); }
 struct ImagePath { mixin CreatePath!("./Resource/image/", false); }
 struct FontPath { mixin CreatePath!("./Resource/font/", true); }
 struct ModelPath { mixin CreatePath!("./Resource/model/", false); }
 struct ConfigPath { mixin CreatePath!("./Resource/config/", false); }
 struct ShaderPath { mixin CreatePath!("./Resource/shader/", true); }
+version(Windows) {
+
+    struct DllPath { 
+        version(X86) {
+            mixin CreatePath!("../dll/", false); 
+        }
+        version(X86_64) {
+            mixin CreatePath!("../dll64/", false); 
+        }
+    }
+
+}
