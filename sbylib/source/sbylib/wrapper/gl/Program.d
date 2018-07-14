@@ -28,8 +28,8 @@ class Program : ObjectGL {
         }
     } 
     do {
-        super(GlFunction.createProgram(),
-                &GlFunction.deleteProgram);
+        super(GlFunction().createProgram(),
+                &GlFunction().deleteProgram);
         foreach (shader; shaders) {
             this.attachShader(shader);
         }
@@ -82,12 +82,12 @@ class Program : ObjectGL {
     inout {
 
         void use() {
-            GlFunction.useProgram(id);
+            GlFunction().useProgram(id);
         }
 
         void enableAttribute(Attribute attr) {
             immutable loc = this.getAttribLocation(attr.name);
-            GlFunction.enableVertexAttribArray(loc);
+            GlFunction().enableVertexAttribArray(loc);
         }
 
         void attachAttribute(Attribute attr, VertexBuffer buffer) {
@@ -96,26 +96,26 @@ class Program : ObjectGL {
         }
 
         bool hasAttribute(string name) {
-            int vLoc = GlFunction.getAttribLocation(this.id, name);
+            int vLoc = GlFunction().getAttribLocation(this.id, name);
             return vLoc != -1;
         }
 
         uint getAttribLocation(string name) {
-            int vLoc = GlFunction.getAttribLocation(this.id, name);
+            int vLoc = GlFunction().getAttribLocation(this.id, name);
             assert(vLoc != -1);
             return vLoc;
         }
 
         private void attachShader(const Shader shader) {
-            GlFunction.attachShader(this.id, shader.id);
+            GlFunction().attachShader(this.id, shader.id);
         }
 
         private void linkProgram() {
-            GlFunction.linkProgram(this.id);
+            GlFunction().linkProgram(this.id);
         }
 
         private int getInfo(ProgramParamName name) {
-            return GlFunction.getProgram!(int, 1)(this.id, name)[0];
+            return GlFunction().getProgram!(int, 1)(this.id, name)[0];
         }
 
         private bool getLinkStatus() {
@@ -129,7 +129,7 @@ class Program : ObjectGL {
         private string getInfoLog() {
             auto logLength = this.getLogLength;
             char[] log = new char[logLength];
-            GlFunction.getProgramInfoLog(this.id, logLength, &logLength, &log[0]);
+            GlFunction().getProgramInfoLog(this.id, logLength, &logLength, &log[0]);
 
             import std.conv;
             return log.to!string;

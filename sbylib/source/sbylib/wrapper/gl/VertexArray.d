@@ -18,11 +18,11 @@ class VertexArray : ObjectGL {
     }
 
     void bind() const {
-        GlFunction.bindVertexArray(this.id);
+        GlFunction().bindVertexArray(this.id);
     }
 
     void unbind() const {
-        GlFunction.bindVertexArray(0);
+        GlFunction().bindVertexArray(0);
     }
 
     void setup(const Program program, Tuple!(Attribute, VertexBuffer)[] buffers, IndexBuffer ibo) {
@@ -39,21 +39,21 @@ class VertexArray : ObjectGL {
 
     void drawArrays(Prim prim, uint offset, uint count) {
         this.bind();
-        GlFunction.drawArrays(prim, offset, count);
+        GlFunction().drawArrays(prim, offset, count);
         this.unbind();
     }
 
     void drawElements(IndexType)(Prim prim, IndexType[] indices)
     if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
         this.bind();
-        GlFunction.drawElements(prim, indices.length, indices.ptr);
+        GlFunction().drawElements(prim, indices.length, indices.ptr);
         this.unbind();
     }
 
     void drawElements(IndexType)(Prim prim, uint count)
     if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint)) {
         this.bind();
-        GlFunction.drawElements!(IndexType)(prim, count, null);
+        GlFunction().drawElements!(IndexType)(prim, count, null);
         this.unbind();
     }
 }

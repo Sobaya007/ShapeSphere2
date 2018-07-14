@@ -17,6 +17,15 @@ class ObjectGL {
         this.destroyProc.pause();
     }
 
+    this(uint id, void delegate(uint) f) {
+        this.id = id;
+        this.destroyProc = Core().addProcess(delegate(Process proc) {
+            f(id);
+            proc.kill();
+        }, "destroy");
+        this.destroyProc.pause();
+    }
+
     this(uint id, void function(uint) destroy) immutable {
         this.id = id;
     }

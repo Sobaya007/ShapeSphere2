@@ -67,7 +67,7 @@ class Texture : ObjectGL {
     }
     do {
         this.bind();
-        GlFunction.texImage2D(this.target, mipmapLevel, iformat, width, height, 0, format, data);
+        GlFunction().texImage2D(this.target, mipmapLevel, iformat, width, height, 0, format, data);
         this.unbind();
         this.allocated = true;
         this.mWidth = width;
@@ -87,7 +87,7 @@ class Texture : ObjectGL {
         offsetY = max(0, offsetY);
         width  = min(width,  this.width  - offsetX);
         height = min(height, this.height - offsetY);
-        GlFunction.texSubImage2D(this.target, mipmapLevel, offsetX, offsetY, width, height, this.mFormat, data);
+        GlFunction().texSubImage2D(this.target, mipmapLevel, offsetX, offsetY, width, height, this.mFormat, data);
         this.unbind();
     }
 
@@ -109,27 +109,27 @@ class Texture : ObjectGL {
 
     private void setParameter(T)(TextureParamName pname, T value) {
         this.bind();
-        GlFunction.texParameter(this.target, pname, value);
+        GlFunction().texParameter(this.target, pname, value);
         this.unbind();
     }
 
     void bind() const {
-        GlFunction.bindTexture(this.target, this.id);
+        GlFunction().bindTexture(this.target, this.id);
     }
 
     void unbind() const {
-        GlFunction.bindTexture(this.target, 0);
+        GlFunction().bindTexture(this.target, 0);
     }
 
     void bindForCompute(uint unit, uint level, bool layered, uint layer, BufferAccess access) {
-        GlFunction.bindImageTexture(unit, this.id, level, layered, layer, access, this.mInternalFormat);
+        GlFunction().bindImageTexture(unit, this.id, level, layered, layer, access, this.mInternalFormat);
     }
 
     void attachFramebuffer(FramebufferBindType bindType, FramebufferAttachType attachType)
         in(this.allocated)
     {
         this.bind();
-        GlFunction.framebufferTexture2D(bindType, attachType, this.target, this.id, 0);
+        GlFunction().framebufferTexture2D(bindType, attachType, this.target, this.id, 0);
         this.unbind();
     }
 
@@ -137,7 +137,7 @@ class Texture : ObjectGL {
         in(this.allocated)
     {
         this.bind();
-        GlFunction.getTexImage(this.target, level, format, result);
+        GlFunction().getTexImage(this.target, level, format, result);
         this.unbind();
     }
 
@@ -148,7 +148,7 @@ class Texture : ObjectGL {
     }
 
     static void activate(uint unit) {
-        GlFunction.activeTexture(unit);
+        GlFunction().activeTexture(unit);
     }
 
     int width() {

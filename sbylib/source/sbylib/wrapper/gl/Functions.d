@@ -4,9 +4,22 @@ import derelict.opengl;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.wrapper.gl.Constants;
+import sbylib.utils.Functions;
 
 class GlFunction {
-static:
+
+    mixin Singleton;
+
+    this() {
+        // make sure context
+        import sbylib.core.Core;
+        import sbylib.core.Window;
+        static Window window;
+        if (window is null) {
+            window = Core().getWindow();
+            window.makeCurrent();
+        }
+    }
 
     void enable(Capability cap) {
         glEnable(cap);
@@ -262,7 +275,7 @@ static:
         if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint))
     {
         glDrawElements(prim, length, GlUtils.getTypeEnum!(IndexType), cast(void*)indices);
-        GlFunction.checkError();
+        GlFunction().checkError();
     }
 
     void setViewport(uint x, uint y, uint w, uint h) {
@@ -473,7 +486,7 @@ static:
             static assert(false);
         }
     }
-
+    
     private void checkError(string ext = "", string fileName=__FILE__) {
         debug {
             import sbylib.wrapper.glfw.GLFW;
@@ -513,51 +526,53 @@ static:
         if (mode.canFind(ClearMode.Depth)) depthWrite(true); //これしないとDepthをClearできない
         if (mode.canFind(ClearMode.Stencil)) stencilWrite(true); //これしないとStencilをClearできない
 
-        GlFunction.clear(mode);
+        GlFunction().clear(mode);
     }
 
     void clearColor(vec4 color) {
-        GlFunction.clearColor(color.r, color.g, color.b, color.a);
+        GlFunction().clearColor(color.r, color.g, color.b, color.a);
     }
 
     void colorWrite(bool write) {
-        GlFunction.colorMask(write, write, write, write);
+        GlFunction().colorMask(write, write, write, write);
     }
 
-    alias depthWrite = GlFunction.depthMask;
+    void depthWrite(bool write) {
+        GlFunction().depthMask(write);
+    }
 
     void stencilWrite(bool write) {
-        GlFunction.stencilMask(write ? uint.max : 0);
+        GlFunction().stencilMask(write ? uint.max : 0);
     }
 
     void depthTest(bool depthTest) {
         if (depthTest) {
-            GlFunction.enable(Capability.DepthTest);
+            GlFunction().enable(Capability.DepthTest);
         } else {
-            GlFunction.disable(Capability.DepthTest);
+            GlFunction().disable(Capability.DepthTest);
         }
     }
 
     void faceSetting(PolygonMode polygon, FaceMode face = FaceMode.FrontBack) {
         if (polygon == PolygonMode.None) {
             assert(face == FaceMode.FrontBack);
-            GlFunction.enable(Capability.CullFace);
-            GlFunction.cullFace(FaceMode.FrontBack);
+            GlFunction().enable(Capability.CullFace);
+            GlFunction().cullFace(FaceMode.FrontBack);
         } else {
             final switch (face) {
             case FaceMode.FrontBack:
                 //glDisable(Capability.CullFace);
-                GlFunction.polygonMode(FaceMode.FrontBack, polygon);
+                GlFunction().polygonMode(FaceMode.FrontBack, polygon);
                 break;
             case FaceMode.Front:
-                GlFunction.enable(Capability.CullFace);
-                GlFunction.cullFace(FaceMode.Back);
-                GlFunction.polygonMode(FaceMode.FrontBack, polygon);
+                GlFunction().enable(Capability.CullFace);
+                GlFunction().cullFace(FaceMode.Back);
+                GlFunction().polygonMode(FaceMode.FrontBack, polygon);
                 break;
             case FaceMode.Back:
-                GlFunction.enable(Capability.CullFace);
-                GlFunction.cullFace(FaceMode.Front);
-                GlFunction.polygonMode(FaceMode.FrontBack, polygon);
+                GlFunction().enable(Capability.CullFace);
+                GlFunction().cullFace(FaceMode.Front);
+                GlFunction().polygonMode(FaceMode.FrontBack, polygon);
                 break;
             }
         }
@@ -565,9 +580,9 @@ static:
 
 
     void stencil(TestFunc test, int reffer, uint mask, StencilWrite sfail, StencilWrite dpfail, StencilWrite pass) {
-        GlFunction.enable(Capability.StencilTest);
-        GlFunction.stencilFunc(test, reffer, mask);
-        GlFunction.stencilOp(sfail, dpfail, pass);
+        GlFunction().enable(Capability.StencilTest);
+        GlFunction().stencilFunc(test, reffer, mask);
+        GlFunction().stencilOp(sfail, dpfail, pass);
     }
 
     int getBitPerPixel(ImageInternalFormat iformat) {
@@ -597,67 +612,67 @@ static:
     }
 
     float[2] getAliasedLineWidthRange() {
-        return GlFunction.get!(float, 2)(ParamName.AliasedLineWidthRange);
+        return GlFunction().get!(float, 2)(ParamName.AliasedLineWidthRange);
     }
 
     float[2] getSmoothLineWidthRange() {
-        return GlFunction.get!(float, 2)(ParamName.SmoothLineWidthRange);
+        return GlFunction().get!(float, 2)(ParamName.SmoothLineWidthRange);
     }
 
     BufferID genBuffer() {
         uint result;
-        GlFunction.genBuffers(1, &result);
+        GlFunction().genBuffers(1, &result);
         return result;
     }
 
     void deleteBuffer(BufferID id) {
-        GlFunction.deleteBuffers(1, &id);
+        GlFunction().deleteBuffers(1, &id);
     }
 
     FramebufferID genFramebuffer() {
         uint result;
-        GlFunction.genFramebuffers(1, &result);
+        GlFunction().genFramebuffers(1, &result);
         return result;
     }
 
     void deleteFramebuffer(FramebufferID id) {
-        GlFunction.deleteFramebuffers(1, &id);
+        GlFunction().deleteFramebuffers(1, &id);
     }
 
     RenderbufferID genRenderbuffer() {
         uint result;
-        GlFunction.genRenderbuffers(1, &result);
+        GlFunction().genRenderbuffers(1, &result);
         return result;
     }
 
     void deleteRenderbuffer(RenderbufferID id) {
-        GlFunction.deleteRenderbuffers(1, &id);
+        GlFunction().deleteRenderbuffers(1, &id);
     }
 
     TextureID genTexture() {
         uint result;
-        GlFunction.genTextures(1, &result);
+        GlFunction().genTextures(1, &result);
         return result;
     }
 
     void deleteTexture(TextureID id) {
-        GlFunction.deleteTextures(1, &id);
+        GlFunction().deleteTextures(1, &id);
     }
 
     VertexArrayID genVertexArray() {
         uint result;
-        GlFunction.genVertexArrays(1, &result);
+        GlFunction().genVertexArrays(1, &result);
         return result;
     }
 
     void deleteVertexArray(VertexArrayID id) {
-        GlFunction.deleteVertexArray(1, &id);
+        GlFunction().deleteVertexArray(1, &id);
     }
 
     void shaderSource(ShaderID id, string source) {
         import std.string : toStringz;
         auto str = source.toStringz;
-        GlFunction.shaderSource(id, 1, cast(char**)&str, null);
+        GlFunction().shaderSource(id, 1, cast(char**)&str, null);
     }
 
     void uniform(T)(UniformLoc loc, T data) {
@@ -667,14 +682,14 @@ static:
         } else {
             auto d = data;
         }
-        GlFunction.uniform!(typeof(d), 1)(loc, 1, &d);
+        GlFunction().uniform!(typeof(d), 1)(loc, 1, &d);
     }
 
     void uniform(T, size_t N)(UniformLoc loc, T[N] data) {
-        GlFunction.uniform!(T, N)(loc, 1, data.ptr);
+        GlFunction().uniform!(T, N)(loc, 1, data.ptr);
     }
 
     void uniformMatrix(T, size_t N)(UniformLoc loc, T[N*N] data) {
-        GlFunction.uniformMatrix!(T, N)(loc, 1, data.ptr);
+        GlFunction().uniformMatrix!(T, N)(loc, 1, data.ptr);
     }
 }

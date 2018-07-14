@@ -20,16 +20,16 @@ class Renderbuffer : ObjectGL {
     }
 
     void bind() {
-        GlFunction.bindRenderbuffer(this.id);
+        GlFunction().bindRenderbuffer(this.id);
     }
 
     void unbind() {
-        GlFunction.bindRenderbuffer(0);
+        GlFunction().bindRenderbuffer(0);
     }
 
     void allocate(uint width, uint height, ImageInternalFormat format) {
         this.bind();
-        GlFunction.renderbufferStorage(width, height, format);
+        GlFunction().renderbufferStorage(width, height, format);
         this.unbind();
         this.allocated = true;
     }
@@ -38,7 +38,7 @@ class Renderbuffer : ObjectGL {
         in(this.allocated)
     {
         this.bind();
-        GlFunction.framebufferRenderbuffer(bindType, attachType, this.id);
+        GlFunction().framebufferRenderbuffer(bindType, attachType, this.id);
        this.unbind();
     }
 }

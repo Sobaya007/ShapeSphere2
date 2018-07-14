@@ -49,10 +49,10 @@ abstract class IRenderTarget {
             GlUtils.clearColor(this.clearColor);
         }
         if (clearMode.canFind(ClearMode.Stencil)) {
-            GlFunction.clearStencil(this.clearStencil);
+            GlFunction().clearStencil(this.clearStencil);
         }
         this.renderBegin();
-        GlFunction.clear(clearMode);
+        GlFunction().clear(clearMode);
         debug this.hasCleared = true;
         this.renderEnd();
     }

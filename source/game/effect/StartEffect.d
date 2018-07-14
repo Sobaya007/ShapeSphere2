@@ -139,7 +139,7 @@ class StartEffect {
             this.config.depthTest = false;
             this.config.srcFactor = BlendFactor.SrcAlpha;
             this.config.dstFactor = BlendFactor.One;
-            GlFunction.enable(Capability.ProgramPointSize);
+            GlFunction().enable(Capability.ProgramPointSize);
             this.aspectRatio = texture.aspectRatio;
         }
     }

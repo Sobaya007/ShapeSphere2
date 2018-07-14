@@ -48,12 +48,12 @@ class RenderConfig {
     }
 
     void set() {
-        GlFunction.depthFunc(this.depthFunc);
+        GlFunction().depthFunc(this.depthFunc);
         GlUtils.faceSetting(this.polygonMode, this.faceMode);
-        GlFunction.blendFunc(this.srcFactor, this.dstFactor);
-        GlFunction.blendEquation(this.blendEquation);
-        if (blend) GlFunction.enable(Capability.Blend);
-        else GlFunction.disable(Capability.Blend);
+        GlFunction().blendFunc(this.srcFactor, this.dstFactor);
+        GlFunction().blendEquation(this.blendEquation);
+        if (blend) GlFunction().enable(Capability.Blend);
+        else GlFunction().disable(Capability.Blend);
         GlUtils.colorWrite(this.colorWrite);
         GlUtils.depthWrite(this.depthWrite);
         GlUtils.stencilWrite(this.stencilWrite);

@@ -26,14 +26,14 @@ class UniformBuffer(T) : BufferObject!(BufferType.Uniform, T), Uniform {
     override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
         import sbylib.wrapper.gl.Functions;
         auto loc = this.getLocation(program);
-        GlFunction.uniformBlockBinding(program.id, loc, uniformBlockPoint);
-        GlFunction.bindBufferBase(BufferType.Uniform, uniformBlockPoint, this.id);
+        GlFunction().uniformBlockBinding(program.id, loc, uniformBlockPoint);
+        GlFunction().bindBufferBase(BufferType.Uniform, uniformBlockPoint, this.id);
         uniformBlockPoint++;
     }
 
     private uint getLocation(const Program program) const {
         import sbylib.wrapper.gl.Functions;
-        auto loc = GlFunction.getUniformBlockIndex(program.id, this.name);
+        auto loc = GlFunction().getUniformBlockIndex(program.id, this.name);
         assert(loc != -1, name ~ " is not found or used."); 
         return loc;
     }

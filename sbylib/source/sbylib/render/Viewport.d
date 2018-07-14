@@ -10,7 +10,7 @@ interface IViewport {
     uint getHeight() const;
 
     final void set() {
-        GlFunction.setViewport(getX(), getY(), getWidth(), getHeight());
+        GlFunction().setViewport(getX(), getY(), getWidth(), getHeight());
     }
 }
 

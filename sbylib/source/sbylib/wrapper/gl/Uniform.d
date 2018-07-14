@@ -102,7 +102,7 @@ class TypedUniform(Type) : Uniform
 
     private uint getLocation(const Program program) const {
         import sbylib.wrapper.gl.Functions;
-        return GlFunction.getUniformLocation(program.id, this.name);
+        return GlFunction().getUniformLocation(program.id, this.name);
     }
 
     override string toString() {

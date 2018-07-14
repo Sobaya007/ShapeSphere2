@@ -15,10 +15,10 @@ class Shader : ObjectGL {
             this.sourceCode = sourceCode;
             this.type = type;
         }
-        super(GlFunction.createShader(type),
-                &GlFunction.deleteShader);
+        super(GlFunction().createShader(type),
+                &GlFunction().deleteShader);
         GlUtils.shaderSource(this.id, sourceCode);
-        GlFunction.compileShader(this.id);
+        GlFunction().compileShader(this.id);
         assert(this.compileSuccess(), getLogString(sourceCode));
     }
 
@@ -47,13 +47,13 @@ class Shader : ObjectGL {
         }
 
         int getInfo(ShaderParamName name) {
-            return GlFunction.getShader!(int, 1)(this.id, name)[0];
+            return GlFunction().getShader!(int, 1)(this.id, name)[0];
         }
 
         string getInfoLog() {
             auto logLength = getLogLength();
             char[] log = new char[logLength];
-            GlFunction.getShaderInfoLog(this.id, logLength, &logLength, &log[0]);
+            GlFunction().getShaderInfoLog(this.id, logLength, &logLength, &log[0]);
 
             import std.conv : to;
             return log.to!string;

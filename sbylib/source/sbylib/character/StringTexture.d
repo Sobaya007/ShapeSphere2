@@ -43,7 +43,7 @@ class StringTexture {
         auto maxHeight = infos.map!(i => i.maxHeight).maxElement;
         //assert(minHeight == maxHeight);
         import sbylib.utils;
-        GlFunction.setPixelUnpackAlign(1);
+        GlFunction().setPixelUnpackAlign(1);
         if (width != totalWidth || height != maxHeight) {
             buffer = new ubyte[cast(size_t)(totalWidth*maxHeight)];
             this.texture.allocate(0, ImageInternalFormat.R, cast(uint)totalWidth, cast(uint)maxHeight, ImageFormat.R, buffer.ptr);
@@ -77,7 +77,7 @@ class StringTexture {
                 info.bitmap.ptr
             );
         }
-        GlFunction.setPixelUnpackAlign(4);
+        GlFunction().setPixelUnpackAlign(4);
 
         this.beforeInfos = infos;
     }
