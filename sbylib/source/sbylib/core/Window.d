@@ -5,6 +5,8 @@ import sbylib.render.Screen;
 import sbylib.input.Key;
 import sbylib.input.Mouse;
 
+private Window[GlfwWindow] windows;
+
 class Window {
     private GlfwWindow window;
     private Screen screen;
@@ -20,6 +22,12 @@ class Window {
             this.window.swapBuffers();
             this.window.pollEvents();
         }, "window");
+
+        windows[window] = this;
+    }
+
+    static Window getCurrentWindow() {
+        return windows[GlfwWindow.getCurrentWindow];
     }
 
     Screen getScreen() {

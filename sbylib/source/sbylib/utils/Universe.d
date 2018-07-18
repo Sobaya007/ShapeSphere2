@@ -682,5 +682,6 @@ private mixin template Dispatch(string[][string] dispatchList) {
         static foreach (c; dispatchList[mem]) {{
             static if (OK!(c)) return mixin(c~"(args)");
         }}
+
     }
 }

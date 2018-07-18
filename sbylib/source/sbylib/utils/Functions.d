@@ -448,16 +448,21 @@ auto asRect(T)(T array, size_t width, size_t height) {
 
 import sbylib.render.RenderTarget;
 void blitsTo(Texture texture, IRenderTarget dst, int x, int y, int w, int h) {
-    static RenderTarget target;
-    if (target is null) {
-        target = new RenderTarget(texture.width(), texture.height());
-    } else if (target.width != texture.width()
-            || target.height != texture.height()) {
-        target.destroy();
-        target = new RenderTarget(texture.width, texture.height);
+    import sbylib.core.Window;
+    static RenderTarget[Window] target;
+    auto window = Window.getCurrentWindow();
+    if (window !in target) {
+        target[window] = new RenderTarget(texture.width(), texture.height());
+    } else {
+        auto t = target[window];
+        if (t.width != texture.width()
+            || t.height != texture.height()) {
+            t.destroy();
+            target[window] = new RenderTarget(texture.width, texture.height);
+        }
+        t.attachTexture(texture, FramebufferAttachType.Color0);
+        t.blitsTo(dst, x, y, w, h, ClearMode.Color);
     }
-    target.attachTexture(texture, FramebufferAttachType.Color0);
-    target.blitsTo(dst, x, y, w, h, ClearMode.Color);
 }
 
 void blitsTo(Texture texture, IRenderTarget dst) {

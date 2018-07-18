@@ -28,6 +28,11 @@ class GlfwWindow {
     }
     public {
 
+        static GlfwWindow getCurrentWindow() {
+            auto window = glfwGetCurrentContext();
+            return windows[window];
+        }
+
         bool shouldClose() {
             return window.glfwWindowShouldClose() > 0;
         }
