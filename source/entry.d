@@ -17,6 +17,7 @@ enum RunMode {
     Game,
     Scene,
     MultiWindow,
+    Animation,
 };
 
 void run(string[] args) {
@@ -94,6 +95,9 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.MultiWindow:
         multiWindowExample();
+        break;
+    case RunMode.Animation:
+        animationExample();
         break;
     }
 }

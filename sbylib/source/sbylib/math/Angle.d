@@ -1,71 +1,140 @@
 module sbylib.math.Angle;
 
-import std.math;
+enum isAngle(Type) = is(Type == Degree) || is(Type == Radian);
+
+struct Angle {
+    import std.variant;
+    alias AngleImpl = Algebraic!(Degree*, Radian*);
+    private AngleImpl value;
+
+    this(ref Degree deg) {
+        this.value = &deg;
+    }
+
+    this(ref Radian rad) {
+        this.value = &rad;
+    }
+
+    Radian asRad() {
+        return value.visit!(
+            (Degree* deg) => deg.toRad,
+            (Radian* rad) => *rad,
+        );
+    }
+
+    Degree asDeg() {
+        return value.visit!(
+            (Degree* deg) => *deg,
+            (Radian* rad) => rad.toDeg,
+        );
+    }
+}
+
 
 struct Degree {
-    float deg;
+    private float deg;
+    Angle angle;
+    alias angle this;
 
-    private this(float deg) @nogc {
+    private this(float deg) {
         this.deg = deg;
+        this.angle = Angle(this);
     }
 
-    this(Radian rad) @nogc {
-        this.deg = rad * 180 / PI;
+    void opAssign(Radian rad) {
+        this.deg = rad.toDeg.deg;
     }
 
-    Degree opUnary(string op)() @nogc {
+const:
+
+    Degree opUnary(string op)() {
         return Degree(mixin(op ~ "deg"));
     }
 
-    Degree opBinary(string op)(float v) @nogc {
+    Degree opBinary(string op)(float v) {
         return Degree(mixin("deg " ~ op ~ " v"));
     }
 
-    void opAssign(Radian radian) {
-        this.deg = radian.deg;
+    Degree opBinary(string op)(Degree v) {
+        return Degree(mixin("deg " ~ op ~ " v.deg"));
     }
 
-    alias deg this;
+    Radian toRad() {
+        import std.math : PI;
+        return Radian(deg * PI / 180);
+    }
+
+    bool opEquals(Degree deg) {
+        return this.deg == deg.deg;
+    }
+
+    bool opEquals(Radian rad) {
+        return this.deg == rad.toDeg.deg;
+    }
 }
 
 struct Radian {
-    float rad;
+    private float rad;
+    Angle angle;
+    alias angle this;
 
-    private this(float rad) @nogc {
+    private this(float rad) {
         this.rad = rad;
+        this.angle = Angle(this);
     }
 
-    this(Degree deg) @nogc {
-        this.rad = deg * PI / 180;
+    void opAssign(Degree deg) {
+        this.rad = deg.toRad.rad;
     }
 
-    Radian opUnary(string op)() @nogc {
+const:
+
+    Radian opUnary(string op)() {
         return Radian(mixin(op ~ "rad"));
     }
 
-    Radian opBinary(string op)(float v) @nogc {
+    Radian opBinary(string op)(float v) {
         return Radian(mixin("rad " ~ op ~ " v"));
     }
 
-    void opAssign(Degree degree) {
-        this.rad = degree.rad;
+    Radian opBinary(string op)(Radian v) {
+        return Radian(mixin("rad " ~ op ~ " v.rad"));
     }
 
-    alias rad this;
+    Degree toDeg() {
+        import std.math : PI;
+        return Degree(rad * 180 / PI);
+    }
+
+    bool opEquals(Radian rad) {
+        return this.rad == rad.rad;
+    }
+
+    bool opEquals(Degree deg) {
+        return this.rad == deg.toRad.rad;
+    }
 }
 
-Degree deg(float d) @nogc {
+Degree deg(float d) {
     return Degree(d);
 }
 
-Radian rad(float r) @nogc {
+Radian rad(float r) {
     return Radian(r);
 }
 
-Degree deg(Radian r) @nogc {
-    return Degree(r);
+mixin template DefineRadFunc(string func) {
+    import std.format;
+    mixin(format!q{
+
+auto %s(Angle angle) {
+    import std.math : %s;
+    return %s(angle.asRad.rad);
 }
 
-Radian rad(Degree d) @nogc {
-    return Radian(d);
+    }(func, func, func));
 }
+
+mixin DefineRadFunc!("sin");
+mixin DefineRadFunc!("cos");
+mixin DefineRadFunc!("tan");

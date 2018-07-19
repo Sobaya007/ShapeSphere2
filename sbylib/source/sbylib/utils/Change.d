@@ -114,7 +114,7 @@ struct ChangeObserved(T) {
 
         enum isConst = hasFunctionAttributes!(mixin(Member), "const");
 
-        const(Unqual!R) get() @safe
+        const(Unqual!R) get() 
         in {
             static if (is(typeof(this.value is null))) {
                 assert(this.value !is null);
@@ -128,7 +128,7 @@ struct ChangeObserved(T) {
             return r;
         }
     } else {
-        const(CoreType) get() @safe const {
+        const(CoreType) get() const {
             return mixin(Value);
         }
     }

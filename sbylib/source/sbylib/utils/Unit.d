@@ -12,10 +12,14 @@ mixin template GenerateUnit(string Struct, string Function, BaseType) {
             auto opBinary(string op)(typeof(this) other) {
                 return typeof(this)(mixin("this.value "~op~" other.value"));
             }
+
+            auto opBinary(string op)(%s other) {
+                return typeof(this)(mixin("this.value "~op~" other"));
+            }
         }
 
         %s %s(%s value) { return %s(value); }
-    }(Struct, BaseType.stringof,
+    }(Struct, BaseType.stringof, BaseType.stringof,
         Struct, Function, BaseType.stringof, Struct));
 }
 

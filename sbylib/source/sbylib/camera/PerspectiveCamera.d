@@ -34,7 +34,7 @@ final class PerspectiveCamera : Camera {
 
     this(float aspect, Degree fovy, float nearZ, float farZ) {
         this.aspectWperH = aspect;
-        this.fovy = Radian(fovy);
+        this.fovy = fovy.toRad;
         this.nearZ = nearZ;
         this.farZ = farZ;
         this();

@@ -58,8 +58,8 @@ class StartEffect {
 
         this.anim = sequence(
             multi(
-                animation((float alpha) { mat.textAlpha = alpha;}, setting(0.0f, 1.0f, PERIOD.frame, &Ease.linear)),
-                animation((float lineRate) {mat.lineRate = lineRate;}, setting(0.0f, 1.0f, PERIOD.frame, &Ease.linear)),
+                animation((float alpha) { mat.textAlpha = alpha;}, setting(0.0f, 1.0f, PERIOD.frame, Ease.Linear)),
+                animation((float lineRate) {mat.lineRate = lineRate;}, setting(0.0f, 1.0f, PERIOD.frame, Ease.Linear)),
             ),
             wait(WAIT_PERIOD.frame),
             multi(
@@ -70,13 +70,13 @@ class StartEffect {
                     entity.mesh.geom.updateBuffer();
                     if (entity.mat.textAlpha.value == 0) kill();
                 }, true),
-                animation((float alpha) {mat.textAlpha = alpha;}, setting(1.0f, 0.0f, 100.frame, &Ease.linear))
+                animation((float alpha) {mat.textAlpha = alpha;}, setting(1.0f, 0.0f, 100.frame, Ease.Linear))
             )
         );
     }
 
     void abridge() {
-        this.anim = sequence(
+        this.anim =
             multi(
                 animation((void delegate() kill) {
                     foreach (ref frag; fragmentList) {
@@ -85,9 +85,8 @@ class StartEffect {
                     entity.mesh.geom.updateBuffer();
                     if (entity.mat.textAlpha.value == 0) kill();
                 }, true),
-                animation((float alpha) {entity.mat.textAlpha = alpha;}, setting(entity.mat.textAlpha, 0.0f, 50.frame, &Ease.linear))
-            )
-        );
+                animation((float alpha) {entity.mat.textAlpha = alpha;}, setting(entity.mat.textAlpha, 0.0f, 50.frame, Ease.Linear))
+            );
     }
 
     private struct Fragment {

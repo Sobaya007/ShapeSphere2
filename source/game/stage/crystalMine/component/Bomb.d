@@ -96,7 +96,7 @@ class BombEntity {
                         0.0f,
                         10,
                         100.frame,
-                        &Ease.linear
+                        Ease.Linear
                     )
                 ),
                 single({foreach(i; 0..10) stone();}),
@@ -108,7 +108,7 @@ class BombEntity {
                         10f,
                         0,
                         10.frame,
-                        &Ease.linear
+                        Ease.Linear
                     )
                 ),
             )

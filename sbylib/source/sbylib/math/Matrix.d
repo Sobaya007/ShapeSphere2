@@ -241,7 +241,7 @@ public:
         }
 
         static if (U == 3) {
-            static Matrix axisAngle(Vector!(T,3) v, Radian angle) {
+            static Matrix axisAngle(Vector!(T,3) v, Angle angle) {
                 auto c = cos(angle);
                 auto s = sin(angle);
                 Matrix result;
@@ -341,7 +341,7 @@ public:
                         );
             }
 
-            static Matrix perspective(T aspectWperH, T fovy, T nearZ, T farZ) {
+            static Matrix perspective(T aspectWperH, Radian fovy, T nearZ, T farZ) {
                 return Matrix(
                         1 / (aspectWperH * tan(fovy/2)), 0,                 0,                         0,
                         0,                               1 / (tan(fovy/2)), 0,                         0,

@@ -61,7 +61,7 @@ class Message : CommandReceiver {
                         vec3(currentWidth, currentHeight,1),
                         vec3(arrivalWidth, arrivalHeight, 1),
                         30.frame,
-                        &Ease.easeInOut
+                        Ease.InOut
                     )
                 ),
                 animation(
@@ -72,7 +72,7 @@ class Message : CommandReceiver {
                         0f,
                         message.length + 0.5f,
                         (5 * message.length).frame,
-                        &Ease.linear
+                        Ease.Linear
                     )
                 )
             )

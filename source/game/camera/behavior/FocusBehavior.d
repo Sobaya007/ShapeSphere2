@@ -25,7 +25,7 @@ class FocusBehavior : CameraController.Behavior {
         this.dir = normalize(player.getCenter - obj.pos);
         this.dir.y = 0.3;
         this.dir = normalize(this.dir);
-        this.dir = mat3.axisAngle(vec3(0,1,0), Radian(-40.deg)) * this.dir;
+        this.dir = mat3.axisAngle(vec3(0,1,0), -40.deg) * this.dir;
     }
 
     override void step() {

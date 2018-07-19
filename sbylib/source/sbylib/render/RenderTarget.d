@@ -12,7 +12,7 @@ import std.stdio;
 
 abstract class IRenderTarget {
     
-    private vec4 clearColor = vec4(0, .5, .5, 1);
+    private vec4 clearColor = vec4(0, .2, .5, 1);
     private int clearStencil = 0;
     private debug bool hasCleared;
 

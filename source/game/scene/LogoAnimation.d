@@ -24,7 +24,7 @@ class LogoAnimation : SceneProtoType {
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
                         60.frame,
-                        &Ease.linear
+                        Ease.Linear
                     )
                 ),
                 wait(60.frame),
@@ -33,7 +33,7 @@ class LogoAnimation : SceneProtoType {
                         vec4(0,0,0,0),
                         vec4(0,0,0,1),
                         60.frame,
-                        &Ease.linear
+                        Ease.Linear
                     )
                 ),
             ),

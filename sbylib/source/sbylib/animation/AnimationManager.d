@@ -42,7 +42,7 @@ class AnimationProcedure {
     private Frame currentFrame;
     private IAnimation animation;
  
-    private Maybe!(void delegate()) finishCallback = None!(void delegate());
+    Maybe!(void delegate()) finishCallback = None!(void delegate());
     private bool forced;
 
     this(IAnimation animation) {

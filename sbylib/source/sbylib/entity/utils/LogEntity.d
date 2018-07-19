@@ -64,7 +64,7 @@ class LogEntity {
                     animation(
                         (float y) {label.pos.y = y;},
                         setting(
-                            label.pos.y, y, FRAME, &Ease.easeInOut
+                            label.pos.y, y, FRAME, Ease.InOut
                         )
                     )
                 );
@@ -72,7 +72,7 @@ class LogEntity {
                     animation(
                         (float a) {label.color = vec4(label.color.rgb, a);},
                         setting(
-                            label.color.a, a, FRAME, &Ease.easeInOut
+                            label.color.a, a, FRAME, Ease.InOut
                         )
                     )
                 );

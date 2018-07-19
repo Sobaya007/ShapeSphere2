@@ -182,7 +182,7 @@ class CrystalMine : Stage {
                     vec4(0,0,0,0),
                     vec4(0,0,0,1),
                     60.frame,
-                    &Ease.linear
+                    Ease.Linear
                 )
             )
         ).onFinish({
@@ -200,7 +200,7 @@ class CrystalMine : Stage {
                         vec4(0,0,0,1),
                         vec4(0,0,0,0),
                         60.frame,
-                        &Ease.linear
+                        Ease.Linear
                     )
                 )
             );

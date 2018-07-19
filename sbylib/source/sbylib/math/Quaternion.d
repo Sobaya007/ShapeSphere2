@@ -186,7 +186,7 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         }
     }
 
-    static Quaternion!T axisAngle(Vector!(T,3) axis, Radian rad) @nogc {
+    static Quaternion!T axisAngle(Vector!(T,3) axis, Radian rad)  {
         Quaternion!T result;
         float s = sin(rad/2);
         result.x = axis.x * s;
@@ -196,10 +196,10 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
         return result;
     }
 
-    static Quaternion!T axisAngle(Vector!(T,3) a) @nogc {
+    static Quaternion!T axisAngle(Vector!(T,3) a)  {
         auto angle = sbylib.math.Vector.length(a).rad;
-        if (angle == 0) return Quaternion!T(0,0,0,1);
-        return axisAngle(a / angle, angle);
+        if (angle == 0.rad) return Quaternion!T(0,0,0,1);
+        return axisAngle(a.safeNormalize(), angle);
     }
 
     static Quaternion!T rotFromTo(Vector!(T,3) from, Vector!(T,3) to) {
@@ -241,16 +241,16 @@ Quaternion!T normalize(T)(Quaternion!T q) {
 }
 
 
-vec3 rotate(vec3 vec, vec3 axis, Radian angle) @nogc {
+vec3 rotate(vec3 vec, vec3 axis, Radian angle)  {
     quat q = quat.axisAngle(axis, angle);
     return rotate(vec, q);
 }
 
-vec3 rotate(vec3 vec, vec3 center, vec3 axis, Radian angle) @nogc {
+vec3 rotate(vec3 vec, vec3 center, vec3 axis, Radian angle)  {
     return rotate(vec-center, axis, angle) + center;
 }
 
-vec3 rotate(vec3 vec, const quat q) @nogc {
+vec3 rotate(vec3 vec, const quat q) {
     return (q * quat(vec, 0) * ~q).Axis;
 }
 

@@ -73,7 +73,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                             vec4(0),
                             vec4(0,0,0,1),
                             180.frame,
-                            &Ease.linear
+                            Ease.Linear
                         )
                     );
             } else {
@@ -83,7 +83,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                             1.0f,
                             0.0f,
                             20.frame,
-                            &Ease.easeInOut
+                            Ease.InOut
                         )
                     );
             }
@@ -108,7 +108,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                     0.0f,
                     1.0f,
                     30.frame,
-                    &Ease.easeInOut
+                    Ease.InOut
                 )
             )
         ).onFinish({ this.canSelect = true;});
@@ -164,7 +164,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                             this.label.color,
                             vec4(vec3(0.1), 1),
                             10.frame,
-                            &Ease.linear
+                            Ease.Linear
                         )
                     ),
                     animation(
@@ -173,7 +173,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                             0.0f,
                             1.0f,
                             PROGRESS_PERIOD.frame,
-                            &Ease.linear
+                            Ease.Linear
                         )
                     )
                 )
@@ -191,7 +191,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                             this.label.color,
                             vec4(0.4),
                             10.frame,
-                            &Ease.linear
+                            Ease.Linear
                         )
                     ),
                     animation(
@@ -200,7 +200,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                             1.0f,
                             0.0f,
                             PROGRESS_PERIOD.frame,
-                            &Ease.linear
+                            Ease.Linear
                         )
                     )
                 )
