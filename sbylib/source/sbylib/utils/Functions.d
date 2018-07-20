@@ -331,7 +331,7 @@ struct RectangleBuffer(T) {
         auto result = typeof(this)(a.end-a.begin, b.end-b.begin);
         foreach (i; a.begin..a.end) {
             foreach (j; b.begin..b.end) {
-                result[i-a.begin, j-b.begin] = this[i,j].get();
+                result[i-a.begin, j-b.begin] = this[i,j].unwrap();
             }
         }
         return result;
@@ -358,7 +358,7 @@ struct RectangleBuffer(T) {
         foreach (i; a.begin..a.end) {
             foreach (j; b.begin..b.end) {
                 static if (is(typeof(this) == U)) {
-                    this[i,j] = value[i-a.begin,j-b.begin].get();
+                    this[i,j] = value[i-a.begin,j-b.begin].unwrap();
                 } else {
                     this[i,j] = value;
                 }

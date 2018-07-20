@@ -2,7 +2,6 @@ module sbylib.math.Matrix;
 
 import sbylib.math;
 import std.conv;
-import std.math;
 import std.string;
 import std.stdio;
 import std.traits;
@@ -262,6 +261,7 @@ public:
             }
 
             Quaternion!T toQuaternion() {
+                import std.math : sqrt, sgn;
                 auto q0 = ( this[0,0] + this[1,1] + this[2,2] + 1.0f) / 4.0f;
                 auto q1 = ( this[0,0] - this[1,1] - this[2,2] + 1.0f) / 4.0f;
                 auto q2 = (-this[0,0] + this[1,1] - this[2,2] + 1.0f) / 4.0f;
@@ -521,6 +521,7 @@ public:
             // ＞ めっちゃ条件付き ＜
 
             // hessenberg
+            import std.math : abs, sqrt;
             Matrix!(T,U,V) H;
             for(int i=0;i<U;++i)for(int j=0;j<V;++j)
                     H[i,j] = m[i,j];
@@ -605,6 +606,7 @@ public:
                 T max = 0;
                 foreach (i; 0..U) {
                     foreach (j; 0..V) {
+                        import std.math : abs;
                         if (i == j) continue;
                         if (m[i,j].abs > max) {
                             max = m[i,j].abs;
@@ -619,6 +621,7 @@ public:
             uint p, q;
             uint bp = 114514, bq = 114514;
             while (true) {
+                import std.math : abs, sqrt;
                 if ((max = getMaxValue(m, p, q)) < 1e-3) break;
                 if (p == bp && q == bq) break;
                 T pp = m[p,p];

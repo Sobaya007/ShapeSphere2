@@ -28,6 +28,13 @@ struct Angle {
             (Radian* rad) => rad.toDeg,
         );
     }
+
+    float asFloat() {
+        return value.visit!(
+            (Degree* deg) => deg.deg,
+            (Radian* rad) => rad.rad,
+        );
+    }
 }
 
 
@@ -71,6 +78,11 @@ const:
     bool opEquals(Radian rad) {
         return this.deg == rad.toDeg.deg;
     }
+
+    string toString() {
+        import std.format;
+        return format!"%f [deg.]"(deg);
+    }
 }
 
 struct Radian {
@@ -113,6 +125,11 @@ const:
     bool opEquals(Degree deg) {
         return this.rad == deg.toRad.rad;
     }
+
+    string toString() {
+        import std.format;
+        return format!"%f [rad.]"(rad);
+    }
 }
 
 Degree deg(float d) {
@@ -123,7 +140,7 @@ Radian rad(float r) {
     return Radian(r);
 }
 
-mixin template DefineRadFunc(string func) {
+mixin template DefineRadInputFunc(string func) {
     import std.format;
     mixin(format!q{
 
@@ -135,6 +152,21 @@ auto %s(Angle angle) {
     }(func, func, func));
 }
 
-mixin DefineRadFunc!("sin");
-mixin DefineRadFunc!("cos");
-mixin DefineRadFunc!("tan");
+mixin template DefineRadOutputFunc(string func) {
+    import std.format;
+    mixin(format!q{
+
+auto %s(float angle) {
+    import std.math : %s;
+    return %s(angle).rad;
+}
+
+    }(func, func, func));
+}
+
+mixin DefineRadInputFunc!("sin");
+mixin DefineRadInputFunc!("cos");
+mixin DefineRadInputFunc!("tan");
+mixin DefineRadOutputFunc!("asin");
+mixin DefineRadOutputFunc!("acos");
+mixin DefineRadOutputFunc!("atan");

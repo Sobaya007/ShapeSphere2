@@ -4,7 +4,6 @@ module sbylib.math.Quaternion;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
 import sbylib.math.Angle;
-import std.math;
 import std.conv;
 /*Note:
   四元数の構造体だよ！
@@ -220,11 +219,12 @@ struct Quaternion(T) if (__traits(isArithmetic, T)) {
                 return Quaternion!T(axis.x,axis.y,axis.z,0);
             }
         }
-        return axisAngle(v, c.acos.rad);
+        return axisAngle(v, c.acos);
     }
 }
 
 T length(T)(Quaternion!T q) {
+    import std.math : sqrt;
     mixin({
         string code = "T result = sqrt(";
         foreach (i; 0..4) {
