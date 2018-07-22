@@ -20,8 +20,11 @@ class Label : Entity {
     private dstring[] mTextByRow;
     private Sentence[] sentences;
     private Strategy strategy;
+    private Entity sentenceContainer; // for separate for other child
 
     this(Font font, float size, float wrapWidth, Strategy strategy, vec4 color, vec4 backColor, dstring mText) {
+        this.sentenceContainer = new Entity;
+        this.addChild(sentenceContainer);
         this.font = font;
         this.size = size;
         this.wrapWidth = wrapWidth;
@@ -107,9 +110,9 @@ class Label : Entity {
             auto newSentences = iota(rows.length-sentences.length).map!(_ => new Sentence).array;
             sentences ~= newSentences;
         }
-        this.clearChildren();
+        sentenceContainer.clearChildren();
         foreach (s; sentences[0..rows.length]) {
-            this.addChild(s);
+            sentenceContainer.addChild(s);
         }
         zip(rows, sentences).each!(t => t[1].setBuffer(t[0], this.size));
         final switch (this.strategy) {

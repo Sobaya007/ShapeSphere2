@@ -13,7 +13,7 @@ class GameMainScene : SceneBase {
 
     mixin SceneBasePack;
 
-    private debug Console console;
+    private debug GameConsole console;
 
     override void initialize() {
 
@@ -131,8 +131,7 @@ class GameMainScene : SceneBase {
         Core().justPressed(KeyButton.KeyJ).add({Game.getPlayer().camera.fly(); Game.log("Start Fly Mode");});
 
         /* Console */
-        this.console = new Console;
-        console.addProcess(&console.step);
+        this.console = GameConsole.add();
 
         /* Manipulator */
         import game.tool.manipulator;
