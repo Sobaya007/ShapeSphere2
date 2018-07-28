@@ -454,12 +454,12 @@ void blitsTo(Texture texture, IRenderTarget dst, int x, int y, int w, int h) {
     if (window !in target) {
         target[window] = new RenderTarget(texture.width(), texture.height());
     } else {
-        auto t = target[window];
-        if (t.width != texture.width()
-            || t.height != texture.height()) {
-            t.destroy();
+        if (target[window].width != texture.width()
+            || target[window].height != texture.height()) {
+            target[window].destroy();
             target[window] = new RenderTarget(texture.width, texture.height);
         }
+        auto t = target[window];
         t.attachTexture(texture, FramebufferAttachType.Color0);
         t.blitsTo(dst, x, y, w, h, ClearMode.Color);
     }

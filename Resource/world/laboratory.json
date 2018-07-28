@@ -1,0 +1,25 @@
+{
+    "world" : {
+        "template" : "3D",
+        "camera" : {
+            "type" : "PerspectiveCamera",
+            "fovy" : 60,
+            "nearZ" : 0.1,
+            "farZ" : 100,
+            "pos" : [3,2,9],
+            "lookAt" : [0,2,0],
+            "control" : true
+        },
+        "room" : {
+            "type" : "Entity",
+            "geometry" : "Box",
+            "material" : "LaboratoryWall",
+            "scale" : [50,50,50],
+            "pos" : [0,25,0],
+            "faceMode" : "Back"
+        }
+    },
+    "KeyCommand" : {
+        "Escape" : "End"
+    }
+}

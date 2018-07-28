@@ -19,9 +19,10 @@ class ProcessManager {
 
     void update() {
         synchronized(this) {
-            import std.algorithm : all;
+            import std.algorithm : each, all;
             assert(this.processes.all!(proc => proc.isAlive()));
-            this.processes.filter!(proc => proc.isAlive() && proc.step());
+            this.processes.each!(proc => proc.step());
+            this.processes.filter!(proc => proc.isAlive());
             assert(this.processes.all!(proc => proc.isAlive()));
         }
     }
@@ -95,7 +96,7 @@ class Process {
         append(FILE, format!"%s: %.2f\n"(this.name, this.averageTime));
     }
 
-    package(sbylib) bool step()
+    package(sbylib) void step()
         in(this.isAlive, this.name)
     {
         if (!paused) {
@@ -104,7 +105,6 @@ class Process {
             this.frame++;
             debug this.counter.stop();
         }
-        return this.alive;
     }
 
     void kill()

@@ -3,6 +3,7 @@ module entry;
 import std.stdio, std.format, std.traits, std.conv, std.range, std.algorithm, std.array;
 import examples;
 import game.GameMain;
+import laboratory.Laboratory;
 
 enum RunMode {
     Basic,
@@ -18,6 +19,7 @@ enum RunMode {
     Scene,
     MultiWindow,
     Animation,
+    Laboratory
 };
 
 void run(string[] args) {
@@ -98,6 +100,9 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.Animation:
         animationExample();
+        break;
+    case RunMode.Laboratory:
+        laboratoryMain();
         break;
     }
 }
