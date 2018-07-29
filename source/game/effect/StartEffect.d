@@ -131,7 +131,8 @@ class StartEffect {
         this(string str) {
             mixin(autoAssignCode);
             super();
-            auto texture = new StringTexture(FontLoader.load(FontPath("Kaiso-Next-B.otf"), 512), str);
+            auto texture = new StringTexture();
+            texture.setBuffer(FontLoader.load(FontPath("Kaiso-Next-B.otf"), 512), str);
             this.tex = texture;
             this.config.faceMode = FaceMode.FrontBack;
             this.config.renderGroupName = "transparent";

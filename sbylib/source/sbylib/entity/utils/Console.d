@@ -7,7 +7,8 @@ class Console {
 
     Label label;
     Entity rect;
-    protected string[] text;
+    protected ColoredString[] text;
+    protected string inputString;
     protected int cursor;
 
     alias rect this;
@@ -26,10 +27,8 @@ class Console {
         factory.fontName = "RictyDiminished-Regular-Powerline.ttf";
         factory.height = 24.pixel;
         factory.strategy = Label.Strategy.Left;
-        factory.backColor = vec4(0);
-        factory.textColor = vec4(1,1,1,1);
         factory.wrapWidth = Core().getWindow().width;
-        factory.text = "";
+        factory.text = WHITE("");
 
         this.label = factory.make();
         label.pos.z = 0.1;
@@ -45,7 +44,7 @@ class Console {
         //this.label.addChild(this.rect);
         this.rect.addChild(this.label);
 
-        text = [""];
+        text = [WHITE("")];
     }
 
     struct CharPair {
@@ -94,48 +93,46 @@ class Console {
     }
 
     private void insertToCursor(char c) {
-        import std.array : back;
-        text.back = text.back[0..cursor] ~ c ~ text.back[cursor..$];
+        inputString = inputString[0..cursor] ~ c ~ inputString[cursor..$];
         this.cursor++;
     }
 
     private void breakLine() {
-        text = text ~ [""];
+        text = text ~ [WHITE(inputString)];
+        this.inputString = "";
         this.cursor = 0;
     }
 
     private void removeBeforeCharacter() {
         if (cursor == 0) return;
 
-        import std.array : back;
-        text.back = text.back[0..cursor-1] ~ text.back[cursor..$];
+        this.inputString = this.inputString[0..cursor-1] ~ this.inputString[cursor..$];
         this.cursor--;
     }
 
     private void removeAfterCharacter() {
-        import std.array : back;
+        if (cursor == this.inputString.length) return;
 
-        if (cursor == text.back.length) return;
-
-        text.back = text.back[0..cursor] ~ text.back[cursor+1..$];
+        this.inputString = this.inputString[0..cursor] ~ this.inputString[cursor+1..$];
     }
 
     private void moveCursor(int d) {
-        import std.array : back;
-
         cursor += d;
         if (cursor < 0) cursor = 0;
-        if (cursor >= text.back.length) cursor = cast(int)text.back.length-1;
+        if (cursor >= this.inputString.length) cursor = cast(int)this.inputString.length-1;
     }
 
     protected void render() {
-        auto strs = text.dup;
-        strs[$-1] = strs[$-1][0..cursor] ~ "|" ~ strs[$-1][cursor..$];
-        render(strs);
+        auto lastLine = inputString;
+        lastLine = inputString[0..cursor] ~ "|" ~ lastLine[cursor..$];
+        render(text ~ [WHITE(lastLine)]);
     }
 
-    protected final void render(string[] strs) {
-        label.renderText(strs.join('\n'));
+    protected final void render(ColoredString[] strs) {
+        ColoredString total;
+        foreach (str; strs[0..$-1]) total ~= str ~ WHITE("\n");
+        total ~= strs[$-1];
+        label.renderText(total);
         label.left = -Core().getWindow().width/2;
         label.bottom = -Core().getWindow().height/2;
     }

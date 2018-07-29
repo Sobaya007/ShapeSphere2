@@ -123,14 +123,22 @@ class Material {
         }
 
         private static string autoAssignCode() {
-            import std.traits, std.format;
+            import std.traits;
+            import std.format;
             string str;
             static foreach (i, type; FieldTypeTuple!(typeof(this))) {{
-                static if (is(typeof({const(Uniform) u = type.init;}))) {
-                    enum name = FieldNameTuple!(typeof(this))[i];
+                enum name = FieldNameTuple!(typeof(this))[i];
+                static if (isUniformAssignable!(type)) {
                     str ~= format!q{
                         this.%s = new %s("%s");
                     }(name, type.stringof, name);
+                } else static if (isArray!(type) && isUniformAssignable!(ForeachType!(type))) {
+                    str ~= format!q{
+                        foreach (j, ref elem; %s) { 
+                            import std.conv : to;
+                            elem = new %s("%s[" ~ j.to!string ~ "]");
+                        }
+                    }(name, ForeachType!(type).stringof, name);
                 }
             }}
             return str;
@@ -172,6 +180,8 @@ class Material {
                 }
             }}
         }
+
+        private enum isUniformAssignable(T) = is(typeof({const(Uniform) u = T.init;}));
     }
 
     mixin template ConfigureMaterial(string configStr="{}") {

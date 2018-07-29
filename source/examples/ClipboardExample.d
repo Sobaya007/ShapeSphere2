@@ -13,16 +13,16 @@ void clipboardExample() {
         .unwrap();
 
     Clipboard clipboard = Core().getClipboard;
-    Core().justPressed(KeyButton.KeyC).add({ clipboard.set(label.text); });
+    Core().justPressed(KeyButton.KeyC).add({ clipboard.set(label.text.str); });
     Core().justPressed(KeyButton.KeyV).add({
         import std.format, std.conv, std.algorithm;
         enum maximum = 100;
-        dstring pasteText = clipboard.get();
-        dstring errorText = format!"'%s ... ' is too long."(pasteText[0..min($, maximum)]).to!dstring;
+        string pasteText = clipboard.get();
+        string errorText = format!"'%s ... ' is too long."(pasteText[0..min($, maximum)]);
         if (pasteText.length > maximum) {
-            label.renderText(errorText);
+            label.renderText(errorText.colored(vec3(0)));
         } else {
-            label.renderText(clipboard.get());
+            label.renderText(clipboard.get().colored(vec3(0)));
         }
     });
 

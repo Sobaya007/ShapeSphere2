@@ -470,16 +470,16 @@ class Universe {
         scope(exit) ensureConsume(param);
 
         auto pos = param.fetch!vec3("pos").getOrElse(vec3(0));
+        auto textColor = param.fetch!vec4("textColor").getOrElse(vec4(1));
+        auto text = param.fetch!string("text").getOrElse("");
         LabelFactory factory;
+        factory.text = text.colored(textColor);
 
         alias LabelParamList = DefineParamList!(
             Param!("fontName", string, false),
-            Param!("text", dstring, false),
             Param!("height", float, false),
             Param!("fontResolution", int, false),
-            Param!("wrapWidth", float, false),
-            Param!("textColor", vec4, false),
-            Param!("backColor", vec4, false),
+            Param!("wrapWidth", float, false)
         );
         setParameter!(
             ParamList!(
@@ -547,7 +547,7 @@ class Universe {
         import std.string : capitalize;
 
         void delegate(FramebufferAttachType) func;
-        switch (object) {
+       switch (object) {
             static foreach (Func; AliasSeq!("texture", "renderbuffer")) {
                 case Func:
                     switch (type) {

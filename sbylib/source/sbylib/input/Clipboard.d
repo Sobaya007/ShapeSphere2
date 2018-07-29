@@ -9,11 +9,11 @@ class Clipboard {
         this.window = window;
     }
 
-    void set(dstring str) {
+    void set(string str) {
         this.window.setClipboardString(str);
     }
 
-    dstring get() {
+    string get() {
         return this.window.getClipboardString();
     }
 }

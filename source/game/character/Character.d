@@ -19,7 +19,7 @@ class Character {
     Entity collisionArea;
     private Entity activeArea;
     private int count;
-    dstring serif;
+    string serif;
 
     alias elasticSphere this;
 

@@ -50,11 +50,11 @@ struct Character {
         character.setCenter(p);
     }
 
-    dstring serif() {
-        return obj["serif"].as!dstring;
+    string serif() {
+        return obj["serif"].as!string;
     }
 
-    void serif(dstring serif) {
+    void serif(string serif) {
         obj["serif"] = serif;
         character.serif = serif;
     }

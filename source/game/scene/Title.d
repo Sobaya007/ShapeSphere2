@@ -15,9 +15,9 @@ class Title : SceneProtoType {
     private uint selector = 0;
 
     this() {
-        this.text = makeTextEntity("Shape Sphere"d, 0.3);
-        auto newGame = Selection("New Game"d, vec2(0.5, -0.6));
-        auto loadGame = Selection("Load Game"d, vec2(0.45, -0.75));
+        this.text = makeTextEntity(BLACK("Shape Sphere"), 0.3);
+        auto newGame = Selection(BLACK("New Game"), vec2(0.5, -0.6));
+        auto loadGame = Selection(BLACK("Load Game"), vec2(0.45, -0.75));
         selections = [newGame, loadGame];
         super();
         addEntity(text);
@@ -92,12 +92,11 @@ class Title : SceneProtoType {
         private Label label;
         private vec2 basePos;
         private Maybe!AnimationProcedure animation;
-        this(dstring text, vec2 basePos) {
+        this(ColoredString text, vec2 basePos) {
             LabelFactory factory;
             factory.text = text;
             factory.height = 0.15;
             factory.strategy = Label.Strategy.Right;
-            factory.textColor = vec4(0);
             this.label = factory.make();
             this.basePos = basePos;
             this.label.pos.x = basePos.x;
@@ -117,7 +116,7 @@ class Title : SceneProtoType {
                     ),
                     this.label.colorAnimation(
                         setting(
-                            this.label.color,
+                            vec4(0.5),
                             vec4(1),
                             10.frame,
                             Ease.Linear
@@ -143,7 +142,7 @@ class Title : SceneProtoType {
                     ),
                     this.label.colorAnimation(
                         setting(
-                            this.label.color,
+                            vec4(1),
                             vec4(0.5),
                             10.frame,
                             Ease.Linear

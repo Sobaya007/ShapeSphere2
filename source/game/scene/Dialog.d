@@ -5,7 +5,7 @@ import game.player.Controller;
 import sbylib;
 import dconfig;
 
-class Dialog(dstring explainMessage) : SceneProtoType {
+class Dialog(string explainMessage) : SceneProtoType {
 
     mixin SceneBasePack;
     mixin HandleConfig;
@@ -42,7 +42,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
 
         {
             LabelFactory factory;
-            factory.text = explainMessage;
+            factory.text = BLACK(explainMessage);
             factory.height = TEXT_SIZE;
             factory.wrapWidth = 1.2;
             this.explain = factory.make();
@@ -136,13 +136,12 @@ class Dialog(dstring explainMessage) : SceneProtoType {
 
         alias box this;
 
-        this(dstring text, vec2 pos, vec3 color) {
+        this(string text, vec2 pos, vec3 color) {
             this.color = color;
             {
                 LabelFactory factory;
-                factory.text = text;
+                factory.text = text.colored(vec4(0.8));
                 factory.height = SELECTION_SIZE;
-                factory.textColor = vec4(0.8);
                 this.label = factory.make();
                 this.label.pos.z = 0.2;
             }
@@ -161,7 +160,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                 multi(
                     this.label.colorAnimation(
                         setting(
-                            this.label.color,
+                            vec4(0.4),
                             vec4(vec3(0.1), 1),
                             10.frame,
                             Ease.Linear
@@ -188,7 +187,7 @@ class Dialog(dstring explainMessage) : SceneProtoType {
                 multi(
                     this.label.colorAnimation(
                         setting(
-                            this.label.color,
+                            vec4(vec3(0.1), 1),
                             vec4(0.4),
                             10.frame,
                             Ease.Linear

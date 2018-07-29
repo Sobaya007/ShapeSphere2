@@ -4,6 +4,7 @@ public {
     import sbylib.entity.Entity;
     import sbylib.animation.Animation;
     import sbylib.math.Vector;
+    import sbylib.character.ColoredString;
     import sbylib.character.Label;
 }
 
@@ -15,19 +16,17 @@ struct LabelFactory {
     int fontResolution = 256;
     Label.Strategy strategy = Label.Strategy.Center;
     float wrapWidth = float.infinity;
-    vec4 textColor = vec4(0,0,0,1);
-    vec4 backColor = vec4(0);
-    dstring text = "";
+    ColoredString text;
 
     auto make() {
         import sbylib.utils.Path;
         import sbylib.utils.Loader;
         auto font = FontLoader.load(FontPath(fontName), fontResolution);
-        return new Label(font, height, wrapWidth, strategy, textColor, backColor, text);
+        return new Label(font, height, wrapWidth, strategy,  text);
     }
 }
 
-auto makeTextEntity(dstring text, float height) {
+auto makeTextEntity(ColoredString text, float height) {
     LabelFactory factory;
     factory.text = text;
     factory.height = height;

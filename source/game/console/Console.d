@@ -24,8 +24,6 @@ class GameConsole : Console {
 
     this() {
         super();
-        this.text = [":"];
-        this.history = [""];
 
         this.pos.z = 0.5;
         this.off();
@@ -45,7 +43,7 @@ class GameConsole : Console {
         } else if (ctrl && shift && key == KeyButton.Minus) {
             this.label.size /= 1.01;
         } else if (ctrl && key == KeyButton.KeyC) {
-            Core().getClipboard().set(lastOutput.to!dstring);
+            Core().getClipboard().set(lastOutput);
         } else if (key == KeyButton.Enter) {
             showInterpretResult();
         } else if (key == KeyButton.Up) {
@@ -66,13 +64,13 @@ class GameConsole : Console {
 
         historyCursor += d;
 
-        text.back = history[historyCursor];
+        this.inputString = history[historyCursor];
 
-        cursor = cast(int)text.back.length;
+        cursor = cast(int)this.inputString.length;
     }
 
     private void showInterpretResult() {
-        auto input = text.back;
+        auto input = this.inputString;
 
         if (input.empty) return;
 
@@ -83,7 +81,7 @@ class GameConsole : Console {
     }
 
     private void showCandidates() {
-        auto input = text.back;
+        auto input = this.inputString;
 
         auto cs = candidates(input);
 
@@ -96,12 +94,12 @@ class GameConsole : Console {
 .array;
         show(output);
 
-        text ~= cs
+        this.inputString = cs
         .sort!((a,b) => a.name < b.name)
         .map!(p => p.absoluteName)
         .reduce!commonPrefix
 .dropOne;
-        cursor = cast(int)text.back.length;
+        cursor = cast(int)this.inputString.length;
     }
 
     void on() {
@@ -111,7 +109,8 @@ class GameConsole : Console {
         Core().preventCallback();
         debug Controller().available = false;
         Game.getMap().pause();
-        text = [""];
+        this.inputString = "";
+        text = [WHITE("")];
     }
 
     private void off() {
@@ -121,7 +120,8 @@ class GameConsole : Console {
         Core().allowCallback();
         debug Controller().available = true;
         Game.getMap().resume();
-        text = [""];
+        this.inputString = "";
+        text = [WHITE("")];
     }
 
     private void show(string[] strs) {
@@ -129,8 +129,9 @@ class GameConsole : Console {
         text ~= strs
             .map!(s => s.length < MAX_LENGTH ? s : s[0..MAX_LENGTH/2]~"..."~s[$-MAX_LENGTH/2-3..$])
             .map!(s => s.indent(4))
+            .map!(s => s.colored(vec3(0.8)))
             .array;
-        text ~= "";
+        text ~= WHITE("");
         cursor = 0;
         this.lastOutput = strs.join("\n");
     }
@@ -142,10 +143,14 @@ class GameConsole : Console {
     }
 
     protected override void render() {
-        auto strs = text.dup;
-        strs[0..$-1] = strs[0..$-1].map!(t => " "~t).join("\n");
-        strs[$-1] = (mode==0?":":">" ~ strs[$-1][0..cursor] ~ "|" ~ strs[$-1][cursor..$]);
-        super.render(strs);
+        if (mode == 0) {
+            super.render([WHITE(":")]);
+        } else {
+            auto strs = text.dup;
+            strs = strs.map!(t => ColoredString(WHITE(" ")~t)).array;
+            auto lastLine  = (">" ~ inputString[0..cursor] ~ "|" ~ inputString[cursor..$]);
+            super.render(strs ~ WHITE(lastLine));
+        }
     }
 
     private string interpret(string str) {

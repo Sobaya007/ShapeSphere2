@@ -64,7 +64,7 @@ class GameMainScene : SceneBase {
         auto fpsLabel = Game.addLabel();
         Core().addProcess((Process proc) {
             fpsCounter.update();
-            fpsLabel.renderText(format!"FPS: %3d"(cast(int)fpsCounter.getFPS()).to!dstring);
+            fpsLabel.renderText(BLACK(format!"FPS: %3d"(cast(int)fpsCounter.getFPS())));
             fpsLabel.top = Core().getWindow().height/2;
             fpsLabel.left = -Core().getWindow().width/2;
             Core().getWindow().setTitle(format!"FPS[%d]"(cast(int)fpsCounter.getFPS()).to!string);
@@ -74,9 +74,9 @@ class GameMainScene : SceneBase {
         auto numberLabel2D = Game.addLabel("world2d");
         auto collisionCountLabel = Game.addLabel("col");
         Core().addProcess({
-            numberLabel3D.renderText(format!"World3D: %2d"(Game.getWorld3D().getEntityNum));
-            numberLabel2D.renderText(format!"World2D: %2d"(Game.getWorld2D().getEntityNum));
-            collisionCountLabel.renderText(format!"Player's collision: %2d"(Game.getPlayer().collisionCount));
+            numberLabel3D.renderText(BLACK(format!"World3D: %2d"(Game.getWorld3D().getEntityNum)));
+            numberLabel2D.renderText(BLACK(format!"World2D: %2d"(Game.getWorld2D().getEntityNum)));
+            collisionCountLabel.renderText(BLACK(format!"Player's collision: %2d"(Game.getPlayer().collisionCount)));
             numberLabel3D.left = -Core().getWindow().width/2;
             numberLabel2D.left = -Core().getWindow().width/2;
             collisionCountLabel.left = -Core().getWindow().width/2;
@@ -88,15 +88,14 @@ class GameMainScene : SceneBase {
             factory.fontName = "HGRPP1.TTC";
             factory.height = 32.pixel;
             factory.strategy = Label.Strategy.Right;
-            factory.textColor = vec4(1);
-            factory.text = "REPLAYING...";
+            factory.text = WHITE("REPLAYING...");
             auto label = factory.make();
             label.right = Core().getWindow().width/2;
             label.top = Core().getWindow().height/2;
             Game.getWorld2D().add(label);
             Core().addProcess((Process proc) {
                 if (Game.getCommandManager().isPlaying()) return;
-                label.renderText("STOPPED");
+                label.renderText(BLACK("STOPPED"));
                 proc.kill();
             }, "label update");
         }

@@ -14,7 +14,7 @@ class StartNewGame : SceneProtoType {
         super();
 
         LabelFactory factory;
-        factory.text = "Loading...";
+        factory.text = BLACK("Loading...");
         factory.height = 0.3;
         this.label = factory.make();
         this.label.right = 1;

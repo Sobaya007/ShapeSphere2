@@ -35,7 +35,6 @@ class Timeline : IControllable {
         LabelFactory factory;
         factory.fontName = "HGRPP1.TTC";
         factory.height = 0.05;
-        factory.textColor = vec4(1);
         factory.strategy = Label.Strategy.Left;
 
         this.minLabel = factory.make();
@@ -88,8 +87,8 @@ class Timeline : IControllable {
         size = size < 0.01 ? 0.01 : size;
         this.line.obj.pos.y = -(min + max) / (4 * size);
         this.line.obj.scale.y = 1 / (2 * size);
-        this.minLabel.renderText(format!"%.3f"d(min));
-        this.maxLabel.renderText(format!"%.3f"d(max));
+        this.minLabel.renderText(WHITE(format!"%.3f"(min)));
+        this.maxLabel.renderText(WHITE(format!"%.3f"(max)));
     }
 
     override void update(ViewportMouse mouse, Maybe!IControllable activeControllable) {

@@ -15,8 +15,6 @@ private struct LogEntityInfo {
     int fontResolution = 256;
     Label.Strategy strategy = Label.Strategy.Center;
     float wrapWidth = float.infinity;
-    vec4 textColor = vec4(0,0,0,1);
-    vec4 backColor = vec4(0);
     int rowNum = 4;
 }
 
@@ -43,12 +41,12 @@ class LogEntity {
         this.info = info;
     }
 
-    void insert(dstring text) {
+    void insert(string text) {
         import sbylib.utils.Path;
         import sbylib.utils.Loader;
         with (info) {
             auto font = FontLoader.load(FontPath(fontName), fontResolution);
-            auto label = new Label(font, size, wrapWidth, strategy, textColor, backColor, text);
+            auto label = new Label(font, size, wrapWidth, strategy, BLACK(text));
             
             label.pos.y = rowNum * size;
 
@@ -70,9 +68,9 @@ class LogEntity {
                 );
                 return AnimationManager().startAnimation(
                     animation(
-                        (float a) {label.color = vec4(label.color.rgb, a);},
+                        (float a) {label.alpha = a;},
                         setting(
-                            label.color.a, a, FRAME, Ease.InOut
+                            1-a, a, FRAME, Ease.InOut
                         )
                     )
                 );

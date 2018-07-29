@@ -43,8 +43,6 @@ static:
             factory.strategy = Label.Strategy.Left;
             factory.height = 24.pixel;
             factory.fontName = "consola.ttf";
-            factory.backColor = vec4(0.5);
-            factory.text = "poyo";
             this.label = factory.make();
 
             this.counter = new TimeCounter!100;
@@ -52,20 +50,19 @@ static:
             auto index = stopWatch.keys.length;
             getWorld2D().add(this.label);
             this.label.addProcess({
-                this.label.renderText(format!"%s : %3.1fmsecs"(this.name, stopWatch[this.name].averageTime));
+                this.label.renderText(BLACK(format!"%s : %3.1fmsecs"(this.name, stopWatch[this.name].averageTime)));
                 this.label.top = Core().getWindow().height/2 - label.height * index;
                 this.label.right = (Core().getWindow().width/2).pixel;
             });
         }
     }
 
-    debug Label addLabel(dstring text = "") {
+    debug Label addLabel(string text = "") {
         auto factory = LabelFactory();
-        factory.text = text;
+        factory.text = BLACK(text);
         factory.strategy = Label.Strategy.Left;
         factory.fontName = "meiryo.ttc";
         factory.height = 24.pixel;
-        factory.backColor = vec4(vec3(1), 0.4);
         auto label = factory.make();
         auto index = debugLabels.length;
         label.addProcess({
@@ -99,7 +96,6 @@ static:
             LogFactory factory;
             factory.fontName = "consola.ttf";
             factory.strategy = Label.Strategy.Right;
-            factory.textColor = vec4(1);
             factory.size = 24.pixel;
             factory.rowNum = 10;
             this.logEntity = factory.make();
@@ -182,7 +178,7 @@ static:
         sw.stop();
     }
 
-    debug void log(dstring text) {
+    debug void log(string text) {
         this.logEntity.insert(text);
     }
 

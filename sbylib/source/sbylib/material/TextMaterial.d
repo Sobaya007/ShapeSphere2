@@ -10,15 +10,25 @@ class TextMaterial : Material {
     mixin ConfigureMaterial;
 
     utexture texture;
-    uvec4 color;
-    uvec4 backColor;
+    uvec4[256] textColors;
+    ufloat[256] charWidths;
 
     this() {
-
         mixin(autoAssignCode);
         super();
+    }
 
-        this.color = vec4(1);
-        this.backColor = vec4(0);
+    vec4 color(vec4 color) {
+        foreach (ref col; textColors) {
+            col = color;
+        }
+        return color;
+    }
+
+    float alpha(float a) {
+        foreach (ref col; textColors) {
+            col.a = a;
+        }
+        return a;
     }
 }

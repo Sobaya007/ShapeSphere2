@@ -9,7 +9,7 @@ class LaboratoryConsole : Console {
     protected override void handle(KeyButton button) {
         if (button == KeyButton.Enter) {
             import std.array : back;
-            interpret(text.back);
+            interpret(this.inputString);
         }
         super.handle(button);
 

@@ -36,20 +36,20 @@ class Message : CommandReceiver {
         this.addCommand(new ButtonCommand(() => Controller().justPressed(CButton.Decide), &this.onDecisideJustPressed));
     }
 
-    void setMessage(dstring message, void delegate() onFinish) {
+    void setMessage(string message, void delegate() onFinish) {
         this.onFinish = onFinish;
         this.setMessage(message);
     }
 
-    void setMessage(dstring message) in {
+    void setMessage(string message) in {
         assert(this.procedure.done.getOrElse(true));
     } body {
         float currentWidth = this.text.width;
         float currentHeight = this.text.height;
-        text.renderText(message);
+        text.renderText(BLACK(message));
         float arrivalWidth = text.width;
         float arrivalHeight = text.height;
-        text.renderText("");
+        text.renderText(BLACK(""));
         this.img.scale = vec3(0);
         this.procedure = Just(AnimationManager().startAnimation(
             sequence(
@@ -66,7 +66,7 @@ class Message : CommandReceiver {
                 ),
                 animation(
                     (float time) {
-                        text.renderText(message[0..cast(int)time]);
+                        text.renderText(BLACK(message[0..cast(int)time]));
                     },
                     setting(
                         0f,

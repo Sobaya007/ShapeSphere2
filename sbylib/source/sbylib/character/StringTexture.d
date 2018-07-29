@@ -5,12 +5,13 @@ class StringTexture {
 
     import sbylib.wrapper.gl.Texture;
     import sbylib.wrapper.freetype.Font;
+    import sbylib.character.Label;
     import std.traits : isSomeString;
 
     private Texture mTexture;
     private float width, height;
     private ubyte[] buffer;
-    private Font.LetterInfo[] beforeInfos;
+    private Label.Char[] beforeRow;
 
     this() {
         import sbylib.wrapper.gl.Constants;
@@ -18,26 +19,23 @@ class StringTexture {
         this.texture.setWrapS(TextureWrap.ClampToEdge);
         this.texture.setWrapT(TextureWrap.ClampToEdge);
     }
-    
-    this(String)(Font font, String str) if (isSomeString!(String)) {
-        this();
-        setBuffer(font, str);
-    }
 
-    void setBuffer(String)(Font font, String str) if (isSomeString!(String)) {
+    void setBuffer(Font font, string str) {
         import std.algorithm : map;
         import std.array : array;
-        setBuffer(str.map!(c => font.getLetterInfo(c)).array);
+        import sbylib.math.Vector;
+        setBuffer(str.map!(c => Label.Char(font.getLetterInfo(c), vec4(1))).array);
     }
 
-    void setBuffer(Font.LetterInfo[] infos) {
+    void setBuffer(Label.Char[] row) {
         import std.algorithm : map, sum, maxElement;
         import std.range;
         import std.array : empty;
         import sbylib.wrapper.gl.Constants;
         import sbylib.wrapper.gl.Functions;
 
-        if (infos.empty) return;
+        if (row.empty) return;
+        auto infos = row.map!(c => c.info);
         auto totalWidth = infos.map!(i=>i.advance).sum;
         auto minHeight = infos.map!(i => i.maxHeight).maxElement;
         auto maxHeight = infos.map!(i => i.maxHeight).maxElement;
@@ -49,9 +47,10 @@ class StringTexture {
             this.texture.allocate(0, ImageInternalFormat.R, cast(uint)totalWidth, cast(uint)maxHeight, ImageFormat.R, buffer.ptr);
             this.width = totalWidth;
             this.height = maxHeight;
-            this.beforeInfos.length = 0;
+            this.beforeRow.length = 0;
         }
         int pen = 0;
+        auto beforeInfos = beforeRow.map!(c => c.info);
         foreach (before, info; zip(StoppingPolicy.longest, beforeInfos, infos)) {
             scope(exit) pen += info.advance;
             // modify
@@ -79,7 +78,7 @@ class StringTexture {
         }
         GlFunction().setPixelUnpackAlign(4);
 
-        this.beforeInfos = infos;
+        this.beforeRow = row;
     }
 
     float aspectRatio() {

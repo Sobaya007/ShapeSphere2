@@ -33,7 +33,7 @@ void run(string[] args) {
     enum ModeList = [EnumMembers!(RunMode)];
     auto selection = new Selection!(Label)(SelectionStrategy.Repeat);
     foreach (i, mode; ModeList) {
-        factory.text = format!"%s%s"(i==0 ? ">" : "", ModeList[i].to!string).to!dstring;
+        factory.text = format!"%s%s"(i==0 ? ">" : "", ModeList[i].to!string).colored(vec3(0));
         auto label = factory.make();
         world.add(label);
         label.left = -Core().getWindow().width/2 + 30;
@@ -41,10 +41,10 @@ void run(string[] args) {
         label.setUserData("mode", mode);
         auto handler = selection.register(label);
         handler.onFocusIn.add((Label label) {
-            label.renderText(format!">%s"(label.getUserData!(RunMode)("mode").unwrap()));
+            label.renderText(format!">%s"(label.getUserData!(RunMode)("mode").unwrap()).colored(vec3(0)));
         });
         handler.onFocusOut.add((Label label) {
-            label.renderText(format!"%s"(label.getUserData!(RunMode)("mode").unwrap()));
+            label.renderText(format!"%s"(label.getUserData!(RunMode)("mode").unwrap()).colored(vec3(0)));
         });
         handler.onSelect.add((Label label) {
             universe.destroy();
