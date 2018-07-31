@@ -45,15 +45,16 @@ string getAttributeDemandName(AttributeDemand v) {
     }
 }
 
-string getAttributeDemandBodyExpression(AttributeDemand v) {
+string getAttributeDemandBodyExpression(alias replace = s => s)(AttributeDemand v) {
+    auto name = replace(getAttributeDemandName(v));
     final switch(v) {
     case AttributeDemand.Position:
-        return format!"vec4(%s, 1)"(getAttributeDemandName(v));
+        return format!"vec4(%s, 1)"(name);
     case AttributeDemand.Position2:
-        return format!"vec4(%s, 0, 1)"(getAttributeDemandName(v));
+        return format!"vec4(%s, 0, 1)"(name);
     case AttributeDemand.Normal:
-        return format!"vec4(%s, 0)"(getAttributeDemandName(v));
+        return format!"vec4(%s, 0)"(name);
     case AttributeDemand.UV:
-        return getAttributeDemandName(v);
+        return name;
     }
 }

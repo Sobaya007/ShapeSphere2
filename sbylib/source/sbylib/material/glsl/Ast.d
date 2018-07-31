@@ -85,21 +85,99 @@ class Ast {
     }
 
     string getCode() {
-        return statements.map!(s => s.getCode()).join("\n");
+        auto functions = this.getStatements!(FunctionDeclare);
+        auto mainFunction  = functions.filter!(f => f.id == "main").map!(f => cast(Statement)f).array;
+        auto otherFunction = functions.filter!(f => f.id != "main").map!(f => cast(Statement)f).array;
+        auto others    = statements.filter!(s => cast(FunctionDeclare)s  is null).array;
+        return (others ~ otherFunction ~ mainFunction).map!(s => s.getCode()).join("\n");
     }
 
     T[] getStatements(T)() const {
         return this.statements.map!(sentence => cast(T)sentence).filter!(sentence => sentence !is null).array;
     }
 
-    bool hasVersion() {
-        return this.getStatements!Sharp()
-        .any!(sharp => sharp.type == "version");
+    void addRequiredVertexInVariableDeclares(Ast ast) {
+        this.addUniqueStatements(ast.getRequiredAttributes(true).map!(r => r.getVertexIn()).array);
     }
 
-    bool hasColorOutput() {
-        return this.getStatements!VariableDeclare()
-        .any!(declare => declare.attributes.has(Attribute.Out) && declare.type == "vec4");
+    void addRequiredGeometryInVariableDeclares(Ast ast) {
+        this.addUniqueStatements(ast.getRequiredAttributes(true)
+                .filter!(r => r.variable.id != "g_position")
+                .map!(r => r.getGeometryIn()).array);
+    }
+
+    void addRequiredOutVariableDeclares(Ast ast) {
+        // if 'position' requirement is only made by '#vertex' declare,
+        // there is no need to add 'out vec4 position' declare.
+        import std.format;
+        this.addUniqueStatements(
+            ast.getRequiredAttributes(false).map!(r => r.getVertexOut()).array
+        );
+    }
+
+    void addRequiredUniformVaribleDeclares(Ast ast) {
+        this.addUniqueStatements(ast.getRequiredUniformDemandDeclares);
+    }
+
+    void addVertexMainFunction(Ast ast) {
+        this.addMainFunction(ast.getRequiredAttributes(true).map!(r => r.getVertexBodyCode()).array);
+    }
+
+
+    import sbylib.material.glsl.Space;
+
+    void addEmitVertexDeclare(Ast ast) {
+        import std.meta;
+        addEmitVertexCommonDeclare(ast);
+
+        auto to = ast.getVertexDeclare().getRequireAttribute().space;
+        static foreach (space; AliasSeq!(Space.Local, Space.World, Space.View, Space.Proj)) {
+            if (space.getUniformDemands.length <= to.getUniformDemands.length) {
+                addEmitVertexDeclare(ast, space, to);
+            }
+        }
+    }
+
+    void addEmitVertexDeclare(Ast ast, Space from, Space to) {
+        import std.format;
+        auto uniforms = getUniformDemands(from, to).map!(a => getUniformDemandName(a)).array;
+        string[] exprs = uniforms ~ "vertex";
+        this.statements ~= FunctionDeclare.generateFunction("emit"~from.to!string~"Vertex", "void", ["int i", "vec4 vertex"],
+            [format!"gl_Position = %s;"(exprs.join(" * "))]
+            ~ "emitVertexCommon(i);"
+            );
+    }
+
+    void addEmitVertexCommonDeclare(Ast ast) {
+        import std.format;
+        this.statements ~= FunctionDeclare.generateFunction("emitVertexCommon", "void", ["int i"],
+            ast.getRequiredAttributes(false).map!(r => r.getGeometryBodyCode()).array
+            ~ "EmitVertex();");
+    }
+
+    void addUniqueStatements(Statement[] statements) {
+        this.statements ~= 
+            statements
+            .sort!((a,b) => a.getCode() < b.getCode())
+            .uniq!((a,b) => a.getCode() == b.getCode())
+            .array;
+    }
+
+    RequireAttribute[] getRequiredAttributes(bool containPositionRequire) {
+        auto requires = this.getStatements!RequireAttribute();
+        if (containPositionRequire) {
+            requires ~= this.getVertexDeclare().getRequireAttribute();
+        }
+        return requires;
+    }
+
+    Statement[] getRequiredUniformDemandDeclares() {
+        import sbylib.material.glsl.Space;
+        return getRequiredAttributes(true)
+            .map!(r => r.space.getUniformDemands())
+            .join()
+            .map!(u => getUniformDemandDeclare(u))
+            .join();
     }
 
     void replaceID(string delegate(string) replace) {
@@ -129,13 +207,6 @@ class Ast {
         mainFunction.arguments.arguments ~= outParameters.map!(v => new Argument(v.getCode())).array;
     }
 
-    Sharp getVertexDeclare() {
-        auto statements = this.getStatements!Sharp().filter!(sharp => sharp.type == "vertex").array;
-        assert(statements.length != 0, "#vertex declare is required.");
-        assert(statements.length <= 1, "#vertex declare must be only one.");
-        return statements[0];
-    }
-
     FunctionDeclare getMainFunction() {
         auto result = this.getStatements!FunctionDeclare.filter!(func => func.id == "main").array;
 
@@ -143,4 +214,36 @@ class Ast {
         assert(result.length <= 1, "main function must be only one.");
         return result[0];
     }
+
+    void addMainFunction(string[] contents) {
+        this.statements ~= FunctionDeclare.generateFunction("main", "void", [], contents);
+    }
+
+    void completeColorOutput() {
+        if (hasColorOutput()) return;
+        this.statements = new VariableDeclare("out vec4 fragColor;") ~ this.statements;
+    }
+
+    private bool hasColorOutput() {
+        return this.getStatements!VariableDeclare()
+        .any!(declare => declare.attributes.has(Attribute.Out) && declare.type == "vec4");
+    }
+
+    Sharp getVertexDeclare() {
+        auto statements = this.getStatements!Sharp().filter!(sharp => sharp.type == "vertex").array;
+        assert(statements.length != 0, "#vertex declare is required.");
+        assert(statements.length <= 1, "#vertex declare must be only one.");
+        return statements[0];
+    }
+
+    void completeVersionDeclare() {
+        if (hasVersionDeclare()) return;
+        this.statements = Sharp.generateVersionDeclare() ~ this.statements;
+    }
+    
+    private bool hasVersionDeclare() {
+        return this.getStatements!Sharp()
+        .any!(sharp => sharp.type == "version");
+    }
+
 }

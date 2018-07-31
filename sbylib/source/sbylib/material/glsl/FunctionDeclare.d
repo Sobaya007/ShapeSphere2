@@ -42,6 +42,11 @@ class FunctionDeclare : Statement {
         }
     }
 
+    static generateFunction(string funcName, string typeName, string[] arguments, string[] contents) {
+        auto tokens = tokenize(format!"%s %s(%s) {\n  %s\n}"(typeName, funcName, arguments.join(","), contents.join("\n  ")));
+        return new FunctionDeclare(tokens); 
+    }
+
     override string graph(bool[] isEnd) {
         string code = indent(isEnd[0..$-1]) ~ "|---Function\n";
         code ~= indent(isEnd) ~ "|---" ~ this.returnType ~ "\n";

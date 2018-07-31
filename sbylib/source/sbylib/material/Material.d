@@ -96,8 +96,13 @@ class Material {
             import std.file : readText;
             static if (UseGeometryShader) {
                 auto fragAST = generateFragmentAST();
-                auto geomAST = GlslUtils.generateGeometryAST(new Ast(readText(getGeometryPath())));
+                auto geomAST = new Ast(readText(getGeometryPath()));
+                geomAST = GlslUtils.completeGeometryAST(geomAST, fragAST);
                 auto vertAST = VertexShaderAutoGen ? GlslUtils.generateVertexAST(geomAST) : new Ast(readText(getVertexPath()));
+                import std.stdio;
+                writeln(vertAST.getCode());
+                writeln(geomAST.getCode());
+                writeln(fragAST.getCode());
                 demands = GlslUtils.requiredUniformDemands([vertAST, geomAST, fragAST]);
                 vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
                 geomtryShader = new Shader(geomAST.getCode(), ShaderType.Geometry);
@@ -194,7 +199,7 @@ class Material {
         static Ast generateFragmentAST() {
             import sbylib.material.glsl;
             auto fragSource = readText(getFragmentPath());
-            auto fragAST = GlslUtils.generateFragmentAST(new Ast(fragSource));
+            auto fragAST = GlslUtils.completeFragmentAST(new Ast(fragSource));
             return fragAST;
         }
 
@@ -236,10 +241,10 @@ class Material {
             auto ast2 = B.generateFragmentAST();
             ast2.name = MaterialName2;
             fragASTs ~= ast2;
-            auto mainAst = GlslUtils.generateFragmentAST(new Ast(readText(getFragmentPath())));
+            auto mainAst = GlslUtils.completeFragmentAST(new Ast(readText(getFragmentPath())));
             mainAst.name = "main";
             auto fragAST = GlslUtils.mergeASTs(fragASTs ~ mainAst);
-            fragAST = GlslUtils.generateFragmentAST(fragAST);
+            fragAST = GlslUtils.completeFragmentAST(fragAST);
             return fragAST;
         }
 

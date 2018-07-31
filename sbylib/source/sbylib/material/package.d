@@ -8,6 +8,7 @@ import sbylib.material.ColorMaterial;
 import sbylib.material.CompassMaterial;
 import sbylib.material.ConditionalMaterial;
 import sbylib.material.DiscardMaterial;
+import sbylib.material.ExpandMaterial;
 import sbylib.material.LambertMaterial;
 import sbylib.material.PhongMaterial;
 import sbylib.material.PhongTextureMaterial;

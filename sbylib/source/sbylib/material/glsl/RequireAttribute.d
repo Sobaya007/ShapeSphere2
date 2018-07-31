@@ -17,6 +17,13 @@ class RequireAttribute : Statement {
     AttributeDemand attr;
     Space space;
     VariableDeclare variable;
+    bool isInFragment = true;
+
+    this(AttributeDemand attr, Space space, VariableDeclare variable) {
+        this.attr = attr;
+        this.space = space;
+        this.variable = variable;
+    }
 
     this(string str) {
         auto tokens = tokenize(str);
@@ -43,9 +50,10 @@ class RequireAttribute : Statement {
     }
 
     override string getCode() {
-        return this.getFragmentIn();
+        return isInFragment ? this.getFragmentIn() : "";
     }
 
+    // this function's return type must be 'Statement' not 'VariableDeclare' because of D's bug that A[] ~= B[] makes Segmentation fault in which A is B's super class
     Statement getVertexIn() {
         return new VariableDeclare(format!("in %s %s;")(getAttributeDemandType(attr), getAttributeDemandName(attr)));
     }
@@ -54,23 +62,40 @@ class RequireAttribute : Statement {
         return new VariableDeclare(format!("out %s %s;")(variable.type, variable.id));
     }
 
-    string getVertexBodyCode() {
-        auto rightHand = (this.space.getUniformDemands().map!(a => getUniformDemandName(a)).array ~ getAttributeDemandBodyExpression(attr)).join(" * ");
-        final switch (variable.type) {
-        case "vec2":
-            rightHand = format!"(%s).xy"(rightHand);
-            break;
-        case "vec3":
-            rightHand = format!"(%s).xyz"(rightHand);
-            break;
-        case "vec4":
-            break;
-        }
-        return format!("%s = %s;")(variable.id, rightHand);
+    Statement getGeometryIn() {
+        // geometry shader's input variables must be array
+        return new VariableDeclare(format!("in %s %s[];")(getAttributeDemandType(attr), getAttributeDemandName(attr)));
     }
 
     string getFragmentIn() {
         return format!"%sin %s %s;"(this.variable.attributes.getCode(), variable.type, variable.id);
+    }
+
+    string getVertexBodyCode() {
+        auto uniforms = this.space.getUniformDemands().map!(a => getUniformDemandName(a)).array;
+        auto rightHand = getAttributeDemandBodyExpression(attr);
+        rightHand = (uniforms ~ rightHand).join(" * ");
+        rightHand = convertCode(rightHand, variable.type);
+        return format!("%s = %s;")(variable.id, rightHand);
+    }
+
+    string getGeometryBodyCode() {
+        auto uniforms = this.space.getUniformDemands().map!(a => getUniformDemandName(a)).array;
+        auto rightHand = getAttributeDemandBodyExpression!(s => "g"~s~"[i]")(attr);
+        rightHand = (uniforms ~ rightHand).join(" * ");
+        rightHand = convertCode(rightHand, variable.type);
+        return format!("%s = %s;")(variable.id, rightHand);
+    }
+
+    private string convertCode(string expr, string type) {
+        final switch (type) {
+        case "vec2":
+            return format!"(%s).xy"(expr);
+        case "vec3":
+            return format!"(%s).xyz"(expr);
+        case "vec4":
+            return expr;
+        }
     }
 
     void replaceID(string delegate(string) replace) {

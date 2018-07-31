@@ -38,3 +38,12 @@ UniformDemand[] getUniformDemands(Space s) {
         return [UniformDemand.Proj, UniformDemand.View, UniformDemand.World];
     }
 }
+
+UniformDemand[] getUniformDemands(Space from, Space to) 
+    in(getUniformDemands(from).length <= getUniformDemands(to).length)
+{
+    auto udFrom = getUniformDemands(from);
+    auto udTo = getUniformDemands(to);
+    auto num = udTo.length - udFrom.length;
+    return udTo[0..num];
+}

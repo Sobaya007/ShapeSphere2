@@ -33,6 +33,11 @@ class Sharp : Statement {
         }
     }
 
+    static generateVersionDeclare() {
+        import sbylib.wrapper.gl.GL;
+        return new Sharp(format!"#version %d"(GL.getShaderVersion()));
+    }
+
     override string graph(bool[] isEnd) {
         string code = indent(isEnd[0..$-1]) ~ "|---Sharp\n";
         code ~= indent(isEnd) ~ "|---" ~ this.type ~ "\n";
@@ -58,13 +63,6 @@ class Sharp : Statement {
     RequireAttribute getRequireAttribute()
         in(this.type == "vertex")
     {
-        return new RequireAttribute(format!"require Position in %s as vec3 po;"(this.value));
-    }
-
-    string getGlPositionCode()
-        in(this.type == "vertex")
-    {
-        // * vec4(_position,1)
-        return format!"gl_Position = %s;"((this.getVertexSpace().getUniformDemands().map!(u => getUniformDemandName(u)).array~"vec4(_position, 1)").join(" * "));
+        return new RequireAttribute(format!"require Position in %s as vec4 gl_Position;"(this.value));
     }
 }
