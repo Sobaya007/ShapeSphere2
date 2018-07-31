@@ -20,13 +20,13 @@ class CameraControl {
 
     private CollisionRay ray;
     private Camera camera;
-    private bool cameraRotate;
+    private bool rotating;
     float speed = 0.2;
 
     this(Camera camera) {
         this.ray = new CollisionRay();
         this.camera = camera;
-        this.cameraRotate = false;
+        this.rotating = false;
 
         void setupFromWindow(Window window) {
             window.key.isPressed(KeyButton.KeyW).add({
@@ -48,15 +48,15 @@ class CameraControl {
                 this.camera.pos += this.camera.rot.column[1] * speed;
             });
             window.mouse.justPressed(MouseButton.Button1).add({
-                this.cameraRotate = true;
+                this.rotating = true;
                 window.setCursorMode(CursorMode.Disabled);
             });
             window.mouse.justPressed(MouseButton.Button2).add({
-                this.cameraRotate = false;
+                this.rotating = false;
                 window.setCursorMode(CursorMode.Normal);
             });
             camera.addProcess({
-                if (cameraRotate) rotate(window.mouse.dif);
+                if (rotating) rotate(window.mouse.dif);
             });
         }
 

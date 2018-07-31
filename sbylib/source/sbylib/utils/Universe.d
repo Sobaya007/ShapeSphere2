@@ -493,7 +493,7 @@ class Universe {
         return label;
     }
 
-    private Entity createEntity(Additional...)(string name, JSONValue[string] param) {
+    static Entity createEntity(Additional...)(string name, JSONValue[string] param) {
         scope(exit) ensureConsume(param);
 
         auto geometry = param.fetch!string("geometry")

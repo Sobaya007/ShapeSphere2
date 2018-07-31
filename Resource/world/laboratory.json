@@ -20,6 +20,5 @@
         }
     },
     "KeyCommand" : {
-        "Escape" : "End"
     }
 }

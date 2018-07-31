@@ -35,7 +35,7 @@ class Sentence {
 
         import std.algorithm : map, sum;
         import std.range : enumerate;
-        auto widthList = row.map!(c => c.info.width);
+        auto widthList = row.map!(c => c.info.advance);
         float totalWidth = widthList.sum;
         foreach (i, width; widthList.enumerate) {
             this.mEntity.charWidths[i] = width / totalWidth;

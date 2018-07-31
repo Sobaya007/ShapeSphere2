@@ -153,6 +153,10 @@ class World {
         this.renderGroups[name] = group;
     }
 
+    string[] getRenderGroupNames() {
+        return this.renderGroups.keys;
+    }
+
     void render() {
         foreach_reverse (groupName; this.renderGroups.keys) {
             this.render(groupName);
