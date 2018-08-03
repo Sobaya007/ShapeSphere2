@@ -279,19 +279,19 @@ struct RectangleBuffer(T) {
     import std.traits;
     alias S = ForeachType!(T);
     T array;
-    private size_t width, height;
+    private size_t mWidth, mHeight;
     private bool flip;
 
     this(size_t w, size_t h) {
-        this.width = w;
-        this.height = h;
+        this.mWidth = w;
+        this.mHeight = h;
         this.array.length = w * h;
     }
 
     this(T array, size_t w, size_t h) {
         this.array = array;
-        this.width = w;
-        this.height = h;
+        this.mWidth = w;
+        this.mHeight = h;
     }
 
     auto opBinary(string op, U)(U value) if (is(typeof(this) == U)) {
@@ -312,53 +312,70 @@ struct RectangleBuffer(T) {
         return RectangleBuffer!(R[])(result, this.width, this.height);
     }
 
-    void opOpAssign(string op, U)(RectangleBuffer!(U) value) {
+    void opOpAssign(string op, U)(RectangleBuffer!(U) value) 
+    {
         foreach (i; 0..this.array.length) {
             mixin("this.array[i]"~op~"=value.array[i];");
         }
     }
 
-    auto opIndex(long x, long y) {
-        if (x < 0) return None!S;
-        if (y < 0) return None!S;
-        if (x >= width) return None!S;
-        if (y >= height) return None!S;
+    auto opIndex(long x, long y) 
+        in(0 <= x && x < width)
+        in(0 <= y && y < height)
+    {
         if (flip) y = height-y-1;
-        return Just(array[x+y*width]);
+        return array[x+y*width];
     }
 
-    auto opIndex(SliceObject a, SliceObject b) {
+    auto opIndex(SliceObject a, SliceObject b) 
+        in(0 <= a.begin && a.begin < width)
+        in(0 <= b.begin && b.begin < height)
+        in(0 <= a.end   && a.end   < width)
+        in(0 <= b.end   && b.end   < height)
+        in(a.begin <= a.end)
+        in(b.begin <= b.end)
+    {
         auto result = typeof(this)(a.end-a.begin, b.end-b.begin);
         foreach (i; a.begin..a.end) {
             foreach (j; b.begin..b.end) {
-                result[i-a.begin, j-b.begin] = this[i,j].unwrap();
+                result[i-a.begin, j-b.begin] = this[i,j];
             }
         }
         return result;
     }
 
-    void opIndexAssign(U)(U value, long x, long y) {
-        if (x < 0) return;
-        if (y < 0) return;
-        if (x >= width) return;
-        if (y >= height) return;
-        if (flip) y = height-y-1;
+    void opIndexAssign(U)(U value, long x, long y) 
+        in(0 <= x && x < width)
+        in(0 <= y && y < height)
+    {
         array[x+y*width] = value;
     }
 
-    void opIndexOpAssign(string op, U)(U value, long x, long y) {
-        if (x < 0) return;
-        if (y < 0) return;
-        if (x >= width) return;
+    void opIndexOpAssign(string op, U)(U value, long x, long y) 
+        in(0 <= x && x < width)
+        in(0 <= y && y < height)
+    {
         if (flip) y = height-y-1;
         mixin("array[x+y*width]"~op~"= value;");
     }
 
-    void opIndexAssign(U)(U value, SliceObject a, SliceObject b) {
+    import std.conv : to;
+    void opIndexAssign(U)(U value, SliceObject a, SliceObject b) 
+        in(0 <= a.begin && a.begin <  width)
+        in(0 <= b.begin && b.begin <  height)
+        in(0 <= a.end   && a.end   <= width)
+        in(0 <= b.end   && b.end   <= height)
+        in(a.begin <= a.end)
+        in(b.begin <= b.end)
+    {
+        static if (is(typeof(this) == U)) {
+            assert(a.end - a.begin == value.width);
+            assert(b.end - b.begin == value.height);
+        }
         foreach (i; a.begin..a.end) {
             foreach (j; b.begin..b.end) {
                 static if (is(typeof(this) == U)) {
-                    this[i,j] = value[i-a.begin,j-b.begin].unwrap();
+                    this[i,j] = value[i-a.begin,j-b.begin];
                 } else {
                     this[i,j] = value;
                 }
@@ -366,12 +383,12 @@ struct RectangleBuffer(T) {
         }
     }
 
-    auto getWidth() {
-        return width;
+    auto width() {
+        return mWidth;
     }
 
-    auto getHeight() {
-        return height;
+    auto height() {
+        return mHeight;
     }
 
     auto ptr() {
@@ -395,12 +412,22 @@ struct RectangleBuffer(T) {
         return SliceObject(begin, end);
     }
 
-    auto opIndex(SliceObject x, size_t y) {
+    auto opIndex(SliceObject x, size_t y) 
+        in(0 <= x.begin && x.begin < width)
+        in(0 <= x.end   && x.end   < width)
+        in(0 <= y       && y       < height)
+        in(x.begin <= x.end)
+    {
         if (flip) y = height-y-1;
         return array[y*width+x.begin..y*width+x.end];
     }
 
-    auto opIndexAssign(S[] value, SliceObject x, size_t y) {
+    auto opIndexAssign(S[] value, SliceObject x, size_t y) 
+        in(0 <= x.begin && x.begin < width)
+        in(0 <= x.end   && x.end   < width)
+        in(0 <= y       && y       < height)
+        in(x.begin <= x.end)
+    {
         if (flip) y = height-y-1;
         array[y*width+x.begin..y*width+x.end] = value;
     }
@@ -413,19 +440,17 @@ struct RectangleBufferSlice(T) {
     private RectangleBuffer!T rect;
     private size_t ox, oy, width, height;
 
-    auto opIndex(long x, long y) {
-        if (x < 0) return None!S;
-        if (y < 0) return None!S;
-        if (x >= width) return None!S;
-        if (y >= height) return None!S;
+    auto opIndex(long x, long y) 
+        in(0 <= x && x < width)
+        in(0 <= y && y < height)
+    {
         return rect[x+ox,y+oy];
     }
 
-    void opIndexAssign(S value, long x, long y) {
-        if (x < 0) return;
-        if (y < 0) return;
-        if (x >= width) return;
-        if (y >= height) return;
+    void opIndexAssign(S value, long x, long y) 
+        in(0 <= x && x < width)
+        in(0 <= y && y < height)
+    {
         rect[x+ox,y+oy] = value;
     }
 
