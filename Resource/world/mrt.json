@@ -1,0 +1,65 @@
+{ "world" : {
+        "template" : "3D",
+        "target" : {
+            "type" : "RenderTarget",
+            "color0" : {
+                "type" : "uint",
+                "clear" : [1,1,1,1],
+                "object" : "texture"
+            },
+            "color1" : {
+                "type" : "uint",
+                "clear" : [1,1,1,1],
+                "object" : "texture"
+            },
+            "depth" : {
+                "type" : "uint",
+                "object" : "renderbuffer"
+            }
+        },
+        "camera" : {
+            "type" : "PerspectiveCamera",
+            "fovy" : 60,
+            "nearZ" : 0.1,
+            "farZ" : 100,
+            "pos" : [3,2,9],
+            "lookAt" : [0,2,0],
+            "control" : true
+        },
+        "box" : {
+            "type" : "Entity",
+            "geometry" : "Box",
+            "material" : "NormalUvMaterial",
+            "pos" : [0,2,0],
+            "scale" : [4,4,4]
+        },
+        "plane" : {
+            "type" : "Entity",
+            "geometry" : "Plane",
+            "material" : "UnrealFloorMaterial",
+            "scale" : [100, 100, 100]
+        }
+    },
+    "KeyCommand" : {
+        "Escape" : "End"
+    },
+    "Render" : [
+        {
+            "type" : "Clear",
+            "target" : "target"
+        },
+        {
+            "type" : "Render",
+            "target" : "world"
+        },
+        {
+            "type" : "Clear",
+            "target" : "Screen"
+        },
+        {
+            "type" : "Blit",
+            "from" : "target",
+            "to" : "Screen"
+        }
+    ]
+}

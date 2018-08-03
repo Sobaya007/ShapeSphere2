@@ -406,24 +406,25 @@ class Universe {
         scope(exit) ensureConsume(param);
 
         auto result = new RenderTarget(Core().getWindow().width, Core().getWindow().height);
-        param.fetch!(JSONValue[string])("color").apply!((color) {
-            auto type = color.fetch!string("type").getOrElse("uint");
-            auto object = color.fetch!string("object").getOrError("'color' must have 'object' as string");
-            getAttachFunc(result, type, object)(FramebufferAttachType.Color0);
-            color.fetch!vec4("clear").apply!((vec4 clear) => result.setClearColor(clear));
-        });
-        param.fetch!(JSONValue[string])("depth").apply!((depth) {
-            auto type = depth.fetch!string("type").getOrElse("uint");
-            auto object = depth.fetch!string("object").getOrError("'depth' must have 'object' as string");
-            getAttachFunc(result, type, object)(FramebufferAttachType.Depth);
-        });
-        param.fetch!(JSONValue[string])("stencil").apply!((stencil) {
-            auto type = stencil.fetch!string("type").getOrElse("uint");
-            auto object = stencil.fetch!string("object").getOrError("'stencil' must have 'object' as string");
-            getAttachFunc(result, type, object)(FramebufferAttachType.Stencil);
-        });
+        attach(result, param, "color", FramebufferAttachType.Color0);
+        attach(result, param, "color0", FramebufferAttachType.Color0);
+        attach(result, param, "color1", FramebufferAttachType.Color1);
+        attach(result, param, "color2", FramebufferAttachType.Color2);
+        attach(result, param, "depth", FramebufferAttachType.Depth);
+        attach(result, param, "stencil", FramebufferAttachType.Stencil);
+
         return result;
     }
+
+    private void attach(RenderTarget target, JSONValue[string] param, string bufferName, FramebufferAttachType attachType) {
+        param.fetch!(JSONValue[string])(bufferName).apply!((buffer) {
+            auto type = buffer.fetch!string("type").getOrElse("uint");
+            auto object = buffer.fetch!string("object").getOrError(format!"'%s' must have 'object' as string"(bufferName));
+            //buffer.fetch!vec4("clear").apply!((vec4 clear) => result.setClearColor(clear));
+            getAttachFunc(target, type, object)(attachType);
+        });
+    }
+        
     private PointLight createPointLight(string name, JSONValue[string] param) {
         scope(exit) ensureConsume(param);
 

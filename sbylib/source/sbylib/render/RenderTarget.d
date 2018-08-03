@@ -20,7 +20,7 @@ abstract class IRenderTarget {
     int width();
     int height();
 
-    final void renderBegin() {
+    void renderBegin() {
         getFramebuffer().bind(FramebufferBindType.Both);
     }
 
@@ -72,6 +72,7 @@ class RenderTarget : IRenderTarget {
     private uint mWidth, mHeight;
     private vec4 clearColor = vec4(0, .5, .5, 1);
     private int clearStencil;
+    private FramebufferAttachType[] attachedColors;
     private debug bool hasCleared;
 
     this(uint width, uint height) {
@@ -84,6 +85,11 @@ class RenderTarget : IRenderTarget {
         this.frameBuffer = frameBuffer;
         this.mWidth = width;
         this.mHeight = height;
+    }
+
+    override void renderBegin() {
+        super.renderBegin();
+        GlFunction().drawBuffers(this.attachedColors);
     }
 
     void attachTexture(T)(FramebufferAttachType attachType) {
@@ -107,16 +113,30 @@ class RenderTarget : IRenderTarget {
     }
 
     private void attach(Renderbuffer renderBuffer, FramebufferAttachType attachType) {
+        this.registerAttachType(attachType);
         this.frameBuffer.bind(FramebufferBindType.Both);
         renderBuffer.attachFramebuffer(FramebufferBindType.Both, attachType);
         this.frameBuffer.unbind(FramebufferBindType.Both);
     }
 
     private void attach(Texture texture, FramebufferAttachType attachType) {
+        this.registerAttachType(attachType);
         this.frameBuffer.bind(FramebufferBindType.Both);
         texture.attachFramebuffer(FramebufferBindType.Both, attachType);
         this.frameBuffer.unbind(FramebufferBindType.Both);
         this.textures[attachType] = texture;
+    }
+
+    private void registerAttachType(FramebufferAttachType type) {
+        switch (type) {
+        case FramebufferAttachType.Color0:
+        case FramebufferAttachType.Color1:
+        case FramebufferAttachType.Color2:
+            this.attachedColors ~= type;
+            return;
+        default:
+            return;
+        }
     }
 
     private ImageFormat getImageFormat(FramebufferAttachType attachType) {
@@ -151,8 +171,16 @@ class RenderTarget : IRenderTarget {
         }
     }
 
-    Texture getColorTexture()  {
-        return textures[FramebufferAttachType.Color0];
+    private FramebufferAttachType getColorAttachType(int n) {
+        final switch (n) {
+            case 0: return FramebufferAttachType.Color0;
+            case 1: return FramebufferAttachType.Color1;
+            case 2: return FramebufferAttachType.Color2;
+        }
+    }
+
+    Texture getColorTexture(int n = 0)  {
+        return textures[getColorAttachType(n)];
     }
 
     Texture getDepthTexture()  {

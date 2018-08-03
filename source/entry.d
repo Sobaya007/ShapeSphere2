@@ -19,7 +19,8 @@ enum RunMode {
     Scene,
     MultiWindow,
     Animation,
-    Laboratory
+    Laboratory,
+    MultiRenderTargetExample
 };
 
 void run(string[] args) {
@@ -104,6 +105,8 @@ void run(RunMode mode, string[] args) {
     case RunMode.Laboratory:
         laboratoryMain();
         break;
+    case RunMode.MultiRenderTargetExample:
+        multiRenderTargetExample();
     }
 }
 

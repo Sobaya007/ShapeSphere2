@@ -392,6 +392,11 @@ class GlFunction {
         return loc;
     }
 
+    void drawBuffers(FramebufferAttachType[] types) {
+        glDrawBuffers(cast(int)types.length, cast(uint*)types.ptr);
+        checkError();
+    }
+
     auto get(T, size_t N)(ParamName param) {
         T[N] data;
         getFunction!T(param, data.ptr);

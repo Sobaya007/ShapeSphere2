@@ -14,3 +14,4 @@ import examples.StencilExample;
 import examples.FramebufferExample;
 import examples.MultiWindowExample;
 import examples.AnimationExample;
+import examples.MultiRenderTargetExample;
