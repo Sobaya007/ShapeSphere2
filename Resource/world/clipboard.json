@@ -1,11 +1,12 @@
 {
     "world": {
-        "template" : "2D",
+        "camera" : "PixelCamera",
         "label" : {
             "type" : "Text",
             "fontName" : "meiryo.ttc",
             "height" : 64,
             "wrapWidth" : 700,
+            "textColor" : [0,0,0,1],
             "text" : "Press C to copy here, or press V to paste here."
         },
         "back" : {

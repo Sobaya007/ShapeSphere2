@@ -18,7 +18,7 @@ class Console {
         auto renderer = createRenderer2D(world, Core().getWindow().getScreen());
         world.add(new Console);
         Core().addProcess({
-            renderer.render();
+            renderer.renderAll();
         }, "console render");
     }
 

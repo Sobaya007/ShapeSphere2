@@ -163,7 +163,7 @@ class CrystalMine : Stage {
     }
 
     override void render() {
-        auto screen = Core().getWindow().getScreen();
+        IRenderTarget screen = Core().getWindow().getScreen();
         auto viewport = Game.getScene.viewport;
         renderer3D.render("regular");
         renderer3D.render("transparent");

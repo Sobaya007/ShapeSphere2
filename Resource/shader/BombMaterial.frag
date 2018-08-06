@@ -1,8 +1,10 @@
-in vec3 position;
-in vec3 vPosition;
+#vertex Proj
+
 in vec3 vNormal;
 in flat int flag;
 
+require Position in World as vec3 position;
+require Position in View as vec3 vPosition;
 require Light;
 require worldMatrix;
 require viewMatrix;

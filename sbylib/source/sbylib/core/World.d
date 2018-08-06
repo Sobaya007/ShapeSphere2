@@ -25,19 +25,9 @@ class World {
     private Entity[] entities;
     private Maybe!Camera mCamera;
     private IRenderGroup[string] renderGroups;
-    private Window window;
 
     this() {
-        this(Core().getWindow);
-    }
-
-    this(Window window) {
         this.renderGroups["regular"] = new RegularRenderGroup;
-        this.window = window;
-    }
-
-    Window getWindow() {
-        return window;
     }
 
     /*
@@ -157,7 +147,7 @@ class World {
         return this.renderGroups.keys;
     }
 
-    void render() {
+    void renderAll() {
         foreach_reverse (groupName; this.renderGroups.keys) {
             this.render(groupName);
         }
@@ -223,6 +213,10 @@ class World {
 
     auto findByName(string name) {
         return entities.filter!(e => e.name == name);
+    }
+
+    auto findByID(ID id) {
+        return entities.filter!(e => e.getID.isJust && e.getID().unwrap() == id);
     }
 
     auto getEntityNames() {

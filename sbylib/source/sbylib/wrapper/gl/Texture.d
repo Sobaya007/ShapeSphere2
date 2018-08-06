@@ -43,6 +43,7 @@ class Texture : ObjectGL {
     private uint mWidth, mHeight;
     private ImageFormat mFormat;
     private ImageInternalFormat mInternalFormat;
+    private void delegate(int level, uint width, uint height, void* data) allocateFunction;
 
     this(TextureTarget target) {
         super(GlUtils.genTexture(),
@@ -66,14 +67,27 @@ class Texture : ObjectGL {
         }
     }
     do {
-        this.bind();
-        GlFunction().texImage2D(this.target, mipmapLevel, iformat, width, height, 0, format, data);
-        this.unbind();
-        this.allocated = true;
         this.mWidth = width;
         this.mHeight = height;
         this.mFormat = format;
         this.mInternalFormat = iformat;
+        this.allocateFunction = (int level, uint width, uint height, void* data) {
+            GlFunction().texImage2D!(Type)(this.target, level, this.mInternalFormat, width, height, 0, this.mFormat, cast(Type*)data);
+        };
+        this.bind();
+        this.allocateFunction(mipmapLevel, width, height, data);
+        this.unbind();
+        this.allocated = true;
+    }
+
+    void reallocate(uint mipmapLevel, uint width, uint height) 
+        in(allocated)
+    {
+        this.mWidth = width;
+        this.mHeight = height;
+        this.bind();
+        this.allocateFunction(mipmapLevel, width, height, null);
+        this.unbind();
     }
 
     void update(Type)(uint mipmapLevel, Type *data) {
@@ -130,6 +144,14 @@ class Texture : ObjectGL {
     {
         this.bind();
         GlFunction().framebufferTexture2D(bindType, attachType, this.target, this.id, 0);
+        this.unbind();
+    }
+
+    void detachFramebuffer(FramebufferBindType bindType, FramebufferAttachType attachType)
+        in(this.allocated)
+    {
+        this.bind();
+        GlFunction().framebufferTexture2D(bindType, attachType, this.target, 0, 0);
         this.unbind();
     }
 

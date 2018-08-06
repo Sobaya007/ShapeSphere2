@@ -38,7 +38,7 @@ void guiExample() {
 
     core.addProcess({
         screen.clear(ClearMode.Color, ClearMode.Depth);
-        renderer.render();
+        renderer.renderAll();
         fpsCounter.update();
         timeline.add(fpsCounter.getFPS());
     }, "render");

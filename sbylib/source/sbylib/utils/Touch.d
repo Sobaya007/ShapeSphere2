@@ -4,24 +4,23 @@ import sbylib;
 
 class TouchManager {
 
-    alias Callback = void delegate(Entity);
-
     private World world;
-    private Callback callback;
+    private float[] buf;
 
-    this(World world, Callback callback) {
+    this(World world) {
         this.world = world;
-        this.callback = callback;
+        this.buf = new float[Core().getWindow().width*Core().getWindow().height];
     }
 
-    void exec(vec2 pos = Core().mousePos) {
-        auto ray = CollisionRay.get(pos, world.camera);
-        auto r = this.world.rayCast(ray);
-        r.apply!(r => callback(r.entity()));
+    Maybe!Entity getEntity(vec2 pos) {
+        auto id = getID(pos);
+        return world.findByID(id).wrapRange();
+    }
+
+    private ID getID(vec2 pos) {
+        auto texture = Core().getWindow().getScreen().getColorTexture(1);
+        pos = (pos + 1) / 2 * Core().getWindow().size;
+        texture.blitsTo(buf.ptr, ImageFormat.R);
+        return cast(ID)buf[cast(size_t)(pos.x + pos.y * Core().getWindow().width)];
     }
 }
-
-void makeTouchable(Entity e) {
-    e.buildBVH();
-}
-

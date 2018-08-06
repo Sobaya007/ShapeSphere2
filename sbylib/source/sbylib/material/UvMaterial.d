@@ -5,4 +5,9 @@ import sbylib.wrapper.gl.Uniform;
 
 class UvMaterial : Material {
     mixin ConfigureMaterial;
+
+    this() {
+        mixin(autoAssignCode);
+        super();
+    }
 }

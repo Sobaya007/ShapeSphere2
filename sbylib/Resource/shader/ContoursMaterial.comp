@@ -1,0 +1,38 @@
+writeonly uniform image2D destTex;
+
+uniform sampler2D colorTexture;
+uniform sampler2D referenceTexture;
+uniform int value;
+
+vec3 getColor(ivec2 coord) {
+    return texelFetch(colorTexture, coord, 0).rgb;
+}
+
+float getValue(ivec2 coord) {
+    return texelFetch(referenceTexture, coord, 0).r;
+}
+
+bool isThisValue(ivec2 coord) {
+    return getValue(coord) == value;
+}
+
+bool isOnEdge(ivec2 coord) {
+    bool center = isThisValue(coord);
+    if (center != isThisValue(coord + ivec2(-1,-1))) return true;
+    if (center != isThisValue(coord + ivec2(-1,+1))) return true;
+    if (center != isThisValue(coord + ivec2(+1,-1))) return true;
+    if (center != isThisValue(coord + ivec2(+1,+1))) return true;
+    return false;
+}
+
+vec3 mainImage(ivec2 coord) {
+    if (isOnEdge(coord)) return vec3(1,0,0);
+    return getColor(coord);
+}
+ 
+void main() {
+  ivec2 storePos = ivec2( gl_GlobalInvocationID.xy );
+  imageStore( destTex, 
+              storePos, 
+              vec4(mainImage(storePos), 1));
+}

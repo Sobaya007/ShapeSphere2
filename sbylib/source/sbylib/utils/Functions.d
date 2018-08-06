@@ -473,24 +473,44 @@ auto asRect(T)(T array, size_t width, size_t height) {
 
 import sbylib.render.RenderTarget;
 void blitsTo(Texture texture, IRenderTarget dst, int x, int y, int w, int h) {
+    blitsTo([texture], dst, x, y, w, h);
+}
+
+import std.algorithm : all;
+void blitsTo(Texture[] textureList, IRenderTarget dst, int x, int y, int w, int h) 
+    in(textureList.all!(t => textureList[0].width  == t.width))
+    in(textureList.all!(t => textureList[0].height == t.height))
+{
     import sbylib.core.Window;
-    static RenderTarget[Window] target;
+    import sbylib.wrapper.gl.Functions;
+
+    static RenderTarget[Window] targetList;
     auto window = Window.getCurrentWindow();
-    if (window !in target) {
-        target[window] = new RenderTarget(texture.width(), texture.height());
-    } else {
-        if (target[window].width != texture.width()
-            || target[window].height != texture.height()) {
-            target[window].destroy();
-            target[window] = new RenderTarget(texture.width, texture.height);
+    auto width = textureList[0].width;
+    auto height = textureList[0].height;
+    if (auto target = window in targetList) {
+        if (target.width != width
+            || target.height != height) {
+            target.destroy();
+            targetList[window] = new RenderTarget(width, height);
         }
-        auto t = target[window];
-        t.attachTexture(texture, FramebufferAttachType.Color0);
-        t.blitsTo(dst, x, y, w, h, ClearMode.Color);
+    } else {
+        targetList[window] = new RenderTarget(width, height);
     }
+    auto target = targetList[window];
+    assert(target !is null);
+    target.clearAttachment();
+    foreach (i, tex; textureList) {
+        target.attachTexture(tex, GlUtils.getFramebufferColorAttachType(i));
+    }
+    target.blitsTo(dst, x, y, w, h, ClearMode.Color);
 }
 
 void blitsTo(Texture texture, IRenderTarget dst) {
+    blitsTo([texture], dst, 0, 0, dst.width, dst.height);
+}
+
+void blitsTo(Texture[] texture, IRenderTarget dst) {
     blitsTo(texture, dst, 0, 0, dst.width, dst.height);
 }
 
@@ -507,7 +527,7 @@ void configure2D(World world, IRenderTarget target = Core().getWindow().getScree
     auto renderer = createRenderer2D(world, target);
     Core().addProcess({
         target.clear(ClearMode.Color, ClearMode.Depth, ClearMode.Stencil);
-        renderer.render();
+        renderer.renderAll();
     }, "render");
 }
 
@@ -524,7 +544,7 @@ void configure3D(World world, Camera camera, IRenderTarget target = Core().getWi
     auto renderer = createRenderer3D(world, camera, target);
     Core().addProcess({
         target.clear(ClearMode.Color, ClearMode.Depth, ClearMode.Stencil);
-        renderer.render();
+        renderer.renderAll();
     }, "render");
 }
 
@@ -554,7 +574,8 @@ mixin template ImplPositionSetter(alias width, alias height) {
 void screenShot(string path) {
     auto target = new RenderTarget(Core().getWindow().width, Core().getWindow().height);
     target.attachTexture!(uint)(FramebufferAttachType.Color0);
-    Core().getWindow().getScreen().blitsTo(target, BufferBit.Color);
+    IRenderTarget screen = Core().getWindow().getScreen();
+    screen.blitsTo(target, BufferBit.Color);
     target.getColorTexture().generateImage().save(path);
     target.destroy();
 }

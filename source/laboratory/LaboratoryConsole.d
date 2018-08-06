@@ -39,7 +39,7 @@ class LaboratoryConsole : Console {
         world.add(console);
         Core().addProcess({
             Core().getWindow().getScreen().clear(ClearMode.Depth);
-            renderer.render();
+            renderer.renderAll();
         }, "console render");
         return console;
     }

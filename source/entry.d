@@ -20,7 +20,8 @@ enum RunMode {
     MultiWindow,
     Animation,
     Laboratory,
-    MultiRenderTargetExample
+    MultiRenderTargetExample,
+    Touch
 };
 
 void run(string[] args) {
@@ -107,6 +108,10 @@ void run(RunMode mode, string[] args) {
         break;
     case RunMode.MultiRenderTargetExample:
         multiRenderTargetExample();
+        break;
+    case RunMode.Touch:
+        touchExample();
+        break;
     }
 }
 

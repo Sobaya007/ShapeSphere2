@@ -1,6 +1,5 @@
 {
     "world" : {
-        "template" : "3D",
         "camera" : {
             "type" : "PerspectiveCamera",
             "fovy" : 60,

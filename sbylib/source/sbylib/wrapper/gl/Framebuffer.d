@@ -26,6 +26,18 @@ class Framebuffer : ObjectGL {
         GlFunction().bindFramebuffer(type, 0);
     }
 
+    void setReadBuffer(FramebufferAttachType type) const {
+        this.bind(FramebufferBindType.Read);
+        GlFunction().readBuffer(type);
+        this.unbind(FramebufferBindType.Read);
+    }
+
+    void setDrawBuffer(FramebufferAttachType type) const {
+        this.bind(FramebufferBindType.Write);
+        GlFunction().drawBuffer(type);
+        this.unbind(FramebufferBindType.Write);
+    }
+
     void blitsTo(const Framebuffer dst, int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, TextureFilter filter, BufferBit[] bit...) const
     in {
         import std.algorithm : canFind;

@@ -1,6 +1,6 @@
 {
     "world" : {
-        "template" : "2D"
+        "camera" : "PixelCamera"
     },
     "KeyCommand" : {
         "Escape" : "End"

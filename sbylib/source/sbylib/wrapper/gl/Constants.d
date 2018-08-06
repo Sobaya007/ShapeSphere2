@@ -97,6 +97,7 @@ enum ImageFormat {
     RGBA = GL_RGBA,
     BGRA = GL_BGRA,
     Depth = GL_DEPTH_COMPONENT,
+    Stencil = GL_STENCIL_INDEX,
     DepthStencil = GL_DEPTH_STENCIL,
 }
 

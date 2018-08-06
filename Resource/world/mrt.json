@@ -1,22 +1,5 @@
-{ "world" : {
-        "template" : "3D",
-        "target" : {
-            "type" : "RenderTarget",
-            "color0" : {
-                "type" : "uint",
-                "clear" : [1,1,1,1],
-                "object" : "texture"
-            },
-            "color1" : {
-                "type" : "uint",
-                "clear" : [1,1,1,1],
-                "object" : "texture"
-            },
-            "depth" : {
-                "type" : "uint",
-                "object" : "renderbuffer"
-            }
-        },
+{ 
+    "world" : {
         "camera" : {
             "type" : "PerspectiveCamera",
             "fovy" : 60,
@@ -45,21 +28,8 @@
     },
     "Render" : [
         {
-            "type" : "Clear",
-            "target" : "target"
-        },
-        {
             "type" : "Render",
-            "target" : "world"
-        },
-        {
-            "type" : "Clear",
-            "target" : "Screen"
-        },
-        {
-            "type" : "Blit",
-            "from" : "target",
-            "to" : "Screen"
+            "clear" : ["Color", "Depth"]
         }
     ]
 }

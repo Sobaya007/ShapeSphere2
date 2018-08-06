@@ -3,50 +3,35 @@
 layout(triangles) in;
 layout(triangle_strip, max_vertices=64) out;
 
-out vec3 position;
-out vec3 vPosition;
 out vec3 vNormal;
 out flat int flag;
 
-require worldMatrix;
-require viewMatrix;
-require projMatrix;
-
-void emitA(vec4 p, vec3 n) {
+void emitA(vec4 p, vec3 n, int i) {
     p.xyz *= 0.9;
-    position = (worldMatrix * p).xyz;
-    vPosition = (viewMatrix * worldMatrix * p).xyz;
     vNormal = normalize((viewMatrix * worldMatrix * vec4(n, 0)).xyz);
-    gl_Position = projMatrix * viewMatrix * worldMatrix * p;
     flag = 1;
-    EmitVertex();
+    emitLocalVertex(i, p);
 }
 
-void emitB(vec4 p, vec3 n) {
+void emitB(vec4 p, vec3 n, int i) {
     float pn = dot(p.xyz, n);
     p.xyz -= pn * n;
     p.xyz *= 0.8;
     p.xyz += pn * n;
-    position = (worldMatrix * p).xyz;
-    vPosition = (viewMatrix * worldMatrix * p).xyz;
     vNormal = normalize((viewMatrix * worldMatrix * vec4(n, 0)).xyz);
-    gl_Position = projMatrix * viewMatrix * worldMatrix * p;
     flag = 0;
-    EmitVertex();
+    emitLocalVertex(i, p);
 }
 
-void emitB2(vec4 p, vec3 n) {
+void emitB2(vec4 p, vec3 n, int i) {
     float pn = dot(p.xyz, n);
     p.xyz -= pn * n;
     p.xyz *= 0.8;
     p.xyz += pn * n;
     p.xyz -= 0.1 * n;
-    position = (worldMatrix * p).xyz;
-    vPosition = (viewMatrix * worldMatrix * p).xyz;
     vNormal = normalize((viewMatrix * worldMatrix * vec4(n, 0)).xyz);
-    gl_Position = projMatrix * viewMatrix * worldMatrix * p;
     flag = 0;
-    EmitVertex();
+    emitLocalVertex(i, p);
 }
 
 void main() {
@@ -65,34 +50,34 @@ void main() {
 
     for (int i = 0; i < gl_in.length(); i++) {
         vec4 p = gl_in[i].gl_Position;
-        emitA(p, n);
+        emitA(p, n, i);
     }
     EndPrimitive();
 
     for (int i = 0; i < gl_in.length(); i++) {
         vec4 p = gl_in[i].gl_Position;
-        emitB(p, n);
+        emitB(p, n, i);
     }
     EndPrimitive();
     for (int i = 0; i < gl_in.length(); i++) {
         vec4 p0 = gl_in[i].gl_Position;
         vec4 p1 = gl_in[(i+1)%gl_in.length()].gl_Position;
-        emitB(p0, n);
-        emitB(p1, n);
-        emitB2(p0, n);
+        emitB(p0, n, 0);
+        emitB(p1, n, 1);
+        emitB2(p0, n, 2);
         EndPrimitive();
-        emitB2(p0, n);
-        emitB(p1, n);
-        emitB(p0, n);
+        emitB2(p0, n, 0);
+        emitB(p1, n, 1);
+        emitB(p0, n, 2);
         EndPrimitive();
 
-        emitB(p1, n);
-        emitB2(p0, n);
-        emitB2(p1, n);
+        emitB(p1, n, 0);
+        emitB2(p0, n, 1);
+        emitB2(p1, n, 2);
         EndPrimitive();
-        emitB2(p1, n);
-        emitB2(p0, n);
-        emitB(p1, n);
+        emitB2(p1, n, 0);
+        emitB2(p0, n, 1);
+        emitB(p1, n, 2);
         EndPrimitive();
     }
 }

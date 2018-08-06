@@ -11,7 +11,7 @@ class FlyBehavior : CameraController.Behavior {
 
     void initialize() {
         target = player.getCameraTarget();
-        if (!this.control) this.control = new CameraControl(camera);
+        if (!this.control) this.control = new CameraControl(camera, Core().getWindow());
     }
 
     override void step() {

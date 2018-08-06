@@ -11,23 +11,23 @@ class Material {
     import sbylib.wrapper.gl;
     import sbylib.material.glsl;
     import sbylib.utils.Functions;
+    import sbylib.entity.Entity : ID;
 
     Program program;
     @Proxied RenderConfig config;
-    TypedUniform!int debugCounter;
+
+    protected static int ID_SEED = 0;
 
     mixin Proxy;
 
     this() {
         this.program = new Program(getShaders);
         this.config = new RenderConfig();
-        this.debugCounter = new TypedUniform!int("DebugCounter");
     }
 
     final void set(const(Uniform) delegate()[] uniforms) {
         this.config.set();
         this.program.use();
-        import std.stdio;
         import std.algorithm;
         this.program.beginUniform();
         this.program.applyUniform(uniforms.map!(u=>u()));
@@ -41,6 +41,7 @@ class Material {
     abstract const(UniformDemand[]) getUniformDemands();
     protected abstract Shader[] getShaders();
     abstract void applyUniforms(Program);
+    abstract ID getID();
 
     mixin template commonDeclare(string configStr) {
 
@@ -88,6 +89,8 @@ class Material {
 
         private UniformDemand[] demands;
         private Shader vertexShader, fragmentShader;
+        TypedUniform!int _id;
+
         static if (UseGeometryShader) {
             private Shader geomtryShader;
         }
@@ -96,19 +99,17 @@ class Material {
             import std.file : readText;
             static if (UseGeometryShader) {
                 auto fragAST = generateFragmentAST();
+                fragAST.addIdOutput();
                 auto geomAST = new Ast(readText(getGeometryPath()));
                 geomAST = GlslUtils.completeGeometryAST(geomAST, fragAST);
                 auto vertAST = VertexShaderAutoGen ? GlslUtils.generateVertexAST(geomAST) : new Ast(readText(getVertexPath()));
-                import std.stdio;
-                writeln(vertAST.getCode());
-                writeln(geomAST.getCode());
-                writeln(fragAST.getCode());
                 demands = GlslUtils.requiredUniformDemands([vertAST, geomAST, fragAST]);
                 vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
                 geomtryShader = new Shader(geomAST.getCode(), ShaderType.Geometry);
                 fragmentShader = new Shader(fragAST.getCode(), ShaderType.Fragment);
             } else {
                 auto fragAST = generateFragmentAST();
+                fragAST.addIdOutput();
                 auto vertAST = VertexShaderAutoGen ? GlslUtils.generateVertexAST(fragAST) : new Ast(readText(getVertexPath()));
                 demands = GlslUtils.requiredUniformDemands([vertAST, fragAST]);
                 vertexShader = new Shader(vertAST.getCode(), ShaderType.Vertex);
@@ -146,12 +147,19 @@ class Material {
                     }(name, ForeachType!(type).stringof, name);
                 }
             }}
+            str ~= q{this._id = new TypedUniform!int("_id"); };
+            str ~= q{this._id = ID_SEED++; };
             return str;
         }
 
         override string toString() {
             import sbylib.utils.Functions;
             return typeof(this).stringof;
+        }
+
+        import sbylib.entity.Entity : ID;
+        override ID getID() {
+            return this._id.get();
         }
 
         invariant {

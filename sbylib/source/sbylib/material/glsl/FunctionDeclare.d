@@ -95,4 +95,11 @@ class FunctionDeclare : Statement {
     string[] getIDs() {
         return id ~ this.arguments.arguments.map!(arg => arg.id).array;
     }
+
+    void insertIdOutput(string inputName, string outputName) {
+        auto newContent = tokenize(format!"%s = vec4(vec3(%s), 1);"(outputName, inputName));
+        foreach (c; newContent)
+            c.line += this.content[$-1].line+1;
+        this.content ~= newContent;
+    }
 }

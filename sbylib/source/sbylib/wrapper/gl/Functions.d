@@ -251,6 +251,11 @@ class GlFunction {
         checkError();
     }
 
+    void readPixel(Type)(int x, int y, int width, int height, ImageFormat format, Type* ptr) {
+        glReadPixels(x, y, width, height, format, GlUtils.getTypeEnum!(Type), ptr);
+        checkError();
+    }
+
     void genVertexArrays(uint num, VertexArrayID *ptr) {
         glGenVertexArrays(num, ptr);
         checkError();
@@ -390,6 +395,16 @@ class GlFunction {
         int loc = glGetUniformBlockIndex(programID, name.toStringz);
         checkError();
         return loc;
+    }
+
+    void readBuffer(FramebufferAttachType type) {
+        glReadBuffer(type);
+        checkError();
+    }
+
+    void drawBuffer(FramebufferAttachType type) {
+        glDrawBuffer(type);
+        checkError();
     }
 
     void drawBuffers(FramebufferAttachType[] types) {
@@ -696,5 +711,39 @@ static:
 
     void uniformMatrix(T, size_t N)(UniformLoc loc, T[N*N] data) {
         GlFunction().uniformMatrix!(T, N)(loc, 1, data.ptr);
+    }
+
+    FramebufferAttachType getFramebufferColorAttachType(size_t n) {
+        final switch (n) {
+            case 0: return FramebufferAttachType.Color0;
+            case 1: return FramebufferAttachType.Color1;
+            case 2: return FramebufferAttachType.Color2;
+        }
+    }
+
+    bool isColorAttachType(FramebufferAttachType type) {
+        switch (type) {
+            case FramebufferAttachType.Color0:
+            case FramebufferAttachType.Color1:
+            case FramebufferAttachType.Color2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    size_t getColorAttachTypeIndex(FramebufferAttachType type) 
+        in(isColorAttachType(type))
+    {
+        switch (type) {
+            case FramebufferAttachType.Color0:
+                return 0;
+            case FramebufferAttachType.Color1:
+                return 1;
+            case FramebufferAttachType.Color2:
+                return 2;
+            default:
+                assert(false);
+        }
     }
 }

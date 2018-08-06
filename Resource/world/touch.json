@@ -7,7 +7,7 @@
             "farZ" : 100,
             "pos" : [3,2,9],
             "lookAt" : [0,2,0],
-            "control" : true
+            "control" : false
         },
         "box" : {
             "type" : "Entity",
@@ -26,30 +26,11 @@
     "KeyCommand" : {
         "Escape" : "End"
     },
-    "RenderTarget" : {
-        "target" : {
-            "color" : {
-                "type" : "uint",
-                "clear" : [0,0,0,0],
-                "object" : "texture"
-            },
-            "depth" : {
-                "type" : "uint",
-                "clear" : 0,
-                "object" : "renderbuffer"
-            }
-        }
-    },
     "Render" : [
         {
             "type" : "Render",
             "clear" : ["Color", "Depth"],
-            "target" : "target"
-        },
-        {
-            "type" : "Blit",
-            "from" : "target",
-            "to" : "Screen"
+            "postProcess" : "ContoursMaterial"
         }
     ]
 }

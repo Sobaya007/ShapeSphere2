@@ -23,19 +23,24 @@ class Renderer {
         this.viewport = viewport;
     }
 
-    void render(string renderGroupName) {
-        world.getWindow().makeCurrent();
+    void renderBegin() {
         viewport.set();
         target.renderBegin();
-        world.render(renderGroupName);
+    }
+
+    void renderEnd() {
         target.renderEnd();
     }
 
-    void render() {
-        world.getWindow().makeCurrent();
-        viewport.set();
-        target.renderBegin();
-        world.render();
-        target.renderEnd();
+    void render(string renderGroupName) {
+        renderBegin();
+        world.render(renderGroupName);
+        renderEnd();
+    }
+
+    void renderAll() {
+        renderBegin();
+        world.renderAll();
+        renderEnd();
     }
 }

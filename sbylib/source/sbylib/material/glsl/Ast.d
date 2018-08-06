@@ -46,7 +46,13 @@ class Ast {
             } else if (tokens[0].str == "precision") {
                 statements ~= new PrecisionDeclare(tokens);
             } else if (tokens[0].str == "layout") {
-                statements ~= new LayoutDeclare(tokens);
+                auto tok = tokens.find!(t => t.str == ")");
+                if (tok[2].str == ";") {
+                    // if this token is variable declare's part, thre is more than 1 tokens between ')' and ';'
+                    statements ~= new LayoutDeclare(tokens);
+                } else {
+                    statements ~= new VariableDeclare(tokens);
+                }
             } else if (tokens[0].str == "#") {
                 statements ~= new Sharp(tokens);
             } else if (tokens[0].str == "require") {
@@ -88,8 +94,14 @@ class Ast {
         auto functions = this.getStatements!(FunctionDeclare);
         auto mainFunction  = functions.filter!(f => f.id == "main").map!(f => cast(Statement)f).array;
         auto otherFunction = functions.filter!(f => f.id != "main").map!(f => cast(Statement)f).array;
-        auto others    = statements.filter!(s => cast(FunctionDeclare)s  is null).array;
-        return (others ~ otherFunction ~ mainFunction).map!(s => s.getCode()).join("\n");
+        auto sharps = this.getStatements!(Sharp).map!(f => cast(Statement)f).array;
+        auto layouts = this.getStatements!(LayoutDeclare).map!(f => cast(Statement)f).array;
+        auto others    = statements.filter!(s =>
+            cast(FunctionDeclare)s is null
+            && cast(Sharp)s is null
+            && cast(LayoutDeclare)s is null
+        ).array;
+        return (sharps ~ layouts ~ others ~ otherFunction ~ mainFunction).map!(s => s.getCode()).join("\n");
     }
 
     T[] getStatements(T)() const {
@@ -128,7 +140,6 @@ class Ast {
 
     void addEmitVertexDeclare(Ast ast) {
         import std.meta;
-        addEmitVertexCommonDeclare(ast);
 
         auto to = ast.getVertexDeclare().getRequireAttribute().space;
         static foreach (space; AliasSeq!(Space.Local, Space.World, Space.View, Space.Proj)) {
@@ -136,23 +147,24 @@ class Ast {
                 addEmitVertexDeclare(ast, space, to);
             }
         }
+        addEmitVertexCommonDeclare(ast);
     }
 
     void addEmitVertexDeclare(Ast ast, Space from, Space to) {
         import std.format;
         auto uniforms = getUniformDemands(from, to).map!(a => getUniformDemandName(a)).array;
         string[] exprs = uniforms ~ "vertex";
-        this.statements ~= FunctionDeclare.generateFunction("emit"~from.to!string~"Vertex", "void", ["int i", "vec4 vertex"],
+        this.statements = FunctionDeclare.generateFunction("emit"~from.to!string~"Vertex", "void", ["int i", "vec4 vertex"],
             [format!"gl_Position = %s;"(exprs.join(" * "))]
             ~ "emitVertexCommon(i);"
-            );
+            ) ~ this.statements;
     }
 
     void addEmitVertexCommonDeclare(Ast ast) {
         import std.format;
-        this.statements ~= FunctionDeclare.generateFunction("emitVertexCommon", "void", ["int i"],
+        this.statements = FunctionDeclare.generateFunction("emitVertexCommon", "void", ["int i"],
             ast.getRequiredAttributes(false).map!(r => r.getGeometryBodyCode()).array
-            ~ "EmitVertex();");
+            ~ "EmitVertex();") ~ this.statements;
     }
 
     void addUniqueStatements(Statement[] statements) {
@@ -246,4 +258,14 @@ class Ast {
         .any!(sharp => sharp.type == "version");
     }
 
+    void addIdOutput() {
+        this.statements ~= new VariableDeclare("uniform int _id;");
+        this.statements ~= new VariableDeclare("layout(location=1) out vec4 idBuffer;");
+        this.getMainFunction().insertIdOutput("_id", "idBuffer");
+    }
+
+    void completeComputeLayoutDeclare(int localX, int localY) {
+        import std.format;
+        this.statements ~= new LayoutDeclare(format!"layout(local_size_x=%d, local_size_y=%d) in;"(localX, localY));
+    }
 }

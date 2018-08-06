@@ -32,16 +32,19 @@ abstract class IRenderTarget {
         getFramebuffer().unbind(FramebufferBindType.Both);
     }
 
-    final void blitsTo(IRenderTarget dstRenderTarget, ClearMode[] mode...) {
-        auto dst = dstRenderTarget;
-        blitsTo(dstRenderTarget, 0, 0, dst.width, dst.height, mode);
+    final void blitsTo(IRenderTarget dst, BufferBit[] mode...) {
+        blitsTo(dst, 0, 0, dst.width, dst.height, mode);
     }
 
-    final void blitsTo(IRenderTarget dstRenderTarget, int x, int y, int w, int h, ClearMode[] mode...) {
+    void blitsTo(IRenderTarget dstRenderTarget, int x, int y, int w, int h, BufferBit[] mode...) {
+        blitsTo(0, 0, this.width, this.height, dstRenderTarget, x, y, w, h, mode);
+    }
+
+    void blitsTo(int sx, int sy, int sw, int sh, IRenderTarget dstRenderTarget, int dx, int dy, int dw, int dh, BufferBit[] mode...) {
         this.getFramebuffer().blitsTo(
             dstRenderTarget.getFramebuffer(),
-            0, 0, this.width, this.height,
-            x, y, w, h, TextureFilter.Nearest, mode);
+            sx, sy, sw, sh,
+            dx, dy, dw, dh, TextureFilter.Nearest, mode);
     }
 
     void clear(ClearMode[] clearMode...) {
@@ -67,7 +70,10 @@ abstract class IRenderTarget {
 }
 
 class RenderTarget : IRenderTarget {
+    import sbylib.core.Window;
+
     private Framebuffer frameBuffer;
+    private Renderbuffer[FramebufferAttachType] rbos;
     private Texture[FramebufferAttachType] textures;
     private uint mWidth, mHeight;
     private vec4 clearColor = vec4(0, .5, .5, 1);
@@ -90,6 +96,46 @@ class RenderTarget : IRenderTarget {
     override void renderBegin() {
         super.renderBegin();
         GlFunction().drawBuffers(this.attachedColors);
+    }
+
+    override void blitsTo(IRenderTarget dst, int x, int y, int w, int h, BufferBit[] mode...) {
+        if (auto dst2 = cast(RenderTarget)dst) {
+            import std.range;
+            foreach (type; this.attachedColors.sort) {
+                if (!GlUtils.isColorAttachType(type)) continue;
+                this.frameBuffer.setReadBuffer(type);
+                dst2.frameBuffer.setDrawBuffer(type);
+                super.blitsTo(dst,x, y, w, h, mode);
+            }
+            this.frameBuffer.setReadBuffer(FramebufferAttachType.Color0);
+        } else {
+            super.blitsTo(dst,x, y, w, h, mode);
+        }
+    }
+
+    void resize(int width, int height) {
+        this.mWidth = width;
+        this.mHeight = height;
+        foreach (type, rbo; rbos) {
+            rbo.reallocate(this.width, this.height);
+        }
+        foreach (type, texture; textures) {
+            texture.reallocate(0, this.width, this.height);
+        }
+    }
+
+    void clearAttachment() {
+        this.frameBuffer.bind(FramebufferBindType.Both);
+        foreach (type, rbo; rbos) {
+            rbo.detachFramebuffer(FramebufferBindType.Both, type);
+        }
+        foreach (type, tex; textures) {
+            tex.detachFramebuffer(FramebufferBindType.Both, type);
+        }
+        this.frameBuffer.unbind(FramebufferBindType.Both);
+        rbos = null;
+        textures = null;
+        attachedColors = null;
     }
 
     void attachTexture(T)(FramebufferAttachType attachType) {
@@ -117,6 +163,7 @@ class RenderTarget : IRenderTarget {
         this.frameBuffer.bind(FramebufferBindType.Both);
         renderBuffer.attachFramebuffer(FramebufferBindType.Both, attachType);
         this.frameBuffer.unbind(FramebufferBindType.Both);
+        this.rbos[attachType] = renderBuffer;
     }
 
     private void attach(Texture texture, FramebufferAttachType attachType) {
@@ -145,6 +192,8 @@ class RenderTarget : IRenderTarget {
                 return ImageFormat.RGBA;
             case FramebufferAttachType.Depth:
                 return ImageFormat.Depth;
+            case FramebufferAttachType.Stencil:
+                return ImageFormat.Stencil;
             case FramebufferAttachType.DepthStencil:
                 return ImageFormat.DepthStencil;
             default:
@@ -171,16 +220,15 @@ class RenderTarget : IRenderTarget {
         }
     }
 
-    private FramebufferAttachType getColorAttachType(int n) {
-        final switch (n) {
-            case 0: return FramebufferAttachType.Color0;
-            case 1: return FramebufferAttachType.Color1;
-            case 2: return FramebufferAttachType.Color2;
-        }
+    auto getColorTextures() {
+        import std.algorithm : filter;
+        return textures
+            .byKeyValue
+            .filter!(p => GlUtils.isColorAttachType(p.key));
     }
 
-    Texture getColorTexture(int n = 0)  {
-        return textures[getColorAttachType(n)];
+    Texture getColorTexture(size_t n = 0)  {
+        return textures[GlUtils.getFramebufferColorAttachType(n)];
     }
 
     Texture getDepthTexture()  {

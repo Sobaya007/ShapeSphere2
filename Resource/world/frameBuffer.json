@@ -1,6 +1,5 @@
 {
     "world" : {
-        "template" : "3D",
         "camera" : {
             "type" : "PerspectiveCamera",
             "fovy" : 60,
@@ -25,19 +24,6 @@
         }
     },
     "internalWorld" : {
-        "template" : "3D",
-        "target" : {
-            "type" : "RenderTarget",
-            "color" : {
-                "type" : "uint",
-                "clear" : [1,1,1,1],
-                "object" : "texture"
-            },
-            "depth" : {
-                "type" : "uint",
-                "object" : "renderbuffer"
-            }
-        },
         "camera" : {
             "type" : "PerspectiveCamera",
             "fovy" : 60,
@@ -56,22 +42,31 @@
     "KeyCommand" : {
         "Escape" : "End"
     },
+    "RenderTarget" : {
+        "target" : {
+            "color" : {
+                "type" : "uint",
+                "clear" : [1,1,1,1],
+                "object" : "texture"
+            },
+            "depth" : {
+                "type" : "uint",
+                "object" : "renderbuffer"
+            }
+        }
+    },
     "Render" : [
         {
-            "type" : "Clear",
-            "target" : "target"
+            "type" : "Render",
+            "target" : "target",
+            "world" : "internalWorld",
+            "clear" : ["Color", "Depth"]
         },
         {
             "type" : "Render",
-            "target" : "internalWorld"
-        },
-        {
-            "type" : "Clear",
-            "target" : "Screen"
-        },
-        {
-            "type" : "Render",
-            "target" : "world"
+            "target" : "Screen",
+            "world" : "world",
+            "clear" : ["Color", "Depth"]
         }
     ]
 }

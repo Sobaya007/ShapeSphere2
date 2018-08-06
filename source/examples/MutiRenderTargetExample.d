@@ -12,11 +12,13 @@ void multiRenderTargetExample() {
         )
     )(ResourcePath("world/mrt.json"));
 
-    auto target = universe.getTarget("target").wrapCast!(RenderTarget).unwrap();
+    auto screen = Core().getWindow().getScreen();
+
+    // because Color1 is used as ID buffer
+    screen.attachTexture!(ubyte)(FramebufferAttachType.Color2);
 
     universe.addProcess({
-        auto tex = target.getColorTexture(1);
-        auto screen = Core().getWindow().getScreen();
+        auto tex = screen.getColorTexture(2);
         blitsTo(tex, screen, 0, 0, screen.width/2, screen.height);
     }, "blits");
     Core().start();

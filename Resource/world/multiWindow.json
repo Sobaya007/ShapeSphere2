@@ -1,7 +1,5 @@
 {
     "world1" : {
-        "template" : "3D",
-        "Window" : "Window1",
         "camera" : {
             "type" : "PerspectiveCamera",
             "fovy" : 60,
@@ -26,8 +24,6 @@
         }
     },
     "world2" : {
-        "template" : "3D",
-        "Window" : "Window2",
         "camera" : {
             "type" : "PerspectiveCamera",
             "fovy" : 60,
@@ -53,13 +49,13 @@
     },
     "Window" : {
         "Window1" : {
-            "Screen" : "Screen",
+            "screen" : "Screen",
             "pos" : [200,100],
             "size" : [400, 600],
             "title" : "window1"
         },
         "Window2" : {
-            "Screen" : "Screen2",
+            "screen" : "Screen2",
             "pos" : [600,100],
             "size" : [400, 600],
             "title" : "window2"
@@ -70,20 +66,16 @@
     },
     "Render" : [
         {
-            "type" : "Clear",
-            "target" : "Screen"
+            "type" : "Render",
+            "world" : "world1",
+            "target" : "Screen",
+            "clear" : ["Color", "Depth"]
         },
         {
             "type" : "Render",
-            "target" : "world1"
-        },
-        {
-            "type" : "Clear",
-            "target" : "Screen2"
-        },
-        {
-            "type" : "Render",
-            "target" : "world2"
+            "world" : "world2",
+            "target" : "Screen2",
+            "clear" : ["Color", "Depth"]
         }
     ]
 }

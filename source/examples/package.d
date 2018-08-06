@@ -11,6 +11,7 @@ import examples.XFileLoadExample;
 import examples.EditorExample;
 import examples.SceneExample;
 import examples.StencilExample;
+import examples.TouchExample;
 import examples.FramebufferExample;
 import examples.MultiWindowExample;
 import examples.AnimationExample;

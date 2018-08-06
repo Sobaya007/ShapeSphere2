@@ -15,9 +15,11 @@ public {
 }
 
 class Mesh {
+    import sbylib.core.Window;
+
     Geometry geom;
     Material mat;
-    private VertexArray vao;
+    private VertexArray[Window] vao;
     private const(Uniform) delegate()[] uniforms;
     private Entity mOwner;
 
@@ -29,8 +31,6 @@ class Mesh {
         this.geom = geom;
         this.mat = mat;
         this.mOwner = mOwner;
-        this.vao = new VertexArray;
-        this.vao.setup(mat.program, geom.getBuffers(), geom.getIndexBuffer());
     }
 
     void render() {
@@ -38,8 +38,16 @@ class Mesh {
     }
 
     void renderImpl() {
+
         this.mat.set(this.uniforms);
-        this.geom.render(this.vao);
+
+        VertexArray vao;
+        auto current = Window.getCurrentWindow();
+        if (current !in this.vao) {
+            this.vao[current] = new VertexArray;
+            this.vao[current].setup(mat.program, geom.getBuffers(), geom.getIndexBuffer());
+        }
+        this.geom.render(this.vao[current]);
     }
 
     void setWorld(World world) {
@@ -53,9 +61,6 @@ class Mesh {
             case UniformDemand.Proj:
             case UniformDemand.Light:
                 this.uniforms ~= world.getUniform(demand);
-                break;
-            case UniformDemand.DebugCounter:
-                this.uniforms ~= () => this.mat.debugCounter;
                 break;
             }
         }

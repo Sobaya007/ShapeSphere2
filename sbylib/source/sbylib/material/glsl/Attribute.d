@@ -11,7 +11,9 @@ enum Attribute {
     Out,
     Uniform,
     Const,
-    Flat
+    Flat,
+    ReadOnly,
+    WriteOnly
 }
 
 string getAttributeCode(Attribute attr) {
@@ -26,5 +28,9 @@ string getAttributeCode(Attribute attr) {
         return "const";
     case Attribute.Flat:
         return "flat";
+    case Attribute.ReadOnly:
+        return "readonly";
+    case Attribute.WriteOnly:
+        return "writeonly";
     }
 }

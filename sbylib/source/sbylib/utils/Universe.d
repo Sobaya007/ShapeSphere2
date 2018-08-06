@@ -9,6 +9,9 @@ import std.typecons;
 
 class Universe {
 
+    alias CameraSetCallback = void delegate(Camera);
+    alias Command = void delegate();
+
     private World[string] worldList;
     private IRenderTarget[string] targetList;
     private Renderer[World] rendererList;
@@ -20,7 +23,6 @@ class Universe {
     private JoyStick mJoy;
     private Maybe!Process thisUpdate;
 
-    alias CameraSetCallback = void delegate(Camera);
     private CameraSetCallback[][World] cameraSetCallbackList;
 
     private bool isCoreUniverse;
@@ -123,7 +125,7 @@ class Universe {
         return targetList.at(name);
     }
 
-    Maybe!(Renderer) findRendererByWorld(World world){
+    Maybe!(Renderer) findRendererByWorld(World world) {
         return rendererList.at(world);
     }
 
@@ -163,7 +165,7 @@ class Universe {
 
     private void createFromJsonImpl(Additional...)(string path) {
 
-        this.targetList["Screen"] = Core().getWindow().getScreen(); //for Core Implementation, initialization is placed here.
+        targetList["Screen"] = Core().getWindow().getScreen(); //for Core Implementation, initialization is placed here.
 
         import std.file;
 
@@ -173,43 +175,34 @@ class Universe {
         auto keyCommand = root.fetch("KeyCommand");
         auto render = root.fetch("Render");
         auto window = root.fetch("Window");
+        auto target = root.fetch("RenderTarget");
 
-        if (keyCommand.isJust) {
-            createKeyCommand(
-                wrapException(keyCommand.unwrap().as!(JSONValue[string]))
-                .getOrError("KeyCommand's value must be object")
-            );
-        }
-        if (window.isJust) {
-            createWindows(
-                wrapException(window.unwrap().as!(JSONValue[string]))
-                .getOrError("Window's value must be object")
-            );
-        }
+        keyCommand.apply!((keyCommand) {
+            createKeyCommand(keyCommand.asObject("KeyCommand"));
+        });
+        window.apply!((window) {
+            createWindows(window.asObject("Window"));
+        });
+        target.apply!((target) {
+            createTargets(target.asObject("RenderTarget"));
+        });
 
         foreach (key, value; root) {
-            assert(value.type == JSON_TYPE.OBJECT, format!"%s's value is not an object"(key));
-            createWorld!(Additional)(key, value.object());
+            createWorld!(Additional)(key, value.asObject(key));
         }
-        if (render.isJust) {
-            createRender(
-                wrapException(render.unwrap().as!(JSONValue[]))
-                .getOrError("Render's value must be object")
-            );
-        } else {
-            auto worldName = worldList.keys.wrapRange();
-            if (worldName.isJust) {
-                createRender(parseJSON(format!q{
-                    [
-                        "Clear",
-                        {
-                            "type" : "Render",
-                            "target" : "%s"
-                        }
-                    ]
-                }(worldName.unwrap())).array);
-            }
+        if (render.isNone) {
+            render = Just(parseJSON(q{
+                [
+                    {
+                        "type" : "Render",
+                        "clear" : ["Color", "Depth"]
+                    }
+                ]
+            }));
         }
+        render.apply!((render) {
+            createRender(render.asArray("Render"));
+        });
         if (!this.isCoreUniverse) thisUpdate = Just(Core().addProcess(&update, isCoreUniverse ? "CoreUniverse.update" : "universe.update"));
     }
 
@@ -224,6 +217,12 @@ class Universe {
         }
     }
 
+    private void createTargets(JSONValue[string] targetList) {
+        foreach (name, content; targetList) {
+            this.targetList[name] = createTarget(content.asObject(name));
+        }
+    }
+
     private void createRender(JSONValue[] array) {
         import std.algorithm : map;
         import std.array;
@@ -234,13 +233,12 @@ class Universe {
 
     private void createWindows(JSONValue[string] obj) {
         foreach (name, content; obj) {
-            assert(content.type == JSON_TYPE.OBJECT, format!"%s's value is not an object"(name));
-            windowList[name] = createWindow(content.object());
+            windowList[name] = createWindow(content.asObject(name));
         }
     }
 
     private Window createWindow(JSONValue[string] obj) {
-        auto screenName = obj.fetch!(string)("Screen")
+        auto screenName = obj.fetch!(string)("screen")
             .getOrElse("Screen");
         auto title = obj.fetch!(string)("title")
             .getOrElse("");
@@ -263,22 +261,24 @@ class Universe {
 
     private void createWorld(Additional...)(string name, JSONValue[string] worldContent) {
 
-        auto templateType = worldContent.fetch!string("template");
-        auto window = worldContent.fetch!string("Window")
-            .fmapAnd!((string name) => windowList.at(name))
-            .getOrElse(Core().getWindow);
-        window.makeCurrent();
-
-        auto world = new World(window);
+        auto world = new World();
         worldList[name] = world;
 
         Maybe!Camera camera;
-        IRenderTarget target = Core().getWindow().getScreen();
         Entity[] entities;
 
         foreach (name, content; worldContent) {
-            assert(content.type == JSON_TYPE.OBJECT, format!"%s's value is not an object"(name));
-            auto obj = content.object();
+            JSONValue[string] obj;
+            switch (content.type) {
+                case JSON_TYPE.STRING:
+                    obj = ["type" : parseJSON(format!q{"%s"}(content.str()))];
+                    break;
+                case JSON_TYPE.OBJECT:
+                    obj = content.object();
+                    break;
+                default:
+                    assert(false, format!"%s's value must be a string or an object"(name));
+            }
             string type = obj.fetch!string("type")
                 .getOrError(format!"%s must have 'type' as string"(name));
             switch (type) {
@@ -302,52 +302,19 @@ class Universe {
                 case "Entity":
                     entities ~= createEntity!(Additional)(name, obj);
                     break;
-                case "RenderTarget":
-                    targetList[name] = target = createTarget(obj);
-                    break;
                 default:
                     assert(false, format!"Unknown type '%s'"(type));
             }
         }
-        if (templateType.isJust) {
-            switch (templateType.unwrap()) {
-                case "2D":
-                    assert(camera.isNone, "template '2D' cannot have Camera");
-                    rendererList[world] = createRenderer2D(world, target);
-                    camera = Just(world.camera);
-                    break;
-                case "3D":
-                    if (camera.isJust) {
-                        rendererList[world] = createRenderer3D(world, camera.unwrap(), target);
-                    } else {
-                        cameraSetCallbackList[world] ~= (Camera camera) {
-                            rendererList[world] = createRenderer3D(world, camera, target);
-                        };
-                    }
-                    break;
-                default:
-                    assert(false, format!"Unknown template type '%s'"(templateType));
-            }
-        } else {
-            if (camera.isJust) {
-                world.setCamera(camera.unwrap());
-            } else {
-                cameraSetCallbackList[world] ~= (Camera camera) {
-                    world.setCamera(camera);
-                };
-            }
-        }
-        if (camera.isJust) {
+        cameraSetCallbackList[world] ~= (Camera camera) {
+            world.setCamera(camera);
             foreach (entity; entities) {
                 world.add(entity);
             }
-        } else {
-            cameraSetCallbackList[world] ~= (Camera camera) {
-                foreach (entity; entities) {
-                    world.add(entity);
-                }
-            };
-        }
+        };
+        camera.apply!((Camera camera) {
+            setCamera(world, camera);
+        });
     }
 
     void setCamera(World world, Camera camera) {
@@ -379,7 +346,7 @@ class Universe {
         )(camera, param);
 
         if (control) {
-            CameraControl.attach(camera);
+            CameraControl.attach(camera, Core().getWindow());
         }
         return camera;
     }
@@ -532,10 +499,10 @@ class Universe {
         assert(false, format!"Unknown geometry name '%s'"(geometry));
     }
 
-    private auto createCommand(JSONValue command) {
+    private Command createCommand(JSONValue command) {
         switch (command.type) {
             case JSON_TYPE.STRING:
-                return getCommand(parseJSON(format!q{{"type" : "%s"}}(command.str())).object());
+                return createCommand(parseJSON(format!q{{"type" : "%s"}}(command.str())));
             case JSON_TYPE.OBJECT:
                 return getCommand(command.object());
             default:
@@ -548,7 +515,7 @@ class Universe {
         import std.string : capitalize;
 
         void delegate(FramebufferAttachType) func;
-       switch (object) {
+        switch (object) {
             static foreach (Func; AliasSeq!("texture", "renderbuffer")) {
                 case Func:
                     switch (type) {
@@ -567,7 +534,7 @@ class Universe {
 
     private auto getCommand(JSONValue[string] obj) {
         auto type = obj.fetch!(string)("type")
-            .getOrError("command must have paramter 'type' as string");
+            .getOrError("command must have parameter 'type' as string");
         switch (type) {
             case "End":
                 return &Core().end;
@@ -577,25 +544,34 @@ class Universe {
             case "ToggleFullScreen":
                 return &Core().getWindow().toggleFullScreen;
             case "Clear":
-                auto target = obj.fetch!(string)("target")
-                    .getOrElse("Screen");
+                auto target = getTarget(obj.fetch!(string)("target"))
+                    .getOrError("'Clear' must have parameter 'target' as string");
                 auto bit = obj.fetch!(BufferBit[])("bits")
                     .getOrElse([BufferBit.Color, BufferBit.Depth, BufferBit.Stencil]);
                 return {
-                    targetList.at(target)
-                        .getOrError(format!"There is no target '%s'"(target))
-                        .clear(bit);
+                    target.clear(bit);
                 };
             case "Render":
-                auto target = obj.fetch!(string)("target");
-                return {
-                    auto world = target
-                        .fmap!(name => worldList.at(name).getOrError(format!"There is no world '%s'"(name)))
-                        .getOrElse(worldList.values.wrapRange().getOrError("There are no worlds"));
-                    auto renderer = this.rendererList.at(world)
-                        .getOrError("There are no renderer");
-                    renderer.render();
-                };
+                auto world = getWorld(obj.fetch!(string)("world"))
+                    .getOrError("'Render' must have parameter 'world' as string");
+                auto target = getTarget(obj.fetch!(string)("target"))
+                    .getOrError("'Render' must have parameter 'target' as string");
+                auto viewport = new AspectFixViewport(Core().getWindow());
+                auto clear = obj.fetch!(BufferBit[])("clear");
+                auto postProcess = obj.fetch!string("postProcess");
+                Renderer renderer;
+                if (postProcess.isJust) {
+                    renderer = new PostProcessRenderer(world, target, viewport, new ComputeProgram(ShaderPath(postProcess.unwrap()~".comp")));
+                } else {
+                    renderer = new Renderer(world, target, viewport);
+                }
+                rendererList[world] = renderer;
+                return clear.fmap!((BufferBit[] bits) => {
+                    target.clear(bits);
+                    renderer.renderAll();
+                }).getOrElse({
+                    renderer.renderAll();
+                });
             case "Blit":
                 auto from = obj.fetch!(string)("from")
                     .getOrError("Command 'Blit' must have 'from'");
@@ -613,6 +589,31 @@ class Universe {
             default:
                 assert(false, format!"'%s' is not a valid command name"(type));
         }
+    }
+
+    private Maybe!IRenderTarget getTarget(Maybe!string name) {
+        return name.fmap!((string name) => Just(targetList.at(name).getOrError(format!"target '%s' is not found"(name))))
+            .getOrElse(getDefaultTarget());
+    }
+ 
+    private Maybe!World getWorld(Maybe!string name) {
+        return name.fmap!((string name) => Just(worldList.at(name).getOrError(format!"world '%s' is not found"(name))))
+            .getOrElse(getDefaultWorld());
+    }
+
+    private Maybe!World getDefaultWorld() {
+        if (worldList.length == 1) return Just(worldList.values[0]);
+        return None!(World);
+    }
+
+    private Maybe!IRenderTarget getDefaultTarget() {
+        if (targetList.length == 1) return Just(targetList.values[0]);
+        return None!(IRenderTarget);
+    }
+
+    private Maybe!Window getDefaultWindow() {
+        if (windowList.length == 0) return Just(Core().getWindow);
+        return None!(Window);
     }
 }
 
@@ -674,6 +675,18 @@ private auto fetch(Type)(JSONValue[string] object, string key) {
     auto result = object.at(key).fmapAnd!((JSONValue v) => wrapException(v.as!Type));
     if (result.isJust) object.remove(key);
     return result;
+}
+
+private auto asObject(JSONValue value, string name) {
+    import std.format;
+    return wrapException(value.object)
+        .getOrError(format!"%s's value must be an object"(name));
+}
+
+private auto asArray(JSONValue value, string name) {
+    import std.format;
+    return wrapException(value.array)
+        .getOrError(format!"%s's value must be an array"(name));
 }
 
 private mixin template Dispatch(string[][string] dispatchList) {

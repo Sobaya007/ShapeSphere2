@@ -39,7 +39,7 @@ class SceneProtoType : SceneBase {
     }
 
     override void render() {
-        this.renderer.render();
+        this.renderer.renderAll();
     }
 
     auto fade(AnimSetting!vec4 setting) {
@@ -59,7 +59,7 @@ class SceneBase {
 
     protected Maybe!FinishCallback _finish;
     protected Maybe!SelectCallback _select;
-    protected Screen screen;
+    protected RenderTarget screen;
     private State state;
     public Maybe!SceneTransition transition;
     public IViewport viewport;

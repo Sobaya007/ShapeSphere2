@@ -35,6 +35,8 @@ import std.meta;
    - Entityが解放する直前、Worldと未接続である必要がある
  */
 
+alias ID = int;
+
 class Entity {
 
     import sbylib.utils.Functions;
@@ -73,7 +75,7 @@ class Entity {
 
     this(Mesh mesh, string file = __FILE__, int line = __LINE__) {
         this(file, line);
-        this._mesh = Just(mesh);
+        setMesh(mesh);
     }
 
     this(CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
@@ -82,8 +84,7 @@ class Entity {
     }
 
     this(Geometry geom, Material mat, CollisionGeometry colGeom, string file = __FILE__, int line = __LINE__) {
-        this(file, line);
-        this.setMesh(new Mesh(geom, mat, this));
+        this(new Mesh(geom, mat, this), file, line);
         this.colEntry = Just(new CollisionEntry(colGeom, this));
     }
 
@@ -254,6 +255,10 @@ class Entity {
         import std.algorithm : map, sum, max;
 
         return children.map!(child => max(1, child.getDescendantNum)).sum;
+    }
+
+    Maybe!ID getID() {
+        return mesh.mat.getID();
     }
 
     void render()

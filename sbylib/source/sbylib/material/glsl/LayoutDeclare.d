@@ -10,6 +10,11 @@ class LayoutDeclare : Statement {
     string arguments;
     string type;
 
+    this(string code) {
+        auto tokens = tokenize(code);
+        this(tokens);
+    }
+
     this(ref Token[] tokens) {
         expect(tokens, "layout");
         expect(tokens, "(");

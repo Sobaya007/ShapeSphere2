@@ -6,6 +6,8 @@ class CharacterMaterial : Material {
     mixin ConfigureMaterial;
 
     this() {
+        mixin(autoAssignCode);
+        super();
         initialize();
     }
 }

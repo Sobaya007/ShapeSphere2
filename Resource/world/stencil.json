@@ -1,6 +1,5 @@
 {
     "world3D" : {
-        "template" : "3D",
         "camera" : {
             "type" : "PerspectiveCamera",
             "fovy" : 60,
@@ -27,7 +26,7 @@
         }
     },
     "world2D" : {
-        "template" : "2D",
+        "camera" : "PixelCamera",
         "Sphere" : {
             "type" : "Entity",
             "geometry" : "Sphere",
@@ -45,16 +44,13 @@
     },
     "Render" : [
         {
-            "type" : "Clear",
-            "target" : "Screen"
+            "type" : "Render",
+            "world" : "world2D",
+            "clear" : ["Color", "Depth", "Stencil"]
         },
         {
             "type" : "Render",
-            "target" : "world2D"
-        },
-        {
-            "type" : "Render",
-            "target" : "world3D"
+            "world" : "world3D"
         }
     ]
 }

@@ -37,4 +37,9 @@ class ShaderMaterial(string configStr="{}") : Material {
             }
         }
     }
+
+    this() {
+        mixin(autoAssignCode);
+        super();
+    }
 }

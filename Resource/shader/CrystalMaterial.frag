@@ -9,7 +9,6 @@ require Normal in View as vec3 vNormal;
 require Position in Proj as vec3 projPos;
 
 require Light;
-require DebugCounter;
 
 uniform vec3 cameraPos;
 
@@ -25,6 +24,5 @@ void main() {
         float d = exp(-length(l)) * 10;
         fragColor.rgb += pointLights[i].diffuse * d;
         fragColor.rgb += vec3(1) * dot(dir, normalize(l));
-        fragColor.rgb += vec3(DebugCounter);
     }
 }

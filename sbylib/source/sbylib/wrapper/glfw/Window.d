@@ -84,8 +84,7 @@ class GlfwWindow {
         }
 
         vec2i size(vec2i s) {
-            glfwSetWindowSize(this.window, s.x, s.y);
-            glfwGetWindowSize(this.window, &mWidth, &mHeight);
+            setSize(s.x, s.y);
             return s;
         }
 
@@ -142,7 +141,16 @@ class GlfwWindow {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 
-            auto window = glfwCreateWindow(mWidth, mHeight,mTitle.toStringz, null, null);
+            static GLFWwindow* primary;
+
+            GLFWwindow* window;
+
+            if (primary is null) {
+                window = primary = glfwCreateWindow(mWidth, mHeight,mTitle.toStringz, null, null);
+            } else {
+                window = glfwCreateWindow(mWidth, mHeight, mTitle.toStringz, null, primary);
+            }
+
             if(!window){
                 assert(false, "Failed to create window");
             }

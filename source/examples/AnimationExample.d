@@ -11,10 +11,10 @@ void animationExample() {
     auto box = world.findByName("box").wrapRange().unwrap();
 
     box.animate(
-        moveTo(vec3(+1,2,+1), 60.frame, Ease.Linear),
-        moveTo(vec3(-1,2,+1), 60.frame, Ease.Linear),
-        moveTo(vec3(-1,2,-1), 60.frame, Ease.Linear),
-        moveTo(vec3(+1,2,-1), 60.frame, Ease.Linear)
+        moveTo(vec3(+4,2,+4), 60.frame, Ease.Linear),
+        moveTo(vec3(-4,2,+4), 60.frame, Ease.Linear),
+        moveTo(vec3(-4,2,-4), 60.frame, Ease.Linear),
+        moveTo(vec3(+4,2,-4), 60.frame, Ease.Linear)
     )
     .repeat();
 

@@ -3,6 +3,7 @@ module sbylib.utils;
 public:
 import sbylib.utils.Array;
 import sbylib.utils.Change;
+import sbylib.utils.Compute;
 import sbylib.utils.FpsCounter;
 import sbylib.utils.Functions;
 import sbylib.utils.Loader;
