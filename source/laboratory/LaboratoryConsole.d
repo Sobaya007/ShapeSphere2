@@ -49,7 +49,7 @@ class LaboratoryConsole : Console {
         if (mode == 0) return;
         if (mode == 1) { //こうしないとiが入っちゃう
             mode++;
-            render();
+            renderForConsole();
             return;
         }
         scope (exit) text = text.tail(LINE_NUM);
@@ -101,7 +101,7 @@ class LaboratoryConsole : Console {
 
     void stepPerformer() {
         this.performer = performer.unwrap().step("");
-        this.render();
+        this.renderForConsole();
     }
 
     private void stepPerformer(string input) {
@@ -182,7 +182,7 @@ class LaboratoryConsole : Console {
         historyCursor = cast(int)history.length;
     }
 
-    protected override void render() {
+    protected override void renderForConsole() {
         import std.algorithm : map;
         import std.array : array;
 

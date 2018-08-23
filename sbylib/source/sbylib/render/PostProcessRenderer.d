@@ -10,8 +10,15 @@ class PostProcessRenderer : Renderer {
     private Texture dst;
     private Texture[] colorTextureList;
     private ComputeProgram program;
+    private RenderTarget internalTarget;
+    private RenderTarget realTarget;
 
-    this(World world, IRenderTarget target, IViewport viewport, ComputeProgram program) {
+    this(World world, RenderTarget target, IViewport viewport, ComputeProgram program) {
+        this.internalTarget = new RenderTarget(target.width, target.height);
+        this.internalTarget.attachTexture!(float)(FramebufferAttachType.Color0);
+        this.internalTarget.attachTexture!(float)(FramebufferAttachType.Color1);
+        this.internalTarget.attachRenderbuffer!(ubyte)(FramebufferAttachType.Depth);
+        this.realTarget = target;
         super(world, target, viewport);
         this.program = program;
 
@@ -30,6 +37,11 @@ class PostProcessRenderer : Renderer {
 
     }
 
+    override void renderBegin() {
+        this.internalTarget.clear(ClearMode.Color, ClearMode.Depth, ClearMode.Stencil);
+        super.renderBegin();
+    }
+
     override void renderEnd() {
         import sbylib.utils.Functions;
 
@@ -43,10 +55,17 @@ class PostProcessRenderer : Renderer {
             }
         }
         colorTextureList[0] = dst;
-        blitsTo(colorTextureList, target);
+        blitsTo(colorTextureList, realTarget);
+        //blitsTo(dst, realTarget);
+        //blitsTo(internalTarget.getColorTexture(0), realTarget);
+        //(cast(IRenderTarget)internalTarget).blitsTo(realTarget, BufferBit.Color);
     }
 
     ComputeProgram getProgram() {
         return this.program;
+    }
+
+    RenderTarget getInternalTarget() {
+        return this.internalTarget;
     }
 }

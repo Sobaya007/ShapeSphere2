@@ -23,7 +23,7 @@ class Sentence {
         this.mEntity.config.depthTest = false;
 
         this.stringTexture = new StringTexture;
-        this.mEntity.texture = this.stringTexture;
+        this.mEntity.tex = this.stringTexture;
         this.mEntity.name = "Sentence";
     }
 

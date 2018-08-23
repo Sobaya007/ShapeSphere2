@@ -57,8 +57,9 @@ struct ColoredString {
         if (op == "~")
     {
         import std.range : repeat;
-        import std.array : front, array;
-        return ColoredString(str~this.str, this.colors.front.repeat(str.length).array~this.colors);
+        import std.array : empty, front, array;
+        auto color = this.colors.empty ? vec4(1) : this.colors.front;
+        return ColoredString(str~this.str, color.repeat(str.length).array~this.colors);
     }
 
     void opOpAssign(string op)(char c)
@@ -72,8 +73,9 @@ struct ColoredString {
         if (op == "~")
     {
         import std.range : repeat;
-        import std.array : back, array;
-        this.array ~= ColoredString(str, this.colors.back.repeat(str.length).array);
+        import std.array : empty, back, array;
+        auto color = this.colors.empty ? vec4(1) : this.colors.back;
+        this.array ~= ColoredString(str, color.repeat(str.length).array);
     }
 
     string str() {

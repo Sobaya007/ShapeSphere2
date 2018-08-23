@@ -19,5 +19,12 @@
         }
     },
     "KeyCommand" : {
-    }
+    },
+    "Render" : [
+        {
+            "type" : "Render",
+            "clear" : ["Color", "Depth"],
+            "postProcess" : "ContoursMaterial"
+        }
+    ]
 }

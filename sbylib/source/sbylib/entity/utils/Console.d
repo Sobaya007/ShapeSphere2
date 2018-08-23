@@ -3,11 +3,8 @@ module sbylib.entity.utils.Console;
 import sbylib;
 import std.algorithm, std.range, std.string, std.array, std.conv, std.regex, std.stdio;
 
-class Console {
+class Console : MultiLineLabel {
 
-    Label label;
-    Entity rect;
-    protected ColoredString[] text;
     protected string inputString;
     protected int cursor;
 
@@ -23,28 +20,12 @@ class Console {
     }
 
     this() {
-        LabelFactory factory;
-        factory.fontName = "RictyDiminished-Regular-Powerline.ttf";
-        factory.height = 24.pixel;
-        factory.strategy = Label.Strategy.Left;
-        factory.wrapWidth = Core().getWindow().width;
-        factory.text = WHITE("");
-
-        this.label = factory.make();
-        label.pos.z = 0.1;
-        this.label.addProcess({
+        this.addProcess({
             Core().justPressedKey().apply!((KeyButton button) {
                 handle(button);
-                render();
+                renderForConsole();
             });
         });
-
-        this.rect = makeEntity(Rect.create(Core().getWindow.width, Core().getWindow().height), new ColorMaterial(vec4(vec3(0), 0.5)));
-        this.rect.pos.z = -0.01;
-        //this.label.addChild(this.rect);
-        this.rect.addChild(this.label);
-
-        text = [WHITE("")];
     }
 
     struct CharPair {
@@ -122,19 +103,10 @@ class Console {
         if (cursor >= this.inputString.length) cursor = cast(int)this.inputString.length-1;
     }
 
-    protected void render() {
+    protected void renderForConsole() {
         auto lastLine = inputString;
         lastLine = inputString[0..cursor] ~ "|" ~ lastLine[cursor..$];
         render(text ~ [WHITE(lastLine)]);
-    }
-
-    protected final void render(ColoredString[] strs) {
-        ColoredString total;
-        foreach (str; strs[0..$-1]) total ~= str ~ WHITE("\n");
-        total ~= strs[$-1];
-        label.renderText(total);
-        label.left = -Core().getWindow().width/2;
-        label.bottom = -Core().getWindow().height/2;
     }
 
     protected char getChar(KeyButton key) {

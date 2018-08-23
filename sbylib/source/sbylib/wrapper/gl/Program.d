@@ -15,6 +15,7 @@ class Program : ObjectGL {
     private uint uniformBlockPoint = 0;
     private uint textureUnit = 0;
     private debug bool inUseOfUniform;
+    debug const Shader[] shaders;
 
     this(const Shader[] shaders)
     in {
@@ -28,6 +29,7 @@ class Program : ObjectGL {
         }
     } 
     do {
+        debug this.shaders = shaders;
         super(GlFunction().createProgram(),
                 &GlFunction().deleteProgram);
         foreach (shader; shaders) {

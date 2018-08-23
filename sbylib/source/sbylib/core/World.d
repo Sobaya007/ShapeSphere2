@@ -215,6 +215,17 @@ class World {
         return entities.filter!(e => e.name == name);
     }
 
+    auto findByName(TEntity)(string name) {
+        return findByName(name)
+            .map!(e => e.wrapCast!(TEntity))
+            .filter!(e => e.isJust)
+            .map!(e => e.unwrap());
+    }
+
+    auto findByName(Geometry, Material)(string name) {
+        return findByName!(TypedEntity!(Geometry, Material))(name);
+    }
+
     auto findByID(ID id) {
         return entities.filter!(e => e.getID.isJust && e.getID().unwrap() == id);
     }

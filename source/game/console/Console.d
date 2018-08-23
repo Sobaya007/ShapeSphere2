@@ -33,7 +33,7 @@ class GameConsole : Console {
         if (mode == 0) return;
         if (mode == 1) { //こうしないとiが入っちゃう
             mode++;
-            render();
+            renderForConsole();
             return;
         }
         scope (exit) text = text.tail(LINE_NUM);
@@ -142,14 +142,14 @@ class GameConsole : Console {
         historyCursor = cast(int)history.length;
     }
 
-    protected override void render() {
+    protected override void renderForConsole() {
         if (mode == 0) {
-            super.render([WHITE(":")]);
+            render([WHITE(":")]);
         } else {
             auto strs = text.dup;
             strs = strs.map!(t => ColoredString(WHITE(" ")~t)).array;
             auto lastLine  = (">" ~ inputString[0..cursor] ~ "|" ~ inputString[cursor..$]);
-            super.render(strs ~ WHITE(lastLine));
+            render(strs ~ WHITE(lastLine));
         }
     }
 

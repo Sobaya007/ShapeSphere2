@@ -100,7 +100,9 @@ class TypedUniform(Type) : Uniform
         }
     }
 
-    private uint getLocation(const Program program) const {
+    private uint getLocation(const Program program) const 
+        //out(loc; loc != -1, this.name ~ " is not a valid uniform name")
+    {
         import sbylib.wrapper.gl.Functions;
         return GlFunction().getUniformLocation(program.id, this.name);
     }

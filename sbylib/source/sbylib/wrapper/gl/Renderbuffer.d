@@ -8,6 +8,7 @@ class Renderbuffer : ObjectGL {
     import sbylib.wrapper.gl.Functions;
 
     private bool allocated;
+    private int width, height;
     private ImageInternalFormat format;
 
     this() {
@@ -32,6 +33,8 @@ class Renderbuffer : ObjectGL {
         this.bind();
         GlFunction().renderbufferStorage(width, height, format);
         this.unbind();
+        this.width = width;
+        this.height = height;
         this.format = format;
         this.allocated = true;
     }
@@ -40,6 +43,10 @@ class Renderbuffer : ObjectGL {
         in(this.allocated)
     {
         this.allocate(width, height, this.format);
+    }
+
+    Renderbuffer clone() {
+        return new Renderbuffer(this.width, this.height, this.format);
     }
 
     void attachFramebuffer(FramebufferBindType bindType, FramebufferAttachType attachType)

@@ -9,7 +9,7 @@ class TextMaterial : Material {
 
     mixin ConfigureMaterial;
 
-    utexture texture;
+    utexture tex;
     uvec4[256] textColors;
     ufloat[256] charWidths;
 

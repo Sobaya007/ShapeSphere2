@@ -24,7 +24,7 @@ abstract class IRenderTarget {
         getFramebuffer().bind(FramebufferBindType.Both);
     }
 
-    final void renderEnd()
+    void renderEnd()
     in {
         debug assert(hasCleared, "RenderTarget has not been cleared");
     }
@@ -98,6 +98,11 @@ class RenderTarget : IRenderTarget {
         GlFunction().drawBuffers(this.attachedColors);
     }
 
+    override void renderEnd() {
+        GlFunction().drawBuffers([FramebufferAttachType.Color0]);
+        super.renderEnd();
+    }
+
     override void blitsTo(IRenderTarget dst, int x, int y, int w, int h, BufferBit[] mode...) {
         if (auto dst2 = cast(RenderTarget)dst) {
             import std.range;
@@ -122,6 +127,17 @@ class RenderTarget : IRenderTarget {
         foreach (type, texture; textures) {
             texture.reallocate(0, this.width, this.height);
         }
+    }
+
+    RenderTarget clone() {
+        auto result = new RenderTarget(this.width, this.height);
+        foreach (type, rbo; rbos) {
+            result.attach(rbo.clone(), type);
+        }
+        foreach (type, tex; textures) {
+            result.attach(tex.clone(), type);
+        }
+        return result;
     }
 
     void clearAttachment() {

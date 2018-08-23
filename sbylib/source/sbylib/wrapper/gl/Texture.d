@@ -71,13 +71,13 @@ class Texture : ObjectGL {
         this.mHeight = height;
         this.mFormat = format;
         this.mInternalFormat = iformat;
+        this.allocated = true;
         this.allocateFunction = (int level, uint width, uint height, void* data) {
             GlFunction().texImage2D!(Type)(this.target, level, this.mInternalFormat, width, height, 0, this.mFormat, cast(Type*)data);
         };
         this.bind();
         this.allocateFunction(mipmapLevel, width, height, data);
         this.unbind();
-        this.allocated = true;
     }
 
     void reallocate(uint mipmapLevel, uint width, uint height) 
@@ -88,6 +88,20 @@ class Texture : ObjectGL {
         this.bind();
         this.allocateFunction(mipmapLevel, width, height, null);
         this.unbind();
+    }
+
+    Texture clone(int level=0) {
+        auto result =  new Texture(this.target);
+        result.mWidth = this.width;
+        result.mHeight = this.height;
+        result.mFormat = this.mFormat;
+        result.mInternalFormat = this.mInternalFormat;
+        result.allocated = true;
+        result.allocateFunction = this.allocateFunction;
+        result.bind();
+        result.allocateFunction(level, width, height, null);
+        result.unbind();
+        return result;
     }
 
     void update(Type)(uint mipmapLevel, Type *data) {

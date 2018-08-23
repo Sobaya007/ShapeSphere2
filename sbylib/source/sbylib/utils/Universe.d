@@ -13,7 +13,7 @@ class Universe {
     alias Command = void delegate();
 
     private World[string] worldList;
-    private IRenderTarget[string] targetList;
+    private RenderTarget[string] targetList;
     private Renderer[World] rendererList;
     private Window[string] windowList;
 
@@ -121,7 +121,7 @@ class Universe {
         return worldList.at(name);
     }
 
-    Maybe!(IRenderTarget) getTarget(string name) {
+    Maybe!(RenderTarget) getTarget(string name) {
         return targetList.at(name);
     }
 
@@ -297,6 +297,7 @@ class Universe {
                     entities ~= createModel(name, obj);
                     break;
                 case "Text":
+                case "Label":
                     entities ~= createLabel(name, obj);
                     break;
                 case "Entity":
@@ -369,7 +370,7 @@ class Universe {
         return camera;
     }
 
-    private IRenderTarget createTarget(JSONValue[string] param) {
+    private RenderTarget createTarget(JSONValue[string] param) {
         scope(exit) ensureConsume(param);
 
         auto result = new RenderTarget(Core().getWindow().width, Core().getWindow().height);
@@ -447,7 +448,8 @@ class Universe {
             Param!("fontName", string, false),
             Param!("height", float, false),
             Param!("fontResolution", int, false),
-            Param!("wrapWidth", float, false)
+            Param!("wrapWidth", float, false),
+            Param!("strategy", Label.Strategy, false)
         );
         setParameter!(
             ParamList!(
@@ -580,7 +582,7 @@ class Universe {
                 auto bit = obj.fetch!(BufferBit[])("bits")
                     .getOrElse([BufferBit.Color, BufferBit.Depth, BufferBit.Stencil]);
                 return {
-                    auto src = this.targetList.at(from)
+                    IRenderTarget src = this.targetList.at(from)
                         .getOrError(format!"There is no target '%s'"(from));
                     auto dst = this.targetList.at(to)
                         .getOrError(format!"There is no target '%s'"(to));
@@ -591,7 +593,7 @@ class Universe {
         }
     }
 
-    private Maybe!IRenderTarget getTarget(Maybe!string name) {
+    private Maybe!RenderTarget getTarget(Maybe!string name) {
         return name.fmap!((string name) => Just(targetList.at(name).getOrError(format!"target '%s' is not found"(name))))
             .getOrElse(getDefaultTarget());
     }
@@ -606,9 +608,9 @@ class Universe {
         return None!(World);
     }
 
-    private Maybe!IRenderTarget getDefaultTarget() {
+    private Maybe!RenderTarget getDefaultTarget() {
         if (targetList.length == 1) return Just(targetList.values[0]);
-        return None!(IRenderTarget);
+        return None!(RenderTarget);
     }
 
     private Maybe!Window getDefaultWindow() {

@@ -503,7 +503,7 @@ void blitsTo(Texture[] textureList, IRenderTarget dst, int x, int y, int w, int 
     foreach (i, tex; textureList) {
         target.attachTexture(tex, GlUtils.getFramebufferColorAttachType(i));
     }
-    target.blitsTo(dst, x, y, w, h, ClearMode.Color);
+    target.blitsTo(dst, x, y, w, h, BufferBit.Color);
 }
 
 void blitsTo(Texture texture, IRenderTarget dst) {
