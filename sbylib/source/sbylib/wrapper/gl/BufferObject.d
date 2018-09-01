@@ -27,20 +27,20 @@ class BufferObject(BufferType Type, T) : ObjectGL, IBufferObject {
     static if (is(T == struct)) {
         void sendData(T data, BufferUsage usage = BufferUsage.Static) {
             this.bind();
-            GlFunction().bufferData(Type, T.sizeof, &data, usage);
+            GlFunction().bufferData!(T)(Type, T.sizeof, &data, usage);
             this.unbind();
         }
     } else {
-        void sendData(S)(S data, BufferUsage usage = BufferUsage.Static) {
+        void sendData(S)(S[] data, BufferUsage usage = BufferUsage.Static) {
             this.bind();
-            GlFunction().bufferData(Type, data.length * T.sizeof, cast(void*)data, usage);
+            GlFunction().bufferData!(S)(Type, data.length * T.sizeof, data.ptr, usage);
             this.unbind();
         }
     }
 
     void sendSubData(T[] data) {
         this.bind();
-        GlFunction().bufferSubData(Type, 0, data.length * T.sizeof, cast(void*)data);
+        GlFunction().bufferSubData!(T)(Type, 0, data.length * T.sizeof, data.ptr);
         this.unbind();
     }
 

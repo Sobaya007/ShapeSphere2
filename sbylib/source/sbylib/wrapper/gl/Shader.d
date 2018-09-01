@@ -16,7 +16,7 @@ class Shader : ObjectGL {
             this.type = type;
         }
         super(GlFunction().createShader(type),
-                &GlFunction().deleteShader);
+                (ShaderID id) { GlFunction().deleteShader(id); });
         GlUtils.shaderSource(this.id, sourceCode);
         GlFunction().compileShader(this.id);
         assert(this.compileSuccess(), getLogString(sourceCode));

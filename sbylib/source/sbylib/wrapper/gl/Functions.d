@@ -10,6 +10,57 @@ class GlFunction {
 
     mixin Singleton;
 
+    private GlFunctionImpl impl;
+
+    this() {
+        this.impl = new GlFunctionImpl;
+    }
+
+    template opDispatch(string member) {
+        import std.traits : isCallable, Parameters;
+
+        enum Member = "impl." ~ member;
+
+        static if (is(typeof(isCallable!(mixin(Member)))) && isCallable!(mixin(Member))) {
+            alias Params = Parameters!(mixin(Member));
+
+            auto opDispatch(Params args) {
+                scope(exit) checkError!(member, Params)();
+                return mixin(Member ~ "(args)");
+            }
+        } else {
+             static if (__traits(isTemplate, mixin(Member))) {
+                // some template function
+                auto opDispatch(Args...)(Parameters!(mixin(Member~"!(Args)")) args) {
+                    enum InstancedMember = Member ~ "!(Args)";
+                    scope(exit) checkError!(member ~ "!" ~ Args.stringof, Parameters!(mixin(Member~"!(Args)")))();
+                    return mixin(InstancedMember ~ "(args)");
+                }
+            } else {
+                static assert(false);
+            }
+        }
+    }
+    
+    private void checkError(string funcName, Args...)() {
+        debug {
+            import sbylib.wrapper.glfw.GLFW;
+            import std.conv : to;
+            import std.format;
+            if (GLFW.hasTerminated) return;
+            auto errorCode = glGetError().to!GlErrorType;
+            if (errorCode == GlErrorType.NoError) return;
+            if (errorCode == GlErrorType.InvalidFramebufferOperation) {
+                auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER).to!FramebufferStatus;
+                assert(false, format!"%s : %s at %s(%s)"(errorCode, status, funcName, Args.stringof));
+            } else {
+                assert(false, format!"%s at %s(%s)"(errorCode, funcName, Args.stringof));
+            }
+        }
+    }
+} 
+class GlFunctionImpl {
+
     this() {
         // make sure context
         import sbylib.core.Core;
@@ -23,84 +74,68 @@ class GlFunction {
 
     void enable(Capability cap) {
         glEnable(cap);
-        checkError();
     }
 
     void disable(Capability cap) {
         glDisable(cap);
-        checkError();
     }
 
     void clear(ClearMode[] mode...) {
         import std.algorithm : reduce;
         glClear(reduce!((a,b)=>a|b)(mode));
-        checkError();
     }
 
     void clearColor(float r, float g, float b, float a) {
         glClearColor(r, g, b, a);
-        checkError();
     }
 
     void clearDepth(double depth) {
         glClearDepth(depth);
-        checkError();
     }
 
     void clearStencil(int stencil) {
         glClearStencil(stencil);
-        checkError();
     }
 
     void colorMask(bool r, bool g, bool b, bool a) {
         glColorMask(r, g, b, a);
-        checkError();
     }
 
     void depthMask(bool mask) {
         glDepthMask(mask);
-        checkError();
     }
 
     void stencilMask(uint mask) {
         glStencilMask(mask);
-        checkError();
     }
 
     void blendFunc(BlendFactor src, BlendFactor dst)  {
         glBlendFunc(src, dst);
-        checkError();
     }
 
     void blendEquation(BlendEquation eq) {
         glBlendEquation(eq);
-        checkError();
     }
 
     void depthFunc(TestFunc func) {
         enable(Capability.DepthTest);
         glDepthFunc(func);
-        checkError();
     }
 
     void stencilFunc(TestFunc test, uint reffer, uint mask) {
         glStencilFunc(test, reffer, mask);
-        checkError();
     }
 
     void stencilOp(StencilWrite sfail, StencilWrite dpfail, StencilWrite pass) {
         glStencilOp(sfail, dpfail, pass);
-        checkError();
     }
 
     void cullFace(FaceMode face) {
         glCullFace(face);
-        checkError();
     }
 
     void polygonMode(FaceMode face, PolygonMode polygon) {
         glPolygonMode(face, polygon);
-        checkError();
     }
 
     void setPixelPackAlign(int alignment)
@@ -110,7 +145,6 @@ class GlFunction {
         || alignment == 8)
     {
         glPixelStorei(PixelAlignType.Pack, alignment);
-        checkError();
     }
 
     void setPixelUnpackAlign(int alignment)
@@ -120,58 +154,47 @@ class GlFunction {
         || alignment == 8)
     {
         glPixelStorei(PixelAlignType.Unpack, alignment);
-        checkError();
     }
 
     void genBuffers(uint num, uint* ptr) {
         glGenBuffers(num, ptr);
-        checkError();
     }
 
     void deleteBuffers(uint num, uint* ptr) {
         glDeleteBuffers(num, ptr);
-        checkError();
     }
 
     void bindBuffer(BufferType type, BufferID id) {
         glBindBuffer(type, id);
-        checkError();
     }
 
     void bufferData(Type)(BufferType type, size_t size, Type* data, BufferUsage usage) {
         glBufferData(type, size, data, usage);
-        checkError();
     }
 
     void bufferSubData(Type)(BufferType type, size_t offset, size_t size, Type* data) {
         glBufferSubData(type, offset, size, cast(void*)data);
-        checkError();
     }
 
     void* mapBuffer(BufferType type, BufferAccess access) {
         auto res = glMapBuffer(type, access);
-        checkError();
         return res;
     }
 
     void unmapBuffer(BufferType type) {
         glUnmapBuffer(type);
-        checkError();
     }
 
     void genFramebuffers(uint num, FramebufferID* ptr) {
         glGenFramebuffers(num, ptr);
-        checkError();
     }
 
     void deleteFramebuffers(uint num, FramebufferID* ptr) {
         glDeleteFramebuffers(num, ptr);
-        checkError();
     }
 
     void bindFramebuffer(FramebufferBindType type, FramebufferID id) {
         glBindFramebuffer(type, id);
-        checkError();
     }
 
     void framebufferRenderbuffer(FramebufferBindType bindType, FramebufferAttachType attachType, RenderbufferID renderbufferID) {
@@ -181,241 +204,196 @@ class GlFunction {
     void blitFramebuffer(uint srcX0, uint srcY0, uint srcX1, uint srcY1, uint dstX0, uint dstY0, uint dstX1, uint dstY1, TextureFilter filter, BufferBit[] bit...) {
         import std.algorithm : reduce;
         glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, bit.reduce!((a,b)=>a|b), filter);
-        checkError();
     }
 
     void genRenderbuffers(uint num, RenderbufferID* ptr) {
         glGenRenderbuffers(num, ptr);
-        checkError();
     }
 
     void deleteRenderbuffers(uint num, RenderbufferID* ptr) {
         glDeleteRenderbuffers(num, ptr);
-        checkError();
     }
 
     void bindRenderbuffer(RenderbufferID id) {
         glBindRenderbuffer(RenderbufferBindType.Both, id);
-        checkError();
     }
 
     void renderbufferStorage(uint width, uint height, ImageInternalFormat format) {
         glRenderbufferStorage(RenderbufferBindType.Both, format, width, height);
-        checkError();
     }
 
     void genTextures(uint num, TextureID *ptr) {
         glGenTextures(num, ptr);
-        checkError();
     }
 
     void deleteTextures(uint num, TextureID *ptr) {
         glDeleteTextures(num, ptr);
-        checkError();
     }
 
     void bindTexture(TextureTarget target, TextureID id) {
         glBindTexture(target, id);
-        checkError();
     }
 
     void activeTexture(uint unit) {
         glActiveTexture(GL_TEXTURE0 + unit);
-        checkError();
     }
 
     void texImage2D(Type)(TextureTarget target, uint mipmapLevel, ImageInternalFormat iformat, uint width, uint height, uint border, ImageFormat format, Type *data) {
         glTexImage2D(target, mipmapLevel, iformat, width, height, border, format, GlUtils.getTypeEnum!Type, data);
-        checkError();
     }
 
     void texSubImage2D(Type)(TextureTarget target, uint mipmapLevel, uint offsetX, uint offsetY, uint width, uint height, ImageFormat format, Type *data) {
         glTexSubImage2D(target, mipmapLevel, offsetX, offsetY, width, height, format, GlUtils.getTypeEnum!Type, data);
-        checkError();
     }
 
     void bindImageTexture(uint unit, TextureID id, uint level, bool layered, uint layer, BufferAccess access, ImageInternalFormat format)
         in(unit < GL_MAX_IMAGE_UNITS)
     do {
         glBindImageTexture(unit, id, level, layered, layer, access, format);
-        checkError();
     }
 
     void framebufferTexture2D(FramebufferBindType bindType, FramebufferAttachType attachType, TextureTarget target, TextureID id, uint level) {
         glFramebufferTexture2D(bindType, attachType, target, id, level);
-        checkError();
     }
 
     void getTexImage(Type)(TextureTarget target, uint level, ImageFormat format, Type* ptr) {
         glGetTexImage(target, level, format, GlUtils.getTypeEnum!(Type), ptr);
-        checkError();
     }
 
     void readPixel(Type)(int x, int y, int width, int height, ImageFormat format, Type* ptr) {
         glReadPixels(x, y, width, height, format, GlUtils.getTypeEnum!(Type), ptr);
-        checkError();
     }
 
     void genVertexArrays(uint num, VertexArrayID *ptr) {
         glGenVertexArrays(num, ptr);
-        checkError();
     }
 
     void deleteVertexArray(uint num, VertexArrayID *ptr) {
         glDeleteVertexArrays(num, ptr);
-        checkError();
     }
 
     void bindVertexArray(VertexArrayID id) {
         glBindVertexArray(id);
-        checkError();
     }
 
     void drawArrays(Prim prim, uint offset, uint count) {
         glDrawArrays(prim, offset, count);
-        checkError();
     }
 
     void drawElements(IndexType)(Prim prim, uint length, IndexType* indices) 
         if (is(IndexType == ubyte) || is(IndexType == ushort) || is(IndexType == uint))
     {
         glDrawElements(prim, length, GlUtils.getTypeEnum!(IndexType), cast(void*)indices);
-        GlFunction().checkError();
     }
 
     void setViewport(uint x, uint y, uint w, uint h) {
         glViewport(x,y,w,h);
-        checkError();
     }
 
     void scissor(uint x, uint y, uint width, uint height) {
         enable(Capability.ScissorTest);
         glScissor(x, y, width, height);
-        checkError();
     }
 
     ProgramID createProgram() {
         auto id = glCreateProgram();
-        checkError();
         return id;
     }
 
     void deleteProgram(ProgramID id) {
         glDeleteProgram(id);
-        checkError();
     }
 
     void useProgram(ProgramID id) {
         glUseProgram(id);
-        checkError();
     }
 
     void linkProgram(ProgramID id) {
         glLinkProgram(id);
-        checkError();
     }
 
     void getProgramInfoLog(ProgramID id, int maxLength, int *length, char *infoLog) {
         glGetProgramInfoLog(id, maxLength, length, infoLog);
-        checkError();
     }
 
     void attachShader(ProgramID programID, ShaderID shaderID) {
         glAttachShader(programID, shaderID);
-        checkError();
     }
 
     AttribLoc getAttribLocation(ProgramID programID, string name) {
         import std.string : toStringz;
         auto loc = glGetAttribLocation(programID, name.toStringz);
-        checkError();
         return loc;
     }
 
     UniformLoc getUniformLocation(ProgramID programID, string name) {
         import std.string : toStringz;
         auto loc = glGetUniformLocation(programID, name.toStringz);
-        checkError();
         return loc;
     }
 
     ShaderID createShader(ShaderType type) {
         auto id = glCreateShader(type);
-        checkError();
         return id;
     }
 
     void deleteShader(ShaderID id) {
         glDeleteShader(id);
-        checkError();
     }
 
     void shaderSource(ShaderID id, uint num, char** sourceList, int* lengthList) {
         glShaderSource(id, num, sourceList, lengthList);
-        checkError();
     }
 
     void compileShader(ShaderID id) {
         glCompileShader(id);
-        checkError();
     }
 
     void getShaderInfoLog(ShaderID id, int maxLength, int *length, char *infoLog) {
         glGetShaderInfoLog(id, maxLength, length, infoLog);
-        checkError();
     }
 
     void enableVertexAttribArray(AttribLoc loc) {
         glEnableVertexAttribArray(loc);
-        checkError();
     }
 
     void vertexAttribPointer(Type)(AttribLoc loc, uint size, bool normalized, uint stride, Type* ptr) {
         glVertexAttribPointer(loc, size, GlUtils.getTypeEnum!(Type), normalized, stride, cast(void*)ptr);
-        checkError();
     }
 
     void dispatchCompute(uint groupNumX, uint groupNumY, uint groupNumZ) {
         glDispatchCompute(groupNumX, groupNumY, groupNumZ);
-        checkError();
     }
 
     void uniformBlockBinding(ProgramID programID, uint loc, uint uniformBlockPoint) {
         glUniformBlockBinding(programID, loc, uniformBlockPoint);
-        checkError();
     }
 
     void bindBufferBase(BufferType type, uint blockPoint, BufferID id) {
         glBindBufferBase(type, blockPoint, id);
-        checkError();
     }
 
     UniformLoc getUniformBlockIndex(ProgramID programID, string name) {
         import std.string : toStringz;
         int loc = glGetUniformBlockIndex(programID, name.toStringz);
-        checkError();
         return loc;
     }
 
     void readBuffer(FramebufferAttachType type) {
         glReadBuffer(type);
-        checkError();
     }
 
     void drawBuffer(FramebufferAttachType type) {
         glDrawBuffer(type);
-        checkError();
     }
 
     void drawBuffers(FramebufferAttachType[] types) {
         glDrawBuffers(cast(int)types.length, cast(uint*)types.ptr);
-        checkError();
     }
 
     auto get(T, size_t N)(ParamName param) {
         T[N] data;
         getFunction!T(param, data.ptr);
-        checkError();
         return data;
     }
 
@@ -434,7 +412,6 @@ class GlFunction {
     auto getProgram(T, size_t N)(ProgramID programID, ProgramParamName param) {
         T[N] data;
         getProgramFunction!T(programID, param, data.ptr);
-        checkError();
         return data;
     }
 
@@ -451,7 +428,6 @@ class GlFunction {
     auto getShader(T, size_t N)(ShaderID shaderID, ShaderParamName param) {
         T[N] data;
         getShaderFunction!T(shaderID, param, data.ptr);
-        checkError();
         return data;
     }
 
@@ -467,7 +443,6 @@ class GlFunction {
 
     void texParameter(T)(TextureTarget target, TextureParamName pname, T value) {
         getTexParamFunction!(T)(target, pname, value);
-        checkError();
     }
 
     private template getTexParamFunction(T) {
@@ -479,7 +454,6 @@ class GlFunction {
     {
         import std.format;
         mixin(format!"glUniform%d%sv"(N, getUniformTypeCharacter!(T)))(loc, num, ptr);
-        checkError();
     }
 
     void uniformMatrix(T, size_t N)(UniformLoc loc, uint num, T* ptr) 
@@ -487,7 +461,6 @@ class GlFunction {
     {
         import std.format;
         mixin(format!"glUniformMatrix%d%sv"(N, getUniformTypeCharacter!(T)))(loc, num, true, ptr);
-        checkError();
     }
 
     import std.traits : Unqual;
@@ -504,22 +477,6 @@ class GlFunction {
             enum getUniformTypeCharacter = "f";
         } else {
             static assert(false);
-        }
-    }
-    
-    private void checkError(string ext = "", string fileName=__FILE__) {
-        debug {
-            import sbylib.wrapper.glfw.GLFW;
-            import std.conv : to;
-            if (GLFW.hasTerminated) return;
-            auto errorCode = glGetError().to!GlErrorType;
-            if (errorCode == GlErrorType.NoError) return;
-            if (errorCode == GlErrorType.InvalidFramebufferOperation) {
-                auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER).to!FramebufferStatus;
-                assert(false, errorCode.to!string ~ " : " ~ status.to!string ~ "\n" ~ ext ~ " at " ~ fileName);
-            } else {
-                assert(false, errorCode.to!string ~ "\n" ~ ext ~ " at " ~ fileName);
-            }
         }
     }
 }

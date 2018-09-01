@@ -31,7 +31,7 @@ class Program : ObjectGL {
     do {
         debug this.shaders = shaders;
         super(GlFunction().createProgram(),
-                &GlFunction().deleteProgram);
+                (ProgramID id) { GlFunction().deleteProgram(id); });
         foreach (shader; shaders) {
             this.attachShader(shader);
         }

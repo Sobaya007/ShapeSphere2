@@ -115,7 +115,7 @@ class Texture : ObjectGL {
         offsetY = max(0, offsetY);
         width  = min(width,  this.width  - offsetX);
         height = min(height, this.height - offsetY);
-        GlFunction().texSubImage2D(this.target, mipmapLevel, offsetX, offsetY, width, height, this.mFormat, data);
+        GlFunction().texSubImage2D!(Type)(this.target, mipmapLevel, offsetX, offsetY, width, height, this.mFormat, data);
         this.unbind();
     }
 
@@ -137,7 +137,7 @@ class Texture : ObjectGL {
 
     private void setParameter(T)(TextureParamName pname, T value) {
         this.bind();
-        GlFunction().texParameter(this.target, pname, value);
+        GlFunction().texParameter!(T)(this.target, pname, value);
         this.unbind();
     }
 
@@ -173,7 +173,7 @@ class Texture : ObjectGL {
         in(this.allocated)
     {
         this.bind();
-        GlFunction().getTexImage(this.target, level, format, result);
+        GlFunction().getTexImage!(T)(this.target, level, format, result);
         this.unbind();
     }
 
