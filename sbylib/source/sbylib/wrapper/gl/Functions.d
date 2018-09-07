@@ -6,14 +6,62 @@ import sbylib.math.Matrix;
 import sbylib.wrapper.gl.Constants;
 import sbylib.utils.Functions;
 
+private class Logger {
+    import std.datetime;
+    private Duration[][string] data;
+
+    void log(string funcName)(Duration dur) {
+        if (funcName !in data) data[funcName] = [];
+        data[funcName] ~= dur;
+    }
+
+    void save() {
+        import std.file : write;
+        import std.array;
+        import std.algorithm;
+        import std.conv : to;
+        import std.typecons;
+        import std.format;
+        import core.time;
+        auto text = data.keys.map!((string funcName) {
+            auto durs = data[funcName];
+            auto s = durs.map!(d => d.total!"usecs").sum;
+            return tuple(funcName, s, durs.length);
+        })
+        .array.sort!((a,b) => a[1] > b[1])
+        .map!(t => [
+            t[0] ~ ":",
+            "\ttotal   : " ~ t[1].to!string,
+            "\taverage : " ~ (t[1] / cast(float)t[2]).to!string,
+            "\tcount   : " ~ t[2].to!string
+        ]).join.join("\n");
+        write("gl.log", text);
+    }
+}
+
 class GlFunction {
 
     mixin Singleton;
+
+    enum MEASURE_TIME = true;
+
+    static if (MEASURE_TIME) {
+        private Logger logger;
+    }
 
     private GlFunctionImpl impl;
 
     this() {
         this.impl = new GlFunctionImpl;
+        static if (MEASURE_TIME) {
+            this.logger = new Logger();
+        }
+    }
+
+    void save() {
+        static if (MEASURE_TIME) {
+            logger.save();
+        }
     }
 
     template opDispatch(string member) {
@@ -26,7 +74,15 @@ class GlFunction {
 
             auto opDispatch(Params args) {
                 scope(exit) checkError!(member, Params)();
-                return mixin(Member ~ "(args)");
+                static if (MEASURE_TIME) {
+                    import std.datetime.stopwatch;
+                    StopWatch sw;
+                    sw.start();
+                    scope(exit) logger.log!(member)(sw.peek);
+                    return mixin(Member ~ "(args)");
+                } else {
+                    return mixin(Member ~ "(args)");
+                }
             }
         } else {
              static if (__traits(isTemplate, mixin(Member))) {
@@ -34,7 +90,15 @@ class GlFunction {
                 auto opDispatch(Args...)(Parameters!(mixin(Member~"!(Args)")) args) {
                     enum InstancedMember = Member ~ "!(Args)";
                     scope(exit) checkError!(member ~ "!" ~ Args.stringof, Parameters!(mixin(Member~"!(Args)")))();
-                    return mixin(InstancedMember ~ "(args)");
+                    static if (MEASURE_TIME) {
+                        import std.datetime.stopwatch;
+                        StopWatch sw;
+                        sw.start();
+                        scope(exit) logger.log!(member ~ "!" ~ Args.stringof)(sw.peek);
+                        return mixin(InstancedMember ~ "(args)");
+                    } else {
+                        return mixin(InstancedMember ~ "(args)");
+                    }
                 }
             } else {
                 static assert(false);

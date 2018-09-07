@@ -184,14 +184,14 @@ class World {
         return Just(infos.minElement!(info => lengthSq(info.point - ray.start)));
     }
 
-    const(Uniform) delegate() getUniform(UniformDemand demand)
+    Uniform delegate() getUniform(UniformDemand demand)
         in(this.mCamera.isJust(), "camera is not set.")
     {
         switch (demand) {
         case UniformDemand.View:
             return () => this.mCamera.unwrap().viewMatrix;
         case UniformDemand.Proj:
-            return () => this.mCamera.unwrap().projMatrix;
+            return () => cast(Uniform)this.mCamera.unwrap().projMatrix;
         case UniformDemand.Light:
             return () => PointLightManager().getUniform();
         default:

@@ -53,7 +53,7 @@ class Program : ObjectGL {
         debug this.inUseOfUniform = true;
     }
 
-    void applyUniform(const Uniform uniform)
+    void applyUniform(Uniform uniform)
     in {
         debug assert(inUseOfUniform);
     }

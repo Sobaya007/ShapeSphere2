@@ -1,6 +1,7 @@
 module sbylib.wrapper.gl.Uniform;
 import sbylib.math.Vector;
 import sbylib.math.Matrix;
+import sbylib.wrapper.gl.Constants;
 import sbylib.wrapper.gl.Texture;
 
 alias ubool = TypedUniform!(bool);
@@ -17,7 +18,7 @@ interface Uniform {
 
     string getName() const;
     void setName(string);
-    void apply(const Program, ref uint, ref uint) const;
+    void apply(const Program, ref uint, ref uint);
 }
 
 auto createUniform(T)(T val, string name) if (isAcceptable!(T)) {
@@ -42,9 +43,11 @@ class TypedUniform(Type) : Uniform
     if (isAcceptable!(Type)) {
 
     import sbylib.wrapper.gl.Program;
+    import sbylib.utils.Maybe;
 
     string name;
     Type value;
+    private Maybe!UniformLoc loc;
 
     this(string name) {
         this.name = name;
@@ -80,11 +83,12 @@ class TypedUniform(Type) : Uniform
         this.name = name;
     }
 
-    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) const {
+    override void apply(const Program program, ref uint uniformBlockPoint, ref uint textureUnit) {
         import sbylib.wrapper.gl.Functions;
         import std.traits : isInstanceOf;
 
-        auto loc = this.getLocation(program);
+        if (loc.isNone) loc = Just(this.getLocation(program));
+        auto loc = this.loc.unwrap();
         static if (is(Type == Texture)) {
             assert(this.value !is null, "UniformTexture's value is null");
             Texture.activate(textureUnit);

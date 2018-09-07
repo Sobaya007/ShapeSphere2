@@ -20,7 +20,7 @@ class Mesh {
     Geometry geom;
     Material mat;
     private VertexArray[Window] vao;
-    private const(Uniform) delegate()[] uniforms;
+    private Uniform delegate()[] uniforms;
     private Entity mOwner;
 
     this(Geometry geom, Material mat, Entity mOwner)

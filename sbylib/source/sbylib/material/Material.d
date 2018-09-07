@@ -25,7 +25,7 @@ class Material {
         this.config = new RenderConfig();
     }
 
-    final void set(const(Uniform) delegate()[] uniforms) {
+    final void set(Uniform delegate()[] uniforms) {
         this.config.set();
         this.program.use();
         import std.algorithm;
@@ -165,7 +165,7 @@ class Material {
         invariant {
             import std.traits, std.format;
             static foreach (i, type; FieldTypeTuple!(typeof(this))) {{
-                static if (is(typeof({const(Uniform) u = type.init;}))) {
+                static if (is(typeof({Uniform u = type.init;}))) {
                     enum name = FieldNameTuple!(typeof(this))[i];
                     mixin(format!q{
                         assert(this.%s !is null, "%s is null.");
@@ -180,12 +180,12 @@ class Material {
             enum FieldName = FieldNameTuple!(typeof(this));
             static foreach (i, Type; FieldTypeTuple!(typeof(this))) {{
                 enum name = FieldName[i];
-                static if (is(typeof({const(Uniform) u = Type.init;}))) {
-                    const(Uniform) u = mixin(name);
+                static if (is(typeof({Uniform u = Type.init;}))) {
+                    Uniform u = mixin(name);
                     program.applyUniform(u);
                 } else static if (isArray!(Type) || isAssociativeArray!(Type)) {
                     alias ElementType = ForeachType!(Type);
-                    static if (is(typeof({const(Uniform) u = ElementType.init;}))) {
+                    static if (is(typeof({Uniform u = ElementType.init;}))) {
                         foreach (val; mixin(name)) {
                             program.applyUniform(val);
                         }
@@ -194,7 +194,7 @@ class Material {
             }}
         }
 
-        private enum isUniformAssignable(T) = is(typeof({const(Uniform) u = T.init;}));
+        private enum isUniformAssignable(T) = is(typeof({Uniform u = T.init;}));
     }
 
     mixin template ConfigureMaterial(string configStr="{}") {
@@ -214,7 +214,7 @@ class Material {
         override void replaceUniformName(string delegate(string) replacer) {
             import std.traits;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
-                static if (is(typeof({const(Uniform) u = type.init;}))) {
+                static if (is(typeof({Uniform u = type.init;}))) {
                     auto u = &mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
                     u.setName(replacer(u.getName));
                 }
@@ -276,7 +276,7 @@ class Material {
         override void replaceUniformName(string delegate(string) replacer) {
             import std.traits;
             foreach (i, type; FieldTypeTuple!(typeof(this))) {
-                static if (is(typeof({const(Uniform) u = type.init;}))) {
+                static if (is(typeof({Uniform u = type.init;}))) {
                     auto u = mixin("this." ~ FieldNameTuple!(typeof(this))[i]);
                     u.setName(replacer(u.getName));
                 }

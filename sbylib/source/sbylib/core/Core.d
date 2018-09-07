@@ -115,6 +115,7 @@ class Core {
             stdout.flush();
             return window.shouldClose() || endFlag;
         });
+        GlFunction().save();
         debug {
             import std.file;
             write("process.log", "");
