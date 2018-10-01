@@ -22,7 +22,9 @@ private mixin template CreatePath(string prefix, bool enableReadLibray) {
     private string _path;
 
     this(string path, string callerFile = __FILE__) {
-        this._path = prefix ~ path;
+        import std.algorithm;
+        this._path = path;
+        if (!path.startsWith(prefix)) this._path = prefix ~ _path;
 
         static if (enableReadLibray) {
             import std.file : exists;
