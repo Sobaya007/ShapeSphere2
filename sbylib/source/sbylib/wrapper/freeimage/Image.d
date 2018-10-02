@@ -8,6 +8,11 @@ class Image {
 
     private FIBITMAP* bitmap;
 
+    this(int width, int height, int channels, ImageType type) {
+        auto bpp = channels * getTypeBits(type);
+        this(FreeImage_AllocateT(type, width, height, bpp));
+    }
+
     this(int width, int height, int bpp) {
         this(FreeImage_Allocate(width, height, bpp));
     }
@@ -22,6 +27,10 @@ class Image {
         FreeImage_Unload(bitmap);
     }
 
+    auto to32bit() {
+        return new Image(FreeImage_ConvertTo32Bits(bitmap));
+    }
+
     int getWidth() {
         return FreeImage_GetWidth(bitmap);
     }
@@ -34,12 +43,16 @@ class Image {
         return FreeImage_GetBPP(bitmap);
     }
 
-    ubyte* getBits() {
+    uint getChannels() {
+        return getBPP() / getTypeBits(getImageType());
+    }
+
+    void* getBits() {
         return FreeImage_GetBits(bitmap);
     }
 
-    ubyte[] getData() {
-        return getBits[0..getWidth() * getHeight() * getBPP() / 8];
+    T[] getData(T=ubyte)() {
+        return (cast(T*)getBits)[0..getWidth() * getHeight() * getBPP() / (8*T.sizeof)];
     }
 
     ImageType getImageType() {
@@ -58,7 +71,7 @@ class Image {
                 break;
             case ".jpeg":
             case ".jpg":
-                saveAsExr(path);
+                saveAsJpeg(path);
                 break;
             case ".png":
                 saveAsPng(path);
@@ -144,5 +157,24 @@ class Image {
         auto saveResult = FreeImage_Save(fmt, bitmap, path.toStringz, option);
 
         assert(saveResult, format!"Failed to Save '%s'"(path));
+    }
+
+    private int getTypeBits(ImageType type) {
+        import std.conv;
+        final switch(type) {
+        case ImageType.Unknown: assert(false, "Invalid Enum: " ~ type.to!string);
+        case ImageType.Bitmap: return 8;
+        case ImageType.Rgb16: return 16;
+        case ImageType.Rgba16: return 16;
+        case ImageType.Rgbf: return 32;
+        case ImageType.Rgbaf: return 32;
+        case ImageType.Uint16: return 16;
+        case ImageType.Int16: return 16;
+        case ImageType.Uint32: return 32;
+        case ImageType.Int32: return 32;
+        case ImageType.Float: return 32;
+        case ImageType.Double: return 64;
+        case ImageType.Complex: return 128;
+        }
     }
 }

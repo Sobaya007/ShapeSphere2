@@ -9,13 +9,9 @@ import derelict.freeimage.freeimage;
 
 class ImageLoader {
     static Image load(string path) {
-        import std.stdio, std.string;
         auto format = getFormat(path);
         assert(format != ImageFormat.Unknown, path ~ " was not found.");
-        auto origin = load(format, path);
-        FIBITMAP* bitmap = FreeImage_ConvertTo32Bits(origin);
-        FreeImage_Unload(origin);
-
+        auto bitmap = load(format, path);
         return new Image(bitmap);
     }
 

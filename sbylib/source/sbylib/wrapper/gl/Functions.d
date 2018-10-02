@@ -73,7 +73,7 @@ class GlFunction {
             alias Params = Parameters!(mixin(Member));
 
             auto opDispatch(Params args) {
-                scope(exit) checkError!(member, Params)();
+                scope(exit) checkError!(member, Params)(args);
                 static if (MEASURE_TIME) {
                     import std.datetime.stopwatch;
                     StopWatch sw;
@@ -89,7 +89,7 @@ class GlFunction {
                 // some template function
                 auto opDispatch(Args...)(Parameters!(mixin(Member~"!(Args)")) args) {
                     enum InstancedMember = Member ~ "!(Args)";
-                    scope(exit) checkError!(member ~ "!" ~ Args.stringof, Parameters!(mixin(Member~"!(Args)")))();
+                    scope(exit) checkError!(member ~ "!" ~ Args.stringof, Parameters!(mixin(Member~"!(Args)")))(args);
                     static if (MEASURE_TIME) {
                         import std.datetime.stopwatch;
                         StopWatch sw;
@@ -106,14 +106,19 @@ class GlFunction {
         }
     }
     
-    private void checkError(string funcName, Args...)() {
+    private void checkError(string funcName, Args...)(Args args) {
         debug {
             import sbylib.wrapper.glfw.GLFW;
             import std.conv : to;
             import std.format;
+            import std.stdio;
             if (GLFW.hasTerminated) return;
             auto errorCode = glGetError().to!GlErrorType;
             if (errorCode == GlErrorType.NoError) return;
+            writeln("args are:");
+            foreach (i, arg; args) {
+                writeln(Args[i].stringof, " ", arg);
+            }
             if (errorCode == GlErrorType.InvalidFramebufferOperation) {
                 auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER).to!FramebufferStatus;
                 assert(false, format!"%s : %s at %s(%s)"(errorCode, status, funcName, Args.stringof));
@@ -628,18 +633,43 @@ static:
 
     int getBitPerPixel(ImageInternalFormat iformat) {
         final switch (iformat) {
-            case ImageInternalFormat.R:
-                return 32;
-            case ImageInternalFormat.RG:
-                return 32;
-            case ImageInternalFormat.RGB:
-                return 32;
-            case ImageInternalFormat.RGB8:
-                return 24;
-            case ImageInternalFormat.RGBA:
-                return 32;
+            case ImageInternalFormat.R8I:
+            case ImageInternalFormat.R8UI:
+            case ImageInternalFormat.RG8I:
+            case ImageInternalFormat.RG8UI:
+            case ImageInternalFormat.RGB8I:
+            case ImageInternalFormat.RGB8UI:
+            case ImageInternalFormat.RGBA8I:
+            case ImageInternalFormat.RGBA8UI:
+                return 8;
+            case ImageInternalFormat.R16I:
+            case ImageInternalFormat.R16UI:
+            case ImageInternalFormat.R16F:
+            case ImageInternalFormat.RG16I:
+            case ImageInternalFormat.RG16UI:
+            case ImageInternalFormat.RG16F:
+            case ImageInternalFormat.RGB16I:
+            case ImageInternalFormat.RGB16UI:
+            case ImageInternalFormat.RGB16F:
+            case ImageInternalFormat.RGBA16I:
+            case ImageInternalFormat.RGBA16UI:
             case ImageInternalFormat.RGBA16F:
                 return 16;
+            case ImageInternalFormat.R:
+            case ImageInternalFormat.R32I:
+            case ImageInternalFormat.R32UI:
+            case ImageInternalFormat.R32F:
+            case ImageInternalFormat.RG:
+            case ImageInternalFormat.RG32I:
+            case ImageInternalFormat.RG32UI:
+            case ImageInternalFormat.RG32F:
+            case ImageInternalFormat.RGB:
+            case ImageInternalFormat.RGB32I:
+            case ImageInternalFormat.RGB32UI:
+            case ImageInternalFormat.RGB32F:
+            case ImageInternalFormat.RGBA:
+            case ImageInternalFormat.RGBA32I:
+            case ImageInternalFormat.RGBA32UI:
             case ImageInternalFormat.RGBA32F:
                 return 32;
             case ImageInternalFormat.Depth:

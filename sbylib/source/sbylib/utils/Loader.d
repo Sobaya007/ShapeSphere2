@@ -8,9 +8,9 @@ class ImageLoader {
     import FreeImage = sbylib.wrapper.freeimage.ImageLoader;
     import sbylib.wrapper.freeimage.Image;
 static:
-    private FreeImage.Image[ImagePath] cache;
+    private FreeImage.Image[string] cache;
 
-    Image load(ImagePath path, bool useCache=true, bool writeCache=true) {
+    Image load(string path, bool useCache=true, bool writeCache=true) {
         if (useCache) {
             if (auto r = path in cache) return *r;
         }

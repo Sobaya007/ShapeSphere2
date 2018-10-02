@@ -239,29 +239,89 @@ mixin template buildReadonly(Type, string name) {
           }("_"~name, name, "_"~name));
 }
 
-Texture generateTexture(Image image) {
-    auto bpp = image.getBPP();
-    ImageInternalFormat internalFormat;
-    ImageFormat imageFormat;
-    switch (bpp) {
-        case 8:
-            internalFormat = ImageInternalFormat.R;
-            imageFormat = ImageFormat.R;
-            break;
-        case 8*4:
-            internalFormat = ImageInternalFormat.RGBA;
-            imageFormat = ImageFormat.BGRA;
-            break;
-        default:
-            assert(false, "mendoi");
+import sbylib.wrapper.freeimage.Constants : FTImageType = ImageType;
+auto toGlInternalFormat(FTImageType type, uint channels) {
+    import std.conv;
+    final switch (type) {
+    case FTImageType.Unknown: assert(false, "Invalid Image Type: " ~ type.to!string);
+    case FTImageType.Bitmap: 
+        final switch (channels) {
+        case 1: return ImageInternalFormat.R;
+        case 2: return ImageInternalFormat.RG;
+        case 3: return ImageInternalFormat.RGB;
+        case 4: return ImageInternalFormat.RGBA;
+        }
+    case FTImageType.Uint16: 
+        final switch (channels) {
+        case 1: return ImageInternalFormat.R16UI;
+        case 2: return ImageInternalFormat.RG16UI;
+        case 3: return ImageInternalFormat.RGB16UI;
+        case 4: return ImageInternalFormat.RGBA16UI;
+        }
+    case FTImageType.Int16:
+        final switch (channels) {
+        case 1: return ImageInternalFormat.R16I;
+        case 2: return ImageInternalFormat.RG16I;
+        case 3: return ImageInternalFormat.RGB16I;
+        case 4: return ImageInternalFormat.RGBA16I;
+        }
+    case FTImageType.Uint32:
+        final switch (channels) {
+        case 1: return ImageInternalFormat.R32UI;
+        case 2: return ImageInternalFormat.RG32UI;
+        case 3: return ImageInternalFormat.RGB32UI;
+        case 4: return ImageInternalFormat.RGBA32UI;
+        }
+    case FTImageType.Int32:
+        final switch (channels) {
+        case 1: return ImageInternalFormat.R32I;
+        case 2: return ImageInternalFormat.RG32I;
+        case 3: return ImageInternalFormat.RGB32I;
+        case 4: return ImageInternalFormat.RGBA32I;
+        }
+    case FTImageType.Float:
+        final switch (channels) {
+        case 1: return ImageInternalFormat.R32F;
+        case 2: return ImageInternalFormat.RG32F;
+        case 3: return ImageInternalFormat.RGB32F;
+        case 4: return ImageInternalFormat.RGBA32F;
+        }
+    case FTImageType.Double:
+    case FTImageType.Complex:
+        assert(false, "Cannot create texture with this type: " ~ type.to!string);
+    case FTImageType.Rgb16:
+        assert(channels == 3);
+        return ImageInternalFormat.RGB16UI;
+    case FTImageType.Rgba16:
+        assert(channels == 4);
+        return ImageInternalFormat.RGBA16UI;
+    case FTImageType.Rgbf:
+        assert(channels == 3);
+        return ImageInternalFormat.RGB32F;
+    case FTImageType.Rgbaf:
+        assert(channels == 4);
+        return ImageInternalFormat.RGBA32F;
     }
-    return new Texture(TextureTarget.Tex2D, 0, internalFormat, image.getWidth(), image.getHeight(), imageFormat, image.getBits());
 }
 
-Image generateImage(Texture texture) {
+Texture generateTexture(Image image) {
+    ImageFormat imageFormat;
+    auto type = image.getImageType();
+    auto channels = image.getChannels();
+    auto internalFormat = toGlInternalFormat(type, channels);
+    final switch(channels) {
+    case 1: imageFormat = ImageFormat.R; break;
+    case 2: imageFormat = ImageFormat.RG; break;
+    case 3: imageFormat = ImageFormat.BGR; break;
+    case 4: imageFormat = ImageFormat.BGRA; break;
+    }
+    return new Texture(TextureTarget.Tex2D, 0, internalFormat, image.getWidth(), image.getHeight(), imageFormat, cast(ubyte*)image.getBits());
+}
+
+Image generateImage(T=ubyte)(Texture texture) {
     import sbylib.wrapper.gl.Functions;
     auto img = new Image(texture.width, texture.height, GlUtils.getBitPerPixel(texture.internalFormat));
-    texture.blitsTo(img.getBits, ImageFormat.BGRA);
+    texture.blitsTo(cast(T*)img.getBits, ImageFormat.BGRA);
     return img;
 }
 
