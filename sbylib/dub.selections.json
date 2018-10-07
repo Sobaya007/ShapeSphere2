@@ -6,6 +6,7 @@
 		"derelict-ft": "2.0.0-beta.4",
 		"derelict-gl3": "2.0.0-beta.6",
 		"derelict-glfw3": "4.0.0-beta.1",
-		"derelict-util": "3.0.0-beta.2"
+		"derelict-util": "3.0.0-beta.2",
+		"sbylib-fi": "~master"
 	}
 }

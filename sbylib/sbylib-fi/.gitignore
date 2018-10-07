@@ -1,0 +1,14 @@
+.dub
+docs.json
+__dummy.html
+docs/
+sbylib-fi.so
+sbylib-fi.dylib
+sbylib-fi.dll
+sbylib-fi.a
+sbylib-fi.lib
+sbylib-fi-test-*
+*.exe
+*.o
+*.obj
+*.lst
