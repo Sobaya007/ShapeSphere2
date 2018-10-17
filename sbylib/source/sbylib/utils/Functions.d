@@ -609,9 +609,9 @@ void configure3D(World world, Camera camera, IRenderTarget target = Core().getWi
 }
 
 mixin template ImplPositionSetter(alias width, alias height) {
-    
+
     float left(float value) {
-        this.pos.x = value + width/2;
+        this.pos.x(value + width/2);
         return value;
     }
 

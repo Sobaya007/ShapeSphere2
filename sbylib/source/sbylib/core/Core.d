@@ -81,7 +81,6 @@ class Core {
         GL.init();
         GLFW.init();
         FreeType.init();
-        FreeImage.init();
         this.fpsBalancer = new FpsBalancer(config.fps);
         this.universe = new Universe(true); //notify this universe is special
     }
