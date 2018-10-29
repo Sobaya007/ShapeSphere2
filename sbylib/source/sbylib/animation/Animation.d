@@ -252,10 +252,10 @@ auto translate(Entity entity, AnimSetting!vec2 evaluator) {
     return animation((vec2 tr) => e.pos = vec3(tr, 0), evaluator);
 }
 
-auto rotate(Entity entity, AnimSetting!Radian evaluator) {
+auto rotate(Entity entity, AnimSetting!Angle evaluator) {
     import sbylib.math.Matrix;
     auto e = entity;
-    return animation((Radian rad) => e.rot = mat3.axisAngle(vec3(0,0,1), rad), evaluator);
+    return animation((Angle rad) => e.rot = mat3.axisAngle(vec3(0,0,1), rad), evaluator);
 }
 
 auto multi(Animations...)(Animations animations) {

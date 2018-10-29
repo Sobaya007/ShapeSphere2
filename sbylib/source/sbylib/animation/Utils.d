@@ -69,6 +69,6 @@ AnimationBuilder rot(vec3 axis, Angle arrival, Frame period, EaseFunc ease) {
     import sbylib.math.Matrix;
     return new AnimationBuilder((Entity e) {
         mat3 dst = e.rot;
-        return animation((Radian r) { e.rot = dst * mat3.axisAngle(axis, r); }, setting(0.rad, arrival.asRad, period, ease));
+        return animation((Angle r) { e.rot = dst * mat3.axisAngle(axis, r); }, setting(0.rad, arrival, period, ease));
     });
 }
